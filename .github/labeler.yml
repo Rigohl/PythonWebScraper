@@ -1,0 +1,9 @@
+type/feature:
+  - "src/**"
+  - "**/*.ipynb"
+type/docs:
+  - "**/*.md"
+type/chore:
+  - ".github/**"
+ci:
+  - ".github/workflows/**"

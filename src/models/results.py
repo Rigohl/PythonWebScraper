@@ -25,6 +25,7 @@ class ScrapeResult(BaseModel):
     healing_events: Optional[List[dict]] = None
 
     # Metadata and metrics
+    content_hash: Optional[str] = None
     visual_hash: Optional[str] = None
     error_message: Optional[str] = None
     retryable: bool = False

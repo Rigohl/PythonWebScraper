@@ -1,0 +1,16 @@
+name: Close stale issues
+on:
+  schedule: [ { cron: "0 2 * * *" } ]
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 45
+          days-before-close: 7
+          stale-issue-label: "status/needs-triage"
+          stale-pr-label: "status/in-review"
+          exempt-issue-labels: "prio/P0-now,prio/P1-soon"
+          exempt-pr-labels: "prio/P0-now,prio/P1-soon"
+          operations-per-run: 200

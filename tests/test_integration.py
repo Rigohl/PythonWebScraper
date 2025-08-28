@@ -84,7 +84,7 @@ class TestIntegration(unittest.IsolatedAsyncioTestCase):
         self.db_manager = DatabaseManager(db_connection=self.db_connection)
         self.user_agent_manager = UserAgentManager(user_agents=["TestAgent/1.0"])
         # Usar mocks para LLM y RL ya que no son el foco de este test
-        self.llm_extractor = LLMExtractor(api_key="fake")
+        self.llm_extractor = LLMExtractor()
         self.rl_agent = RLAgent()
 
     async def test_full_crawl_simulation(self):
