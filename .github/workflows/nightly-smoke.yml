@@ -1,0 +1,46 @@
+name: Nightly Smoke (Scraper)
+on:
+  schedule: [ { cron: "0 4 * * *" } ]   # 04:00 UTC diario
+  workflow_dispatch:
+concurrency: { group: smoke-${{ github.ref }}, cancel-in-progress: true }
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install deps (best-effort)
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt || true; fi
+          pip install playwright || true
+          python -m playwright install --with-deps || true
+      - name: Run smoke to toscrape
+        if: ${{ hashFiles('src/**') != '' }}
+        run: |
+          set -e
+          mkdir -p artifacts
+          if [ -f "src/main.py" ]; then
+            python src/main.py --crawl https://books.toscrape.com/ || true
+          fi
+          if [ -f "logs/scraper_run.md" ]; then cp logs/scraper_run.md artifacts/; fi
+          if [ -d "data" ]; then tar -czf artifacts/data.tgz data || true; fi
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: nightly-artifacts, path: artifacts }
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Nightly smoke FAILED - ${new Date().toISOString()}`;
+            const body = `El smoke test falló. Revisa artifacts y logs.\n\n- Run: ${context.runId}\n- Branch: ${context.ref}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title, body,
+              labels: ["type/bug","prio/P1-soon","area/orchestrator","ci"]
+            });

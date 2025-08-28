@@ -1,0 +1,13 @@
+"area/tui":
+  - "src/**/tui*"
+  - "src/**/textual*"
+"area/orchestrator":
+  - "src/**/orchestrator*"
+"area/llm":
+  - "src/**/llm*"
+"area/database":
+  - "src/**/database*"
+"area/tests":
+  - "tests/**"
+".github/**":
+  - ".github/**"

@@ -1,0 +1,7 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule: { interval: "weekly" }
+    labels: [ "dependabot", "type/chore" ]
+    open-pull-requests-limit: 5
