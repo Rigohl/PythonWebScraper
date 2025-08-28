@@ -271,7 +271,7 @@ class ScraperTUIApp(App):
         db_manager = DatabaseManager(db_path=db_path)
         user_agent_manager = UserAgentManager(user_agents=settings.USER_AGENT_LIST)
         llm_extractor = LLMExtractor(api_key=settings.LLM_API_KEY)
-        rl_agent = RLAgent() if use_rl else None
+        rl_agent = RLAgent(model_path="./rl_model") if use_rl else None
 
         orchestrator = ScrapingOrchestrator(
             start_urls=start_urls, db_manager=db_manager, user_agent_manager=user_agent_manager,
@@ -286,6 +286,8 @@ class ScraperTUIApp(App):
             try:
                 await orchestrator.run(browser)
             finally:
+                if rl_agent:
+                    rl_agent.save_model() # Save the model on graceful shutdown
                 await browser.close()
 
     def action_quit(self) -> None:

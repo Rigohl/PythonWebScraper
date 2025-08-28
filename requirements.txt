@@ -9,6 +9,10 @@ robotexclusionrulesparser
 playwright-stealth
 pydantic-settings
 pydantic-settings
+stable-baselines3
+gymnasium
+openai
+instructor
 
 # Development dependencies
 pre-commit==3.7.0

@@ -1,3 +1,5 @@
+import pytest
+
 @pytest.mark.asyncio
 async def test_extract_title_from_local_html(html_file, mock_page, mock_db_manager, mock_llm_extractor):
     """
