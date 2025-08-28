@@ -1,0 +1,85 @@
+/* Layout principal con porcentajes */
+#app-grid {
+    layout: grid;
+    grid-size: 2;
+    grid-gutter: 1 2;
+    /* Panel izquierdo 35%, panel derecho el resto */
+    grid-columns: 35% 1fr;
+}
+
+/* Estilo para el panel de configuración (izquierda) */
+#left-pane {
+    border: tall $primary;
+}
+
+/* Estilo para el panel de logs (derecha) */
+#right-pane {
+    padding: 0 1;
+    border: tall $primary;
+}
+
+/* Contenedor para los botones de acción y progreso debajo de las pestañas */
+#actions-pane {
+    padding: 0 1;
+}
+
+/* Ajustes para el contenido dentro de las pestañas */
+TabPane {
+    margin-top: 1;
+    padding: 0 1;
+}
+
+/* Contenedor para la barra de progreso */
+#progress-container {
+    margin-top: 2;
+    padding: 1;
+    border: round $primary;
+}
+
+/* Botón de salir al final */
+#quit_button {
+    width: 100%;
+    margin-top: 1;
+}
+
+/* Estilos generales para la aplicación */
+App {
+    background: $surface;
+    color: $text;
+}
+
+Header {
+    background: $accent;
+    color: $text;
+    text-align: center;
+    height: 3;
+}
+
+Footer {
+    background: $accent;
+    color: $text;
+    height: 2;
+}
+
+Input {
+    width: 100%;
+    margin-bottom: 1;
+}
+
+Button {
+    width: 100%;
+    margin-top: 1;
+}
+
+/* Estilos para la barra de progreso y el label de estadísticas */
+#progress_bar {
+    width: 100%;
+    height: 1;
+    margin-top: 1;
+}
+
+#stats_label {
+    text-align: center;
+    margin-top: 1;
+    color: $text-muted;
+}
