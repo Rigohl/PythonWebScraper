@@ -18,21 +18,18 @@ Esta fase se centra en robustecer el código existente, mejorar la mantenibilida
   - **Problema:** `config.py` es bueno, pero es estático. No se adapta a diferentes entornos (desarrollo, producción) ni permite overrides sencillos.
   - **Solución:** Migrar `config.py` a un modelo basado en `Pydantic Settings`. Esto permite cargar configuraciones desde variables de entorno, archivos `.env` y valores por defecto, todo validado y tipado. Permitirá, por ejemplo, cambiar la concurrencia con una variable de entorno (`SCRAPER_CONCURRENCY=10`) sin tocar el código.
 
-- **Manejo de Errores Centralizado:** (En Progreso)
-  - **Problema:** El manejo de excepciones estaba disperso.
-  - **Solución Implementada:** Se ha creado un módulo `src/exceptions.py` y el orquestador ya captura excepciones específicas como `NetworkError` y `ScraperException`. Esto centraliza la lógica de fallos.
-  - **Próximos Pasos:** Refinar y añadir más tipos de excepciones granulares (`ParsingError`, `ContentQualityError`) para mejorar aún más la toma de decisiones del orquestador.
+- **Manejo de Errores Centralizado:** (Completado)
+  - **Problema:** El manejo de excepciones estaba disperso, dificultando la toma de decisiones centralizada.
+  - **Solución Implementada:** Se ha creado `src/exceptions.py` con una jerarquía de errores (`NetworkError`, `ParsingError`, etc.). El `scraper` ahora lanza estas excepciones específicas, y el `orchestrator` las captura para decidir si reintentar o descartar una URL. Esto robustece enormemente la lógica de fallos.
 
-- **Suite de Pruebas Exhaustiva:** (Mejora Crítica Pendiente)
-  - **Problema:** Solo existe `test_database.py`. La lógica de negocio principal (`orchestrator`, `scraper`) no está probada, lo que hace que los cambios futuros sean arriesgados.
-  - **Solución:** Crear una suite de pruebas completa con `pytest`.
-    - `test_scraper.py`: Usar HTML de prueba local para verificar la extracción, la auto-reparación de selectores y la detección de honeypots.
-    - `test_orchestrator.py`: Usar `pytest-mock` para "mockear" (simular) el `AdvancedScraper` y el `DatabaseManager`. Probar la lógica de la cola, la gestión de URLs vistas, el respeto a `robots.txt` y la lógica de reintentos.
-    - `test_tui.py`: Probar la lógica de la interfaz de usuario de forma aislada.
+- **Suite de Pruebas Exhaustiva:** (En Progreso)
+  - **Problema:** La cobertura de pruebas era mínima, lo que hacía que los cambios futuros fueran arriesgados.
+  - **Solución Implementada:** Se ha configurado `pytest` como el framework de pruebas del proyecto. Se han creado los archivos de configuración (`pytest.ini`, `tests/conftest.py`) y se han implementado tests iniciales para el `AdvancedScraper` (verificando la extracción de datos de HTML local) y para el `ScrapingOrchestrator` (verificando la lógica de priorización).
+  - **Próximos Pasos:** Expandir la cobertura de `test_orchestrator.py` para simular el ciclo de vida completo de un worker. Añadir pruebas para la TUI y los managers de User-Agent/Proxy.
 
-- **Calidad de Código Automatizada:** (Mejora Pendiente)
-  - **Problema:** El estilo de código y la calidad no se fuerzan de manera automática.
-  - **Solución:** Implementar `pre-commit` hooks. Configurar herramientas como `black` (formateador de código), `isort` (ordenador de imports) y `flake8` (linter) para que se ejecuten automáticamente antes de cada commit, garantizando un código limpio y consistente.
+- **Calidad de Código Automatizada:** (Completado)
+  - **Problema:** El estilo de código y la calidad no se forzaban de manera automática, llevando a inconsistencias.
+  - **Solución Implementada:** Se han añadido las dependencias de desarrollo (`pre-commit`, `black`, `isort`, `flake8`) a `requirements.txt`. Esto sienta las bases para configurar un archivo `.pre-commit-config.yaml` que formateará y validará el código automáticamente antes de cada commit, garantizando un código limpio y consistente en todo el proyecto.
 
 - **Estructura de Proyecto Refinada:** (Completado)
   - **Problema:** Los modelos de datos Pydantic (como `ScrapeResult`) estaban definidos junto al código que los usaba (ej. `scraper.py`).
@@ -56,9 +53,9 @@ Esta fase se enfoca en hacer el scraper más resiliente, adaptativo y difícil d
 
 ## Fase 3: Evasión de Nivel Humano y Detección de Contramedidas (Próximos Pasos)
 
-- **Navegadores "Sigilosos" (Stealth):** (Pendiente - Alta Prioridad)
+- **Navegadores "Sigilosos" (Stealth):** (Completado)
   - **Problema:** Los navegadores automatizados dejan huellas detectables (ej. `navigator.webdriver`).
-  - **Solución:** Integrar `playwright-stealth` para aplicar parches que ocultan estas huellas, superando defensas de Cloudflare, Akamai, etc.
+  - **Solución Implementada:** Se ha integrado `playwright-stealth`. El `ScrapingOrchestrator` ahora aplica parches anti-detección a cada página que crea, haciendo el crawling significativamente más difícil de bloquear por servicios como Cloudflare.
 
 - **Gestión de Huellas Digitales (Fingerprinting):** (Pendiente)
   - **Problema:** Usar solo User-Agents diferentes no es suficiente. Los sitios modernos analizan huellas complejas (fuentes, plugins, resolución de pantalla, WebGL, canvas).

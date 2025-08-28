@@ -46,6 +46,7 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 4. **Trabajadores (Workers):** Se lanza un número configurable de "trabajadores" asíncronos. Cada trabajador es una tarea que se ejecuta en un bucle infinito, esperando URLs en la cola.
 5. **Inteligencia y Adaptación:** El orquestador integra módulos para:
     - **Rotación de User-Agents:** Gestiona un pool de User-Agents para simular diferentes navegadores y reducir la probabilidad de bloqueo.
+    - **Navegación Sigilosa (Stealth):** Gracias a la integración con `playwright-stealth`, cada página se parchea automáticamente para ocultar las huellas típicas de la automatización, superando muchas defensas anti-bot.
     - **Integración con LLMs:** La arquitectura incluye un `LLMExtractor` que actualmente se usa para limpiar y resumir el contenido extraído, mejorando la calidad de los datos guardados.
     - **Selectores Auto-reparables (Self-Healing):** Si un selector CSS para extraer datos específicos (definido en `config.py`) falla, el scraper busca en su historial el texto del dato extraído previamente y lo localiza en la nueva página, generando un nuevo selector y reportando el evento.
     - **Optimización por RL (WIP):** Se ha diseñado un esqueleto para un agente de Aprendizaje por Refuerzo (`rl_agent.py`) que en el futuro podrá optimizar dinámicamente la estrategia de scraping (retrasos, reintentos, etc.).

@@ -1,5 +1,5 @@
 import dataset
-from src.scraper import ScrapeResult
+from src.models.results import ScrapeResult
 import os
 import json
 

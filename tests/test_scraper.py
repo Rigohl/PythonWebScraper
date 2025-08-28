@@ -1,9 +1,8 @@
 import pytest
-import pytest_asyncio
 from unittest.mock import AsyncMock, MagicMock
 import os
 from src.scraper import AdvancedScraper
-from src.models.results import ScrapeResult # Assuming ScrapeResult is defined here
+from src.models.results import ScrapeResult
 
 # Mock Playwright Page and its methods
 @pytest.fixture
@@ -58,7 +57,7 @@ async def test_extract_title_from_local_html(html_file, mock_page, mock_db_manag
     # Assert that the extracted title is correct
     assert result.status == "SUCCESS"
     assert result.title == "Test Title"
-    
+
     # Verify that page.goto and page.content were called
     mock_page.goto.assert_called_once_with(file_url, wait_until="domcontentloaded", timeout=30000)
     mock_page.content.assert_called_once()

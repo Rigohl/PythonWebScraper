@@ -2,6 +2,7 @@ import asyncio
 import logging
 from urllib.parse import urlparse, urlunparse, ParseResult
 from playwright.async_api import Browser
+from playwright_stealth import stealth_async
 from src.scraper import AdvancedScraper
 import imagehash
 from robotexclusionrulesparser import RobotExclusionRulesParser
@@ -127,6 +128,7 @@ class ScrapingOrchestrator:
             self.logger.info(f"Trabajador {worker_id} procesando: {url} (Prioridad: {priority})")
 
             page = await browser.new_page()
+            await stealth_async(page) # Aplicar parches anti-detección
             await page.route("**/*", self._block_unnecessary_requests)
             scraper = AdvancedScraper(page, self.db_manager, self.llm_extractor)
 
