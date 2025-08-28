@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     DEFAULT_DELAY: int = 1
     MAX_RETRIES: int = 3
     INITIAL_RETRY_BACKOFF_FACTOR: int = 2
+    REPETITIVE_PATH_THRESHOLD: int = 2
+    MAX_REDIRECTS: int = 10
+    ALLOWED_CONTENT_TYPES: List[str] = ["text/html", "application/xhtml+xml"]
 
     # --- User‑Agent and proxies ---
     USER_AGENT: str = "PythonWebScraperPRO/1.0"

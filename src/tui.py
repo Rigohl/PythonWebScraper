@@ -396,6 +396,7 @@ class ScraperTUIApp(App):
             user_agent_manager=user_agent_manager,
             llm_extractor=llm_extractor,
             rl_agent=rl_agent,
+            frontier_classifier=FrontierClassifier(), # Instantiate FrontierClassifier
             concurrency=concurrency,
             respect_robots_txt=respect_robots_txt,
             use_rl=use_rl,

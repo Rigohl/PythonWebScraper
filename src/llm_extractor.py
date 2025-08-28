@@ -100,7 +100,7 @@ class LLMExtractor:
                 model=settings.LLM_MODEL,  # Use settings.LLM_MODEL
                 response_model=DynamicSchema,
                 messages=[
-                    {"role": "system", "content": "You are an expert data extraction bot. Extract information from the provided HTML content based on the user's schema רבי"},
+                    {"role": "system", "content": "You are an expert data extraction bot. Extract information from the provided HTML content based on the user's schema."},
                     {"role": "user", "content": f"Extract the following information from the HTML content:\n\nHTML:\n{html_content}\n\nSchema: {schema_dict}"
                     }
                 ]
