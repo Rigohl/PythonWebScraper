@@ -61,7 +61,7 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 
 1. **Inicio:** El proceso comienza con una o más URLs iniciales.
 2. **Cola de Trabajo:** Estas URLs se añaden a una cola de prioridad (`asyncio.PriorityQueue`), dando preferencia a las URLs que probablemente sean más importantes (ej. con menor profundidad de ruta y según el tipo de contenido de la página padre).
-3. **Comprobación de `robots.txt`:** El scraper respeta las directivas de `robots.txt` por defecto para un comportamiento ético. Esta opción se puede desactivar desde la interfaz.
+3. **Pre-calificación y `robots.txt`:** Antes de encolar una URL, el sistema realiza una petición `HEAD` ultrarrápida para verificar que el tipo y tamaño del contenido son adecuados, descartando archivos grandes o no deseados sin necesidad de abrir un navegador. A continuación, respeta las directivas de `robots.txt` por defecto para un comportamiento ético (opción configurable).
 4. **Trabajadores (Workers):** Se lanza un número configurable de "trabajadores" asíncronos. Cada trabajador es una tarea que se ejecuta en un bucle infinito, esperando URLs en la cola.
 5. **Inteligencia y Adaptación:** El orquestador integra módulos para:
     - **Rotación de User-Agents:** Gestiona un pool de User-Agents para simular diferentes navegadores y reducir la probabilidad de bloqueo.
@@ -70,12 +70,13 @@ El proceso de scraping es gestionado por un orquestador concurrente:
     - **Integración con LLMs:** La arquitectura incluye un `LLMExtractor` que actualmente se usa para limpiar y resumir el contenido extraído, mejorando la calidad de los datos guardados.
     - **Selectores Auto-reparables (Self-Healing):** Si un selector CSS para extraer datos específicos (definido en `config.py`) falla, el scraper busca en su historial el texto del dato extraído previamente y lo localiza en la nueva página, generando un nuevo selector y reportando el evento.
     - **Optimización por RL (WIP):** Se ha diseñado un esqueleto para un agente de Aprendizaje por Refuerzo (`rl_agent.py`) que en el futuro podrá optimizar dinámicamente la estrategia de scraping (retrasos, reintentos, etc.).
+    - **Protección contra Bucles:** El sistema detecta y descarta automáticamente URLs que caen en patrones de ruta repetitivos (como calendarios infinitos) o que exceden un número máximo de redirecciones, evitando el consumo inútil de recursos.
 6. **Ciclo del Trabajador:**
     - **Extracción de Tarea:** Un trabajador toma una URL de la cola.
     - **Descarga y Análisis:** Usando una instancia de navegador compartida, el trabajador navega a la URL. Si la página falla por un error temporal, la reintentará varias veces. Una vez cargada, la procesa con el `AdvancedScraper` para extraer contenido y **enlaces visibles** (ignorando honeypots).
     - **Limpieza Inteligente:** El texto extraído se procesa a través de un módulo de LLM para eliminar "información basura" como menús, pies de página o anuncios, asegurando que solo se guarde el contenido de alta calidad.
-    - **Validación y Persistencia:** El resultado se valida con `Pydantic` y se guarda en la base de datos SQLite, incluyendo metadatos de linaje.
-    - **Descubrimiento:** Si el scraping fue exitoso, los enlaces encontrados se analizan. Aquellos que pertenecen al mismo dominio y no han sido vistos antes, se añaden a la cola de trabajo.
+    - **Validación y Persistencia:** El resultado se valida con `Pydantic`. Antes de guardarlo, se calcula un hash del contenido. Si ya existe una página con el mismo contenido en la base de datos, se marca como `DUPLICATE` para evitar redundancia y procesar enlaces innecesarios. Finalmente, se guarda en la base de datos SQLite.
+    - **Descubrimiento:** Si el scraping fue exitoso y no es un duplicado, los enlaces encontrados se analizan. Aquellos que pertenecen al mismo dominio y no han sido vistos antes, se añaden a la cola de trabajo para continuar el ciclo.
 7. **Finalización:** El proceso continúa hasta que la cola se vacía y todos los trabajadores están inactivos. En ese momento, el orquestador cierra el navegador y finaliza.
 
 ---

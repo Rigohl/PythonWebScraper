@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import hashlib
 from datetime import datetime, timezone # Added import
 from readability import Document
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError, Locator
@@ -72,6 +73,7 @@ class AdvancedScraper:
 
             # 4. Análisis de calidad sobre el texto limpio
             self._validate_content_quality(cleaned_text, title)
+            content_hash = hashlib.sha256(cleaned_text.encode('utf-8')).hexdigest()
 
             # 5. Extracción de enlaces y metadatos
             soup = BeautifulSoup(content_html, 'html.parser')
@@ -85,7 +87,7 @@ class AdvancedScraper:
             end_time = datetime.now(timezone.utc)
             return ScrapeResult(
                 status="SUCCESS", url=url, title=title, content_text=cleaned_text, content_html=content_html,
-                links=visible_links, visual_hash=visual_hash,
+                links=visible_links, visual_hash=visual_hash, content_hash=content_hash,
                 http_status_code=response.status if response else None,
                 crawl_duration=(end_time - start_time).total_seconds(),
                 content_type=self._classify_content(title, cleaned_text),

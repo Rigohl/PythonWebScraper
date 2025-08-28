@@ -47,9 +47,9 @@ Esta fase se enfoca en hacer el scraper más resiliente, adaptativo y difícil d
 - **Selectores "Auto-reparables":** (Completado)
 - **Scraping Ético:** (Completado) Soporte para `robots.txt`.
 
-- **Protección contra Bucles y Trampas:** (Pendiente)
-  - **Problema:** El scraper puede caer en "trampas" de crawling (ej. calendarios con enlaces infinitos) o bucles de redirección.
-  - **Solución:** Implementar un detector de patrones de URL repetitivos (ej. `/a/b/a/b/a/b`) y un contador de redirecciones por URL para descartarlas si exceden un umbral.
+- **Protección contra Bucles y Trampas:** (Completado)
+  - **Problema:** El scraper podía caer en "trampas" de crawling (ej. calendarios con enlaces infinitos) o bucles de redirección.
+  - **Solución Implementada:** Se ha implementado un detector de patrones de URL repetitivos (ej. `/a/b/a/b`) y un contador de redirecciones por URL para descartarlas si exceden un umbral configurable. Esto previene que el crawler caiga en bucles y consuma recursos inútilmente.
 
 - **Límites de Rastreo Configurables:** (Pendiente)
   - **Problema:** Un crawl puede crecer sin control, consumiendo recursos excesivos.
@@ -128,9 +128,9 @@ Esta fase convierte el scraper de una herramienta reactiva a un agente proactivo
 
 ## Fase 6: Integridad y Calidad de Datos
 
-- **Gestión de Duplicados por Contenido:** (Pendiente)
-  - **Problema:** URLs con parámetros diferentes pueden apuntar al mismo contenido, causando trabajo redundante.
-  - **Solución:** Implementar un hash de contenido (ej. SHA256 del texto limpio). Antes de guardar un resultado, verificar si el hash ya existe en la base de datos para marcarlo como `DUPLICATE` y evitar procesar sus enlaces.
+- **Gestión de Duplicados por Contenido:** (Completado)
+  - **Problema:** URLs con parámetros diferentes pueden apuntar al mismo contenido, causando trabajo redundante y datos sucios.
+  - **Solución Implementada:** El scraper ahora calcula un hash SHA256 del texto limpio de cada página. Antes de guardar un resultado, el `DatabaseManager` comprueba si ya existe un registro con el mismo hash. Si es así, la nueva página se marca como `DUPLICATE` y sus enlaces no se añaden a la cola, ahorrando recursos y manteniendo la base de datos limpia.
 
 ---
 
@@ -161,9 +161,9 @@ Esta fase prepara el proyecto para operar a gran escala y ser extensible.
 
 ## Fase 8: Optimización de Velocidad Extrema
 
-- **Pre-calificación de URLs con `HEAD`:** (Pendiente)
-  - **Problema:** Lanzar un navegador completo para descubrir que una URL es un archivo PDF de 50MB es un desperdicio de recursos.
-  - **Solución:** Antes de enviar una URL a un worker de Playwright, el orquestador puede hacer una petición `HEAD` ultrarrápida con `httpx`. Esto permite inspeccionar las cabeceras `Content-Type` y `Content-Length`. Si el tipo de contenido no es deseado (ej. `application/zip`) o el tamaño es excesivo, la URL se descarta sin iniciar un navegador.
+- **Pre-calificación de URLs con `HEAD`:** (Completado)
+  - **Problema:** Lanzar un navegador completo solo para descubrir que una URL apunta a un archivo grande (ej. un PDF de 50MB) es un enorme desperdicio de recursos.
+  - **Solución Implementada:** Antes de encolar una nueva URL, el orquestador ahora realiza una petición `HEAD` asíncrona y ultrarrápida. Esto le permite inspeccionar las cabeceras `Content-Type` y `Content-Length` para descartar al instante enlaces a tipos de archivo no deseados o a contenidos que exceden un tamaño máximo configurable, acelerando drásticamente el crawl.
 
 - **Descubrimiento y Explotación de APIs Ocultas (Prioridad Alta):** (Pendiente)
   - **Problema:** El scraping de HTML renderizado es lento y frágil.

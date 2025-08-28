@@ -10,6 +10,9 @@ DEFAULT_DELAY = 1  # Segundos de espera entre peticiones por trabajador
 MAX_RETRIES = 3
 INITIAL_RETRY_BACKOFF_FACTOR = 2  # Segundos. backoff = factor * (2 ** (retry_attempt))
 
+# --- Configuración de Límites de Rastreo ---
+MAX_REDIRECTS = 5 # Número máximo de redirecciones antes de descartar una URL.
+
 # --- User-Agent y Proxies ---
 USER_AGENT = "PythonWebScraperPRO/1.0" # Default User-Agent if not using rotation
 USER_AGENT_LIST = [
