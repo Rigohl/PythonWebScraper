@@ -7,7 +7,7 @@ from src.scraper import AdvancedScraper
 import imagehash
 from robotexclusionrulesparser import RobotExclusionRulesParser
 from src.database import DatabaseManager
-from src import config
+from src.settings import settings
 from collections import defaultdict
 from src.models.results import ScrapeResult
 from src.exceptions import NetworkError, ScraperException
@@ -16,6 +16,7 @@ from src.exceptions import NetworkError, ScraperException
 from src.user_agent_manager import UserAgentManager
 from src.llm_extractor import LLMExtractor
 from src.rl_agent import RLAgent
+from src.fingerprint_manager import FingerprintManager
 
 logger = logging.getLogger(__name__)
 
@@ -26,17 +27,20 @@ class ScrapingOrchestrator:
     """
     def __init__(self, start_urls: list[str], db_manager: DatabaseManager,
                  user_agent_manager: UserAgentManager, llm_extractor: LLMExtractor,
-                 rl_agent: RLAgent | None = None, concurrency: int = config.CONCURRENCY,
-                 respect_robots_txt: bool = False, use_rl: bool = False):
+                 rl_agent: RLAgent | None = None, concurrency: int = settings.CONCURRENCY,
+                 respect_robots_txt: bool = False, use_rl: bool = False,
+                 stats_callback=None):
         self.start_urls = start_urls
         self.concurrency = concurrency
         self.db_manager = db_manager # Injected dependency
         self.user_agent_manager = user_agent_manager # Injected dependency
+        self.fingerprint_manager = FingerprintManager(user_agent_manager=self.user_agent_manager)
         if use_rl and not rl_agent:
             raise ValueError("RLAgent must be provisto cuando use_rl es True.")
         self.llm_extractor = llm_extractor # Injected dependency
         self.rl_agent = rl_agent # Injected dependency
         self.use_rl = use_rl
+        self.stats_callback = stats_callback # Para reportar a la TUI
 
         self.queue = asyncio.PriorityQueue()
         self.seen_urls = set()
@@ -51,7 +55,7 @@ class ScrapingOrchestrator:
             "low_quality": 0,
             "empty": 0,
             "failed": 0,
-            "current_backoff_factor": config.INITIAL_RETRY_BACKOFF_FACTOR,
+            "current_backoff_factor": settings.INITIAL_RETRY_BACKOFF_FACTOR,
             "last_action": None, # Para RL
             "last_state": None, # Para RL
             "last_reward": None # Para RL
@@ -60,7 +64,7 @@ class ScrapingOrchestrator:
     def _calculate_priority(self, url: str, parent_content_type: str = "UNKNOWN") -> int:
         """Calcula la prioridad de una URL. Menor número es mayor prioridad."""
         path_depth = urlparse(url).path.count('/')
-        content_priority = config.CONTENT_TYPE_PRIORITIES.get(parent_content_type, config.CONTENT_TYPE_PRIORITIES["UNKNOWN"])
+        content_priority = settings.CONTENT_TYPE_PRIORITIES.get(parent_content_type, settings.CONTENT_TYPE_PRIORITIES["UNKNOWN"])
 
         # Combinar profundidad y prioridad de contenido. Multiplicar para dar más peso a la profundidad.
         # O sumar, dependiendo de la estrategia deseada. Aquí, sumamos.
@@ -99,10 +103,10 @@ class ScrapingOrchestrator:
         if "adjust_backoff_factor" in actions:
             self.domain_metrics[domain]["current_backoff_factor"] *= actions["adjust_backoff_factor"]
             self.logger.debug(f"RL Agent ajusta backoff para {domain} a {self.domain_metrics[domain]['current_backoff_factor']:.2f}")
+        # El cambio de User-Agent ahora es manejado por el FingerprintManager y requiere
+        # la creación de una nueva página, por lo que se deshabilita temporalmente en el agente de RL.
         if "change_user_agent" in actions and actions["change_user_agent"]:
-            new_user_agent = self.user_agent_manager.get_user_agent() # Obtener otro UA
-            await page.set_extra_http_headers({"User-Agent": new_user_agent})
-            self.logger.debug(f"RL Agent cambia User-Agent para {domain} a {new_user_agent}")
+            self.logger.warning("RL Action 'change_user_agent' no es compatible con el nuevo mecanismo de fingerprinting y será ignorada.")
 
         return current_state, actions
 
@@ -114,7 +118,7 @@ class ScrapingOrchestrator:
 
     async def _block_unnecessary_requests(self, route):
         """Bloquea la carga de recursos no esenciales para acelerar el scraping."""
-        if route.request.resource_type in config.BLOCKED_RESOURCE_TYPES:
+        if route.request.resource_type in settings.BLOCKED_RESOURCE_TYPES:
             await route.abort()
         else:
             await route.continue_()
@@ -127,8 +131,32 @@ class ScrapingOrchestrator:
             priority, url = await self.queue.get()
             self.logger.info(f"Trabajador {worker_id} procesando: {url} (Prioridad: {priority})")
 
-            page = await browser.new_page()
-            await stealth_async(page) # Aplicar parches anti-detección
+            # --- Lógica de Fingerprinting ---
+            fingerprint = self.fingerprint_manager.get_fingerprint()
+            current_user_agent = fingerprint["user_agent"]
+
+            def _value_to_js_string(value):
+                if isinstance(value, bool): return 'true' if value else 'false'
+                if isinstance(value, (int, float)): return str(value)
+                return value # Asume que es un string pre-formateado para JS
+
+            script_lines = []
+            for key, value in fingerprint["js_overrides"].items():
+                obj, prop = key.rsplit('.', 1)
+                js_value = _value_to_js_string(value)
+                script_lines.append(f"Object.defineProperty({obj}, '{prop}', {{ get: () => {js_value} }});")
+            init_script = "\\n".join(script_lines)
+
+            page = await browser.new_page(
+                user_agent=current_user_agent,
+                viewport=fingerprint["viewport"]
+            )
+
+            # Aplicar evasiones: stealth primero, luego nuestras sobreescrituras específicas.
+            await stealth_async(page)
+            await page.add_init_script(init_script)
+            # --- Fin de la lógica de Fingerprinting ---
+
             await page.route("**/*", self._block_unnecessary_requests)
             scraper = AdvancedScraper(page, self.db_manager, self.llm_extractor)
 
@@ -136,30 +164,26 @@ class ScrapingOrchestrator:
             domain = urlparse(url).netloc
             current_backoff_factor = self.domain_metrics[domain]["current_backoff_factor"]
 
-            # Obtener User-Agent del manager
-            current_user_agent = self.user_agent_manager.get_user_agent()
-            await page.set_extra_http_headers({"User-Agent": current_user_agent})
-
             # RL: Aplicar acciones si está activado
             rl_state, rl_actions = None, None
             if self.use_rl:
                 rl_state, rl_actions = await self._apply_rl_actions(domain, page)
 
             # Obtener el esquema de extracción para el dominio actual
-            extraction_schema = config.EXTRACTION_SCHEMA.get(domain)
+            extraction_schema = settings.EXTRACTION_SCHEMA.get(domain)
 
-            for attempt in range(config.MAX_RETRIES + 1):
+            for attempt in range(settings.MAX_RETRIES + 1):
                 try:
                     result = await scraper.scrape(url, extraction_schema=extraction_schema,
                                                   proxy=None, user_agent=current_user_agent)
                     break  # Éxito, salir del bucle de reintentos
                 except NetworkError as e:
-                    self.logger.warning(f"URL {url} falló por error de red. Reintentando... (Intento {attempt + 1}/{config.MAX_RETRIES})")
-                    if attempt < config.MAX_RETRIES:
+                    self.logger.warning(f"URL {url} falló por error de red. Reintentando... (Intento {attempt + 1}/{settings.MAX_RETRIES})")
+                    if attempt < settings.MAX_RETRIES:
                         backoff_time = self.domain_metrics[domain]["current_backoff_factor"] * (2 ** attempt)
                         await asyncio.sleep(backoff_time)
                     else:
-                        self.logger.error(f"URL {url} falló tras {config.MAX_RETRIES} reintentos de red. Descartando.")
+                        self.logger.error(f"URL {url} falló tras {settings.MAX_RETRIES} reintentos de red. Descartando.")
                         result = ScrapeResult(status="RETRY", url=url, error_message=str(e), retryable=True)
                         break
                 except ScraperException as e:
@@ -214,6 +238,14 @@ class ScrapingOrchestrator:
                     self._check_for_visual_changes(result)
                     self.logger.warning(f"URL {url} procesada con estado {result.status}. Razón: {result.error_message}. Tipo: {result.content_type}")
 
+            # Reportar estadísticas si hay un callback
+            if self.stats_callback:
+                self.stats_callback({
+                    "processed": 1,
+                    "queue_size": self.queue.qsize(),
+                    "status": result.status if result else "UNKNOWN_FAILURE"
+                })
+
             self.queue.task_done()
 
     def _update_domain_metrics(self, result: ScrapeResult):
@@ -236,17 +268,17 @@ class ScrapingOrchestrator:
 
         low_quality_ratio = (metrics["low_quality"] + metrics["empty"]) / metrics["total_scraped"]
 
-        if low_quality_ratio > config.ANOMALY_THRESHOLD_LOW_QUALITY:
+        if low_quality_ratio > settings.ANOMALY_THRESHOLD_LOW_QUALITY:
             # Aumentar el factor de backoff para este dominio
             old_backoff = metrics["current_backoff_factor"]
             metrics["current_backoff_factor"] *= 1.5 # Aumentar en un 50%
             self.logger.warning(f'Anomalía detectada en {domain}: {low_quality_ratio:.2f} de baja calidad/vacío. Aumentando backoff de {old_backoff} a {metrics["current_backoff_factor"]:.2f}')
-        elif low_quality_ratio < config.ANOMALY_THRESHOLD_LOW_QUALITY / 2 and metrics["current_backoff_factor"] > config.INITIAL_RETRY_BACKOFF_FACTOR:
+        elif low_quality_ratio < settings.ANOMALY_THRESHOLD_LOW_QUALITY / 2 and metrics["current_backoff_factor"] > settings.INITIAL_RETRY_BACKOFF_FACTOR:
             # Reducir el factor de backoff si el rendimiento mejora
             old_backoff = metrics["current_backoff_factor"]
             metrics["current_backoff_factor"] /= 1.2 # Reducir en un 20%
-            if metrics["current_backoff_factor"] < config.INITIAL_RETRY_BACKOFF_FACTOR:
-                metrics["current_backoff_factor"] = config.INITIAL_RETRY_BACKOFF_FACTOR
+            if metrics["current_backoff_factor"] < settings.INITIAL_RETRY_BACKOFF_FACTOR:
+                metrics["current_backoff_factor"] = settings.INITIAL_RETRY_BACKOFF_FACTOR
             self.logger.info(f"Rendimiento mejorado en {domain}: {low_quality_ratio:.2f} de baja calidad/vacío. Reduciendo backoff de {old_backoff} a {metrics["current_backoff_factor"]:.2f}")
 
     def _check_for_visual_changes(self, new_result):
@@ -262,7 +294,7 @@ class ScrapingOrchestrator:
             old_hash = imagehash.hex_to_hash(old_result['visual_hash'])
             new_hash = imagehash.hex_to_hash(new_result.visual_hash)
             distance = old_hash - new_hash
-            if distance > config.VISUAL_CHANGE_THRESHOLD:
+            if distance > settings.VISUAL_CHANGE_THRESHOLD:
                 self.logger.warning(f"¡ALERTA DE REDISEÑO! Se ha detectado un cambio visual significativo en {new_result.url} (distancia de hash: {distance})")
         except Exception as e:
             self.logger.error(f"No se pudo comparar el hash visual para {new_result.url}: {e}")
@@ -276,7 +308,7 @@ class ScrapingOrchestrator:
             # Limpiar URL (quitar fragmentos y parámetros de consulta)
             clean_link = urlunparse(parsed_link._replace(fragment="", query=""))
 
-            is_allowed_by_robots = self.robot_rules.is_allowed(config.USER_AGENT, clean_link) if self.robot_rules and self.respect_robots_txt else True
+            is_allowed_by_robots = self.robot_rules.is_allowed(settings.USER_AGENT, clean_link) if self.robot_rules and self.respect_robots_txt else True
 
             if urlparse(clean_link).netloc == self.allowed_domain and clean_link not in self.seen_urls and is_allowed_by_robots:
                 self.seen_urls.add(clean_link)

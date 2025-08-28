@@ -36,6 +36,25 @@ Un crawler y archivador web inteligente, diseñado para ser adaptable, resilient
 
 ---
 
+## Configuración
+
+El proyecto utiliza `pydantic-settings` para gestionar la configuración, lo que permite una gran flexibilidad. La configuración se carga desde las siguientes fuentes, en orden de prioridad:
+
+1. **Variables de entorno del sistema.**
+2. **Un archivo `.env`** en la raíz del proyecto.
+3. **Valores por defecto** definidos en `src/settings.py`.
+
+Para personalizar tu configuración, simplemente copia el archivo `.env.example` a `.env` y modifica los valores.
+
+```bash
+# Ejemplo de contenido para tu archivo .env
+CONCURRENCY=10
+LLM_API_KEY="sk-xxxxxxxxxxxxxxxxxxxx"
+DB_PATH="data/mi_base_de_datos.db"
+```
+
+---
+
 ## Cómo Funciona (Flujo Detallado)
 
 El proceso de scraping es gestionado por un orquestador concurrente:
@@ -47,6 +66,7 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 5. **Inteligencia y Adaptación:** El orquestador integra módulos para:
     - **Rotación de User-Agents:** Gestiona un pool de User-Agents para simular diferentes navegadores y reducir la probabilidad de bloqueo.
     - **Navegación Sigilosa (Stealth):** Gracias a la integración con `playwright-stealth`, cada página se parchea automáticamente para ocultar las huellas típicas de la automatización, superando muchas defensas anti-bot.
+    - **Gestión de Huellas Digitales (Fingerprinting):** Más allá del modo sigiloso, el `FingerprintManager` genera perfiles de navegador completos y consistentes. Para cada página, se aplica no solo un User-Agent, sino también un tamaño de viewport y propiedades de JavaScript (como `navigator.platform`) que se corresponden con ese perfil, frustrando las técnicas de fingerprinting avanzadas.
     - **Integración con LLMs:** La arquitectura incluye un `LLMExtractor` que actualmente se usa para limpiar y resumir el contenido extraído, mejorando la calidad de los datos guardados.
     - **Selectores Auto-reparables (Self-Healing):** Si un selector CSS para extraer datos específicos (definido en `config.py`) falla, el scraper busca en su historial el texto del dato extraído previamente y lo localiza en la nueva página, generando un nuevo selector y reportando el evento.
     - **Optimización por RL (WIP):** Se ha diseñado un esqueleto para un agente de Aprendizaje por Refuerzo (`rl_agent.py`) que en el futuro podrá optimizar dinámicamente la estrategia de scraping (retrasos, reintentos, etc.).

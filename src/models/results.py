@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
-from src import config
+from src.settings import settings
 
 class RetryableError(Exception):
     """Excepción personalizada para errores que permiten reintentos."""
@@ -11,8 +11,8 @@ class ScrapeResult(BaseModel):
     """Modelo de datos para el resultado de un scrape, validado con Pydantic."""
     status: str
     url: str
-    scraped_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    scraper_version: str = config.SCRAPER_VERSION
+    scraped_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc)) # noqa
+    scraper_version: str = settings.SCRAPER_VERSION
 
     # Core content
     title: Optional[str] = None

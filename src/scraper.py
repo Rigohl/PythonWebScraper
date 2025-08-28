@@ -11,7 +11,7 @@ from PIL import Image
 import io
 from typing import Optional, List
 
-from src import config
+from src.settings import settings
 from src.database import DatabaseManager
 from src.llm_extractor import LLMExtractor
 from src.models.results import ScrapeResult
@@ -51,7 +51,7 @@ class AdvancedScraper:
         try:
             # 1. Navegación y obtención de contenido base
             response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            if response and response.status in config.RETRYABLE_STATUS_CODES:
+            if response and response.status in settings.RETRYABLE_STATUS_CODES:
                 raise NetworkError(f"Estado reintentable: {response.status}")
             await self.page.wait_for_load_state("networkidle", timeout=15000)
 

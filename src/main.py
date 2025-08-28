@@ -3,7 +3,7 @@ import argparse
 import logging
 import os
 from src.database import DatabaseManager
-from src import config
+from src.settings import settings
 from src.runner import run_crawler
 
 def setup_logging(log_file_path: str | None = None, tui_handler: logging.Handler | None = None):
@@ -37,15 +37,15 @@ async def main():
     Este es el "Composition Root" de la aplicación.
     """
     parser = argparse.ArgumentParser(description="Web Scraper PRO - Un crawler y archivador web inteligente.")
-    parser.add_argument("-db", "--db-path", type=str, default=config.DB_PATH, help=f"Ruta al archivo de la base de datos (default: {config.DB_PATH})")
-    parser.add_argument("--log-file", type=str, default=config.TUI_LOG_PATH, help=f"Ruta al archivo de log (default: {config.TUI_LOG_PATH})")
+    parser.add_argument("-db", "--db-path", type=str, default=settings.DB_PATH, help=f"Ruta al archivo de la base de datos (default: {settings.DB_PATH})")
+    parser.add_argument("--log-file", type=str, default=settings.TUI_LOG_PATH, help=f"Ruta al archivo de log (default: {settings.TUI_LOG_PATH})")
     parser.add_argument("--tui", action="store_true", help="Ejecuta la aplicación en modo de Interfaz de Usuario Textual (TUI).")
 
     action_group = parser.add_mutually_exclusive_group()
     action_group.add_argument("--crawl", nargs='+', metavar="URL", help="Una o más URLs de inicio para el crawling.")
     action_group.add_argument("--export-csv", metavar="FILE_PATH", help="Exporta los datos de la BD a un archivo CSV y sale.")
 
-    parser.add_argument("-c", "--concurrency", type=int, default=config.CONCURRENCY, help=f"Número de trabajadores concurrentes (default: {config.CONCURRENCY})")
+    parser.add_argument("-c", "--concurrency", type=int, default=settings.CONCURRENCY, help=f"Número de trabajadores concurrentes (default: {settings.CONCURRENCY})")
     parser.add_argument("--no-robots", action="store_true", help="Ignora las reglas del archivo robots.txt.")
     parser.add_argument("--use-rl", action="store_true", help="Activa el agente de Aprendizaje por Refuerzo para optimización dinámica.")
     args = parser.parse_args()

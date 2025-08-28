@@ -14,9 +14,9 @@ Crear un agente autónomo que no solo extraiga datos, sino que los **comprenda y
 
 Esta fase se centra en robustecer el código existente, mejorar la mantenibilidad y establecer una base sólida para futuras expansiones.
 
-- **Gestión de Configuración Avanzada:** (Mejora Pendiente)
-  - **Problema:** `config.py` es bueno, pero es estático. No se adapta a diferentes entornos (desarrollo, producción) ni permite overrides sencillos.
-  - **Solución:** Migrar `config.py` a un modelo basado en `Pydantic Settings`. Esto permite cargar configuraciones desde variables de entorno, archivos `.env` y valores por defecto, todo validado y tipado. Permitirá, por ejemplo, cambiar la concurrencia con una variable de entorno (`SCRAPER_CONCURRENCY=10`) sin tocar el código.
+- **Gestión de Configuración Avanzada:** (Completado)
+  - **Problema:** `config.py` era estático y no se adaptaba a diferentes entornos (desarrollo, producción) ni permitía overrides sencillos.
+  - **Solución Implementada:** Se ha migrado toda la configuración a un nuevo módulo `src/settings.py` que utiliza `pydantic-settings`. Ahora, la aplicación carga su configuración desde un archivo `.env` y variables de entorno, con validación de tipos automática. Esto permite, por ejemplo, cambiar la concurrencia con `CONCURRENCY=10` en el `.env` sin tocar el código.
 
 - **Manejo de Errores Centralizado:** (Completado)
   - **Problema:** El manejo de excepciones estaba disperso, dificultando la toma de decisiones centralizada.
@@ -57,9 +57,9 @@ Esta fase se enfoca en hacer el scraper más resiliente, adaptativo y difícil d
   - **Problema:** Los navegadores automatizados dejan huellas detectables (ej. `navigator.webdriver`).
   - **Solución Implementada:** Se ha integrado `playwright-stealth`. El `ScrapingOrchestrator` ahora aplica parches anti-detección a cada página que crea, haciendo el crawling significativamente más difícil de bloquear por servicios como Cloudflare.
 
-- **Gestión de Huellas Digitales (Fingerprinting):** (Pendiente)
-  - **Problema:** Usar solo User-Agents diferentes no es suficiente. Los sitios modernos analizan huellas complejas (fuentes, plugins, resolución de pantalla, WebGL, canvas).
-  - **Solución:** Crear un `FingerprintManager` que genere y rote perfiles de navegador completos y consistentes. Esto implica modificar no solo cabeceras, sino también ejecutar JS al inicio de cada página para falsear propiedades como `screen.width`, `navigator.plugins`, etc.
+- **Gestión de Huellas Digitales (Fingerprinting):** (Completado)
+  - **Problema:** Usar solo `User-Agent` diferentes no es suficiente. Los sitios modernos analizan huellas complejas (fuentes, plugins, resolución de pantalla, WebGL, canvas).
+  - **Solución Implementada:** Se ha creado un `FingerprintManager` que genera perfiles de navegador completos y consistentes. El orquestador ahora aplica a cada página un User-Agent, un viewport y un conjunto de propiedades JavaScript falseadas (`navigator.platform`, `navigator.webdriver`, etc.), haciendo que cada worker parezca un usuario único y legítimo.
 
 - **Detección y Manejo de CAPTCHAs:** (Pendiente)
   - **Problema:** Un CAPTCHA detiene por completo el scraping.
@@ -97,6 +97,14 @@ Esta fase convierte el scraper de una herramienta reactiva a un agente proactivo
 
 ---
 
+## Fase 5: Experiencia de Usuario y Observabilidad (Mejoras TUI/GUI)
+
+- **Dashboard en Tiempo Real:** (Pendiente)
+  - **Problema:** La TUI actual es un lanzador, pero no ofrece visibilidad durante el crawling.
+  - **Solución:** Implementar una pestaña de "Estadísticas en Vivo" en la TUI. El orquestador usará un sistema de `callbacks` para reportar métricas en tiempo real (URLs en cola, procesadas, éxitos, fallos) sin acoplarse a la TUI. Esto proporciona una visión clara del rendimiento y estado del crawler.
+
+---
+
 ## Fase 5: Arquitectura de Plataforma y Escalabilidad (Visión a Largo Plazo)
 
 Esta fase prepara el proyecto para operar a gran escala y ser extensible.
@@ -115,6 +123,24 @@ Esta fase prepara el proyecto para operar a gran escala y ser extensible.
     - **Nodos:** `Page`, `Product`, `Article`, `Author`.
     - **Relaciones:** `(Page)-[:LINKS_TO]->(Page)`, `(Page)-[:CONTAINS]->(Product)`, `(Article)-[:WRITTEN_BY]->(Author)`.
   - **Resultado:** Permite análisis mucho más ricos sobre las relaciones entre los datos, no solo los datos en sí.
+
+---
+
+## Fase 6: Inteligencia Cognitiva y Comprensión del Contexto (El Futuro)
+
+Esta fase se enfoca en dotar al agente de una comprensión casi humana del contenido que procesa.
+
+- **Análisis Causal de Cambios con LLMs:** (Pendiente)
+  - **Problema:** La detección de cambios visuales (pHash) nos dice que *algo* cambió, pero no el *qué* o el *porqué*.
+  - **Solución:** Cuando se detecta un cambio visual significativo, enviar el HTML antiguo y el nuevo a un LLM con un prompt para que describa la diferencia en lenguaje natural. Ej: "El precio ha sido movido debajo de la imagen del producto" o "Se ha añadido un banner de promoción". Esto proporciona inteligencia accionable en lugar de una simple alerta.
+
+- **Extracción Multi-Modal (Visión por Computadora):** (Pendiente)
+  - **Problema:** El scraper es ciego a la información contenida dentro de las imágenes (ej. precios en banners, datos en infografías).
+  - **Solución:** Integrar una librería de OCR (Optical Character Recognition) como `pytesseract`. Tras tomar una captura de pantalla, el scraper puede realizar un análisis OCR sobre ella para extraer texto. Esto le permite "leer" datos que no existen en el DOM HTML.
+
+- **Construcción Activa de Grafos de Conocimiento con NER:** (Pendiente)
+  - **Problema:** La idea de un grafo de conocimiento es potente, pero la creación de nodos y relaciones es manual.
+  - **Solución:** Utilizar un LLM para realizar **Reconocimiento de Entidades Nombradas (NER)** sobre el contenido limpio. El agente identificará automáticamente entidades como `Personas`, `Organizaciones`, `Productos` y `Lugares`. Luego, creará los nodos correspondientes en la base de datos de grafos y las relaciones entre ellos (ej. `(Artículo)-[:MENCIONA]->(Organización)`). Esto transforma el scraper de un archivador a un constructor de conocimiento autónomo.
 
 ---
 

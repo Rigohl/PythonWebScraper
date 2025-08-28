@@ -79,41 +79,43 @@ class DatabaseManager:
         if export_dir:
             os.makedirs(export_dir, exist_ok=True)
 
-        # find() devuelve un iterador, lo convertimos a lista para manejarlo eficientemente
-        results = list(self.table.find(status='SUCCESS'))
+        # find() devuelve un iterador, que procesaremos uno a uno para no cargar todo en memoria.
+        results_iterator = self.table.find(status='SUCCESS')
+        first_result = next(results_iterator, None)
 
-        if not results:
-            logger.warning("No hay datos con estado 'SUCCESS' para exportar.")
-            return
-
-        # Procesar todos los resultados para deserializar los campos necesarios en memoria
-        processed_results = []
-        for row in results:
-            if 'links' in row and row['links'] is not None:
-                try:
-                    row['links'] = json.loads(row['links'])
-                except (json.JSONDecodeError, TypeError):
-                    row['links'] = []  # Default a lista vacía en caso de error
-            # Aplanar datos extraídos para CSV
-            if 'extracted_data' in row and row['extracted_data'] is not None:
-                try:
-                    extracted = json.loads(row['extracted_data'])
-                    for field, data in extracted.items():
-                        row[f"extracted_{field}"] = data.get('value')
-                except (json.JSONDecodeError, TypeError):
-                    pass # Ignorar si no se puede parsear
-            if 'extracted_data' in row:
-                del row['extracted_data'] # Eliminar la columna JSON original
-            processed_results.append(row)
-
-        if not processed_results:
-            logger.warning("No hay resultados procesables para exportar a CSV (posiblemente todos filtrados).")
+        if not first_result:
+            logger.warning("No hay datos con estado 'SUCCESS' para exportar. No se creará ningún archivo.")
             return
 
         with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
-            # Usamos el primer resultado procesado para obtener las cabeceras
-            fieldnames = processed_results[0].keys()
+            # Procesar el primer resultado para obtener las cabeceras
+            processed_first = self._process_csv_row(first_result)
+            fieldnames = processed_first.keys()
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(processed_results)
-        logger.info(f"{len(processed_results)} registros con estado 'SUCCESS' exportados a {file_path}")
+            writer.writerow(processed_first)
+
+            # Procesar el resto de los resultados del iterador
+            count = 1
+            for row in results_iterator:
+                processed_row = self._process_csv_row(row)
+                # Asegurarse de que todas las filas tengan las mismas claves que la cabecera
+                writer.writerow({k: processed_row.get(k) for k in fieldnames})
+                count += 1
+
+        logger.info(f"{count} registros con estado 'SUCCESS' exportados a {file_path}")
+
+    def _process_csv_row(self, row: dict) -> dict:
+        """Función helper para procesar una única fila para la exportación CSV."""
+        # Esta función puede expandirse para manejar la deserialización de 'links', etc.
+        if 'extracted_data' in row and row.get('extracted_data'):
+            # Aplanar datos extraídos para CSV
+            try:
+                extracted = json.loads(row['extracted_data'])
+                for field, data in extracted.items():
+                    row[f"extracted_{field}"] = data.get('value')
+            except (json.JSONDecodeError, TypeError):
+                pass # Ignorar si no se puede parsear
+        if 'extracted_data' in row:
+            del row['extracted_data']
+        return row

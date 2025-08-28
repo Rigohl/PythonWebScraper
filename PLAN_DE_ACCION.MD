@@ -14,15 +14,15 @@ Este documento es una guía paso a paso para implementar las mejoras definidas e
   - [x] Configurar `pytest` y crear `tests/conftest.py`.
   - [x] Crear `tests/test_scraper.py` con pruebas de extracción y calidad.
   - [x] Crear `tests/test_orchestrator.py` con mocks para probar la lógica de orquestación.
-- [ ] **1.5: Gestión de Configuración Avanzada:** Refactorizar `src/config.py` para usar `pydantic-settings`.
+- [x] **1.5: Gestión de Configuración Avanzada:** Refactorizar `src/config.py` para usar `pydantic-settings`.
 
 ---
 
 ## Fase 3: Evasión de Nivel Humano
 
 - [x] **3.1: Navegadores "Sigilosos":** Integrar `playwright-stealth`.
-- [ ] **3.2: Gestión de Huellas Digitales (Fingerprinting):**
-  - [ ] Crear `src/fingerprint_manager.py`.
-  - [ ] Integrar `FingerprintManager` en el orquestador para aplicarlo a cada página.
+- [x] **3.2: Gestión de Huellas Digitales (Fingerprinting):**
+  - [x] Crear `src/fingerprint_manager.py`.
+  - [x] Integrar `FingerprintManager` en el orquestador para aplicarlo a cada página.
 
 ---
