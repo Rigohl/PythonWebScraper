@@ -10,13 +10,34 @@ Crear un agente autónomo que no solo extraiga datos, sino que los **comprenda y
 
 ---
 
+## Fases y Mejoras
+
+### Puntos a Corregir (Refactorización Inmediata - Prioridad Alta)
+
+Estos son problemas identificados que deberían abordarse para mejorar la estabilidad, la mantenibilidad y la coherencia del proyecto.
+
+1.  **Redundancia en `src/settings.py`**:
+    *   **Problema**: El archivo `src/settings.py` está vacío y no tiene un propósito claro, duplicando potencialmente la gestión de configuración ya manejada por `src/config.py`.
+    *   **Acción Recomendada**: Eliminar `src/settings.py` por completo o redefinir su propósito para que contenga *únicamente* constantes o configuraciones muy específicas de módulos que no sean adecuadas para el `.env` o `config.py`.
+2.  **Archivos Estáticos no Servidos en FastAPI**:
+    *   **Problema**: La API de FastAPI tiene una ruta raíz que intenta cargar `styles.css`, pero el middleware `StaticFiles` en `src/app.py` está comentado, lo que impide que los estilos se sirvan correctamente.
+    *   **Acción Recomendada**: Descomentar y configurar `app.mount("/static", StaticFiles(directory="static"), name="static")` en `src/app.py` para habilitar el servicio de archivos estáticos.
+3.  **Función `run_api_server` Redundante en `src/app.py`**:
+    *   **Problema**: La función `run_api_server` está definida en `src/app.py`, pero `src/main.py` lanza el servidor Uvicorn directamente. Esto hace que la función sea innecesaria.
+    *   **Acción Recomendada**: Eliminar la función `run_api_server` de `src/app.py`.
+4.  **Integración Incompleta de `FingerprintManager`**:
+    *   **Problema**: El `FingerprintManager` se inicializa y se le pide una huella digital, pero la salida (`current_fingerprint`) solo se registra y no se utiliza activamente para configurar las opciones de Playwright dentro de `src/scraper.py`. Esto reduce la efectividad de la estrategia anti-detección.
+    *   **Acción Recomendada**: Modificar `src/scraper.py` (o el `Orchestrator` al llamar al `Scraper`) para que configure el navegador de Playwright con los detalles de huella digital proporcionados por `FingerprintManager` (ej., añadiendo cabeceras específicas, configurando el viewport, o inyectando JavaScript para falsear propiedades del `navigator`).
+
+---
+
 ## Fase 1: Excelencia Operativa y Deuda Técnica (Prioridad Alta)
 
 Esta fase se centra en robustecer el código existente, mejorar la mantenibilidad y establecer una base sólida para futuras expansiones.
 
 - **Gestión de Configuración Avanzada:** (Completado)
   - **Problema:** `config.py` era estático y no se adaptaba a diferentes entornos (desarrollo, producción) ni permitía overrides sencillos.
-  - **Solución Implementada:** Se ha migrado toda la configuración a un nuevo módulo `src/settings.py` que utiliza `pydantic-settings`. Ahora, la aplicación carga su configuración desde un archivo `.env` y variables de entorno, con validación de tipos automática. Esto permite, por ejemplo, cambiar la concurrencia con `CONCURRENCY=10` en el `.env` sin tocar el código.
+  - **Solución Implementada:** Se ha migrado toda la configuración a un nuevo módulo `src/settings.py` (ahora `src/config.py` con `pydantic-settings`). Ahora, la aplicación carga su configuración desde un archivo `.env` y variables de entorno, con validación de tipos automática. Esto permite, por ejemplo, cambiar la concurrencia con `CONCURRENCY=10` en el `.env` sin tocar el código.
 
 - **Manejo de Errores Centralizado:** (Completado)
   - **Problema:** El manejo de excepciones estaba disperso, dificultando la toma de decisiones centralizada.
@@ -35,13 +56,17 @@ Esta fase se centra en robustecer el código existente, mejorar la mantenibilida
   - **Problema:** Los modelos de datos Pydantic (como `ScrapeResult`) estaban definidos junto al código que los usaba (ej. `scraper.py`).
   - **Solución Implementada:** Se ha creado un directorio `src/models/` y los modelos de datos se han movido allí (inferido por `from src.models.results import ScrapeResult`). Esto separa limpiamente los esquemas de datos de la lógica de negocio, mejorando la organización.
 
+- **Desacoplamiento de Scraping y API en `main.py`**:
+    *   **Problema**: La ejecución síncrona del proceso de scraping completo (`--scrape`) en `main.py` antes de iniciar la API (`--api`) puede bloquear el inicio de la API por un tiempo prolongado si el scraping es intensivo.
+    *   **Mejora**: Refactorizar `main.py` para que, si se solicitan ambos (`--scrape --api`), el scraping se inicie como una tarea de fondo (similar a cómo lo hace el endpoint `/scrape/` en `app.py`) o en un proceso separado. Alternativamente, definir claramente que `--scrape` es para ejecuciones únicas CLI y la API para orquestar tareas.
+
 ---
 
 ## Fase 2: Inteligencia Táctica y Evasión (Completado y a Mejorar)
 
 Esta fase se enfoca en hacer el scraper más resiliente, adaptativo y difícil de detectar.
 
-- **Fundación Sólida:** (Completado) Arquitectura modular, concurrencia con `asyncio`, persistencia en SQLite, modelos con `Pydantic`.
+- **Fundación Sólida:** (Completado) Arquitectura modular, concurrencia con `asyncio`, persistencia en SQLite (ahora PostgreSQL/SQLAlchemy), modelos con `Pydantic`.
 - **Scraping Adaptativo:** (Completado) Throttling adaptativo, detección de cambios visuales, renderizado inteligente, detección de honeypots, reintentos.
 - **Optimización de Rendimiento:** (Completado) Bloqueo de recursos.
 - **Selectores "Auto-reparables":** (Completado)
@@ -80,8 +105,8 @@ Esta fase se enfoca en hacer el scraper más resiliente, adaptativo y difícil d
 Esta fase convierte el scraper de una herramienta reactiva a un agente proactivo que aprende y planifica.
 
 - **Agente de Aprendizaje por Refuerzo (RL) Evolucionado:** (Pendiente - Alta Prioridad)
-  - **Problema:** El `RLAgent` actual es un esqueleto. El backoff adaptativo es una regla heurística simple.
-  - **Solución:** Implementar un agente de RL completo (ej. con Q-Learning o PPO simple).
+  - **Problema:** El `RLAgent` actual es un esqueleto y el backoff adaptativo es una regla heurística simple. Su integración activa en la toma de decisiones del orquestador no es evidente.
+  - **Solución:** Implementar un agente de RL completo (ej. con Q-Learning o PPO simple) e integrarlo activamente en el `Orchestrator` para que pueda ajustar dinámicamente parámetros como la velocidad de scraping, los intervalos de reintento, la selección de proxies/user agents, o incluso las estrategias de extracción de LLM, basándose en la retroalimentación del éxito o fallo de las operaciones en diferentes dominios.
     - **Estado (State):** Un vector que representa la situación actual para un dominio: `(ratio_fallos_recientes, ratio_baja_calidad, tiempo_carga_medio, captcha_detectado, ratio_bloqueos_4xx, ratio_errores_5xx)`.
     - **Acciones (Actions):** El conjunto de decisiones que el agente puede tomar: `(cambiar_user_agent, ajustar_delay, usar_proxy_premium, no_usar_proxy, activar_stealth, desactivar_stealth)`.
     - **Recompensa (Reward):** La señal que guía el aprendizaje. `+10` por un scrapeo exitoso y de alta calidad. `-5` por un fallo de red. `-20` por un bloqueo (403/429). `-2` por tiempo de carga excesivo.
@@ -104,6 +129,10 @@ Esta fase convierte el scraper de una herramienta reactiva a un agente proactivo
     - **Features:** Texto del ancla del enlace, URL de origen, URL de destino, tipo de contenido de la página padre.
     - **Objetivo:** Predecir la probabilidad de que la URL contenga datos de alta calidad o lleve a ellos.
   - **Resultado:** El crawler explorará de forma inteligente, priorizando las rutas más fructíferas y evitando perder tiempo en secciones irrelevantes del sitio (ej. "política de privacidad", "carreras").
+
+- **Esquemas de Extracción LLM Flexibles/Aprendidos**:
+    *   **Problema**: El esquema de extracción LLM se define actualmente de forma estática en `_process_page`. La visión del proyecto sugiere una "estrategia óptima por dominio", lo que implica adaptabilidad.
+    *   **Mejora**: Permitir que los esquemas de extracción LLM sean dinámicos y configurables por dominio/URL, posiblemente almacenados en la base de datos, o desarrollar una lógica para que el sistema "aprenda" o adapte el esquema basándose en el contenido o el dominio.
 
 ---
 
@@ -203,4 +232,5 @@ Esta fase se enfoca en dotar al agente de una comprensión casi humana del conte
 
 ## Registro de Cambios (Changelog)
 
+*   **2024-07-30**: Análisis inicial del proyecto y adición de "Puntos a Corregir" y "Posibles Mejoras" a la hoja de ruta estratégica.
 *Se mantiene el changelog existente.*

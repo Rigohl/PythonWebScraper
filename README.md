@@ -1,3 +1,25 @@
+playwright
+beautifulsoup4
+lxml
+requests
+httpx
+fastapi
+uvicorn
+python-multipart
+SQLAlchemy
+alembic
+psycopg2-binary
+tenacity
+loguru
+pydantic
+python-dotenv
+async-timeout
+ollama
+langchain
+langchain-community
+langchain-core
+langchain-openai
+tiktoken
 # Web Scraper PRO
 
 Un crawler y archivador web inteligente, diseñado para ser adaptable, resiliente y fácil de usar.
