@@ -31,19 +31,19 @@
 
  **Objetivo:** Proporcionar mayor visibilidad al usuario y optimizar drásticamente el rendimiento.
 
-- [ ] **B.1: Dashboard de Métricas por Dominio (TUI)**
-  - [ ] **B.1.1:** Añadir un widget `DataTable` a la pestaña de "Estadísticas" en la TUI.
-  - [ ] **B.1.2:** Modificar el `stats_callback` para que el orquestador envíe las `domain_metrics` completas en cada actualización.
-  - [ ] **B.1.3:** Poblar y actualizar la `DataTable` en tiempo real para mostrar `backoff_factor`, ratios de fallo, etc., por cada dominio.
+- [x] **B.1: Dashboard de Métricas por Dominio (TUI)**
+  - [x] **B.1.1:** Añadir un widget `DataTable` a la pestaña de "Estadísticas" en la TUI.
+  - [x] **B.1.2:** Modificar el `stats_callback` para que el orquestador envíe las `domain_metrics` completas en cada actualización.
+  - [x] **B.1.3:** Poblar y actualizar la `DataTable` en tiempo real para mostrar `backoff_factor`, ratios de fallo, etc., por cada dominio.
 
 - [x] **B.2: Pre-calificación de URLs con Peticiones `HEAD` (Velocidad)**
   - [x] **B.2.1:** En el orquestador, dentro de `_add_links_to_queue`, antes de poner una URL en la cola, realizar una petición `HEAD` asíncrona con `httpx`.
   - [x] **B.2.2:** Inspeccionar las cabeceras `Content-Type` y `Content-Length` y descartar la URL si no cumple con los criterios definidos en `settings.py`.
 
-- [ ] **B.3: Descubrimiento de APIs Ocultas (Velocidad Extrema)**
-  - [ ] **B.3.1:** En el `AdvancedScraper`, añadir un listener al evento `response` de la página Playwright (`page.on("response", ...)`)
-  - [ ] **B.3.2:** Dentro del listener, filtrar respuestas de tipo `fetch` o `xhr` que sean `application/json`.
-  - [ ] **B.3.3:** Guardar la URL de la API y un hash del payload JSON en una nueva tabla de la base de datos, asociada a la página.
+- [x] **B.3: Descubrimiento de APIs Ocultas (Velocidad Extrema)**
+  - [x] **B.3.1:** En el `AdvancedScraper`, añadir un listener al evento `response` de la página Playwright (`page.on("response", ...)`)
+  - [x] **B.3.2:** Dentro del listener, filtrar respuestas de tipo `fetch` o `xhr` que sean `application/json`.
+  - [x] **B.3.3:** Guardar la URL de la API y un hash del payload JSON en una nueva tabla de la base de datos, asociada a la página.
 
  ---
 

@@ -2,7 +2,7 @@ import logging
 from textual.app import App, ComposeResult
 from textual.containers import Container, Grid
 from textual.widgets import ( # noqa
-    Header, Footer, Button, Input, Log, ProgressBar, Label, TabbedContent, TabPane, Checkbox
+    Header, Footer, Button, Input, Log, ProgressBar, Label, TabbedContent, TabPane, Checkbox, DataTable
 )
 from textual.logging import TextualHandler
 from textual.worker import Worker, WorkerState
@@ -37,6 +37,33 @@ class LiveStats(Container):
             label.update(f"{base_text}: 0")
 
 
+class DomainStats(Container):
+    """Un widget para mostrar estadísticas por dominio en una tabla."""
+    def compose(self) -> ComposeResult:
+        yield DataTable(id="domain_metrics_table")
+
+    def on_mount(self) -> None:
+        table = self.query_one(DataTable)
+        table.add_columns("Dominio", "Backoff", "Procesadas", "Baja Calidad", "Vacías", "Fallos")
+        self.border_title = "Métricas por Dominio"
+
+    def update_stats(self, domain_metrics: dict):
+        table = self.query_one(DataTable)
+        table.clear()
+        for domain, metrics in domain_metrics.items():
+            table.add_row(
+                domain,
+                f"{metrics.get('current_backoff_factor', 0):.2f}",
+                metrics.get("total_scraped", 0),
+                metrics.get("low_quality", 0),
+                metrics.get("empty", 0),
+                metrics.get("failed", 0),
+            )
+
+    def reset(self):
+        self.query_one(DataTable).clear()
+
+
 class ScraperTUIApp(App):
     """Una interfaz de usuario textual para Web Scraper PRO."""
 
@@ -61,6 +88,7 @@ class ScraperTUIApp(App):
             "RETRY": 0,
             "LOW_QUALITY": 0,
         }
+        self.domain_metrics = {} # B.1.3
 
     def compose(self) -> ComposeResult:
         """Crea los widgets de la aplicación."""
@@ -77,6 +105,7 @@ class ScraperTUIApp(App):
                         yield Checkbox("Usar Agente RL (WIP)", value=False, id="use_rl")
                     with TabPane("Estadísticas", id="stats-tab"):
                         yield LiveStats()
+                        yield DomainStats() # B.1.1
 
                 with Container(id="actions-pane"):
                     yield Button("Iniciar Crawling", variant="primary", id="start_button")
@@ -98,7 +127,7 @@ class ScraperTUIApp(App):
         # Pasamos el handler de la TUI a la configuración de logging
         setup_logging(log_file_path=self.log_file_path, tui_handler=TextualHandler(log_widget))
         self.query_one("#progress_bar").visible = False
-        self.query_one(LiveStats).border_title = "Estadísticas en Vivo"
+        self.query_one(LiveStats).border_title = "Estadísticas Globales"
         self.query_one("#stats_label").update("Listo para iniciar.")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -112,13 +141,20 @@ class ScraperTUIApp(App):
 
     def stats_update_callback(self, update: dict):
         """Callback que el orquestador llamará para actualizar las estadísticas."""
+        # Actualizar estadísticas globales
         self.live_stats_data["processed"] += update.get("processed", 0)
         self.live_stats_data["queue_size"] = update.get("queue_size", self.live_stats_data["queue_size"])
         status = update.get("status")
         if status in self.live_stats_data:
             self.live_stats_data[status] += 1
-
         self.query_one(LiveStats).update_stats(self.live_stats_data)
+
+        # B.1.3: Actualizar la tabla de métricas por dominio
+        domain_metrics_data = update.get("domain_metrics")
+        if domain_metrics_data:
+            self.domain_metrics = domain_metrics_data
+            self.query_one(DomainStats).update_stats(self.domain_metrics)
+
 
     def action_start_crawl(self) -> None:
         """Inicia el proceso de crawling en un worker."""

@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import hashlib
+import json # B.3.2
 from datetime import datetime, timezone # Added import
 from readability import Document
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError, Locator
@@ -49,6 +50,26 @@ class AdvancedScraper:
                      user_agent: Optional[str] = None) -> ScrapeResult:
         """Realiza el scraping, limpieza, extracción y validación de una URL."""
         start_time = datetime.now(timezone.utc)
+
+        # B.3.1: Añadir listener para descubrir APIs ocultas
+        async def response_handler(response):
+            # B.3.2: Filtrar respuestas de interés (XHR/Fetch con JSON)
+            if response.request.resource_type in ["xhr", "fetch"] and "application/json" in response.headers.get("content-type", ""):
+                try:
+                    json_payload = await response.json()
+                    payload_str = json.dumps(json_payload, sort_keys=True)
+                    payload_hash = hashlib.sha256(payload_str.encode('utf-8')).hexdigest()
+                    # B.3.3: Guardar la API descubierta en la BD
+                    self.db_manager.save_discovered_api(
+                        page_url=self.page.url,
+                        api_url=response.url,
+                        payload_hash=payload_hash
+                    )
+                except Exception as e:
+                    self.logger.debug(f"No se pudo procesar el payload JSON de la API {response.url}: {e}")
+
+        self.page.on("response", response_handler)
+
         try:
             # 1. Navegación y obtención de contenido base
             response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
@@ -103,6 +124,9 @@ class AdvancedScraper:
         except Exception as e:
             self.logger.error(f"Error inesperado en scrape de {url}: {e}", exc_info=True)
             return ScrapeResult(status="FAILED", url=url, error_message=f"Error inesperado: {e}")
+        finally:
+            # Asegurarse de quitar el listener para evitar fugas de memoria
+            self.page.remove_listener("response", response_handler)
 
     async def _perform_structured_extraction(self, url: str, schema: Optional[dict]) -> (dict, list):
         """Realiza la extracción de datos usando selectores y se auto-repara si fallan."""

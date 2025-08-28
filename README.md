@@ -85,7 +85,7 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 
 - `src/`: **Carpeta Principal del Código Fuente.**
   - `src/main.py`: **Punto de Entrada.** Parsea los argumentos de la CLI y decide si lanzar el crawler o la TUI.
-  - `src/tui.py`: **Interfaz Gráfica de Usuario (TUI).** Construye y gestiona la interfaz interactiva con `textual`.
+  - `src/tui.py`: **Interfaz Gráfica de Usuario (TUI).** Construye y gestiona la interfaz interactiva con `textual`. Incluye un dashboard con estadísticas globales y una tabla detallada con métricas de rendimiento en tiempo real para cada dominio.
   - `src/orchestrator.py`: **El Cerebro del Crawler.** Contiene la clase `ScrapingOrchestrator`, que gestiona la cola de URLs, la concurrencia de los trabajadores y el ciclo de vida del navegador.
   - `src/scraper.py`: Contiene la clase `AdvancedScraper` y el modelo de datos `ScrapeResult` (Pydantic). Encapsula la lógica para descargar, analizar y validar la calidad y estructura de los datos de una sola página.
   - `src/database.py`: Contiene la clase `DatabaseManager`, que gestiona la comunicación con la base de datos SQLite.

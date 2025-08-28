@@ -112,9 +112,9 @@ Esta fase convierte el scraper de una herramienta reactiva a un agente proactivo
 - **Dashboard en Tiempo Real:** (En Progreso)
   - **Solución:** Se ha implementado una pestaña de "Estadísticas en Vivo" en la TUI con métricas globales.
 
-- **Dashboard de Métricas por Dominio:** (Pendiente)
-  - **Problema:** Las estadísticas son globales. Es imposible saber cómo se está comportando el scraper en un dominio específico.
-  - **Solución:** Añadir una nueva tabla a la TUI que muestre las `domain_metrics` del orquestador. El usuario podrá ver en tiempo real el `backoff_factor` actual, el ratio de fallos y el ratio de baja calidad para cada dominio, entendiendo cómo el scraper se adapta a las defensas de cada sitio.
+- **Dashboard de Métricas por Dominio:** (Completado)
+  - **Problema:** Las estadísticas eran globales, impidiendo saber cómo se comportaba el scraper en un dominio específico.
+  - **Solución Implementada:** Se ha añadido una tabla de métricas por dominio en la pestaña de "Estadísticas" de la TUI. Esta tabla muestra en tiempo real el `backoff_factor`, el número de páginas procesadas, los fallos y otros datos clave para cada dominio que se está rastreando. Esto proporciona una visibilidad granular sobre el rendimiento y la adaptación del scraper a las defensas de cada sitio.
 
 - **Visualización de Resultados Extraídos:** (Pendiente)
   - **Problema:** Para consultar los datos, es necesario acceder directamente a la base de datos.

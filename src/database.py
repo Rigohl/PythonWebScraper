@@ -2,6 +2,7 @@ import dataset
 from src.models.results import ScrapeResult
 import os
 import json
+from datetime import datetime, timezone # B.3.3
 
 import csv
 import logging
@@ -26,6 +27,19 @@ class DatabaseManager:
         else:
             raise ValueError("Se debe proporcionar 'db_path' o 'db_connection'.")
         self.table = self.db['pages']
+        self.apis_table = self.db['discovered_apis'] # B.3.3
+
+    def save_discovered_api(self, page_url: str, api_url: str, payload_hash: str):
+        """Guarda una API descubierta en la base de datos."""
+        data = {
+            "page_url": page_url,
+            "api_url": api_url,
+            "payload_hash": payload_hash,
+            "timestamp": datetime.now(timezone.utc)
+        }
+        # Usar una clave compuesta para evitar duplicados exactos
+        self.apis_table.upsert(data, ['page_url', 'api_url', 'payload_hash'])
+        logger.info(f"API descubierta en {page_url}: {api_url}")
 
     def save_result(self, result: ScrapeResult):
         """
