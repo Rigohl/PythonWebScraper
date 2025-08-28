@@ -78,7 +78,7 @@ def mock_frontier_classifier_orchestrator():
 @pytest.fixture(autouse=True)
 def patch_orchestrator_external_deps(mock_page_orchestrator):
     with (
-        patch('playwright_stealth.stealth_async', new=AsyncMock()),
+        patch('playwright_stealth.Stealth.use_async', new=AsyncMock(return_value=AsyncMock()))
         patch('src.scraper.AdvancedScraper', new=Mock(return_value=AsyncMock())), # Mock the class itself
         patch('httpx.AsyncClient', new=Mock()),
         patch('src.orchestrator.urlparse', wraps=urlparse) as mock_urlparse,

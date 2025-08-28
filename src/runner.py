@@ -23,7 +23,7 @@ async def run_crawler(
     # 1. Crear dependencias
     db_manager = DatabaseManager(db_path=db_path)
     user_agent_manager = UserAgentManager(user_agents=settings.USER_AGENT_LIST)
-    llm_extractor = LLMExtractor(api_key=settings.LLM_API_KEY)
+    llm_extractor = LLMExtractor()
     rl_agent = RLAgent(model_path=settings.RL_MODEL_PATH)
 
     # 2. Gestionar el ciclo de vida de Playwright

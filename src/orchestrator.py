@@ -3,7 +3,7 @@ import logging
 from urllib.parse import urlparse, urlunparse, ParseResult
 from playwright.async_api import Browser
 import httpx
-from playwright_stealth import Stealth
+from playwright_stealth import Stealth # Revert to Stealth class
 from robotexclusionrulesparser import RobotExclusionRulesParser
 from pydantic import create_model
 
@@ -210,7 +210,6 @@ class ScrapingOrchestrator:
 
             current_user_agent = self.user_agent_manager.get_user_agent()
             page = await browser.new_page(user_agent=current_user_agent)
-            await stealth_async(page)
 
             await page.route("**/*", self._block_unnecessary_requests)
             scraper = AdvancedScraper(page, self.db_manager, self.llm_extractor)
