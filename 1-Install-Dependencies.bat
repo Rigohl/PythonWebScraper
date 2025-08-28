@@ -1,14 +1,16 @@
 @echo off
+setlocal
+
 set VENV_DIR=.\.venv
 
 echo [INFO] Verificando si el entorno virtual existe...
-if not exist "%VENV_DIR%" (
+if not exist "%VENV_DIR%\" (
     echo [INFO] Creando entorno virtual en %VENV_DIR%...
     python -m venv %VENV_DIR%
     if %errorlevel% neq 0 (
         echo [ERROR] No se pudo crear el entorno virtual. Asegurate que Python este en el PATH.
         pause
-        exit /b 1
+        goto :eof
     )
 )
 
@@ -17,7 +19,7 @@ echo [INFO] Instalando/actualizando dependencias de Python...
 if %errorlevel% neq 0 (
     echo [ERROR] No se pudieron instalar las dependencias de Python (pip).
     pause
-    exit /b 1
+    goto :eof
 )
 
 echo [INFO] Instalando navegadores para Playwright (esto puede tardar)...
@@ -25,7 +27,7 @@ echo [INFO] Instalando navegadores para Playwright (esto puede tardar)...
 if %errorlevel% neq 0 (
     echo [ERROR] No se pudieron instalar los navegadores de Playwright.
     pause
-    exit /b 1
+    goto :eof
 )
 
 echo.
@@ -34,4 +36,9 @@ echo.
 echo El entorno esta listo. Puedes ejecutar el scraper con el archivo:
 echo 2-Launch-Scraper.bat
 echo.
+
+REM Delete log file
+del "%~dp0install_log.txt" 2>nul
+
 pause
+goto :eof
