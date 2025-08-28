@@ -1,15 +1,20 @@
-name-template: "v$NEXT_PATCH_VERSION"
-tag-template: "v$NEXT_PATCH_VERSION"
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
 categories:
   - title: "🚀 Features"
-    labels: [ "type/feature" ]
+    labels: ["type/feature"]
   - title: "🐛 Fixes"
-    labels: [ "type/bug" ]
-  - title: "🧹 Chores & Refactors"
-    labels: [ "type/chore", "type/refactor" ]
-  - title: "📚 Docs"
-    labels: [ "type/docs" ]
+    labels: ["type/bug"]
+  - title: "🧰 Chores"
+    labels: ["type/chore","ci"]
 change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
+version-resolver:
+  major:
+    labels: ["major"]
+  minor:
+    labels: ["minor","type/feature"]
+  patch:
+    labels: ["patch","type/bug","type/chore"]
 template: |
   ## Cambios
   $CHANGES
