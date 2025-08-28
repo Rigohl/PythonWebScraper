@@ -142,9 +142,9 @@ class AdvancedScraper:
         """Valida la calidad del contenido extraído y limpio."""
         if not text:
             raise ContentQualityError("El contenido extraído está vacío después de la limpieza.")
-        if len(text) < config.MIN_CONTENT_LENGTH:
+        if len(text) < settings.MIN_CONTENT_LENGTH:
             raise ContentQualityError(f"El contenido es demasiado corto ({len(text)} caracteres).")
-        for phrase in config.FORBIDDEN_PHRASES:
+        for phrase in settings.FORBIDDEN_PHRASES:
             if phrase in text.lower() or (title and phrase in title.lower()):
                 raise ContentQualityError(f"Contenido parece ser una página de error (contiene: '{phrase}').")
 
@@ -158,6 +158,6 @@ class AdvancedScraper:
             return "BLOG_POST"
         if "guia" in title_lower or "tutorial" in title_lower:
             return "ARTICLE"
-        if content_text and len(content_text) > config.MIN_CONTENT_LENGTH:
+        if content_text and len(content_text) > settings.MIN_CONTENT_LENGTH:
             return "GENERAL"
         return "UNKNOWN"

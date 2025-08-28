@@ -88,10 +88,11 @@ El proceso de scraping es gestionado por un orquestador concurrente:
   - `src/orchestrator.py`: **El Cerebro del Crawler.** Contiene la clase `ScrapingOrchestrator`, que gestiona la cola de URLs, la concurrencia de los trabajadores y el ciclo de vida del navegador.
   - `src/scraper.py`: Contiene la clase `AdvancedScraper` y el modelo de datos `ScrapeResult` (Pydantic). Encapsula la lógica para descargar, analizar y validar la calidad y estructura de los datos de una sola página.
   - `src/database.py`: Contiene la clase `DatabaseManager`, que gestiona la comunicación con la base de datos SQLite.
-  - `src/user_agent_manager.py`: Gestiona un pool de User-Agents para rotación y evasión de bloqueos.
-  - `src/llm_extractor.py`: Módulo para la integración con Modelos de Lenguaje Grandes (LLMs) para extracción de datos y sumarización.
-  - `src/rl_agent.py`: Módulo para un Agente de Aprendizaje por Refuerzo (RL) que optimiza la estrategia de scraping.
-  - `src/config.py`: Archivo de configuración central.
+  - `src/settings.py`: Módulo de configuración basado en `pydantic-settings` que carga desde variables de entorno y archivos `.env`.
+  - `src/user_agent_manager.py`: Gestiona la rotación y el ciclo de vida de los User-Agents.
+  - `src/fingerprint_manager.py`: Genera perfiles de navegador completos y consistentes para evasión avanzada.
+  - `src/llm_extractor.py`: Integra LLMs para la limpieza y extracción de datos.
+  - `src/rl_agent.py`: Esqueleto para un Agente de Aprendizaje por Refuerzo (RL) que optimiza la estrategia de scraping.
 
 - `tests/`: Carpeta que contiene todas las pruebas unitarias y de integración. La suite de pruebas ha sido mejorada y expandida para cubrir más funcionalidades.
 - `requirements.txt`: Lista de todas las dependencias de Python.

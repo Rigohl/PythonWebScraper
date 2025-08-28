@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
 from src.orchestrator import ScrapingOrchestrator
-from src import config
+from src.settings import settings
 
 class TestScrapingOrchestrator(unittest.TestCase):
 
@@ -35,7 +35,7 @@ class TestScrapingOrchestrator(unittest.TestCase):
         self.assertLess(p_root, p_depth1, "La raíz debe tener más prioridad que la profundidad 1")
         self.assertLess(p_depth1, p_depth2, "La profundidad 1 debe tener más prioridad que la profundidad 2")
 
-    @patch.dict(config.CONTENT_TYPE_PRIORITIES, {
+    @patch.dict(settings.CONTENT_TYPE_PRIORITIES, {
         "HTML": 5,
         "PDF": 2,      # Mayor prioridad (número más bajo)
         "IMAGE": 10,   # Menor prioridad
