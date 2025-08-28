@@ -1,13 +1,13 @@
 import asyncio
 import logging
 import hashlib
-import json 
-from datetime import datetime, timezone 
+import json
+from datetime import datetime, timezone
 from readability import Document
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError, Locator
 import html2text
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse 
+from urllib.parse import urljoin, urlparse
 import imagehash
 from PIL import Image
 import io
@@ -48,7 +48,7 @@ class AdvancedScraper:
 
     async def scrape(self,
                      url: str,
-                     extraction_schema: Optional[dict] = None,
+                     extraction_schema: Optional[Type[BaseModel]] = None,
                      proxy: Optional[str] = None,
                      user_agent: Optional[str] = None) -> ScrapeResult:
         """Realiza el scraping, limpieza, extracción y validación de una URL."""
@@ -122,9 +122,9 @@ class AdvancedScraper:
                 llm_extracted = await self.llm_extractor.extract_structured_data(full_html, extraction_schema)
                 if llm_extracted:
                     extracted_data = llm_extracted # Store the LLM extracted data
-            
+
             # Healing events are no longer applicable with LLM structured extraction, set to empty list
-            healing_events = [] 
+            healing_events = []
 
             end_time = datetime.now(timezone.utc)
             return ScrapeResult(

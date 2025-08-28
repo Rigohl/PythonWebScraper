@@ -22,12 +22,13 @@ Este plan se enfoca en implementar las capacidades de inteligencia, velocidad y 
   - [x] **A.2.3:** Crear un nuevo flujo de trabajo en el `AdvancedScraper` que acepte un modelo Pydantic como esquema de extracción en lugar de selectores CSS.
 =======
   - [x] **A.2.3:** Crear un nuevo flujo de trabajo en el `AdvancedScraper` que acepte un modelo Pydantic como esquema de extracción en lugar de selectores CSS. Se utiliza la carga dinámica de esquemas por dominio desde la base de datos.
+
 >>>>>>> 0de5c87742ffc6142484400e9bc02c49b4faaab3
 
-- [ ] **A.3: Implementar Priorización Inteligente de la Frontera**
-  - [ ] **A.3.1:** Crear un script para generar un dataset de entrenamiento (CSV) a partir de la base de datos existente, etiquetando URLs como "prometedoras" o "no prometedoras".
-  - [ ] **A.3.2:** Entrenar un modelo de clasificación simple (`scikit-learn`) con este dataset.
-  - [ ] **A.3.3:** Crear un `FrontierClassifier` e integrarlo en la función `_calculate_priority` del orquestador.
+- [x] **A.3: Implementar Priorización Inteligente de la Frontera**
+  - [x] **A.3.1:** Crear un script (`scripts/generate_frontier_dataset.py`) para generar un dataset de entrenamiento (CSV) a partir de la base de datos existente.
+  - [x] **A.3.2:** Crear un script (`scripts/train_frontier_classifier.py`) para entrenar un modelo de clasificación simple (`scikit-learn`) con este dataset y guardarlo.
+  - [x] **A.3.3:** Crear una clase `FrontierClassifier` e integrarla en la función `_calculate_priority` del orquestador para usar el modelo.
 
 ---
 
@@ -35,9 +36,11 @@ Este plan se enfoca en implementar las capacidades de inteligencia, velocidad y 
 
 <<<<<<< HEAD
 =======
+
 **Objetivo:** Proporcionar mayor visibilidad al usuario y optimizar drásticamente el rendimiento.
 
 >>>>>>> 0de5c87742ffc6142484400e9bc02c49b4faaab3
+
 - [x] **B.1: Dashboard de Métricas por Dominio (TUI)**
 - [x] **B.2: Pre-calificación de URLs con Peticiones `HEAD` (Velocidad)**
 - [x] **B.3: Descubrimiento de APIs Ocultas (Velocidad Extrema)**
@@ -57,9 +60,9 @@ Este plan se enfoca en implementar las capacidades de inteligencia, velocidad y 
 - [x] **C.1: Reintentos Adaptativos con Backoff Exponencial**
   - [x] **C.1.1:** La lógica de reintentos con backoff exponencial ya está implementada en el método `_worker` de `ScrapingOrchestrator`. En caso de `NetworkError`, el worker espera un tiempo que aumenta exponencialmente con cada intento fallido, multiplicado por un factor de backoff dinámico por dominio, antes de reintentar el scrapeo de la URL.
 
-- [ ] **C.2: Testing de Regresión por Dominio**
-  - [ ] **C.2.1:** Crear una carpeta `tests/regression_fixtures/` con archivos HTML reales guardados de sitios web objetivo.
-  - [ ] **C.2.2:** Crear un nuevo archivo de test (`tests/test_regression.py`) que itere sobre estos fixtures y verifique que la extracción de datos clave no se rompe.
+- [x] **C.2: Testing de Regresión por Dominio**
+  - [x] **C.2.1:** Se ha creado la carpeta `tests/regression_fixtures/` con un fixture HTML de ejemplo (`toscrape_com_book.html`).
+  - [x] **C.2.2:** Se ha creado un nuevo archivo de test (`tests/test_regression.py`) que itera sobre el fixture y verifica que la extracción de datos con LLM (simulada) funciona como se espera, previniendo futuras roturas.
 
 - [x] **C.3: Protección contra Bucles y Trampas**
   - [x] **C.3.1:** En el orquestador, implementar un mecanismo para detectar y descartar URLs con patrones de ruta repetitivos.
@@ -71,6 +74,6 @@ Este plan se enfoca en implementar las capacidades de inteligencia, velocidad y 
   - [x] **C.4.3:** En `DatabaseManager`, antes de `upsert`, comprobar si ya existe un registro con el mismo `content_hash`. Si es así, marcar el resultado como `DUPLICATE` y no seguir sus enlaces.
 
 - [x] **C.5: Manejo Inteligente de Cookies y Sesiones**
-    - [x] **C.5.1:** Se ha añadido una tabla `cookies` a `src/database.py` con métodos `save_cookies(domain, cookies_json)` y `load_cookies(domain)`.
-    - [x] **C.5.2:** En `src/scraper.py`, antes de navegar a una URL, se cargan las cookies asociadas a su dominio desde la base de datos y se añaden a la instancia de Playwright `page.context`.
-    - [x] **C.5.3:** Después de un scraping exitoso, las cookies de la página actual se recuperan y se guardan en la base de datos para su futura reutilización.
+  - [x] **C.5.1:** Se ha añadido una tabla `cookies` a `src/database.py` con métodos `save_cookies(domain, cookies_json)` y `load_cookies(domain)`.
+  - [x] **C.5.2:** En `src/scraper.py`, antes de navegar a una URL, se cargan las cookies asociadas a su dominio desde la base de datos y se añaden a la instancia de Playwright `page.context`.
+  - [x] **C.5.3:** Después de un scraping exitoso, las cookies de la página actual se recuperan y se guardan en la base de datos para su futura reutilización.
