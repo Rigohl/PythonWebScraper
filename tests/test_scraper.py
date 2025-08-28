@@ -1,37 +1,3 @@
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-import os
-from src.scraper import AdvancedScraper
-from src.models.results import ScrapeResult
-
-# Mock Playwright Page and its methods
-@pytest.fixture
-def mock_page():
-    page = AsyncMock()
-    # Mock the goto method to return a mock response
-    mock_response = MagicMock()
-    mock_response.status = 200
-    page.goto.return_value = mock_response
-    # Mock wait_for_load_state
-    page.wait_for_load_state.return_value = None
-    # Mock screenshot method
-    page.screenshot.return_value = b'mock_screenshot_bytes'
-    return page
-
-# Mock DatabaseManager
-@pytest.fixture
-def mock_db_manager():
-    db_manager = MagicMock()
-    db_manager.get_result_by_url.return_value = None # Or a default value if needed
-    return db_manager
-
-# Mock LLMExtractor
-@pytest.fixture
-def mock_llm_extractor():
-    llm_extractor = AsyncMock()
-    llm_extractor.clean_text_content.return_value = "cleaned text content" # Mock cleaned text
-    return llm_extractor
-
 @pytest.mark.asyncio
 async def test_extract_title_from_local_html(html_file, mock_page, mock_db_manager, mock_llm_extractor):
     """

@@ -12,6 +12,7 @@ from src.settings import settings
 from collections import defaultdict
 from src.models.results import ScrapeResult
 from src.exceptions import NetworkError, ScraperException, RedirectLoopError
+import json # Added for JSON parsing of schemas
 
 # Importar los nuevos módulos
 from src.user_agent_manager import UserAgentManager
@@ -170,12 +171,22 @@ class ScrapingOrchestrator:
             if self.use_rl:
                 rl_state, rl_actions = await self._apply_rl_actions(domain, page)
 
-            # Obtener el esquema de extracción para el dominio actual
-            extraction_schema = settings.EXTRACTION_SCHEMA.get(domain)
+            # Obtener el esquema de extracción LLM para el dominio actual
+            dynamic_extraction_schema = None
+            stored_schema_json = self.db_manager.load_llm_extraction_schema(domain)
+            if stored_schema_json:
+                try:
+                    dynamic_extraction_schema = json.loads(stored_schema_json)
+                    self.logger.debug(f"Esquema LLM cargado para {domain}: {dynamic_extraction_schema}")
+                except json.JSONDecodeError as e:
+                    self.logger.error(f"Error al decodificar esquema LLM para {domain}: {e}")
+            
+            # Si no hay un esquema específico para el dominio, se podría usar uno por defecto aquí o pasar None
+            # Para esta implementación, pasaremos None si no se encuentra uno específico.
 
             for attempt in range(settings.MAX_RETRIES + 1):
                 try:
-                    result = await scraper.scrape(url, extraction_schema=extraction_schema,
+                    result = await scraper.scrape(url, extraction_schema=dynamic_extraction_schema,
                                                   proxy=None, user_agent=current_user_agent,
                                                   max_redirects=settings.MAX_REDIRECTS)
                     break  # Éxito, salir del bucle de reintentos
@@ -205,13 +216,10 @@ class ScrapingOrchestrator:
 
             # --- Lógica de post-procesamiento y guardado ---
             if result:
-                # Procesamiento con LLM
+                # Procesamiento con LLM (ahora el scraper ya realiza la extracción estructurada)
                 if result.content_text:
                     result.llm_summary = await self.llm_extractor.summarize_content(result.content_text)
-                    result.llm_extracted_data = await self.llm_extractor.extract_structured_data(
-                        result.content_html, # Usar el HTML del resultado para extracción
-                        {"title": "string", "price": "float", "currency": "string"} # Ejemplo de esquema
-                    )
+                    # result.llm_extracted_data ya se pobla en el scraper si hay un esquema dinámico
 
                 self.db_manager.save_result(result)
                 self._update_domain_metrics(result)
@@ -417,7 +425,9 @@ class ScrapingOrchestrator:
         self.logger.info("Proceso de crawling completado.")
 
     async def _fetch_robot_rules(self, browser: Browser): # Add browser parameter
-        """Descarga y parsea el archivo robots.txt del dominio."""
+        """
+        Descarga y parsea el archivo robots.txt del dominio.
+        """
         robots_url = urlunparse((urlparse(self.start_urls[0]).scheme, self.allowed_domain, 'robots.txt', '', '', ''))
         try:
             # Usamos una petición simple, no es necesario un navegador completo para esto
