@@ -170,28 +170,42 @@ class ScrapingOrchestrator:
 
     async def _prequalify_url(self, url: str) -> tuple[bool, str]:
         """
-        B.2: Uses a HEAD request to quickly check a URL's content type and size
-        before adding it to the full browser-based scraping queue.
+        B.2: Realiza una petición HEAD para pre-calificar una URL antes de encolarla.
+        Comprueba tipo de contenido, tamaño y redirecciones.
+        Devuelve (True, "") si es válida, o (False, "razón") si se descarta.
         """
-        try:
-            async with httpx.AsyncClient(follow_redirects=True) as client:
-                response = await client.head(url, timeout=5.0)
+        # Combina la lógica de ambas versiones
+        if not getattr(settings, 'PREQUALIFICATION_ENABLED', True):
+            return True, "Prequalification disabled"
 
-                # C.3.2: Check for too many redirects (httpx handles this, we check final URL)
+        try:
+            async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+                response = await client.head(url)
+
+                # Característica del fichero existente: Comprobar demasiadas redirecciones
                 if len(response.history) > settings.MAX_REDIRECTS:
                     msg = f"URL descartada por exceso de redirecciones ({len(response.history)}): {url}"
                     self.logger.warning(msg)
                     if self.alert_callback: self.alert_callback(msg, level="warning")
                     return False, "Exceso de redirecciones"
 
+                # Característica del fichero existente (comprobación más robusta)
                 content_type = response.headers.get('content-type', '').lower()
-                if not any(allowed_type in content_type for allowed_type in settings.ALLOWED_CONTENT_TYPES):
+                allowed_types = getattr(settings, 'ALLOWED_CONTENT_TYPES', ['text/html', 'application/xhtml+xml'])
+                if content_type and not any(allowed in content_type for allowed in allowed_types):
                     return False, f"Tipo de contenido no permitido: {content_type}"
+
+                # Característica del parche: Comprobar longitud del contenido
+                content_length = response.headers.get('content-length')
+                max_length = getattr(settings, 'MAX_CONTENT_LENGTH_BYTES', 10_000_000) # 10MB por defecto
+                if content_length and int(content_length) > max_length:
+                    return False, f"Content-Length excede el límite: {content_length} bytes"
 
                 return True, "OK"
         except (httpx.RequestError, asyncio.TimeoutError) as e:
-            self.logger.debug(f"Pre-calificación fallida para {url}: {e}")
-            return False, f"Error de red: {e}"
+            # Lógica del parche: permitir en caso de error por seguridad
+            self.logger.warning(f"Fallo en la pre-calificación HEAD para {url}: {e}. Se permitirá por precaución.")
+            return True, f"HEAD request failed: {e}"
 
     async def _block_unnecessary_requests(self, route):
         """Bloquea la carga de recursos no esenciales para acelerar el scraping."""
