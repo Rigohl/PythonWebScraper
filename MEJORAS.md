@@ -22,30 +22,17 @@ Este documento detalla las mejoras y las próximas fases planificadas para el pr
 
 ## Fase 2: Robustez y Escalabilidad
 
-<<<<<<< HEAD
 - **Gestión de Proxies Robusta (EN PROGRESO)**:
   - **Problema**: La dependencia de un único proxy o una lista estática reduce la fiabilidad y escalabilidad.
   - **Mejora**: Implementar un `ProxyManager` que soporte múltiples fuentes de proxies (p. ej., rotación de proxies residenciales, integración con servicios de terceros), con lógica de reintento y exclusión de proxies defectuosos.
   - **Solución Actual**: Se ha implementado un `ProxyManager` que carga proxies desde `proxies.txt` y los asigna a los workers. Se necesita mejorar la lógica de reintento y validación.
-- **Reintentos Adaptativos con Backoff Exponencial (PLANIFICADO)**:
+- **Reintentos Adaptativos con Backoff Exponencial (COMPLETADO)**:
   - **Problema**: Fallos intermitentes en la red o en el servidor web pueden causar interrupciones innecesarias.
-  - **Mejora**: Implementar una lógica de reintentos con backoff exponencial y jitter para manejar fallos temporales de manera eficiente y menos intrusiva.
+  - **Mejora**: Implementar una lógica de reintentos con backoff exponencial y jitter para manejar fallos temporales de manera más eficiente y menos intrusiva.
+  - **Solución Implementada**: El `ScrapingOrchestrator` ya incluye una lógica de reintentos adaptativos con backoff exponencial. En caso de `NetworkError`, el worker espera un tiempo que aumenta exponencialmente con cada intento fallido, multiplicado por un factor de backoff dinámico por dominio, antes de reintentar el scrapeo de la URL.
 - **Manejo de Errores y Retries Específicos de Scraper (PLANIFICADO)**:
   - **Problema**: Los errores durante el scraping pueden ser variados (p. ej., CAPTCHAs, errores de renderizado).
   - **Mejora**: Permitir a cada `BaseScraper` definir estrategias de reintento o manejo de errores específicas para su dominio o tipo de contenido.
-=======
--   **Gestión de Proxies Robusta (EN PROGRESO)**:
-    *   **Problema**: La dependencia de un único proxy o una lista estática reduce la fiabilidad y escalabilidad.
-    *   **Mejora**: Implementar un `ProxyManager` que soporte múltiples fuentes de proxies (p. ej., rotación de proxies residenciales, integración con servicios de terceros), con lógica de reintento y exclusión de proxies defectuosos.
-    *   **Solución Actual**: Se ha implementado un `ProxyManager` que carga proxies desde `proxies.txt` y los asigna a los workers. Se necesita mejorar la lógica de reintento y validación.
--   **Reintentos Adaptativos con Backoff Exponencial (COMPLETADO)**:
-    *   **Problema**: Fallos intermitentes en la red o en el servidor web pueden causar interrupciones innecesarias.
-    *   **Mejora**: Implementar una lógica de reintentos con backoff exponencial y jitter para manejar fallos temporales de manera más eficiente y menos intrusiva.
-    *   **Solución Implementada**: El `ScrapingOrchestrator` ya incluye una lógica de reintentos adaptativos con backoff exponencial. En caso de `NetworkError`, el worker espera un tiempo que aumenta exponencialmente con cada intento fallido, multiplicado por un factor de backoff dinámico por dominio, antes de reintentar el scrapeo de la URL.
--   **Manejo de Errores y Retries Específicos de Scraper (PLANIFICADO)**:
-    *   **Problema**: Los errores durante el scraping pueden ser variados (p. ej., CAPTCHAs, errores de renderizado).
-    *   **Mejora**: Permitir a cada `BaseScraper` definir estrategias de reintento o manejo de errores específicas para su dominio o tipo de contenido.
->>>>>>> 0de5c87742ffc6142484400e9bc02c49b4faaab3
 
 ---
 
@@ -62,26 +49,19 @@ Este documento detalla las mejoras y las próximas fases planificadas para el pr
 
 ## Fase 4: Inteligencia y Extracción de Datos
 
-<<<<<<< HEAD
 - **Esquemas de Extracción LLM Flexibles/Aprendidos (COMPLETADO)**:
-  - **Problema**: El esquema de extracción LLM se define actualmente de forma estática en `_process_page`. La visión del proyecto sugiere una "estrategia óptima por dominio", lo que implica adaptabilidad.
-  - **Mejora**: Se ha implementado la extracción de datos Zero-Shot con LLMs, permitiendo que el `AdvancedScraper` reciba un modelo Pydantic para la extracción estructurada, eliminando la necesidad de selectores manuales.
-=======
--   **Esquemas de Extracción LLM Flexibles/Aprendidos (COMPLETADO)**:
-    *   **Problema**: El esquema de extracción LLM se definía estáticamente.
-    *   **Mejora**: Permitir que los esquemas de extracción LLM sean dinámicos y configurables por dominio/URL.
-    *   **Solución Implementada**: Se ha actualizado `src/database.py` para almacenar esquemas de extracción LLM por dominio. `src/llm_extractor.py` utiliza `instructor` y `openai` para la extracción de datos estructurados reales en modelos Pydantic generados dinámicamente. `src/orchestrator.py` carga estos esquemas y los pasa al `scraper`, eliminando la necesidad de selectores CSS estáticos.
--   **Agente de Aprendizaje por Refuerzo (RL) Evolucionado (COMPLETADO)**:
-    *   **Problema**: El `RLAgent` era un esqueleto y no tenía una implementación real para el aprendizaje.
-    *   **Mejora**: Implementar un agente de RL completo para ajustar dinámicamente parámetros de scraping.
-    *   **Solución Implementada**: Se ha integrado un agente de RL basado en PPO (`stable-baselines3` y `gymnasium`). El `RLAgent` ahora puede aprender y ajustar dinámicamente el `backoff factor` para optimizar el rendimiento y la resistencia a la detección. El modelo se guarda y se carga para permitir el aprendizaje persistente.
->>>>>>> 0de5c87742ffc6142484400e9bc02c49b4faaab3
+  - **Problema**: El esquema de extracción LLM se definía estáticamente.
+  - **Mejora**: Permitir que los esquemas de extracción LLM sean dinámicos y configurables por dominio/URL.
+  - **Solución Implementada**: Se ha actualizado `src/database.py` para almacenar esquemas de extracción LLM por dominio. `src/llm_extractor.py` utiliza `instructor` y `openai` para la extracción de datos estructurados reales en modelos Pydantic generados dinámicamente. `src/orchestrator.py` carga estos esquemas y los pasa al `scraper`, eliminando la necesidad de selectores CSS estáticos.
+- **Agente de Aprendizaje por Refuerzo (RL) Evolucionado (COMPLETADO)**:
+  - **Problema**: El `RLAgent` era un esqueleto y no tenía una implementación real para el aprendizaje.
+  - **Mejora**: Implementar un agente de RL completo para ajustar dinámicamente parámetros de scraping.
+  - **Solución Implementada**: Se ha integrado un agente de RL basado en PPO (`stable-baselines3` y `gymnasium`). El `RLAgent` ahora puede aprender y ajustar dinámicamente el `backoff factor` para optimizar el rendimiento y la resistencia a la detección. El modelo se guarda y se carga para permitir el aprendizaje persistente.
 
 ---
 
 ## Fase 5: Experiencia de Usuario y Observabilidad
 
-<<<<<<< HEAD
 - **Dashboard en Tiempo Real:** (En Progreso)
   - **Solución:** Se ha implementado una pestaña de "Estadísticas en Vivo" en la TUI con métricas globales.
 
@@ -93,9 +73,14 @@ Este documento detalla las mejoras y las próximas fases planificadas para el pr
   - **Problema:** Para consultar los datos, es necesario acceder directamente a la base de datos.
   - **Solución:** Añadir una nueva pestaña a la TUI o una pequeña interfaz web (con Flask/FastAPI) que permita buscar y visualizar los resultados guardados en la base de datos de forma amigable.
 
-- **Mecanismo de Alertas y Notificaciones:** (Pendiente)
-  - **Problema:** Los eventos críticos (bloqueos masivos, detección de CAPTCHAs) solo se ven en los logs.
-  - **Solución:** Integrar un sistema de notificaciones. En la TUI, podría ser un widget de "Alertas Críticas". A nivel de sistema, podría ser la integración con servicios como Sentry para errores, o webhooks para notificar a Slack/Discord.
+- **Mecanismo de Alertas y Notificaciones:** (Completado)
+  - **Problema**: La falta de notificación sobre problemas críticos (p. ej., bloqueo de IP, fallos de scraping) podía llevar a interrupciones prolongadas.
+  - **Mejora**: Implementar un sistema de alertas para notificar sobre eventos importantes o errores.
+  - **Solución Implementada**: Se ha añadido un widget `AlertsDisplay` en `src/tui.py` para mostrar alertas críticas. El `ScrapingOrchestrator` ahora utiliza un `alert_callback` para enviar mensajes de alerta y su nivel (warning, error) a la TUI cuando se detectan eventos importantes como fallos persistentes, bucles de redirección, problemas de calidad de contenido o cambios visuales.
+
+- **Persistencia de Estado de la TUI (PLANIFICADO)**:
+  - **Problema**: La configuración y el estado de la TUI se pierden al reiniciar la aplicación.
+  - **Mejora**: Permitir guardar y cargar la configuración de la TUI para mantener el estado entre sesiones.
 
 ---
 
@@ -179,14 +164,3 @@ Esta fase se enfoca en dotar al agente de una comprensión casi humana del conte
 - **2024-07-30**: Análisis inicial del proyecto y adición de "Puntos a Corregir" y "Posibles Mejoras" a la hoja de ruta estratégica.
 - **2025-08-28**: Completada la implementación de Extracción de Datos Zero-Shot con LLMs (Tarea A.2).
 *Se mantiene el changelog existente.*
-=======
--   **Dashboard en Tiempo Real:** (En Progreso)
-    -   **Solución:** Se ha implementado una pestaña de "Estadísticas en Vivo" en la TUI con métricas globales.
--   **Alertas y Notificaciones (COMPLETADO)**:
-    *   **Problema**: La falta de notificación sobre problemas críticos (p. ej., bloqueo de IP, fallos de scraping) podía llevar a interrupciones prolongadas.
-    *   **Mejora**: Implementar un sistema de alertas para notificar sobre eventos importantes o errores.
-    *   **Solución Implementada**: Se ha añadido un widget `AlertsDisplay` en `src/tui.py` para mostrar alertas críticas. El `ScrapingOrchestrator` ahora utiliza un `alert_callback` para enviar mensajes de alerta y su nivel (warning, error) a la TUI cuando se detectan eventos importantes como fallos persistentes, bucles de redirección, problemas de calidad de contenido o cambios visuales.
--   **Persistencia de Estado de la TUI (PLANIFICADO)**:
-    *   **Problema**: La configuración y el estado de la TUI se pierden al reiniciar la aplicación.
-    *   **Mejora**: Permitir guardar y cargar la configuración de la TUI para mantener el estado entre sesiones.
->>>>>>> 0de5c87742ffc6142484400e9bc02c49b4faaab3

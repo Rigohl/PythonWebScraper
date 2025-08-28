@@ -34,12 +34,7 @@ Este plan se enfoca en implementar las capacidades de inteligencia, velocidad y 
 
 ## Fase B: Mejoras de Experiencia de Usuario (TUI) y Velocidad
 
-<<<<<<< HEAD
-=======
-
 **Objetivo:** Proporcionar mayor visibilidad al usuario y optimizar drásticamente el rendimiento.
-
->>>>>>> 0de5c87742ffc6142484400e9bc02c49b4faaab3
 
 - [x] **B.1: Dashboard de Métricas por Dominio (TUI)**
 - [x] **B.2: Pre-calificación de URLs con Peticiones `HEAD` (Velocidad)**

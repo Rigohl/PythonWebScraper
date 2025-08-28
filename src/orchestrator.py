@@ -4,21 +4,22 @@ from urllib.parse import urlparse, urlunparse, ParseResult
 from playwright.async_api import Browser
 import httpx
 from playwright_stealth import stealth_async
-from src.scraper import AdvancedScraper
-import imagehash
 from robotexclusionrulesparser import RobotExclusionRulesParser
+from pydantic import create_model
+
+from src.scraper import AdvancedScraper
 from src.database import DatabaseManager
 from src.settings import settings
 from collections import defaultdict
 from src.models.results import ScrapeResult
-from src.exceptions import NetworkError, ParsingError, ContentQualityError, ScraperException, RedirectLoopError
-import json 
+from src.exceptions import NetworkError
+import json
 
 # Importar los nuevos módulos
 from src.user_agent_manager import UserAgentManager
 from src.llm_extractor import LLMExtractor
 from src.rl_agent import RLAgent
-from src.fingerprint_manager import FingerprintManager
+from src.frontier_classifier import FrontierClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -35,12 +36,12 @@ class ScrapingOrchestrator:
         self.start_urls = start_urls
         self.concurrency = concurrency
         self.db_manager = db_manager # Injected dependency
-        self.user_agent_manager = user_agent_manager # Injected dependency
-        self.fingerprint_manager = FingerprintManager(user_agent_manager=self.user_agent_manager)
+        self.user_agent_manager = user_agent_manager
         if use_rl and not rl_agent:
             raise ValueError("RLAgent must be provisto cuando use_rl es True.")
         self.llm_extractor = llm_extractor # Injected dependency
         self.rl_agent = rl_agent # Injected dependency
+        self.frontier_classifier = FrontierClassifier()
         self.use_rl = use_rl
         self.stats_callback = stats_callback # Para reportar a la TUI
         self.alert_callback = alert_callback # Added for reporting alerts to TUI
@@ -64,12 +65,27 @@ class ScrapingOrchestrator:
         })
 
     def _calculate_priority(self, url: str, parent_content_type: str = "UNKNOWN") -> int:
-        """Calcula la prioridad de una URL. Menor número es mayor prioridad."""
-        path_depth = urlparse(url).path.count('/')
-        content_priority = settings.CONTENT_TYPE_PRIORITIES.get(parent_content_type, settings.CONTENT_TYPE_PRIORITIES["UNKNOWN"])
+        """
+        Calcula la prioridad de una URL. Un número más bajo es más prioritario.
+        Combina la profundidad de la ruta con una puntuación de un modelo de ML.
+        """
+        parsed_url = urlparse(url)
+        path_depth = len(parsed_url.path.strip('/').split('/'))
 
-        # Combinar profundidad y prioridad de contenido.
-        return path_depth + content_priority
+        # A.3.3: Use ML model to get a promise score (0.0 to 1.0)
+        promise_score = self.frontier_classifier.predict_score(url)
+
+        # Base priority is path depth.
+        priority = float(path_depth)
+
+        # Adjust priority based on the promise score.
+        # A score of 1.0 gives a -5 bonus, a score of 0.0 gives a 0 bonus.
+        # This makes promising URLs much more attractive.
+        priority_bonus = -5 * promise_score
+        priority += priority_bonus
+
+        # Return as an integer for the priority queue
+        return int(priority)
 
     def _get_rl_state(self, domain: str) -> dict:
         """Genera el estado actual para el agente de RL."""
@@ -104,7 +120,7 @@ class ScrapingOrchestrator:
         if "adjust_backoff_factor" in actions_dict:
             self.domain_metrics[domain]["current_backoff_factor"] *= actions_dict["adjust_backoff_factor"]
             self.logger.debug(f"RL Agent ajusta backoff para {domain} a {self.domain_metrics[domain]['current_backoff_factor']:.2f}")
-        
+
         # Almacenar el estado y la acción para el aprendizaje posterior
         self.domain_metrics[domain]["last_state_dict"] = current_state_dict
         self.domain_metrics[domain]["last_action_dict"] = actions_dict
@@ -120,16 +136,62 @@ class ScrapingOrchestrator:
 
         reward = self._calculate_rl_reward(result)
         next_state_dict = self._get_rl_state(domain)
-        
+
         self.rl_agent.learn(
-            metrics["last_state_dict"], 
-            metrics["last_action_dict"], 
-            reward, 
+            metrics["last_state_dict"],
+            metrics["last_action_dict"],
+            reward,
             next_state_dict
         )
         # Limpiar después de aprender para evitar re-aprender con la misma experiencia
         metrics["last_state_dict"] = None
         metrics["last_action_dict"] = None
+
+    def _has_repetitive_path(self, url: str) -> bool:
+        """
+        C.3.1: Detects if a URL has a repetitive path structure to avoid traps.
+        Example: /a/b/c/a/b/c -> True
+        """
+        path_segments = [segment for segment in urlparse(url).path.split('/') if segment]
+        if len(path_segments) < settings.REPETITIVE_PATH_THRESHOLD * 2:
+            return False
+
+        # Check for repeating sequences of segments
+        # e.g., for threshold 2, check if seg[0:2] == seg[2:4]
+        segment_tuple = tuple(path_segments)
+        for i in range(len(segment_tuple) - settings.REPETITIVE_PATH_THRESHOLD):
+            sub_sequence = segment_tuple[i : i + settings.REPETITIVE_PATH_THRESHOLD]
+            next_sequence = segment_tuple[i + settings.REPETITIVE_PATH_THRESHOLD : i + 2 * settings.REPETITIVE_PATH_THRESHOLD]
+            if sub_sequence == next_sequence:
+                self.logger.warning(f"Repetitive path detected in URL: {url}")
+                if self.alert_callback: self.alert_callback(f"URL con patrón repetitivo descartada: {url}", level="warning")
+                return True
+        return False
+
+    async def _prequalify_url(self, url: str) -> tuple[bool, str]:
+        """
+        B.2: Uses a HEAD request to quickly check a URL's content type and size
+        before adding it to the full browser-based scraping queue.
+        """
+        try:
+            async with httpx.AsyncClient(follow_redirects=True) as client:
+                response = await client.head(url, timeout=5.0)
+
+                # C.3.2: Check for too many redirects (httpx handles this, we check final URL)
+                if len(response.history) > settings.MAX_REDIRECTS:
+                    msg = f"URL descartada por exceso de redirecciones ({len(response.history)}): {url}"
+                    self.logger.warning(msg)
+                    if self.alert_callback: self.alert_callback(msg, level="warning")
+                    return False, "Exceso de redirecciones"
+
+                content_type = response.headers.get('content-type', '').lower()
+                if not any(allowed_type in content_type for allowed_type in settings.ALLOWED_CONTENT_TYPES):
+                    return False, f"Tipo de contenido no permitido: {content_type}"
+
+                return True, "OK"
+        except (httpx.RequestError, asyncio.TimeoutError) as e:
+            self.logger.debug(f"Pre-calificación fallida para {url}: {e}")
+            return False, f"Error de red: {e}"
 
     async def _block_unnecessary_requests(self, route):
         """Bloquea la carga de recursos no esenciales para acelerar el scraping."""
@@ -146,37 +208,35 @@ class ScrapingOrchestrator:
             priority, url = await self.queue.get()
             self.logger.info(f"Trabajador {worker_id} procesando: {url} (Prioridad: {priority})")
 
-            fingerprint = self.fingerprint_manager.get_fingerprint()
-            current_user_agent = fingerprint["user_agent"]
-
-            page = await browser.new_page(
-                user_agent=current_user_agent,
-                viewport=fingerprint["viewport"]
-            )
+            current_user_agent = self.user_agent_manager.get_user_agent()
+            page = await browser.new_page(user_agent=current_user_agent)
             await stealth_async(page)
-            
+
             await page.route("**/*", self._block_unnecessary_requests)
             scraper = AdvancedScraper(page, self.db_manager, self.llm_extractor)
 
             result = None
             domain = urlparse(url).netloc
-            
+
             if self.use_rl:
                 await self._apply_rl_actions(domain)
 
+            # --- Dynamic LLM Schema Logic ---
             dynamic_extraction_schema = None
-            stored_schema_json = self.db_manager.load_llm_extraction_schema(domain)
-            if stored_schema_json:
+            schema_definition = self.db_manager.load_llm_extraction_schema(domain)
+            if schema_definition:
                 try:
-                    dynamic_extraction_schema = json.loads(stored_schema_json)
-                except json.JSONDecodeError as e:
-                    self.logger.error(f"Error al decodificar esquema LLM para {domain}: {e}")
-                    if self.alert_callback: self.alert_callback(f"Error al decodificar esquema LLM para {domain}: {e}", level="error")
+                    # Dynamically create a Pydantic model from the stored definition
+                    # This is the correct way, as the scraper expects a Type[BaseModel]
+                    schema_fields = json.loads(schema_definition)
+                    dynamic_extraction_schema = create_model('DynamicSchema', **schema_fields)
+                except (json.JSONDecodeError, TypeError) as e:
+                    self.logger.error(f"Error creating dynamic Pydantic model for {domain}: {e}")
+                    if self.alert_callback: self.alert_callback(f"Error en esquema dinámico para {domain}: {e}", level="error")
 
             for attempt in range(settings.MAX_RETRIES + 1):
                 try:
-                    result = await scraper.scrape(url, extraction_schema=dynamic_extraction_schema,
-                                                  proxy=None, user_agent=current_user_agent)
+                    result = await scraper.scrape(url, extraction_schema=dynamic_extraction_schema)
                     break
                 except NetworkError as e:
                     self.logger.warning(f"URL {url} falló por error de red. Reintentando... (Intento {attempt + 1}/{settings.MAX_RETRIES})")
@@ -202,7 +262,7 @@ class ScrapingOrchestrator:
 
                 self.db_manager.save_result(result)
                 self._update_domain_metrics(result)
-                
+
                 if not self.use_rl:
                     self._check_for_anomalies(domain)
                 else:
@@ -280,11 +340,25 @@ class ScrapingOrchestrator:
     async def _add_links_to_queue(self, links: list[str], parent_content_type: str = "UNKNOWN"):
         for link in links:
             parsed_link = urlparse(link)
-            clean_link = urlunparse(parsed_link._replace(fragment="", query=""))
+            # C.4.3: Normalize URL by removing fragment and query params for seen check
+            clean_link = urlunparse(parsed_link._replace(fragment=""))
+
+            if urlparse(clean_link).netloc != self.allowed_domain or clean_link in self.seen_urls:
+                continue
+
+            # C.3.1: Check for repetitive path traps
+            if self._has_repetitive_path(clean_link):
+                continue
+
+            # B.2: Pre-qualify URL with a HEAD request
+            is_qualified, reason = await self._prequalify_url(clean_link)
+            if not is_qualified:
+                self.logger.info(f"URL no calificada descartada: {clean_link} (Razón: {reason})")
+                continue
 
             is_allowed_by_robots = self.robot_rules.is_allowed(settings.USER_AGENT, clean_link) if self.robot_rules and self.respect_robots_txt else True
 
-            if urlparse(clean_link).netloc == self.allowed_domain and clean_link not in self.seen_urls and is_allowed_by_robots:
+            if is_allowed_by_robots:
                 self.seen_urls.add(clean_link)
                 priority = self._calculate_priority(clean_link, parent_content_type)
                 await self.queue.put((priority, clean_link))
@@ -317,10 +391,10 @@ class ScrapingOrchestrator:
         for task in worker_tasks:
             task.cancel()
         await asyncio.gather(*worker_tasks, return_exceptions=True)
-        
+
         if self.use_rl and self.rl_agent:
             self.rl_agent.save_model()
-            
+
         self.logger.info("Proceso de crawling completado.")
         if self.alert_callback: self.alert_callback("Proceso de crawling completado.", level="info")
 
