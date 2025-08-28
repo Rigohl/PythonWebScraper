@@ -2,8 +2,8 @@ import asyncio
 import logging
 from urllib.parse import urlparse, urlunparse, ParseResult
 from playwright.async_api import Browser
-import httpx
-from playwright_stealth import Stealth # Revert to Stealth class
+import httpx # Revert to Stealth class
+from playwright_stealth import stealth_async
 from robotexclusionrulesparser import RobotExclusionRulesParser
 from pydantic import create_model
 
@@ -224,6 +224,7 @@ class ScrapingOrchestrator:
 
             current_user_agent = self.user_agent_manager.get_user_agent()
             page = await browser.new_page(user_agent=current_user_agent)
+            await stealth_async(page) # Aplicar stealth a cada nueva página
 
             await page.route("**/*", self._block_unnecessary_requests)
             scraper = AdvancedScraper(page, self.db_manager, self.llm_extractor)
@@ -388,33 +389,25 @@ class ScrapingOrchestrator:
             self.logger.warning("Se ha desactivado la comprobación de robots.txt.")
             if self.alert_callback: self.alert_callback("La comprobación de robots.txt está desactivada.", level="warning")
 
-        # Apply stealth to the browser context
-        from playwright.async_api import async_playwright
-        async with Stealth().use_async(async_playwright()) as p:
-            # Re-launch browser with stealth applied
-            browser = await p.chromium.launch(headless=True)
+        for url in self.start_urls:
+            if url not in self.seen_urls:
+                self.seen_urls.add(url)
+                priority = self._calculate_priority(url)
+                await self.queue.put((priority, url))
 
-            for url in self.start_urls:
-                if url not in self.seen_urls:
-                    self.seen_urls.add(url)
-                    priority = self._calculate_priority(url)
-                    await self.queue.put((priority, url))
+        worker_tasks = [
+            asyncio.create_task(self._worker(browser, i + 1))
+            for i in range(self.concurrency)
+        ]
 
-            worker_tasks = [
-                asyncio.create_task(self._worker(browser, i + 1))
-                for i in range(self.concurrency)
-            ]
+        await self.queue.join()
 
-            await self.queue.join()
+        for task in worker_tasks:
+            task.cancel()
+        await asyncio.gather(*worker_tasks, return_exceptions=True)
 
-            for task in worker_tasks:
-                task.cancel()
-            await asyncio.gather(*worker_tasks, return_exceptions=True)
-
-            if self.use_rl and self.rl_agent:
-                self.rl_agent.save_model()
-
-            await browser.close() # Close the browser after all tasks are done
+        if self.use_rl and self.rl_agent:
+            self.rl_agent.save_model()
 
         self.logger.info("Proceso de crawling completado.")
         if self.alert_callback: self.alert_callback("Proceso de crawling completado.", level="info")
