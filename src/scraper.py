@@ -11,7 +11,8 @@ from urllib.parse import urljoin
 import imagehash
 from PIL import Image
 import io
-from typing import Optional, List
+from typing import Optional, List, Type, TypeVar
+from pydantic import BaseModel
 
 from src.settings import settings
 from src.database import DatabaseManager
@@ -20,6 +21,8 @@ from src.models.results import ScrapeResult
 from src.exceptions import NetworkError, ParsingError, ContentQualityError, ScraperException
 
 logger = logging.getLogger(__name__)
+
+T = TypeVar("T", bound=BaseModel)
 
 class AdvancedScraper:
     """Encapsula la lógica de scraping para una sola página, ahora con limpieza inteligente y auto-reparación."""
@@ -126,6 +129,85 @@ class AdvancedScraper:
             return ScrapeResult(status="FAILED", url=url, error_message=f"Error inesperado: {e}")
         finally:
             # Asegurarse de quitar el listener para evitar fugas de memoria
+            self.page.remove_listener("response", response_handler)
+
+    async def scrape_with_llm(self, url: str, response_model: Type[T], proxy: Optional[str] = None, user_agent: Optional[str] = None) -> ScrapeResult:
+        """
+        Realiza el scraping de una URL y extrae datos estructurados usando un LLM.
+        No requiere un esquema de selectores CSS, sino un modelo Pydantic.
+        """
+        start_time = datetime.now(timezone.utc)
+
+        # B.3.1: Añadir listener para descubrir APIs ocultas (también aplica aquí)
+        async def response_handler(response):
+            if response.request.resource_type in ["xhr", "fetch"] and "application/json" in response.headers.get("content-type", ""):
+                try:
+                    json_payload = await response.json()
+                    payload_str = json.dumps(json_payload, sort_keys=True)
+                    payload_hash = hashlib.sha256(payload_str.encode('utf-8')).hexdigest()
+                    self.db_manager.save_discovered_api(
+                        page_url=self.page.url,
+                        api_url=response.url,
+                        payload_hash=payload_hash
+                    )
+                except Exception as e:
+                    self.logger.debug(f"No se pudo procesar el payload JSON de la API {response.url}: {e}")
+
+        self.page.on("response", response_handler)
+
+        try:
+            # 1. Navegación y obtención de contenido base
+            response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            if response and response.status in settings.RETRYABLE_STATUS_CODES:
+                raise NetworkError(f"Estado reintentable: {response.status}")
+            await self.page.wait_for_load_state("networkidle", timeout=15000)
+
+            full_html = await self.page.content()
+            doc = Document(full_html)
+            title = doc.title()
+            content_html = doc.summary()
+
+            # 2. Limpieza Inteligente (con LLM)
+            h = html2text.HTML2Text()
+            h.ignore_links = True
+            h.ignore_images = True
+            raw_text = h.handle(content_html).strip()
+            cleaned_text = await self.llm_extractor.clean_text_content(raw_text)
+
+            # 3. Extracción Estructurada con LLM (Zero-Shot)
+            extracted_data_llm = await self.llm_extractor.extract_structured_data(full_html, response_model)
+
+            # 4. Análisis de calidad sobre el texto limpio
+            self._validate_content_quality(cleaned_text, title)
+            content_hash = hashlib.sha256(cleaned_text.encode('utf-8')).hexdigest()
+
+            # 5. Extracción de enlaces y metadatos
+            soup = BeautifulSoup(content_html, 'html.parser')
+            visible_links = [urljoin(url, a['href']) for a in soup.find_all('a', href=True) if 'display: none' not in a.get('style', '').lower()]
+            screenshot = await self.page.screenshot()
+            visual_hash = str(imagehash.phash(Image.open(io.BytesIO(screenshot))))
+
+            end_time = datetime.now(timezone.utc)
+            return ScrapeResult(
+                status="SUCCESS", url=url, title=title, content_text=cleaned_text, content_html=content_html,
+                links=visible_links, visual_hash=visual_hash, content_hash=content_hash,
+                http_status_code=response.status if response else None,
+                crawl_duration=(end_time - start_time).total_seconds(),
+                content_type=self._classify_content(title, cleaned_text),
+                extracted_data=extracted_data_llm.model_dump(), # Guardar el modelo Pydantic como dict
+                healing_events=[] # No hay healing events en extracción LLM
+            )
+
+        except (PlaywrightTimeoutError, NetworkError) as e:
+            self.logger.warning(f"Error de red o timeout en scrape_with_llm de {url}: {e}")
+            return ScrapeResult(status="RETRY", url=url, error_message=str(e), retryable=True)
+        except (ParsingError, ContentQualityError) as e:
+            self.logger.error(f"Error de parseo o calidad de contenido en scrape_with_llm de {url}: {e}")
+            return ScrapeResult(status="FAILED", url=url, error_message=str(e))
+        except Exception as e:
+            self.logger.error(f"Error inesperado en scrape_with_llm de {url}: {e}", exc_info=True)
+            return ScrapeResult(status="FAILED", url=url, error_message=f"Error inesperado: {e}")
+        finally:
             self.page.remove_listener("response", response_handler)
 
     async def _perform_structured_extraction(self, url: str, schema: Optional[dict]) -> (dict, list):

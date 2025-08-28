@@ -1,53 +1,77 @@
+import instructor
+from openai import OpenAI
+from pydantic import BaseModel
 import logging
+from typing import Type, TypeVar
+
+from src.settings import settings
 
 logger = logging.getLogger(__name__)
 
+T = TypeVar("T", bound=BaseModel)
+
 class LLMExtractor:
     """
-    Clase placeholder para la integración con Modelos de Lenguaje Grandes (LLMs).
-    En una implementación real, esto interactuaría con APIs de LLMs (ej. OpenAI, Gemini).
+    Utiliza un LLM (a través de la API de OpenAI y `instructor`) para realizar
+    tareas de procesamiento de lenguaje natural como limpieza y extracción estructurada.
     """
-    def __init__(self, api_key: str | None = None):
-        self.api_key = api_key
-        if not self.api_key:
-            logger.warning("LLMExtractor inicializado sin API Key. Las funcionalidades reales no estarán disponibles.")
+    def __init__(self):
+        if not settings.LLM_API_KEY:
+            raise ValueError("La clave de API de LLM (LLM_API_KEY) no está configurada en los ajustes.")
+        
+        # A.2.2: Usar `instructor` para parchear el cliente de OpenAI
+        self.client = instructor.patch(OpenAI(api_key=settings.LLM_API_KEY))
+        logger.info("LLMExtractor inicializado con el cliente de OpenAI parcheado.")
 
-    async def extract_structured_data(self, html_content: str, schema: dict) -> dict | None:
+    async def clean_text_content(self, text: str) -> str:
         """
-        Simula la extracción de datos estructurados usando un LLM.
-        En una implementación real, enviaría el HTML y el esquema al LLM.
+        Utiliza el LLM para limpiar el texto, eliminando elementos no deseados como
+        menús, pies de página, anuncios y otro contenido "basura".
         """
-        logger.info("Simulando extracción de datos estructurados con LLM...")
-        # Placeholder: en una implementación real, aquí iría la llamada a la API del LLM
-        # y el parseo de su respuesta.
-        if "producto" in html_content.lower():
-            return {"name": "Producto Simulado", "price": "99.99", "currency": "USD"}
-        return None
+        try:
+            class CleanedText(BaseModel):
+                cleaned_text: str
 
-    async def summarize_content(self, text_content: str, max_words: int = 100) -> str | None:
-        """
-        Simula la sumarización de contenido usando un LLM.
-        """
-        logger.info("Simulando sumarización de contenido con LLM...")
-        # Placeholder: en una implementación real, aquí iría la llamada a la API del LLM
-        # y el parseo de su respuesta.
-        if len(text_content) > max_words * 2:
-            return f"Este es un resumen simulado del contenido, que es bastante largo. Contiene {len(text_content)} caracteres."[:max_words*2] + "..."
-        return text_content
+            response = self.client.chat.completions.create(
+                model=settings.LLM_MODEL,
+                response_model=CleanedText,
+                messages=[
+                    {"role": "system", "content": "Eres un experto en limpiar contenido HTML. Tu tarea es eliminar todo el texto que no sea el contenido principal de la página, como barras de navegación, pies de página, anuncios, pop-ups y texto legal. Devuelve únicamente el contenido principal."}, 
+                    {"role": "user", "content": text}
+                ]
+            )
+            return response.cleaned_text
+        except Exception as e:
+            logger.error(f"Error durante la limpieza de texto con LLM: {e}", exc_info=True)
+            # Si falla el LLM, devolvemos el texto original para no romper el flujo
+            return text
 
-    async def clean_text_content(self, raw_text: str) -> str:
+    async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
         """
-        Simula la limpieza de texto usando un LLM para eliminar boilerplate.
-        En una implementación real, esto llamaría a una API con un prompt específico.
-        """
-        if not self.api_key:
-            logger.debug("LLM no configurado, devolviendo texto crudo sin limpieza inteligente.")
-            return raw_text
+        A.2.3: Realiza extracción de datos "Zero-Shot" de un contenido HTML.
 
-        logger.info("Simulando limpieza de texto con LLM para eliminar 'basura'...")
-        # Placeholder: En una implementación real, el prompt sería algo como:
-        # "Limpia el siguiente texto extraído de una web. Elimina cualquier menú de navegación,
-        # cabeceras, pies de página, texto de anuncios o disclaimers. Devuelve solo el
-        # cuerpo del artículo o contenido principal."
-        # Por ahora, simplemente devolvemos el texto original.
-        return raw_text
+        En lugar de usar selectores, se le pasa el HTML y un modelo Pydantic
+        al LLM, y este se encarga de "rellenar" el modelo con los datos encontrados.
+
+        Args:
+            html_content: El contenido HTML de la página.
+            response_model: El modelo Pydantic que define la estructura de los datos a extraer.
+
+        Returns:
+            Una instancia del `response_model` con los datos extraídos.
+        """
+        try:
+            response = self.client.chat.completions.create(
+                model=settings.LLM_MODEL,
+                response_model=response_model,
+                messages=[
+                    {"role": "system", "content": "Eres un experto en extracción de datos de páginas web. Tu tarea es analizar el siguiente contenido HTML y rellenar el esquema Pydantic proporcionado con la información encontrada. Extrae los datos de la forma más precisa posible."},
+                    {"role": "user", "content": html_content}
+                ]
+            )
+            logger.info(f"Extracción Zero-Shot exitosa para el modelo {response_model.__name__}.")
+            return response
+        except Exception as e:
+            logger.error(f"Error durante la extracción Zero-Shot con LLM para el modelo {response_model.__name__}: {e}", exc_info=True)
+            # En caso de error, devolvemos una instancia vacía del modelo para no romper el flujo
+            return response_model()
