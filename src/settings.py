@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     REPETITIVE_PATH_THRESHOLD: int = 2
     MAX_REDIRECTS: int = 10
     ALLOWED_CONTENT_TYPES: List[str] = ["text/html", "application/xhtml+xml"]
+    PREQUALIFICATION_ENABLED: bool = True
+    MAX_CONTENT_LENGTH_BYTES: int = 10_000_000  # 10MB
 
     # --- User‑Agent and proxies ---
     USER_AGENT: str = "PythonWebScraperPRO/1.0"

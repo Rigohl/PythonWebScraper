@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 
 class ScrapingEnv(gym.Env):
     """
-    Entorno de Gymnasium personalizado para el agente de RL de scraping.
-    Define los espacios de observación y acción, y recibe las recompensas y el próximo estado
-    del orquestador, ya que el entorno no ejecuta el scraping real.
+    Entorno de Gymnasium para el agente de RL de scraping.
+    El entorno no ejecuta el scraping real, sino que define los espacios
+    de observación y acción, y recibe las recompensas y el próximo estado
+    del orquestador.
     """
     def __init__(self):
         super(ScrapingEnv, self).__init__()
