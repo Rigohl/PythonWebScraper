@@ -135,5 +135,5 @@ async def test_summarize_content_failure(llm_extractor, mock_openai_chat_complet
 
 def test_llm_extractor_init_no_api_key():
     with patch('src.settings.settings.LLM_API_KEY', None):
-        with pytest.raises(ValueError, match="La clave de API de LLM \(LLM_API_KEY\) no está configurada en los ajustes."):
+        with pytest.raises(ValueError, match="La clave de API de LLM (LLM_API_KEY) no está configurada en los ajustes."):
             LLMExtractor()
