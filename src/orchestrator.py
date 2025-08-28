@@ -2,6 +2,7 @@ import asyncio
 import logging
 from urllib.parse import urlparse, urlunparse, ParseResult
 from playwright.async_api import Browser
+import httpx
 from playwright_stealth import stealth_async
 from src.scraper import AdvancedScraper
 import imagehash
@@ -10,7 +11,7 @@ from src.database import DatabaseManager
 from src.settings import settings
 from collections import defaultdict
 from src.models.results import ScrapeResult
-from src.exceptions import NetworkError, ScraperException
+from src.exceptions import NetworkError, ScraperException, RedirectLoopError
 
 # Importar los nuevos módulos
 from src.user_agent_manager import UserAgentManager
@@ -175,7 +176,8 @@ class ScrapingOrchestrator:
             for attempt in range(settings.MAX_RETRIES + 1):
                 try:
                     result = await scraper.scrape(url, extraction_schema=extraction_schema,
-                                                  proxy=None, user_agent=current_user_agent)
+                                                  proxy=None, user_agent=current_user_agent,
+                                                  max_redirects=settings.MAX_REDIRECTS)
                     break  # Éxito, salir del bucle de reintentos
                 except NetworkError as e:
                     self.logger.warning(f"URL {url} falló por error de red. Reintentando... (Intento {attempt + 1}/{settings.MAX_RETRIES})")
@@ -186,6 +188,10 @@ class ScrapingOrchestrator:
                         self.logger.error(f"URL {url} falló tras {settings.MAX_RETRIES} reintentos de red. Descartando.")
                         result = ScrapeResult(status="RETRY", url=url, error_message=str(e), retryable=True)
                         break
+                except RedirectLoopError as e:
+                    self.logger.error(f"URL {url} descartada por bucle de redirección: {e}")
+                    result = ScrapeResult(status="FAILED", url=url, error_message=str(e))
+                    break
                 except ScraperException as e:
                     self.logger.error(f"URL {url} falló con error de scraper: {e}. Descartando.")
                     result = ScrapeResult(status="FAILED", url=url, error_message=str(e))
@@ -238,18 +244,10 @@ class ScrapingOrchestrator:
                     self._check_for_visual_changes(result)
                     self.logger.warning(f"URL {url} procesada con estado {result.status}. Razón: {result.error_message}. Tipo: {result.content_type}")
 
-            # Reportar estadísticas si hay un callback
-            if self.stats_callback:
-                self.stats_callback({
-                    "processed": 1,
-                    "queue_size": self.queue.qsize(),
-                    "status": result.status if result else "UNKNOWN_FAILURE"
-                })
-
             self.queue.task_done()
 
     def _update_domain_metrics(self, result: ScrapeResult):
-        """Actualiza las métricas de rendimiento para un dominio."""
+        """Actualiza las métricas de rendimiento para un dominio y reporta a la TUI."""
         domain = urlparse(result.url).netloc
         metrics = self.domain_metrics[domain]
         metrics["total_scraped"] += 1
@@ -259,6 +257,15 @@ class ScrapingOrchestrator:
             metrics["empty"] += 1
         elif result.status == "FAILED":
             metrics["failed"] += 1
+
+        # B.1.2: Enviar el diccionario completo de domain_metrics en cada actualización.
+        if self.stats_callback:
+            self.stats_callback({
+                "processed": 1,
+                "queue_size": self.queue.qsize(),
+                "status": result.status,
+                "domain_metrics": self.domain_metrics
+            })
 
     def _check_for_anomalies(self, domain: str):
         """Verifica si hay anomalías en el scraping de un dominio y ajusta el backoff."""
@@ -299,6 +306,54 @@ class ScrapingOrchestrator:
         except Exception as e:
             self.logger.error(f"No se pudo comparar el hash visual para {new_result.url}: {e}")
 
+    def _has_repetitive_path(self, path: str) -> bool:
+        """
+        Detects simple repetitive patterns in URL paths like /a/b/a/b.
+        This is a heuristic to avoid crawler traps like calendars.
+        """
+        segments = [s for s in path.split('/') if s]
+        n = len(segments)
+        if n < 4: # Need at least /a/b/a/b to detect a repetition of a 2-segment path
+            return False
+
+        # Check for adjacent repetitions. e.g., /a/b/c/b/c
+        # Iterate over possible lengths of the repeating sequence
+        for length in range(1, n // 2 + 1):
+            # Check if the path ends with a repetition
+            if segments[-2*length:-length] == segments[-length:]:
+                self.logger.debug(f"Repetitive path pattern {segments[-length:]} detected in path: {path}")
+                return True
+        return False
+
+    async def _prequalify_url(self, url: str) -> tuple[bool, str]:
+        """
+        B.2: Realiza una petición HEAD para pre-calificar una URL antes de encolarla.
+        Devuelve (True, "") si es válida, o (False, "razón") si se descarta.
+        NOTA: Requiere añadir PREQUALIFICATION_ENABLED, ALLOWED_CONTENT_TYPES,
+        y MAX_CONTENT_LENGTH_BYTES a src/settings.py
+        """
+        if not getattr(settings, 'PREQUALIFICATION_ENABLED', False):
+            return True, "Prequalification disabled"
+
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                head_response = await client.head(url, follow_redirects=True)
+
+            content_type = head_response.headers.get('content-type', '').split(';')[0].lower()
+            allowed_types = getattr(settings, 'ALLOWED_CONTENT_TYPES', ['text/html', 'application/xhtml+xml'])
+            if content_type and content_type not in allowed_types:
+                return False, f"Content-Type no permitido: {content_type}"
+
+            content_length = head_response.headers.get('content-length')
+            max_length = getattr(settings, 'MAX_CONTENT_LENGTH_BYTES', 10_000_000) # 10MB por defecto
+            if content_length and int(content_length) > max_length:
+                return False, f"Content-Length excede el límite: {content_length} bytes"
+
+            return True, ""
+        except (httpx.RequestError, asyncio.TimeoutError) as e:
+            self.logger.warning(f"Fallo en la pre-calificación HEAD para {url}: {e}. Se permitirá por precaución.")
+            return True, f"HEAD request failed: {e}"
+
     async def _add_links_to_queue(self, links: list[str], parent_content_type: str = "UNKNOWN"):
         """
         Filtra, limpia y añade nuevos enlaces a la cola de prioridad.
@@ -308,9 +363,20 @@ class ScrapingOrchestrator:
             # Limpiar URL (quitar fragmentos y parámetros de consulta)
             clean_link = urlunparse(parsed_link._replace(fragment="", query=""))
 
+            # C.2.1: Protección contra bucles de crawling por ruta repetitiva
+            if self._has_repetitive_path(parsed_link.path):
+                self.logger.warning(f"URL descartada por patrón de ruta repetitivo: {clean_link}")
+                continue
+
             is_allowed_by_robots = self.robot_rules.is_allowed(settings.USER_AGENT, clean_link) if self.robot_rules and self.respect_robots_txt else True
 
             if urlparse(clean_link).netloc == self.allowed_domain and clean_link not in self.seen_urls and is_allowed_by_robots:
+                # B.2: Pre-calificación de URLs con Peticiones HEAD
+                is_qualified, reason = await self._prequalify_url(clean_link)
+                if not is_qualified:
+                    self.logger.debug(f"URL descartada por pre-calificación: {clean_link}. Razón: {reason}")
+                    continue
+
                 self.seen_urls.add(clean_link)
                 priority = self._calculate_priority(clean_link, parent_content_type) # Pass content_type
                 await self.queue.put((priority, clean_link))
@@ -355,7 +421,6 @@ class ScrapingOrchestrator:
         robots_url = urlunparse((urlparse(self.start_urls[0]).scheme, self.allowed_domain, 'robots.txt', '', '', ''))
         try:
             # Usamos una petición simple, no es necesario un navegador completo para esto
-            import httpx # httpx supports HTTP/2 by default
             async with httpx.AsyncClient() as client:
                 response = await client.get(robots_url, follow_redirects=True)
                 if response.status_code == 200:

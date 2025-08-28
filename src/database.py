@@ -32,6 +32,15 @@ class DatabaseManager:
         Guarda un ScrapeResult en la base de datos.
         Usa la URL como clave única para insertar o actualizar.
         """
+        # C.3: Gestión de Duplicados por Contenido
+        # Si el resultado tiene un hash de contenido, comprobar si ya existe.
+        if result.content_hash:
+            existing = self.table.find_one(content_hash=result.content_hash)
+            # Si existe y no es la misma URL (para evitar marcar como duplicado en un re-scrapeo de la misma página)
+            if existing and existing['url'] != result.url:
+                logger.info(f"Contenido duplicado detectado para {result.url}. Original: {existing['url']}. Marcando como DUPLICATE.")
+                result.status = "DUPLICATE"
+
         data = result.model_dump(mode='json')
 
         # Serializa la lista de enlaces a un string JSON
