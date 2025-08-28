@@ -12,25 +12,28 @@ jobs:
       - name: Compute policy from last metrics
         run: |
           python - <<'PY'
-import json, os
+import json, os, pathlib
+base = pathlib.Path(".github/scraper-policy.json")
 pol = {
-  "default": { "concurrency": 4, "request_delay_ms": 300, "timeout_s": 30, "max_retries": 3 },
+  "default": { "concurrency": 4, "request_delay_ms": 300, "timeout_s": 30, "max_retries": 3, "respect_robots": False },
   "per_host": {},
   "thresholds": { "success_min": 0.90, "rate_limit_max": 0.05, "server_error_max": 0.03 }
 }
-if os.path.exists(".github/scraper-policy.json"):
-    pol = json.load(open(".github/scraper-policy.json"))
-os.makedirs("out", exist_ok=True)
-if os.path.exists("artifacts/metrics.json"):
-    m = json.load(open("artifacts/metrics.json"))
-    d = pol["default"]
-    if m.get("rate_limit_rate",0) > pol["thresholds"]["rate_limit_max"]:
-        d["request_delay_ms"] = min(2000, d["request_delay_ms"] + 200)
-        d["concurrency"] = max(1, d["concurrency"] - 1)
+if base.exists():
+    pol = json.loads(base.read_text(encoding="utf-8"))
+mfile = pathlib.Path("artifacts/metrics.json")
+if mfile.exists():
+    m = json.loads(mfile.read_text(encoding="utf-8"))
+    d = pol.setdefault("default",{})
+    if m.get("rate_limit_rate",0) > pol["thresholds"]["rate_limit_max"] or m.get("server_error_rate",0) > pol["thresholds"]["server_error_max"]:
+        d["request_delay_ms"] = min(2000, int(d.get("request_delay_ms",300)) + 200)
+        d["concurrency"] = max(1, int(d.get("concurrency",4)) - 1)
     elif m.get("success_rate",1) > 0.95 and m.get("latency_p95_s",1.0) < 1.0:
-        d["request_delay_ms"] = max(100, d["request_delay_ms"] - 50)
-        d["concurrency"] = min(8, d["concurrency"] + 1)
-json.dump(pol, open("out/scraper-policy.json","w"), indent=2)
+        d["request_delay_ms"] = max(100, int(d.get("request_delay_ms",300)) - 50)
+        d["concurrency"] = min(8, int(d.get("concurrency",4)) + 1)
+out = pathlib.Path("out"); out.mkdir(exist_ok=True)
+(out / "scraper-policy.json").write_text(json.dumps(pol, indent=2), encoding="utf-8")
+print("policy:", json.dumps(pol))
 PY
       - name: Create PR with updated policy
         uses: peter-evans/create-pull-request@v6
