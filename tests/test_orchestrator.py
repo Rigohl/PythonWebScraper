@@ -1,5 +1,6 @@
 import pytest
 import asyncio
+import json
 from unittest.mock import AsyncMock, Mock, patch
 from urllib.parse import urlparse, urlunparse
 
@@ -78,7 +79,7 @@ def mock_frontier_classifier_orchestrator():
 @pytest.fixture(autouse=True)
 def patch_orchestrator_external_deps(mock_page_orchestrator):
     with (
-        patch('playwright_stealth.Stealth.use_async', new=AsyncMock(return_value=AsyncMock()))
+        patch('playwright_stealth.Stealth.use_async', new=AsyncMock(return_value=AsyncMock())),
         patch('src.scraper.AdvancedScraper', new=Mock(return_value=AsyncMock())), # Mock the class itself
         patch('httpx.AsyncClient', new=Mock()),
         patch('src.orchestrator.urlparse', wraps=urlparse) as mock_urlparse,
@@ -87,7 +88,7 @@ def patch_orchestrator_external_deps(mock_page_orchestrator):
         # Configure the mock AdvancedScraper to return a successful result by default
         mock_scraper_instance = AsyncMock()
         mock_scraper_instance.scrape.return_value = ScrapeResult(status="SUCCESS", url="http://test.com", title="Test", content_text="Content")
-        
+
         # Patch the AdvancedScraper class to return our configured mock instance
         with patch('src.scraper.AdvancedScraper', return_value=mock_scraper_instance) as mock_AdvancedScraper_class:
             yield

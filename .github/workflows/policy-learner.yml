@@ -1,0 +1,44 @@
+name: Policy Learner
+on:
+  schedule: [ { cron: "30 3 * * 1" } ]
+  workflow_dispatch:
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Compute policy from last metrics
+        run: |
+          python - <<'PY'
+import json, os
+pol = {
+  "default": { "concurrency": 4, "request_delay_ms": 300, "timeout_s": 30, "max_retries": 3 },
+  "per_host": {},
+  "thresholds": { "success_min": 0.90, "rate_limit_max": 0.05, "server_error_max": 0.03 }
+}
+if os.path.exists(".github/scraper-policy.json"):
+    pol = json.load(open(".github/scraper-policy.json"))
+# MVP: si hay artifacts/metrics.json del último run manual, ajusta delay/concurrency
+os.makedirs("out", exist_ok=True)
+if os.path.exists("artifacts/metrics.json"):
+    m = json.load(open("artifacts/metrics.json"))
+    d = pol["default"]
+    if m.get("rate_limit_rate",0) > pol["thresholds"]["rate_limit_max"]:
+        d["request_delay_ms"] = min(2000, d["request_delay_ms"] + 200)
+        d["concurrency"] = max(1, d["concurrency"] - 1)
+    elif m.get("success_rate",1) > 0.95 and m.get("latency_p95_s",1.0) < 1.0:
+        d["request_delay_ms"] = max(100, d["request_delay_ms"] - 50)
+        d["concurrency"] = min(8, d["concurrency"] + 1)
+json.dump(pol, open("out/scraper-policy.json","w"), indent=2)
+PY
+      - name: Create PR with updated policy
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "chore(policy): actualizar scraper-policy.json (aprendizaje semanal)"
+          commit-message: "chore(policy): actualizar scraper-policy.json (aprendizaje semanal)"
+          body: "Propuesta basada en métricas del smoke. Revisa concurrencia/delay/thresholds."
+          branch: "bot/policy-update"
+          add-paths: "out/scraper-policy.json"
+          base: "main"
