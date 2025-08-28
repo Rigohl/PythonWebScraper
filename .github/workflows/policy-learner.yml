@@ -20,7 +20,6 @@ pol = {
 }
 if os.path.exists(".github/scraper-policy.json"):
     pol = json.load(open(".github/scraper-policy.json"))
-# MVP: si hay artifacts/metrics.json del último run manual, ajusta delay/concurrency
 os.makedirs("out", exist_ok=True)
 if os.path.exists("artifacts/metrics.json"):
     m = json.load(open("artifacts/metrics.json"))
