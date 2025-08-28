@@ -12,9 +12,6 @@ T = TypeVar("T", bound=BaseModel)
 
 class LLMExtractor:
     """
-<<<<<<< HEAD
-    class LLMExtractor:
-    """
     Utiliza un LLM (a través de la API de OpenAI y `instructor`) para realizar
     tareas de procesamiento de lenguaje natural como limpieza y extracción estructurada.
     """

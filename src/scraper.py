@@ -288,6 +288,66 @@ class AdvancedScraper:
         if content_text and len(content_text) > settings.MIN_CONTENT_LENGTH:
             return "GENERAL"
         return "UNKNOWN"
+
+    async def _perform_structured_extraction(self, url: str, schema: Optional[dict]) -> (dict, list):
+        """Realiza la extracción de datos usando selectores y se auto-repara si fallan."""
+        if not schema:
+            return {}, []
+
+        extracted_data = {}
+        healing_events = []
+        previous_result = self.db_manager.get_result_by_url(url)
+
+        for field, selector in schema.items():
+            try:
+                element = self.page.locator(selector).first
+                if await element.count() > 0:
+                    value = await element.inner_text()
+                    extracted_data[field] = {"value": value.strip(), "selector": selector}
+                else: # Selector falló, intentar auto-reparación
+                    self.logger.warning(f"Selector '{selector}' para '{field}' falló en {url}. Intentando auto-reparación...")
+                    healed = False
+                    if previous_result and previous_result.get('extracted_data') and field in previous_result['extracted_data']:
+                        old_text_value = previous_result['extracted_data'][field].get('value')
+                        if old_text_value:
+                            healed_locator = self.page.locator(f":text-is('{old_text_value}')").first
+                            if await healed_locator.count() > 0:
+                                new_selector = await self._generate_stable_selector(healed_locator)
+                                extracted_data[field] = {"value": old_text_value, "selector": new_selector}
+                                healing_events.append({"field": field, "old_selector": selector, "new_selector": new_selector})
+                                self.logger.info(f"¡ÉXITO DE AUTO-REPARACIÓN! Campo '{field}' reparado. Nuevo selector: '{new_selector}'")
+                                healed = True
+                    if not healed:
+                        self.logger.error(f"FALLO DE AUTO-REPARACIÓN para el campo '{field}' en {url}.")
+                        extracted_data[field] = {"value": None, "selector": selector, "error": "Selector failed"}
+            except Exception as e:
+                self.logger.error(f"Error extrayendo campo '{field}': {e}")
+                extracted_data[field] = {"value": None, "selector": selector, "error": str(e)}
+        return extracted_data, healing_events
+
+    def _validate_content_quality(self, text: Optional[str], title: Optional[str]):
+        """Valida la calidad del contenido extraído y limpio."""
+        if not text:
+            raise ContentQualityError("El contenido extraído está vacío después de la limpieza.")
+        if len(text) < settings.MIN_CONTENT_LENGTH:
+            raise ContentQualityError(f"El contenido es demasiado corto ({len(text)} caracteres).")
+        for phrase in settings.FORBIDDEN_PHRASES:
+            if phrase in text.lower() or (title and phrase in title.lower()):
+                raise ContentQualityError(f"Contenido parece ser una página de error (contiene: '{phrase}').")
+
+    def _classify_content(self, title: Optional[str], content_text: Optional[str]) -> str:
+        """Clasifica el contenido de la página basado en palabras clave."""
+        title_lower = title.lower() if title else ""
+        content_lower = content_text.lower() if content_text else ""
+        if "producto" in title_lower or "comprar" in title_lower or "precio" in content_lower or "añadir al carrito" in content_lower:
+            return "PRODUCT"
+        if "blog" in title_lower or "articulo" in title_lower or "noticia" in title_lower or "leer más" in content_lower:
+            return "BLOG_POST"
+        if "guia" in title_lower or "tutorial" in title_lower:
+            return "ARTICLE"
+        if content_text and len(content_text) > settings.MIN_CONTENT_LENGTH:
+            return "GENERAL"
+        return "UNKNOWN"
     def _validate_content_quality(self, text: Optional[str], title: Optional[str]):
         """Valida la calidad del contenido extraído y limpio."""
         if not text:

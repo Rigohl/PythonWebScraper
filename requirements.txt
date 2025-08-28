@@ -8,6 +8,8 @@ imagehash
 robotexclusionrulesparser
 playwright-stealth
 pydantic-settings
+instructor
+openai
 pydantic-settings
 
 # Development dependencies

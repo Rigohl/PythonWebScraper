@@ -15,10 +15,10 @@
   - [ ] **A.1.4:** Implementar la lógica de `learn()` para entrenar el modelo con la tupla `(estado, acción, recompensa, nuevo_estado)`.
   - [ ] **A.1.5:** Añadir persistencia para guardar/cargar el modelo entrenado, permitiendo aprendizaje continuo.
 
-- [ ] **A.2: Implementar Extracción de Datos con LLMs (Zero-Shot)**
-  - [ ] **A.2.1:** Integrar la librería `instructor` y `openai`.
-  - [ ] **A.2.2:** Reemplazar la lógica simulada en `LLMExtractor` con llamadas reales a la API de OpenAI usando `instructor`.
-  - [ ] **A.2.3:** Crear un nuevo flujo de trabajo en el `AdvancedScraper` que acepte un modelo Pydantic como esquema de extracción en lugar de selectores CSS.
+- [x] **A.2: Implementar Extracción de Datos con LLMs (Zero-Shot)**
+  - [x] **A.2.1:** Integrar la librería `instructor` y `openai`.
+  - [x] **A.2.2:** Reemplazar la lógica simulada en `LLMExtractor` con llamadas reales a la API de OpenAI usando `instructor`.
+  - [x] **A.2.3:** Crear un nuevo flujo de trabajo en el `AdvancedScraper` que acepte un modelo Pydantic como esquema de extracción en lugar de selectores CSS.
 
 - [ ] **A.3: Implementar Priorización Inteligente de la Frontera**
   - [ ] **A.3.1:** Crear un script para generar un dataset de entrenamiento (CSV) a partir de la base de datos existente, etiquetando URLs como "prometedoras" o "no prometedoras".

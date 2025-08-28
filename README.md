@@ -125,3 +125,9 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 - `styles.css`: Hoja de estilos para la TUI.
 - `MEJORAS.md`: La hoja de ruta estratégica del proyecto.
 - `README.md`: Este mismo archivo.
+
+---
+
+## Registro de Cambios
+
+- **2025-08-28**: Completada la implementación de Extracción de Datos Zero-Shot con LLMs (Tarea A.2).
