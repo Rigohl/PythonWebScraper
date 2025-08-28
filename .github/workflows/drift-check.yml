@@ -1,0 +1,54 @@
+name: Drift & Selector Check
+on:
+  schedule: [ { cron: "15 4 * * *" } ]
+  workflow_dispatch:
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml || true
+      - name: Run drift checks
+        id: drift
+        run: |
+          python - <<'PY'
+import sys, json, time, requests
+from bs4 import BeautifulSoup
+urls = ["https://books.toscrape.com/"]
+errors=[]
+for u in urls:
+  try:
+    r = requests.get(u, timeout=15); r.raise_for_status()
+    s = BeautifulSoup(r.text, "lxml")
+    # Selectores básicos: grid de libros y título
+    grid = s.select(".product_pod")
+    title = s.select_one("title")
+    if not grid or not title:
+      errors.append(f"{u}: selectores vacíos (grid:{len(grid)}, title:{bool(title)})")
+  except Exception as e:
+    errors.append(f"{u}: {e}")
+out = {"ok": not errors, "errors": errors}
+print(json.dumps(out, indent=2))
+open("artifacts_drift.json","w").write(json.dumps(out))
+sys.exit(0)
+PY
+      - name: Open issue if drift detected
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('artifacts_drift.json')) return;
+            const r = JSON.parse(fs.readFileSync('artifacts_drift.json','utf8'));
+            if (r.ok) return;
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: `Drift detectado en selectores (${new Date().toISOString()})`,
+              body: "Errores:\n```\n"+r.errors.join("\n")+"\n```",
+              labels: ["type/bug","area/orchestrator","prio/P1-soon"]
+            });

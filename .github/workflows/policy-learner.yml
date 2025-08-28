@@ -12,7 +12,7 @@ jobs:
       - name: Compute policy from last metrics
         run: |
           python - <<'PY'
-import json, os, pathlib
+import json, pathlib
 base = pathlib.Path(".github/scraper-policy.json")
 pol = {
   "default": { "concurrency": 4, "request_delay_ms": 300, "timeout_s": 30, "max_retries": 3, "respect_robots": False },
