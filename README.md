@@ -9,30 +9,48 @@ Un crawler y archivador web inteligente, diseñado para ser adaptable, resilient
 ## ¿Cómo Empezar?
 
 1. **Instalar Dependencias:**
-    Ejecuta el script para crear el entorno virtual e instalar todas las librerías necesarias.
+    Ejecuta el script de instalación correspondiente a tu sistema operativo. Esto creará un entorno virtual, instalará las librerías de Python y los navegadores necesarios para Playwright.
 
-    ```bash
+    **En Windows:**
+
+    ```powershell
     .\1-Install-Dependencies.bat
     ```
 
-2. **Lanzar la Aplicación:**
-    Una vez instaladas las dependencias, ejecuta el scraper a través de su interfaz gráfica de usuario (TUI).
+    **En Linux o macOS:**
 
     ```bash
+    chmod +x 1-Install-Dependencies.sh
+    ./1-Install-Dependencies.sh
+    ```
+
+2. **Lanzar la Aplicación:**
+    Una vez instaladas las dependencias, puedes ejecutar el scraper.
+
+    **En Windows (usando el script de lanzamiento):**
+
+    ```powershell
     .\2-Launch-Scraper.bat
     ```
 
-    Esto abrirá una interfaz en tu terminal donde podrás introducir la URL de inicio y configurar los parámetros del crawling.
-
-3. **(Opcional) Ejecución por Línea de Comandos (CLI):**
-    Para automatización, también puedes ejecutarlo directamente con `python`.
+    **En Linux o macOS (manualmente):**
 
     ```bash
-    # Iniciar un crawling desde la CLI
-    .\.venv\Scripts\python.exe src/main.py --crawl http://toscrape.com/
+    # 1. Activa el entorno virtual
+    source .venv/bin/activate
+    # 2. Lanza la TUI
+    python3 src/main.py --tui
     ```
 
-    Para ver todas las opciones, usa `.\.venv\Scripts\python.exe src\main.py --help`.
+3. **(Opcional) Ejecución por Línea de Comandos (CLI):**
+    Para automatización, también puedes ejecutarlo directamente (asegúrate de tener el entorno virtual activado).
+
+    ```bash
+    # Ejemplo: Iniciar un crawling desde la CLI
+    python3 src/main.py --crawl http://toscrape.com/
+    ```
+
+    Para ver todas las opciones, usa `python3 src/main.py --help`.
 
 ---
 
