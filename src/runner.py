@@ -2,7 +2,7 @@ import logging
 from playwright.async_api import async_playwright
 from src.orchestrator import ScrapingOrchestrator
 from src.database import DatabaseManager
-from src import config
+from src.settings import settings
 from src.user_agent_manager import UserAgentManager
 from src.llm_extractor import LLMExtractor
 from src.rl_agent import RLAgent
@@ -22,9 +22,9 @@ async def run_crawler(
 
     # 1. Crear dependencias
     db_manager = DatabaseManager(db_path=db_path)
-    user_agent_manager = UserAgentManager(user_agents=config.USER_AGENT_LIST)
-    llm_extractor = LLMExtractor(api_key=config.LLM_API_KEY)
-    rl_agent = RLAgent(model_path=config.RL_MODEL_PATH)
+    user_agent_manager = UserAgentManager(user_agents=settings.USER_AGENT_LIST)
+    llm_extractor = LLMExtractor(api_key=settings.LLM_API_KEY)
+    rl_agent = RLAgent(model_path=settings.RL_MODEL_PATH)
 
     # 2. Gestionar el ciclo de vida de Playwright
     async with async_playwright() as p:

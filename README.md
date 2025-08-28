@@ -1,25 +1,3 @@
-playwright
-beautifulsoup4
-lxml
-requests
-httpx
-fastapi
-uvicorn
-python-multipart
-SQLAlchemy
-alembic
-psycopg2-binary
-tenacity
-loguru
-pydantic
-python-dotenv
-async-timeout
-ollama
-langchain
-langchain-community
-langchain-core
-langchain-openai
-tiktoken
 # Web Scraper PRO
 
 Un crawler y archivador web inteligente, diseñado para ser adaptable, resiliente y fácil de usar.
@@ -91,9 +69,10 @@ El proceso de scraping es gestionado por un orquestador concurrente:
     - **Gestión de Huellas Digitales (Fingerprinting):** Más allá del modo sigiloso, el `FingerprintManager` genera perfiles de navegador completos y consistentes. Para cada página, se aplica no solo un User-Agent, sino también un tamaño de viewport y propiedades de JavaScript (como `navigator.platform`) que se corresponden con ese perfil, frustrando las técnicas de fingerprinting avanzadas.
     - **Manejo Inteligente de Cookies y Sesiones:** El sistema ahora persiste y reutiliza cookies por dominio, permitiendo mantener sesiones activas y sortear sistemas de autenticación o límites de acceso, mejorando la resistencia a la detección.
     - **Extracción Dinámica con LLMs (Zero-Shot):** El scraper ahora puede extraer datos estructurados directamente del HTML utilizando un LLM. Los esquemas de extracción se pueden definir dinámicamente por dominio y se almacenan en la base de datos, lo que elimina la necesidad de selectores CSS estáticos y mejora la adaptabilidad del scraper a los cambios en el diseño web.
+    - **Alertas y Notificaciones en TUI:** Se ha implementado un sistema de alertas visuales directamente en la Interfaz de Usuario Textual (TUI), notificando al usuario sobre eventos críticos como fallos persistentes, bucles de redirección, problemas de calidad de contenido o cambios visuales significativos en las páginas.
+    - **Reintentos Adaptativos con Backoff Exponencial:** El orquestador gestiona los reintentos de forma inteligente. En caso de fallos temporales (como errores de red), aplica un tiempo de espera que aumenta exponencialmente con cada intento, permitiendo al scraper recuperarse de interrupciones sin saturar el servidor objetivo.
+    - **Agente de Aprendizaje por Refuerzo (RL) Evolucionado:** Se ha integrado un agente de RL basado en PPO (`stable-baselines3` y `gymnasium`). Este agente, a través del aprendizaje, puede ajustar dinámicamente parámetros de la estrategia de scraping como el factor de backoff, con el objetivo de optimizar el rendimiento y la resistencia a la detección de forma autónoma.
     - **Integración con LLMs:** La arquitectura incluye un `LLMExtractor` que actualmente se usa para limpiar y resumir el contenido extraído, mejorando la calidad de los datos guardados.
-    - **Selectores Auto-reparables (Self-Healing):** Si un selector CSS para extraer datos específicos (definido en `config.py`) falla, el scraper busca en su historial el texto del dato extraído previamente y lo localiza en la nueva página, generando un nuevo selector y reportando el evento.
-    - **Optimización por RL (WIP):** Se ha diseñado un esqueleto para un agente de Aprendizaje por Refuerzo (`rl_agent.py`) que en el futuro podrá optimizar dinámicamente la estrategia de scraping (retrasos, reintentos, etc.).
     - **Protección contra Bucles:** El sistema detecta y descarta automáticamente URLs que caen en patrones de ruta repetitivos (como calendarios infinitos) o que exceden un número máximo de redirecciones, evitando el consumo inútil de recursos.
     - **Descubrimiento de APIs Ocultas:** Mientras navega, el scraper intercepta y analiza el tráfico de red en segundo plano. Automáticamente detecta y registra las llamadas a APIs (`fetch`/`XHR`) que devuelven datos en formato JSON, guardando las URLs de estas APIs para un posible análisis o scraping directo en el futuro. Esto permite descubrir fuentes de datos estructurados que no son visibles en el HTML.
 6. **Ciclo del Trabajador:**
@@ -118,7 +97,7 @@ El proceso de scraping es gestionado por un orquestador concurrente:
   - `src/user_agent_manager.py`: Gestiona la rotación y el ciclo de vida de los User-Agents.
   - `src/fingerprint_manager.py`: Genera perfiles de navegador completos y consistentes para evasión avanzada.
   - `src/llm_extractor.py`: Integra LLMs para la limpieza y extracción de datos.
-  - `src/rl_agent.py`: Esqueleto para un Agente de Aprendizaje por Refuerzo (RL) que optimiza la estrategia de scraping.
+  - `src/rl_agent.py`: Implementa un Agente de Aprendizaje por Refuerzo (RL) que optimiza la estrategia de scraping.
 
 - `tests/`: Carpeta que contiene todas las pruebas unitarias y de integración. La suite de pruebas ha sido mejorada y expandida para cubrir más funcionalidades.
 - `requirements.txt`: Lista de todas las dependencias de Python.

@@ -11,6 +11,10 @@ pydantic-settings
 instructor
 openai
 pydantic-settings
+stable-baselines3
+gymnasium
+openai
+instructor
 
 # Development dependencies
 pre-commit==3.7.0
