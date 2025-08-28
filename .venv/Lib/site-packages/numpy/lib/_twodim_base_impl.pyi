@@ -83,12 +83,10 @@ _ArrayLike1DNumber_co: TypeAlias = _SupportsArray[np.dtype[_Number_co]] | Sequen
 def fliplr(m: _ArrayLike[_ScalarT]) -> NDArray[_ScalarT]: ...
 @overload
 def fliplr(m: ArrayLike) -> NDArray[Any]: ...
-
 @overload
 def flipud(m: _ArrayLike[_ScalarT]) -> NDArray[_ScalarT]: ...
 @overload
 def flipud(m: ArrayLike) -> NDArray[Any]: ...
-
 @overload
 def eye(
     N: int,
@@ -133,64 +131,38 @@ def eye(
     device: L["cpu"] | None = ...,
     like: _SupportsArrayFunc | None = ...,
 ) -> NDArray[Any]: ...
-
 @overload
 def diag(v: _ArrayLike[_ScalarT], k: int = ...) -> NDArray[_ScalarT]: ...
 @overload
 def diag(v: ArrayLike, k: int = ...) -> NDArray[Any]: ...
-
 @overload
 def diagflat(v: _ArrayLike[_ScalarT], k: int = ...) -> NDArray[_ScalarT]: ...
 @overload
 def diagflat(v: ArrayLike, k: int = ...) -> NDArray[Any]: ...
-
 @overload
 def tri(
-    N: int,
-    M: int | None = ...,
-    k: int = ...,
-    dtype: None = ...,
-    *,
-    like: _SupportsArrayFunc | None = ...
+    N: int, M: int | None = ..., k: int = ..., dtype: None = ..., *, like: _SupportsArrayFunc | None = ...
 ) -> NDArray[float64]: ...
 @overload
 def tri(
-    N: int,
-    M: int | None,
-    k: int,
-    dtype: _DTypeLike[_ScalarT],
-    *,
-    like: _SupportsArrayFunc | None = ...
+    N: int, M: int | None, k: int, dtype: _DTypeLike[_ScalarT], *, like: _SupportsArrayFunc | None = ...
 ) -> NDArray[_ScalarT]: ...
 @overload
 def tri(
-    N: int,
-    M: int | None = ...,
-    k: int = ...,
-    *,
-    dtype: _DTypeLike[_ScalarT],
-    like: _SupportsArrayFunc | None = ...
+    N: int, M: int | None = ..., k: int = ..., *, dtype: _DTypeLike[_ScalarT], like: _SupportsArrayFunc | None = ...
 ) -> NDArray[_ScalarT]: ...
 @overload
 def tri(
-    N: int,
-    M: int | None = ...,
-    k: int = ...,
-    dtype: DTypeLike = ...,
-    *,
-    like: _SupportsArrayFunc | None = ...
+    N: int, M: int | None = ..., k: int = ..., dtype: DTypeLike = ..., *, like: _SupportsArrayFunc | None = ...
 ) -> NDArray[Any]: ...
-
 @overload
 def tril(m: _ArrayLike[_ScalarT], k: int = 0) -> NDArray[_ScalarT]: ...
 @overload
 def tril(m: ArrayLike, k: int = 0) -> NDArray[Any]: ...
-
 @overload
 def triu(m: _ArrayLike[_ScalarT], k: int = 0) -> NDArray[_ScalarT]: ...
 @overload
 def triu(m: ArrayLike, k: int = 0) -> NDArray[Any]: ...
-
 @overload
 def vander(  # type: ignore[misc]
     x: _ArrayLikeInt_co,
@@ -215,7 +187,6 @@ def vander(
     N: int | None = ...,
     increasing: bool = ...,
 ) -> NDArray[object_]: ...
-
 @overload
 def histogram2d(
     x: _ArrayLike1D[_ComplexFloatingT],
@@ -414,24 +385,20 @@ def mask_indices(
     mask_func: _MaskFunc[_T],
     k: _T,
 ) -> tuple[NDArray[intp], NDArray[intp]]: ...
-
 def tril_indices(
     n: int,
     k: int = ...,
     m: int | None = ...,
 ) -> tuple[NDArray[int_], NDArray[int_]]: ...
-
 def tril_indices_from(
     arr: NDArray[Any],
     k: int = ...,
 ) -> tuple[NDArray[int_], NDArray[int_]]: ...
-
 def triu_indices(
     n: int,
     k: int = ...,
     m: int | None = ...,
 ) -> tuple[NDArray[int_], NDArray[int_]]: ...
-
 def triu_indices_from(
     arr: NDArray[Any],
     k: int = ...,

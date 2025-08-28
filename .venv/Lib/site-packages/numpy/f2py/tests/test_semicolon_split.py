@@ -9,12 +9,9 @@ from . import util
 
 @pytest.mark.skipif(
     platform.system() == "Darwin",
-    reason="Prone to error when run with numpy/f2py/tests on mac os, "
-    "but not when run in isolation",
+    reason="Prone to error when run with numpy/f2py/tests on mac os, " "but not when run in isolation",
 )
-@pytest.mark.skipif(
-    not IS_64BIT, reason="32-bit builds are buggy"
-)
+@pytest.mark.skipif(not IS_64BIT, reason="32-bit builds are buggy")
 class TestMultiline(util.F2PyTest):
     suffix = ".pyf"
     module_name = "multiline"
@@ -41,12 +38,9 @@ end python module {module_name}
 
 @pytest.mark.skipif(
     platform.system() == "Darwin",
-    reason="Prone to error when run with numpy/f2py/tests on mac os, "
-    "but not when run in isolation",
+    reason="Prone to error when run with numpy/f2py/tests on mac os, " "but not when run in isolation",
 )
-@pytest.mark.skipif(
-    not IS_64BIT, reason="32-bit builds are buggy"
-)
+@pytest.mark.skipif(not IS_64BIT, reason="32-bit builds are buggy")
 @pytest.mark.slow
 class TestCallstatement(util.F2PyTest):
     suffix = ".pyf"

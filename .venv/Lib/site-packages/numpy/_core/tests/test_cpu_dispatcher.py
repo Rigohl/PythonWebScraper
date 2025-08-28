@@ -12,12 +12,7 @@ def test_dispatcher():
     """
     Testing the utilities of the CPU dispatcher
     """
-    targets = (
-        "SSE2", "SSE41", "AVX2",
-        "VSX", "VSX2", "VSX3",
-        "NEON", "ASIMD", "ASIMDHP",
-        "VX", "VXE", "LSX"
-    )
+    targets = ("SSE2", "SSE41", "AVX2", "VSX", "VSX2", "VSX3", "NEON", "ASIMD", "ASIMDHP", "VX", "VXE", "LSX")
     highest_sfx = ""  # no suffix for the baseline
     all_sfx = []
     for feature in reversed(targets):

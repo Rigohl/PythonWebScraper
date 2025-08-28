@@ -38,9 +38,7 @@ if TYPE_CHECKING:
 
 
 class SchemaObjects:
-    def __init__(
-        self, migration_context: Optional[MigrationContext] = None
-    ) -> None:
+    def __init__(self, migration_context: Optional[MigrationContext] = None) -> None:
         self.migration_context = migration_context
 
     def primary_key_constraint(
@@ -56,9 +54,7 @@ class SchemaObjects:
         t = sa_schema.Table(table_name, m, *columns, schema=schema)
         # SQLAlchemy primary key constraint name arg is wrongly typed on
         # the SQLAlchemy side through 2.0.5 at least
-        p = sa_schema.PrimaryKeyConstraint(
-            *[t.c[n] for n in cols], name=name, **dialect_kw  # type: ignore
-        )
+        p = sa_schema.PrimaryKeyConstraint(*[t.c[n] for n in cols], name=name, **dialect_kw)  # type: ignore
         return p
 
     def foreign_key_constraint(
@@ -92,18 +88,11 @@ class SchemaObjects:
         t1 = sa_schema.Table(
             source,
             m,
-            *[
-                sa_schema.Column(n, NULLTYPE)
-                for n in util.unique_list(t1_cols)
-            ],
+            *[sa_schema.Column(n, NULLTYPE) for n in util.unique_list(t1_cols)],
             schema=source_schema,
         )
 
-        tname = (
-            "%s.%s" % (referent_schema, referent)
-            if referent_schema
-            else referent
-        )
+        tname = "%s.%s" % (referent_schema, referent) if referent_schema else referent
 
         dialect_kw["match"] = match
 
@@ -170,9 +159,7 @@ class SchemaObjects:
     ) -> Any:
         t = self.table(table_name, schema=schema)
         types: Dict[Optional[str], Any] = {
-            "foreignkey": lambda name: sa_schema.ForeignKeyConstraint(
-                [], [], name=name
-            ),
+            "foreignkey": lambda name: sa_schema.ForeignKeyConstraint([], [], name=name),
             "primary": sa_schema.PrimaryKeyConstraint,
             "unique": sa_schema.UniqueConstraint,
             "check": lambda name: sa_schema.CheckConstraint("", name=name),
@@ -181,10 +168,7 @@ class SchemaObjects:
         try:
             const = types[type_]
         except KeyError as ke:
-            raise TypeError(
-                "'type' can be one of %s"
-                % ", ".join(sorted(repr(x) for x in types))
-            ) from ke
+            raise TypeError("'type' can be one of %s" % ", ".join(sorted(repr(x) for x in types))) from ke
         else:
             const = const(name=name)
             t.append_constraint(const)
@@ -192,10 +176,7 @@ class SchemaObjects:
 
     def metadata(self) -> MetaData:
         kw = {}
-        if (
-            self.migration_context is not None
-            and "target_metadata" in self.migration_context.opts
-        ):
+        if self.migration_context is not None and "target_metadata" in self.migration_context.opts:
             mt = self.migration_context.opts["target_metadata"]
             if hasattr(mt, "naming_convention"):
                 kw["naming_convention"] = mt.naming_convention
@@ -204,11 +185,7 @@ class SchemaObjects:
     def table(self, name: str, *columns, **kw) -> Table:
         m = self.metadata()
 
-        cols = [
-            sqla_compat._copy(c) if c.table is not None else c
-            for c in columns
-            if isinstance(c, Column)
-        ]
+        cols = [sqla_compat._copy(c) if c.table is not None else c for c in columns if isinstance(c, Column)]
         # these flags have already added their UniqueConstraint /
         # Index objects to the table, so flip them off here.
         # SQLAlchemy tometadata() avoids this instead by preserving the
@@ -225,8 +202,7 @@ class SchemaObjects:
         constraints = [
             (
                 sqla_compat._copy(elem, target_table=t)
-                if getattr(elem, "parent", None) is not t
-                and getattr(elem, "parent", None) is not None
+                if getattr(elem, "parent", None) is not t and getattr(elem, "parent", None) is not None
                 else elem
             )
             for elem in columns

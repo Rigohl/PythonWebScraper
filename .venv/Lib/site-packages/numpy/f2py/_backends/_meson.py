@@ -29,9 +29,7 @@ class MesonTemplate:
         python_exe: str,
     ):
         self.modulename = modulename
-        self.build_template_path = (
-            Path(__file__).parent.absolute() / "meson.build.template"
-        )
+        self.build_template_path = Path(__file__).parent.absolute() / "meson.build.template"
         self.sources = sources
         self.deps = deps
         self.libraries = libraries
@@ -43,10 +41,7 @@ class MesonTemplate:
         self.substitutions = {}
         self.objects = object_files
         # Convert args to '' wrapped variant for meson
-        self.fortran_args = [
-            f"'{x}'" if not (x.startswith("'") and x.endswith("'")) else x
-            for x in fortran_args
-        ]
+        self.fortran_args = [f"'{x}'" if not (x.startswith("'") and x.endswith("'")) else x for x in fortran_args]
         self.pipeline = [
             self.initialize_template,
             self.sources_substitution,
@@ -63,9 +58,7 @@ class MesonTemplate:
         if not self.build_template_path.is_file():
             raise FileNotFoundError(
                 errno.ENOENT,
-                "Meson build template"
-                f" {self.build_template_path.absolute()}"
-                " does not exist.",
+                "Meson build template" f" {self.build_template_path.absolute()}" " does not exist.",
             )
         return self.build_template_path.read_text()
 
@@ -75,9 +68,7 @@ class MesonTemplate:
         self.substitutions["python"] = self.python_exe
 
     def sources_substitution(self) -> None:
-        self.substitutions["source_list"] = ",\n".join(
-            [f"{self.indent}'''{source}'''," for source in self.sources]
-        )
+        self.substitutions["source_list"] = ",\n".join([f"{self.indent}'''{source}'''," for source in self.sources])
 
     def deps_substitution(self) -> None:
         self.substitutions["dep_list"] = f",\n{self.indent}".join(
@@ -93,10 +84,7 @@ class MesonTemplate:
         )
 
         self.substitutions["lib_declarations"] = "\n".join(
-            [
-                f"{lib.replace('.', '_')} = declare_dependency(link_args : ['-l{lib}'])"
-                for lib in self.libraries
-            ]
+            [f"{lib.replace('.', '_')} = declare_dependency(link_args : ['-l{lib}'])" for lib in self.libraries]
         )
 
         self.substitutions["lib_list"] = f"\n{self.indent}".join(
@@ -113,9 +101,7 @@ class MesonTemplate:
 
     def fortran_args_substitution(self) -> None:
         if self.fortran_args:
-            self.substitutions["fortran_args"] = (
-                f"{self.indent}fortran_args: [{', '.join(list(self.fortran_args))}],"
-            )
+            self.substitutions["fortran_args"] = f"{self.indent}fortran_args: [{', '.join(list(self.fortran_args))}],"
         else:
             self.substitutions["fortran_args"] = ""
 
@@ -133,9 +119,7 @@ class MesonBackend(Backend):
         super().__init__(*args, **kwargs)
         self.dependencies = self.extra_dat.get("dependencies", [])
         self.meson_build_dir = "bbdir"
-        self.build_type = (
-            "debug" if any("debug" in flag for flag in self.fc_flags) else "release"
-        )
+        self.build_type = "debug" if any("debug" in flag for flag in self.fc_flags) else "release"
         self.fc_flags = _get_flags(self.fc_flags)
 
     def _move_exec_to_root(self, build_dir: Path):
@@ -209,11 +193,7 @@ def _prepare_sources(mname, sources, bdir):
             shutil.copy(generated_source, bdir / generated_source.name)
             extended_sources.append(generated_source.name)
             generated_source.unlink()
-    extended_sources = [
-        Path(source).name
-        for source in extended_sources
-        if not Path(source).suffix == ".pyf"
-    ]
+    extended_sources = [Path(source).name for source in extended_sources if not Path(source).suffix == ".pyf"]
     return extended_sources
 
 

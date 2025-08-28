@@ -25,9 +25,7 @@ if TYPE_CHECKING:
     from ..runtime.migration import MigrationContext
     from ..script.revision import _GetRevArg
 
-ProcessRevisionDirectiveFn = Callable[
-    ["MigrationContext", "_GetRevArg", List["MigrationScript"]], None
-]
+ProcessRevisionDirectiveFn = Callable[["MigrationContext", "_GetRevArg", List["MigrationScript"]], None]
 
 
 class Rewriter:
@@ -143,12 +141,8 @@ class Rewriter:
             if self in directive._mutations:
                 yield directive
             else:
-                for r_directive in util.to_list(
-                    _rewriter(context, revision, directive), []
-                ):
-                    r_directive._mutations = r_directive._mutations.union(
-                        [self]
-                    )
+                for r_directive in util.to_list(_rewriter(context, revision, directive), []):
+                    r_directive._mutations = r_directive._mutations.union([self])
                     yield r_directive
 
     def __call__(
@@ -172,9 +166,7 @@ class Rewriter:
         for upgrade_ops in directive.upgrade_ops_list:
             ret = self._traverse_for(context, revision, upgrade_ops)
             if len(ret) != 1:
-                raise ValueError(
-                    "Can only return single object for UpgradeOps traverse"
-                )
+                raise ValueError("Can only return single object for UpgradeOps traverse")
             upgrade_ops_list.append(ret[0])
 
         directive.upgrade_ops = upgrade_ops_list
@@ -183,9 +175,7 @@ class Rewriter:
         for downgrade_ops in directive.downgrade_ops_list:
             ret = self._traverse_for(context, revision, downgrade_ops)
             if len(ret) != 1:
-                raise ValueError(
-                    "Can only return single object for DowngradeOps traverse"
-                )
+                raise ValueError("Can only return single object for DowngradeOps traverse")
             downgrade_ops_list.append(ret[0])
         directive.downgrade_ops = downgrade_ops_list
 

@@ -126,9 +126,7 @@ class FindIdentifiers(_ast_util.NodeVisitor):
         self.in_function = True
 
         local_ident_stack = self.local_ident_stack
-        self.local_ident_stack = local_ident_stack.union(
-            [arg_id(arg) for arg in self._expand_tuples(node.args.args)]
-        )
+        self.local_ident_stack = local_ident_stack.union([arg_id(arg) for arg in self._expand_tuples(node.args.args)])
         if islambda:
             self.visit(node.body)
         else:
@@ -194,13 +192,9 @@ class FindTuple(_ast_util.NodeVisitor):
             self.listener.codeargs.append(p)
             self.listener.args.append(ExpressionGenerator(n).value())
             ldi = self.listener.declared_identifiers
-            self.listener.declared_identifiers = ldi.union(
-                p.declared_identifiers
-            )
+            self.listener.declared_identifiers = ldi.union(p.declared_identifiers)
             lui = self.listener.undeclared_identifiers
-            self.listener.undeclared_identifiers = lui.union(
-                p.undeclared_identifiers
-            )
+            self.listener.undeclared_identifiers = lui.union(p.undeclared_identifiers)
 
 
 class ParseFunc(_ast_util.NodeVisitor):

@@ -32,9 +32,7 @@ except (ImportError, OSError):
     TERMWIDTH = None
 
 
-def write_outstream(
-    stream: TextIO, *text: Union[str, bytes], quiet: bool = False
-) -> None:
+def write_outstream(stream: TextIO, *text: Union[str, bytes], quiet: bool = False) -> None:
     if quiet:
         return
     encoding = getattr(stream, "encoding", "ascii") or "ascii"
@@ -52,9 +50,7 @@ def write_outstream(
 
 
 @contextmanager
-def status(
-    status_msg: str, newline: bool = False, quiet: bool = False
-) -> Iterator[None]:
+def status(status_msg: str, newline: bool = False, quiet: bool = False) -> Iterator[None]:
     msg(status_msg + " ...", newline, flush=True, quiet=quiet)
     try:
         yield
@@ -85,9 +81,7 @@ def warn_deprecated(msg: str, stacklevel: int = 2) -> None:
     warnings.warn(msg, DeprecationWarning, stacklevel=stacklevel)
 
 
-def msg(
-    msg: str, newline: bool = True, flush: bool = False, quiet: bool = False
-) -> None:
+def msg(msg: str, newline: bool = True, flush: bool = False, quiet: bool = False) -> None:
     if quiet:
         return
     if TERMWIDTH is None:

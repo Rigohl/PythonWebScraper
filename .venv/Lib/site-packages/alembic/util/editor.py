@@ -14,9 +14,7 @@ from .compat import is_posix
 from .exc import CommandError
 
 
-def open_in_editor(
-    filename: str, environ: Optional[Dict[str, str]] = None
-) -> None:
+def open_in_editor(filename: str, environ: Optional[Dict[str, str]] = None) -> None:
     """
     Opens the given file in a text editor. If the environment variable
     ``EDITOR`` is set, this is taken as preference.
@@ -52,15 +50,10 @@ def _find_editor(environ: Mapping[str, str]) -> str:
         path = _find_executable(candidate, environ)
         if path is not None:
             return path
-    raise OSError(
-        "No suitable editor found. Please set the "
-        '"EDITOR" or "VISUAL" environment variables'
-    )
+    raise OSError("No suitable editor found. Please set the " '"EDITOR" or "VISUAL" environment variables')
 
 
-def _find_executable(
-    candidate: str, environ: Mapping[str, str]
-) -> Optional[str]:
+def _find_executable(candidate: str, environ: Mapping[str, str]) -> Optional[str]:
     # Assuming this is on the PATH, we need to determine it's absolute
     # location. Otherwise, ``check_call`` will fail
     if not is_posix and splitext(candidate)[1] != ".exe":

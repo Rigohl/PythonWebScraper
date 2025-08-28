@@ -98,12 +98,8 @@ CONFIG = _cleanup(
         },
         "SIMD Extensions": {
             "baseline": __cpu_baseline__,
-            "found": [
-                feature for feature in __cpu_dispatch__ if __cpu_features__[feature]
-            ],
-            "not found": [
-                feature for feature in __cpu_dispatch__ if not __cpu_features__[feature]
-            ],
+            "found": [feature for feature in __cpu_dispatch__ if __cpu_features__[feature]],
+            "not found": [feature for feature in __cpu_dispatch__ if not __cpu_features__[feature]],
         },
     }
 )
@@ -157,9 +153,7 @@ def show(mode=DisplayModes.stdout.value):
     elif mode == DisplayModes.dicts.value:
         return CONFIG
     else:
-        raise AttributeError(
-            f"Invalid `mode`, use one of: {', '.join([e.value for e in DisplayModes])}"
-        )
+        raise AttributeError(f"Invalid `mode`, use one of: {', '.join([e.value for e in DisplayModes])}")
 
 
 def show_config(mode=DisplayModes.stdout.value):

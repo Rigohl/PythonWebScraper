@@ -20,9 +20,7 @@ T_co = TypeVar("T_co", covariant=True)
 T_contra = TypeVar("T_contra", contravariant=True)
 
 
-class UnreliableObjectReceiveStream(
-    Generic[T_co], AsyncResource, TypedAttributeProvider
-):
+class UnreliableObjectReceiveStream(Generic[T_co], AsyncResource, TypedAttributeProvider):
     """
     An interface for receiving objects.
 
@@ -55,9 +53,7 @@ class UnreliableObjectReceiveStream(
         """
 
 
-class UnreliableObjectSendStream(
-    Generic[T_contra], AsyncResource, TypedAttributeProvider
-):
+class UnreliableObjectSendStream(Generic[T_contra], AsyncResource, TypedAttributeProvider):
     """
     An interface for sending objects.
 
@@ -78,9 +74,7 @@ class UnreliableObjectSendStream(
         """
 
 
-class UnreliableObjectStream(
-    UnreliableObjectReceiveStream[T_Item], UnreliableObjectSendStream[T_Item]
-):
+class UnreliableObjectStream(UnreliableObjectReceiveStream[T_Item], UnreliableObjectSendStream[T_Item]):
     """
     A bidirectional message stream which does not guarantee the order or reliability of
     message delivery.
@@ -178,13 +172,9 @@ class ByteStream(ByteReceiveStream, ByteSendStream):
 
 
 #: Type alias for all unreliable bytes-oriented receive streams.
-AnyUnreliableByteReceiveStream: TypeAlias = Union[
-    UnreliableObjectReceiveStream[bytes], ByteReceiveStream
-]
+AnyUnreliableByteReceiveStream: TypeAlias = Union[UnreliableObjectReceiveStream[bytes], ByteReceiveStream]
 #: Type alias for all unreliable bytes-oriented send streams.
-AnyUnreliableByteSendStream: TypeAlias = Union[
-    UnreliableObjectSendStream[bytes], ByteSendStream
-]
+AnyUnreliableByteSendStream: TypeAlias = Union[UnreliableObjectSendStream[bytes], ByteSendStream]
 #: Type alias for all unreliable bytes-oriented streams.
 AnyUnreliableByteStream: TypeAlias = Union[UnreliableObjectStream[bytes], ByteStream]
 #: Type alias for all bytes-oriented receive streams.
@@ -199,9 +189,7 @@ class Listener(Generic[T_co], AsyncResource, TypedAttributeProvider):
     """An interface for objects that let you accept incoming connections."""
 
     @abstractmethod
-    async def serve(
-        self, handler: Callable[[T_co], Any], task_group: TaskGroup | None = None
-    ) -> None:
+    async def serve(self, handler: Callable[[T_co], Any], task_group: TaskGroup | None = None) -> None:
         """
         Accept incoming connections as they come in and start tasks to handle them.
 
@@ -234,6 +222,4 @@ class ByteStreamConnectable(metaclass=ABCMeta):
 
 
 #: Type alias for all connectables returning bytestreams or bytes-oriented object streams
-AnyByteStreamConnectable: TypeAlias = Union[
-    ObjectStreamConnectable[bytes], ByteStreamConnectable
-]
+AnyByteStreamConnectable: TypeAlias = Union[ObjectStreamConnectable[bytes], ByteStreamConnectable]

@@ -69,12 +69,20 @@ _DTypeOptionalT = TypeVar("_DTypeOptionalT", bound=dtype | None)
 _ScalarT = TypeVar("_ScalarT", bound=generic)
 
 _FlagsKind: TypeAlias = L[
-    'C_CONTIGUOUS', 'CONTIGUOUS', 'C',
-    'F_CONTIGUOUS', 'FORTRAN', 'F',
-    'ALIGNED', 'A',
-    'WRITEABLE', 'W',
-    'OWNDATA', 'O',
-    'WRITEBACKIFCOPY', 'X',
+    "C_CONTIGUOUS",
+    "CONTIGUOUS",
+    "C",
+    "F_CONTIGUOUS",
+    "FORTRAN",
+    "F",
+    "ALIGNED",
+    "A",
+    "WRITEABLE",
+    "W",
+    "OWNDATA",
+    "O",
+    "WRITEBACKIFCOPY",
+    "X",
 ]
 
 # TODO: Add a shape typevar once we have variadic typevars (PEP 646)
@@ -140,7 +148,6 @@ def ndpointer(
     shape: None = ...,
     flags: _FlagsKind | Iterable[_FlagsKind] | int | flagsobj | None = ...,
 ) -> type[_ndptr[dtype]]: ...
-
 @overload
 def as_ctypes_type(dtype: _BoolCodes | _DTypeLike[np.bool] | type[ctypes.c_bool]) -> type[ctypes.c_bool]: ...
 @overload
@@ -154,7 +161,9 @@ def as_ctypes_type(dtype: _LongCodes | _DTypeLike[long] | type[ctypes.c_long]) -
 @overload
 def as_ctypes_type(dtype: type[int]) -> type[c_intp]: ...
 @overload
-def as_ctypes_type(dtype: _LongLongCodes | _DTypeLike[longlong] | type[ctypes.c_longlong]) -> type[ctypes.c_longlong]: ...
+def as_ctypes_type(
+    dtype: _LongLongCodes | _DTypeLike[longlong] | type[ctypes.c_longlong],
+) -> type[ctypes.c_longlong]: ...
 @overload
 def as_ctypes_type(dtype: _UByteCodes | _DTypeLike[ubyte] | type[ctypes.c_ubyte]) -> type[ctypes.c_ubyte]: ...
 @overload
@@ -164,25 +173,29 @@ def as_ctypes_type(dtype: _UIntCCodes | _DTypeLike[uintc] | type[ctypes.c_uint])
 @overload
 def as_ctypes_type(dtype: _ULongCodes | _DTypeLike[ulong] | type[ctypes.c_ulong]) -> type[ctypes.c_ulong]: ...
 @overload
-def as_ctypes_type(dtype: _ULongLongCodes | _DTypeLike[ulonglong] | type[ctypes.c_ulonglong]) -> type[ctypes.c_ulonglong]: ...
+def as_ctypes_type(
+    dtype: _ULongLongCodes | _DTypeLike[ulonglong] | type[ctypes.c_ulonglong],
+) -> type[ctypes.c_ulonglong]: ...
 @overload
 def as_ctypes_type(dtype: _SingleCodes | _DTypeLike[single] | type[ctypes.c_float]) -> type[ctypes.c_float]: ...
 @overload
-def as_ctypes_type(dtype: _DoubleCodes | _DTypeLike[double] | type[float | ctypes.c_double]) -> type[ctypes.c_double]: ...
+def as_ctypes_type(
+    dtype: _DoubleCodes | _DTypeLike[double] | type[float | ctypes.c_double],
+) -> type[ctypes.c_double]: ...
 @overload
-def as_ctypes_type(dtype: _LongDoubleCodes | _DTypeLike[longdouble] | type[ctypes.c_longdouble]) -> type[ctypes.c_longdouble]: ...
+def as_ctypes_type(
+    dtype: _LongDoubleCodes | _DTypeLike[longdouble] | type[ctypes.c_longdouble],
+) -> type[ctypes.c_longdouble]: ...
 @overload
 def as_ctypes_type(dtype: _VoidDTypeLike) -> type[Any]: ...  # `ctypes.Union` or `ctypes.Structure`
 @overload
 def as_ctypes_type(dtype: str) -> type[Any]: ...
-
 @overload
 def as_array(obj: ctypes._PointerLike, shape: Sequence[int]) -> NDArray[Any]: ...
 @overload
 def as_array(obj: _ArrayLike[_ScalarT], shape: _ShapeLike | None = ...) -> NDArray[_ScalarT]: ...
 @overload
 def as_array(obj: object, shape: _ShapeLike | None = ...) -> NDArray[Any]: ...
-
 @overload
 def as_ctypes(obj: np.bool) -> ctypes.c_bool: ...
 @overload
