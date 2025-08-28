@@ -41,7 +41,7 @@ async def main():
     parser.add_argument("--log-file", type=str, default=config.TUI_LOG_PATH, help=f"Ruta al archivo de log (default: {config.TUI_LOG_PATH})")
     parser.add_argument("--tui", action="store_true", help="Ejecuta la aplicación en modo de Interfaz de Usuario Textual (TUI).")
 
-    action_group = parser.add_mutually_exclusive_group(required=True)
+    action_group = parser.add_mutually_exclusive_group()
     action_group.add_argument("--crawl", nargs='+', metavar="URL", help="Una o más URLs de inicio para el crawling.")
     action_group.add_argument("--export-csv", metavar="FILE_PATH", help="Exporta los datos de la BD a un archivo CSV y sale.")
 
@@ -57,6 +57,12 @@ async def main():
         from src.tui import ScraperTUIApp
         app = ScraperTUIApp(log_file_path=args.log_file)
         await app.run_async()
+        return
+
+    # Si no se especifica una acción y no es TUI, mostrar ayuda.
+    if not args.crawl and not args.export_csv:
+        parser.print_help()
+        logging.warning("Ninguna acción especificada (ej. --crawl, --export-csv). Saliendo.")
         return
 
     if args.export_csv:

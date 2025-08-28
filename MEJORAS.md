@@ -18,9 +18,10 @@ Esta fase se centra en robustecer el código existente, mejorar la mantenibilida
   - **Problema:** `config.py` es bueno, pero es estático. No se adapta a diferentes entornos (desarrollo, producción) ni permite overrides sencillos.
   - **Solución:** Migrar `config.py` a un modelo basado en `Pydantic Settings`. Esto permite cargar configuraciones desde variables de entorno, archivos `.env` y valores por defecto, todo validado y tipado. Permitirá, por ejemplo, cambiar la concurrencia con una variable de entorno (`SCRAPER_CONCURRENCY=10`) sin tocar el código.
 
-- **Manejo de Errores Centralizado:** (Mejora Pendiente)
-  - **Problema:** El manejo de excepciones está disperso (`try/except` en `orchestrator`, `scraper`, etc.). Es difícil tener una visión global de los tipos de fallos.
-  - **Solución:** Crear un módulo `src/exceptions.py` con excepciones personalizadas (`ScrapingError`, `NetworkError`, `ParsingError`, `ContentQualityError`). Esto permite capturar errores de forma más granular en el orquestador y tomar decisiones más inteligentes (ej. reintentar en `NetworkError`, descartar en `ParsingError`).
+- **Manejo de Errores Centralizado:** (En Progreso)
+  - **Problema:** El manejo de excepciones estaba disperso.
+  - **Solución Implementada:** Se ha creado un módulo `src/exceptions.py` y el orquestador ya captura excepciones específicas como `NetworkError` y `ScraperException`. Esto centraliza la lógica de fallos.
+  - **Próximos Pasos:** Refinar y añadir más tipos de excepciones granulares (`ParsingError`, `ContentQualityError`) para mejorar aún más la toma de decisiones del orquestador.
 
 - **Suite de Pruebas Exhaustiva:** (Mejora Crítica Pendiente)
   - **Problema:** Solo existe `test_database.py`. La lógica de negocio principal (`orchestrator`, `scraper`) no está probada, lo que hace que los cambios futuros sean arriesgados.
@@ -33,9 +34,9 @@ Esta fase se centra en robustecer el código existente, mejorar la mantenibilida
   - **Problema:** El estilo de código y la calidad no se fuerzan de manera automática.
   - **Solución:** Implementar `pre-commit` hooks. Configurar herramientas como `black` (formateador de código), `isort` (ordenador de imports) y `flake8` (linter) para que se ejecuten automáticamente antes de cada commit, garantizando un código limpio y consistente.
 
-- **Estructura de Proyecto Refinada:** (Mejora Pendiente)
-  - **Problema:** La estructura actual es funcional, pero puede mejorar.
-  - **Solución:** Crear un directorio `src/models/` para todos los modelos de Pydantic (`ScrapeResult`, etc.), separando los esquemas de datos de la lógica de negocio.
+- **Estructura de Proyecto Refinada:** (Completado)
+  - **Problema:** Los modelos de datos Pydantic (como `ScrapeResult`) estaban definidos junto al código que los usaba (ej. `scraper.py`).
+  - **Solución Implementada:** Se ha creado un directorio `src/models/` y los modelos de datos se han movido allí (inferido por `from src.models.results import ScrapeResult`). Esto separa limpiamente los esquemas de datos de la lógica de negocio, mejorando la organización.
 
 ---
 

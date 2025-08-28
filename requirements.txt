@@ -6,6 +6,7 @@ pydantic
 httpx
 imagehash
 robotexclusionrulesparser
+pydantic-settings
 
 # Development dependencies
 pre-commit==3.7.0

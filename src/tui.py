@@ -156,8 +156,8 @@ class ScraperTUIApp(App):
         logging.info(f"Iniciando crawling para: {start_urls}")
 
         db_manager = DatabaseManager(db_path=db_path)
-        user_agent_manager = UserAgentManager()
-        llm_extractor = LLMExtractor(api_key=config.OPENAI_API_KEY)
+        user_agent_manager = UserAgentManager(user_agents=config.USER_AGENT_LIST)
+        llm_extractor = LLMExtractor(api_key=config.LLM_API_KEY)
         rl_agent = RLAgent() if use_rl else None
 
         orchestrator = ScrapingOrchestrator(

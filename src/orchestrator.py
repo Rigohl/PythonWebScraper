@@ -198,14 +198,17 @@ class ScrapingOrchestrator:
                     self._check_for_visual_changes(result)
                     await self._add_links_to_queue(result.links, result.content_type)
                     self.logger.info(f"Éxito al procesar {url}. Título: '{result.title}'. Enlaces encontrados: {len(result.links)}. Tipo: {result.content_type}")
-                    self.user_agent_manager.release_user_agent(current_user_agent) # Liberar UA si fue exitoso
+                    self.user_agent_manager.release_user_agent(current_user_agent)
                 elif result.status == "RETRY":
                     self.user_agent_manager.block_user_agent(current_user_agent)
                     self.logger.warning(f"User-Agent {current_user_agent} bloqueado temporalmente para {domain}. URL {url} marcada para reintento. Razón: {result.error_message}")
                 elif result.status == "FAILED":
+                    # Un fallo permanente también puede ser culpa del UA, lo bloqueamos.
+                    self.user_agent_manager.block_user_agent(current_user_agent)
                     self.logger.error(f"Fallo permanente al procesar {url}. Razón: {result.error_message}")
                 else:
                     # Guardar resultados terminales como LOW_QUALITY o EMPTY, pero no seguir sus enlaces
+                    self.user_agent_manager.release_user_agent(current_user_agent) # Liberar UA, el scrapeo terminó.
                     self._check_for_visual_changes(result)
                     self.logger.warning(f"URL {url} procesada con estado {result.status}. Razón: {result.error_message}. Tipo: {result.content_type}")
 

@@ -106,6 +106,10 @@ class DatabaseManager:
                 del row['extracted_data'] # Eliminar la columna JSON original
             processed_results.append(row)
 
+        if not processed_results:
+            logger.warning("No hay resultados procesables para exportar a CSV (posiblemente todos filtrados).")
+            return
+
         with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
             # Usamos el primer resultado procesado para obtener las cabeceras
             fieldnames = processed_results[0].keys()
