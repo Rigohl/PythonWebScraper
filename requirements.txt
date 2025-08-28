@@ -6,7 +6,7 @@ imagehash==4.3.1
 instructor==1.11.2
 joblib==1.4.2
 lxml==5.2.2
-numpy==1.26.4
+numpy==2.0.2
 openai==1.30.1
 Pillow==10.3.0
 playwright==1.44.0
