@@ -167,8 +167,8 @@ Esta fase convierte el scraper de una herramienta reactiva a un agente proactivo
 
 Esta fase prepara el proyecto para operar a gran escala y ser extensible.
 
-- **Descubrimiento de APIs Ocultas (Hidden APIs):** (Pendiente)
-  - **Estrategia:** En lugar de renderizar y parsear HTML, interceptar y analizar las peticiones de red (XHR/Fetch) que hace la página. Si se detecta una API que devuelve JSON con los datos deseados, cambiar la estrategia para atacar directamente esa API, que es miles de veces más rápido y fiable que el scraping de UI.
+- **Descubrimiento de APIs Ocultas (Hidden APIs):** (Completado)
+  - **Solución Implementada:** El scraper ahora intercepta activamente las peticiones de red (XHR/Fetch) mientras navega. Si detecta una API que devuelve datos JSON, guarda la URL de la página, la URL de la API y un hash del contenido en una nueva tabla `discovered_apis`. Esto crea un catálogo de endpoints de datos estructurados que pueden ser explotados directamente en el futuro, evitando el costoso renderizado de HTML.
 
 - **Arquitectura de Plugins:** (Pendiente)
   - **Estrategia:** Refactorizar la lógica de extracción, guardado y notificación en un sistema de plugins. Esto permitiría a los usuarios añadir nuevas capacidades sin modificar el núcleo.
@@ -194,9 +194,8 @@ Esta fase prepara el proyecto para operar a gran escala y ser extensible.
   - **Problema:** Lanzar un navegador completo solo para descubrir que una URL apunta a un archivo grande (ej. un PDF de 50MB) es un enorme desperdicio de recursos.
   - **Solución Implementada:** Antes de encolar una nueva URL, el orquestador ahora realiza una petición `HEAD` asíncrona y ultrarrápida. Esto le permite inspeccionar las cabeceras `Content-Type` y `Content-Length` para descartar al instante enlaces a tipos de archivo no deseados o a contenidos que exceden un tamaño máximo configurable, acelerando drásticamente el crawl.
 
-- **Descubrimiento y Explotación de APIs Ocultas (Prioridad Alta):** (Pendiente)
-  - **Problema:** El scraping de HTML renderizado es lento y frágil.
-  - **Solución:** Modificar el orquestador para que escuche las peticiones de red (XHR/Fetch) que la página realiza. Si detecta una petición a una API que devuelve los datos en formato JSON, puede "aprender" este endpoint. Para las siguientes URLs del mismo tipo, en lugar de renderizar la página, atacará directamente la API, lo que es órdenes de magnitud más rápido y fiable.
+- **Descubrimiento y Explotación de APIs Ocultas (Prioridad Alta):** (Completado)
+  - **Solución Implementada:** El scraper ahora intercepta activamente las peticiones de red (XHR/Fetch) mientras navega. Si detecta una API que devuelve datos JSON, guarda la URL de la página, la URL de la API y un hash del contenido en una nueva tabla `discovered_apis`. Esto crea un catálogo de endpoints de datos estructurados que pueden ser explotados directamente en el futuro, evitando el costoso renderizado de HTML.
 
 ---
 
