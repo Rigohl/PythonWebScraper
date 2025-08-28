@@ -2,7 +2,7 @@ import dataset
 from src.models.results import ScrapeResult
 import os
 import json
-from datetime import datetime, timezone # B.3.3
+from datetime import datetime, timezone 
 
 import csv
 import logging
@@ -27,7 +27,9 @@ class DatabaseManager:
         else:
             raise ValueError("Se debe proporcionar 'db_path' o 'db_connection'.")
         self.table = self.db['pages']
-        self.apis_table = self.db['discovered_apis'] # B.3.3
+        self.apis_table = self.db['discovered_apis'] 
+        self.cookies_table = self.db['cookies'] 
+        self.llm_schemas_table = self.db['llm_extraction_schemas'] # Added for LLM extraction schemas
 
     def save_discovered_api(self, page_url: str, api_url: str, payload_hash: str):
         """Guarda una API descubierta en la base de datos."""
@@ -40,6 +42,40 @@ class DatabaseManager:
         # Usar una clave compuesta para evitar duplicados exactos
         self.apis_table.upsert(data, ['page_url', 'api_url', 'payload_hash'])
         logger.info(f"API descubierta en {page_url}: {api_url}")
+
+    def save_cookies(self, domain: str, cookies_json: str):
+        """Guarda las cookies para un dominio específico."""
+        data = {
+            "domain": domain,
+            "cookies": cookies_json,
+            "timestamp": datetime.now(timezone.utc)
+        }
+        self.cookies_table.upsert(data, ['domain'])
+        logger.debug(f"Cookies guardadas para el dominio: {domain}")
+
+    def load_cookies(self, domain: str) -> str | None:
+        """Carga las cookies para un dominio específico."""
+        row = self.cookies_table.find_one(domain=domain)
+        if row:
+            return row['cookies']
+        return None
+
+    def save_llm_extraction_schema(self, domain: str, schema_json: str):
+        """Guarda un esquema de extracción LLM para un dominio específico."""
+        data = {
+            "domain": domain,
+            "schema": schema_json,
+            "timestamp": datetime.now(timezone.utc)
+        }
+        self.llm_schemas_table.upsert(data, ['domain'])
+        logger.debug(f"Esquema LLM guardado para el dominio: {domain}")
+
+    def load_llm_extraction_schema(self, domain: str) -> str | None:
+        """Carga un esquema de extracción LLM para un dominio específico."""
+        row = self.llm_schemas_table.find_one(domain=domain)
+        if row:
+            return row['schema']
+        return None
 
     def save_result(self, result: ScrapeResult):
         """
@@ -86,12 +122,12 @@ class DatabaseManager:
         if row and 'extracted_data' in row and row['extracted_data'] is not None:
             try:
                 row['extracted_data'] = json.loads(row['extracted_data'])
-            except (json.JSONDecodeError, TypeError):
+            except (json.JSONDecodeError, TypeError):\
                 row['extracted_data'] = None
         if row and 'healing_events' in row and row['healing_events'] is not None:
             try:
                 row['healing_events'] = json.loads(row['healing_events'])
-            except (json.JSONDecodeError, TypeError):
+            except (json.JSONDecodeError, TypeError):\
                 row['healing_events'] = []
         return row
 

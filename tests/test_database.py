@@ -98,5 +98,76 @@ class TestDatabaseManager(unittest.TestCase):
 
         self.assertFalse(os.path.exists(test_csv_path), "El archivo CSV no debería crearse si no hay datos para exportar.")
 
+    def test_save_and_get_complex_data(self):
+        """Prueba que los campos complejos como extracted_data y healing_events se serializan y deserializan."""
+        complex_result = ScrapeResult(
+            status="SUCCESS",
+            url="http://complex.com",
+            title="Complex Data",
+            content_text="Some content",
+            links=[],
+            extracted_data={"price": {"value": "19.99", "selector": ".price"}},
+            healing_events=[{"field": "price", "old": ".old-price", "new": ".price"}]
+        )
+        self.db_manager.save_result(complex_result)
+        retrieved = self.db_manager.get_result_by_url("http://complex.com")
+
+        self.assertIsNotNone(retrieved)
+        self.assertEqual(retrieved['extracted_data'], {"price": {"value": "19.99", "selector": ".price"}})
+        self.assertEqual(retrieved['healing_events'], [{"field": "price", "old": ".old-price", "new": ".price"}])
+
+    def test_duplicate_content_handling(self):
+        """Prueba que un resultado con un content_hash existente se marca como DUPLICATE."""
+        result1 = ScrapeResult(
+            status="SUCCESS",
+            url="http://original.com",
+            title="Original",
+            content_text="Unique content.",
+            content_hash="hash123"
+        )
+        self.db_manager.save_result(result1)
+
+        result2 = ScrapeResult(
+            status="SUCCESS",
+            url="http://duplicate.com",
+            title="Duplicate",
+            content_text="Also unique content.", # El texto no importa, solo el hash
+            content_hash="hash123" # Mismo hash que el original
+        )
+        self.db_manager.save_result(result2)
+
+        retrieved_duplicate = self.db_manager.get_result_by_url("http://duplicate.com")
+        self.assertEqual(retrieved_duplicate['status'], "DUPLICATE")
+
+        # Probar que un re-scrapeo de la misma URL no se marca como duplicado
+        result3 = ScrapeResult(
+            status="SUCCESS",
+            url="http://original.com",
+            title="Original Updated",
+            content_text="Updated unique content.",
+            content_hash="hash123"
+        )
+        self.db_manager.save_result(result3)
+        retrieved_original = self.db_manager.get_result_by_url("http://original.com")
+        self.assertEqual(retrieved_original['status'], "SUCCESS")
+        self.assertEqual(retrieved_original['title'], "Original Updated")
+
+
+    def test_process_csv_row_with_extracted_data(self):
+        """Prueba que _process_csv_row aplana correctamente los datos extraídos."""
+        row = {
+            'id': 1,
+            'url': 'http://a.com',
+            'title': 'A',
+            'extracted_data': '{"price": {"value": "25.50"}, "name": {"value": "Product A"}}'
+        }
+        processed_row = self.db_manager._process_csv_row(row)
+
+        # Verificar que el campo original se elimina
+        self.assertNotIn('extracted_data', processed_row)
+        # Verificar que los nuevos campos aplanados existen
+        self.assertEqual(processed_row['extracted_price'], "25.50")
+        self.assertEqual(processed_row['extracted_name'], "Product A")
+
 if __name__ == '__main__':
     unittest.main()

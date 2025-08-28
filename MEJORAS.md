@@ -1,136 +1,54 @@
-# Hoja de Ruta Estratégica: PythonWebScraper Evolution
+# Mejoras y Próximas Fases del Proyecto
 
-Este documento es la guía estratégica para la evolución del proyecto. Define la visión, la arquitectura objetivo y un plan de acción detallado para transformar un scraper avanzado en una **plataforma de inteligencia de datos autónoma.**
-
----
-
-## Visión del Producto
-
-Crear un agente autónomo que no solo extraiga datos, sino que los **comprenda y contextualice.** Un sistema que navegue la web de forma similar a un humano, se adapte en tiempo real a contramedidas (bloqueos, CAPTCHAs, cambios de layout), aprenda de cada interacción para optimizar su estrategia y transforme el caos de la web en un grafo de conocimiento limpio y accionable, requiriendo intervención humana solo para definir los objetivos de alto nivel.
+Este documento detalla las mejoras y las próximas fases planificadas para el proyecto de web scraping, estructuradas por áreas funcionales y etapas de desarrollo.
 
 ---
 
-## Fases y Mejoras
+## Fase 1: Core de Navegación y Extracción
 
-### Puntos a Corregir (Refactorización Inmediata - Prioridad Alta)
-
-Estos son problemas identificados que deberían abordarse para mejorar la estabilidad, la mantenibilidad y la coherencia del proyecto.
-
-1.  **Redundancia en `src/settings.py`**:
-    *   **Problema**: El archivo `src/settings.py` está vacío y no tiene un propósito claro, duplicando potencialmente la gestión de configuración ya manejada por `src/config.py`.
-    *   **Acción Recomendada**: Eliminar `src/settings.py` por completo o redefinir su propósito para que contenga *únicamente* constantes o configuraciones muy específicas de módulos que no sean adecuadas para el `.env` o `config.py`.
-2.  **Archivos Estáticos no Servidos en FastAPI**:
-    *   **Problema**: La API de FastAPI tiene una ruta raíz que intenta cargar `styles.css`, pero el middleware `StaticFiles` en `src/app.py` está comentado, lo que impide que los estilos se sirvan correctamente.
-    *   **Acción Recomendada**: Descomentar y configurar `app.mount("/static", StaticFiles(directory="static"), name="static")` en `src/app.py` para habilitar el servicio de archivos estáticos.
-3.  **Función `run_api_server` Redundante en `src/app.py`**:
-    *   **Problema**: La función `run_api_server` está definida en `src/app.py`, pero `src/main.py` lanza el servidor Uvicorn directamente. Esto hace que la función sea innecesaria.
-    *   **Acción Recomendada**: Eliminar la función `run_api_server` de `src/app.py`.
-4.  **Integración Incompleta de `FingerprintManager`**:
-    *   **Problema**: El `FingerprintManager` se inicializa y se le pide una huella digital, pero la salida (`current_fingerprint`) solo se registra y no se utiliza activamente para configurar las opciones de Playwright dentro de `src/scraper.py`. Esto reduce la efectividad de la estrategia anti-detección.
-    *   **Acción Recomendada**: Modificar `src/scraper.py` (o el `Orchestrator` al llamar al `Scraper`) para que configure el navegador de Playwright con los detalles de huella digital proporcionados por `FingerprintManager` (ej., añadiendo cabeceras específicas, configurando el viewport, o inyectando JavaScript para falsear propiedades del `navigator`).
+-   **Integración de Playwright en Docker (RESUELTO)**:
+    *   **Problema**: Dificultades para ejecutar Playwright dentro de un contenedor Docker debido a dependencias de navegador.
+    *   **Solución (Implementada)**: Se ha configurado Dockerfile y las dependencias para asegurar la ejecución estable de Playwright en un entorno contenedorizado.
+-   **Rotación de User-Agents y Fingerprinting Avanzado (EN PROGRESO)**:
+    *   **Problema**: Detección y bloqueo por parte de sitios web debido a huellas digitales de navegador consistentes.
+    *   **Mejora**: Implementar una estrategia dinámica de rotación de User-Agents y técnicas de fingerprinting avanzado (p. ej., WebGL, Canvas, etc.) para emular un comportamiento de usuario real y evitar la detección.
+    *   **Solución Actual**: Se ha implementado la rotación de User-Agents basada en el archivo `user_agents.json` para cada worker de Playwright. Pruebas iniciales sugieren que mejora la resistencia a la detección.
+-   **Manejo Inteligente de Cookies y Sesiones (COMPLETADO)**:
+    *   **Problema**: La gestión actual de cookies es básica, lo que puede limitar el acceso a contenido protegido o personalizado.
+    *   **Mejora**: Desarrollar un sistema para persistir y rotar cookies y sesiones por dominio, permitiendo mantener sesiones activas y sortear sistemas de autenticación o límites de acceso.
+    *   **Solución Implementada**: Se ha implementado la persistencia y carga de cookies por dominio utilizando `src/database.py` y `src/scraper.py`. Las cookies se guardan después de un scrapeo exitoso y se cargan antes de navegar a una URL del mismo dominio, mejorando la capacidad de mantener sesiones.
 
 ---
 
-## Fase 1: Excelencia Operativa y Deuda Técnica (Prioridad Alta)
+## Fase 2: Robustez y Escalabilidad
 
-Esta fase se centra en robustecer el código existente, mejorar la mantenibilidad y establecer una base sólida para futuras expansiones.
-
-- **Gestión de Configuración Avanzada:** (Completado)
-  - **Problema:** `config.py` era estático y no se adaptaba a diferentes entornos (desarrollo, producción) ni permitía overrides sencillos.
-  - **Solución Implementada:** Se ha migrado toda la configuración a un nuevo módulo `src/settings.py` (ahora `src/config.py` con `pydantic-settings`). Ahora, la aplicación carga su configuración desde un archivo `.env` y variables de entorno, con validación de tipos automática. Esto permite, por ejemplo, cambiar la concurrencia con `CONCURRENCY=10` en el `.env` sin tocar el código.
-
-- **Manejo de Errores Centralizado:** (Completado)
-  - **Problema:** El manejo de excepciones estaba disperso, dificultando la toma de decisiones centralizada.
-  - **Solución Implementada:** Se ha creado `src/exceptions.py` con una jerarquía de errores (`NetworkError`, `ParsingError`, etc.). El `scraper` ahora lanza estas excepciones específicas, y el `orchestrator` las captura para decidir si reintentar o descartar una URL. Esto robustece enormemente la lógica de fallos.
-
-- **Suite de Pruebas Exhaustiva:** (En Progreso)
-  - **Problema:** La cobertura de pruebas era mínima, lo que hacía que los cambios futuros fueran arriesgados.
-  - **Solución Implementada:** Se ha configurado `pytest` como el framework de pruebas del proyecto. Se han creado los archivos de configuración (`pytest.ini`, `tests/conftest.py`) y se han implementado tests iniciales para el `AdvancedScraper` (verificando la extracción de datos de HTML local) y para el `ScrapingOrchestrator` (verificando la lógica de priorización).
-  - **Próximos Pasos:** Expandir la cobertura de `test_orchestrator.py` para simular el ciclo de vida completo de un worker. Añadir **pruebas de regresión funcional** específicas por dominio, utilizando fixtures de HTML real para asegurar que los cambios no rompan la extracción en sitios clave.
-
-- **Calidad de Código Automatizada:** (Completado)
-  - **Problema:** El estilo de código y la calidad no se forzaban de manera automática, llevando a inconsistencias.
-  - **Solución Implementada:** Se han añadido las dependencias de desarrollo (`pre-commit`, `black`, `isort`, `flake8`) a `requirements.txt`. Esto sienta las bases para configurar un archivo `.pre-commit-config.yaml` que formateará y validará el código automáticamente antes de cada commit, garantizando un código limpio y consistente en todo el proyecto.
-
-- **Estructura de Proyecto Refinada:** (Completado)
-  - **Problema:** Los modelos de datos Pydantic (como `ScrapeResult`) estaban definidos junto al código que los usaba (ej. `scraper.py`).
-  - **Solución Implementada:** Se ha creado un directorio `src/models/` y los modelos de datos se han movido allí (inferido por `from src.models.results import ScrapeResult`). Esto separa limpiamente los esquemas de datos de la lógica de negocio, mejorando la organización.
-
-- **Desacoplamiento de Scraping y API en `main.py`**:
-    *   **Problema**: La ejecución síncrona del proceso de scraping completo (`--scrape`) en `main.py` antes de iniciar la API (`--api`) puede bloquear el inicio de la API por un tiempo prolongado si el scraping es intensivo.
-    *   **Mejora**: Refactorizar `main.py` para que, si se solicitan ambos (`--scrape --api`), el scraping se inicie como una tarea de fondo (similar a cómo lo hace el endpoint `/scrape/` en `app.py`) o en un proceso separado. Alternativamente, definir claramente que `--scrape` es para ejecuciones únicas CLI y la API para orquestar tareas.
+-   **Gestión de Proxies Robusta (EN PROGRESO)**:
+    *   **Problema**: La dependencia de un único proxy o una lista estática reduce la fiabilidad y escalabilidad.
+    *   **Mejora**: Implementar un `ProxyManager` que soporte múltiples fuentes de proxies (p. ej., rotación de proxies residenciales, integración con servicios de terceros), con lógica de reintento y exclusión de proxies defectuosos.
+    *   **Solución Actual**: Se ha implementado un `ProxyManager` que carga proxies desde `proxies.txt` y los asigna a los workers. Se necesita mejorar la lógica de reintento y validación.
+-   **Reintentos Adaptativos con Backoff Exponencial (PLANIFICADO)**:
+    *   **Problema**: Fallos intermitentes en la red o en el servidor web pueden causar interrupciones innecesarias.
+    *   **Mejora**: Implementar una lógica de reintentos con backoff exponencial y jitter para manejar fallos temporales de manera más eficiente y menos intrusiva.
+-   **Manejo de Errores y Retries Específicos de Scraper (PLANIFICADO)**:
+    *   **Problema**: Los errores durante el scraping pueden ser variados (p. ej., CAPTCHAs, errores de renderizado).
+    *   **Mejora**: Permitir a cada `BaseScraper` definir estrategias de reintento o manejo de errores específicas para su dominio o tipo de contenido.
 
 ---
 
-## Fase 2: Inteligencia Táctica y Evasión (Completado y a Mejorar)
+## Fase 3: Detección y Evasión
 
-Esta fase se enfoca en hacer el scraper más resiliente, adaptativo y difícil de detectar.
-
-- **Fundación Sólida:** (Completado) Arquitectura modular, concurrencia con `asyncio`, persistencia en SQLite (ahora PostgreSQL/SQLAlchemy), modelos con `Pydantic`.
-- **Scraping Adaptativo:** (Completado) Throttling adaptativo, detección de cambios visuales, renderizado inteligente, detección de honeypots, reintentos.
-- **Optimización de Rendimiento:** (Completado) Bloqueo de recursos.
-- **Selectores "Auto-reparables":** (Completado)
-- **Scraping Ético:** (Completado) Soporte para `robots.txt`.
-
-- **Protección contra Bucles y Trampas:** (Completado)
-  - **Problema:** El scraper podía caer en "trampas" de crawling (ej. calendarios con enlaces infinitos) o bucles de redirección.
-  - **Solución Implementada:** Se ha implementado un detector de patrones de URL repetitivos (ej. `/a/b/a/b`) y un contador de redirecciones por URL para descartarlas si exceden un umbral configurable. Esto previene que el crawler caiga en bucles y consuma recursos inútilmente.
-
-- **Límites de Rastreo Configurables:** (Pendiente)
-  - **Problema:** Un crawl puede crecer sin control, consumiendo recursos excesivos.
-  - **Solución:** Añadir a la configuración límites globales como `MAX_PAGES_TO_CRAWL` o `MAX_CRAWL_DEPTH`.
+-   **Manejo de CAPTCHAs y Detección de Bots (PLANIFICADO)**:
+    *   **Problema**: Los sitios web utilizan CAPTCHAs y otras técnicas para detectar y bloquear bots.
+    *   **Mejora**: Investigar y posiblemente integrar servicios de resolución de CAPTCHAs (p. ej., 2Captcha, Anti-Captcha) o desarrollar modelos de aprendizaje automático para la detección y evasión de patrones de bloqueo.
+-   **Adaptación a Cambios de UI/HTML (PLANIFICADO)**:
+    *   **Problema**: Los cambios frecuentes en la estructura HTML de los sitios web rompen los scrapers existentes.
+    *   **Mejora**: Desarrollar un enfoque más resiliente para la extracción de datos, posiblemente utilizando selectores más robustos (p. ej., atributos en lugar de clases), o técnicas de Computer Vision/LLM para identificar elementos de forma semántica.
 
 ---
 
-## Fase 3: Evasión de Nivel Humano y Detección de Contramedidas (Próximos Pasos)
+## Fase 4: Inteligencia y Extracción de Datos
 
-- **Navegadores "Sigilosos" (Stealth):** (Completado)
-  - **Problema:** Los navegadores automatizados dejan huellas detectables (ej. `navigator.webdriver`).
-  - **Solución Implementada:** Se ha integrado `playwright-stealth`. El `ScrapingOrchestrator` ahora aplica parches anti-detección a cada página que crea, haciendo el crawling significativamente más difícil de bloquear por servicios como Cloudflare.
-
-- **Gestión de Huellas Digitales (Fingerprinting):** (Completado)
-  - **Problema:** Usar solo `User-Agent` diferentes no es suficiente. Los sitios modernos analizan huellas complejas (fuentes, plugins, resolución de pantalla, WebGL, canvas).
-  - **Solución Implementada:** Se ha creado un `FingerprintManager` que genera perfiles de navegador completos y consistentes. El orquestador ahora aplica a cada página un User-Agent, un viewport y un conjunto de propiedades JavaScript falseadas (`navigator.platform`, `navigator.webdriver`, etc.), haciendo que cada worker parezca un usuario único y legítimo.
-
-- **Detección y Manejo de CAPTCHAs:** (Pendiente)
-  - **Problema:** Un CAPTCHA detiene por completo el scraping.
-  - **Solución:** Implementar un detector de CAPTCHAs.
-    - **Detección:** Buscar elementos comunes (ej. `iframe[src*="recaptcha"]`, `div.g-recaptcha`).
-    - **Acción:** Al detectar un CAPTCHA, el orquestador debe tomar una acción: 1) Descartar la URL y penalizar la ruta que llevó a ella. 2) Poner la URL en una cola de "revisión manual". 3) (Avanzado) Integrar con un servicio de resolución de CAPTCHAs como 2Captcha a través de su API.
-
----
-
-## Fase 4: Inteligencia Estratégica y Autonomía (La Verdadera IA)
-
-Esta fase convierte el scraper de una herramienta reactiva a un agente proactivo que aprende y planifica.
-
-- **Agente de Aprendizaje por Refuerzo (RL) Evolucionado:** (Pendiente - Alta Prioridad)
-  - **Problema:** El `RLAgent` actual es un esqueleto y el backoff adaptativo es una regla heurística simple. Su integración activa en la toma de decisiones del orquestador no es evidente.
-  - **Solución:** Implementar un agente de RL completo (ej. con Q-Learning o PPO simple) e integrarlo activamente en el `Orchestrator` para que pueda ajustar dinámicamente parámetros como la velocidad de scraping, los intervalos de reintento, la selección de proxies/user agents, o incluso las estrategias de extracción de LLM, basándose en la retroalimentación del éxito o fallo de las operaciones en diferentes dominios.
-    - **Estado (State):** Un vector que representa la situación actual para un dominio: `(ratio_fallos_recientes, ratio_baja_calidad, tiempo_carga_medio, captcha_detectado, ratio_bloqueos_4xx, ratio_errores_5xx)`.
-    - **Acciones (Actions):** El conjunto de decisiones que el agente puede tomar: `(cambiar_user_agent, ajustar_delay, usar_proxy_premium, no_usar_proxy, activar_stealth, desactivar_stealth)`.
-    - **Recompensa (Reward):** La señal que guía el aprendizaje. `+10` por un scrapeo exitoso y de alta calidad. `-5` por un fallo de red. `-20` por un bloqueo (403/429). `-2` por tiempo de carga excesivo.
-  - **Resultado:** El scraper aprenderá la **estrategia óptima por dominio**. Para un sitio agresivo, aprenderá a ir más lento y usar proxies premium. Para un sitio permisivo, irá más rápido para maximizar la eficiencia.
-
-- **Extracción de Datos Impulsada por LLMs (Zero-Shot Extraction):** (Pendiente)
-  - **Problema:** El `EXTRACTION_SCHEMA` es rígido y requiere que un humano defina selectores CSS.
-  - **Solución:** Integrar un LLM (vía `instructor` o similar) para la extracción.
-    - **Input al LLM:** El HTML crudo de la página y una descripción en lenguaje natural del objetivo: `"Extrae el nombre del producto, su precio y la moneda. El precio puede no tener símbolo."`
-    - **Output del LLM:** Un objeto Pydantic/JSON con los datos extraídos: `{ "product_name": "...", "price": 19.99, "currency": "USD" }`.
-  - **Resultado:** El scraper se vuelve universal. Ya no necesita selectores predefinidos, solo un objetivo. Esto elimina la principal causa de rotura de los scrapers.
-
-- **Scraping Condicional por Reglas:** (Pendiente)
-  - **Problema:** El scraper procesa todas las páginas que encuentra dentro de un dominio.
-  - **Solución:** Implementar un sistema de reglas personalizadas por dominio en la configuración. Por ejemplo: `scrape_only_if: { title_contains: ["Product", "Article"], url_matches_regex: "/p/.*" }`. El scraper evaluaría estas reglas antes de realizar el scraping completo.
-
-- **Priorización Inteligente de la Frontera de Rastreo:** (Mejora Pendiente)
-  - **Problema:** La cola de prioridad actual se basa en la profundidad de la URL, una heurística simple.
-  - **Solución:** Usar un modelo de clasificación simple (o un LLM) para predecir la "promesa" de una URL.
-    - **Features:** Texto del ancla del enlace, URL de origen, URL de destino, tipo de contenido de la página padre.
-    - **Objetivo:** Predecir la probabilidad de que la URL contenga datos de alta calidad o lleve a ellos.
-  - **Resultado:** El crawler explorará de forma inteligente, priorizando las rutas más fructíferas y evitando perder tiempo en secciones irrelevantes del sitio (ej. "política de privacidad", "carreras").
-
-- **Esquemas de Extracción LLM Flexibles/Aprendidos**:
+-   **Esquemas de Extracción LLM Flexibles/Aprendidos (PLANIFICADO)**:
     *   **Problema**: El esquema de extracción LLM se define actualmente de forma estática en `_process_page`. La visión del proyecto sugiere una "estrategia óptima por dominio", lo que implica adaptabilidad.
     *   **Mejora**: Permitir que los esquemas de extracción LLM sean dinámicos y configurables por dominio/URL, posiblemente almacenados en la base de datos, o desarrollar una lógica para que el sistema "aprenda" o adapte el esquema basándose en el contenido o el dominio.
 
@@ -138,6 +56,7 @@ Esta fase convierte el scraper de una herramienta reactiva a un agente proactivo
 
 ## Fase 5: Experiencia de Usuario y Observabilidad
 
+<<<<<<< HEAD
 - **Dashboard en Tiempo Real:** (En Progreso)
   - **Solución:** Se ha implementado una pestaña de "Estadísticas en Vivo" en la TUI con métricas globales.
 
@@ -232,4 +151,11 @@ Esta fase se enfoca en dotar al agente de una comprensión casi humana del conte
 ## Registro de Cambios (Changelog)
 
 *   **2024-07-30**: Análisis inicial del proyecto y adición de "Puntos a Corregir" y "Posibles Mejoras" a la hoja de ruta estratégica.
-*Se mantiene el changelog existente.*
+-   **Dashboard en Tiempo Real:** (En Progreso)
+    -   **Solución:** Se ha implementado una pestaña de "Estadísticas en Vivo" en la TUI con métricas globales.
+-   **Alertas y Notificaciones (PLANIFICADO)**:
+    *   **Problema**: La falta de notificación sobre problemas críticos (p. ej., bloqueo de IP, fallos de scraping) puede llevar a interrupciones prolongadas.
+    *   **Mejora**: Implementar un sistema de alertas (p. ej., por correo electrónico, Slack) para notificar sobre eventos importantes o errores.
+-   **Persistencia de Estado de la TUI (PLANIFICADO)**:
+    *   **Problema**: La configuración y el estado de la TUI se pierden al reiniciar la aplicación.
+    *   **Mejora**: Permitir guardar y cargar la configuración de la TUI para mantener el estado entre sesiones.

@@ -55,5 +55,79 @@ class TestUserAgentManager(unittest.TestCase):
         next_agent = self.manager.get_user_agent()
         self.assertEqual(next_agent, agent_to_block)
 
+    def test_acquire_user_agent(self):
+        ua = self.manager.acquire_user_agent()
+        self.assertIn(ua, self.test_user_agents)
+        self.assertIn(ua, self.manager.in_use_user_agents)
+        self.assertNotIn(ua, self.manager.available_user_agents)
+
+    def test_acquire_all_user_agents(self):
+        acquired_uas = []
+        for _ in range(len(self.test_user_agents)):
+            ua = self.manager.acquire_user_agent()
+            acquired_uas.append(ua)
+        
+        self.assertEqual(len(self.manager.available_user_agents), 0)
+        self.assertEqual(len(self.manager.in_use_user_agents), len(self.test_user_agents))
+        self.assertIsNone(self.manager.acquire_user_agent()) # Should return None if no UAs available
+
+    def test_release_user_agent(self):
+        ua = self.manager.acquire_user_agent()
+        self.manager.release_user_agent(ua)
+        self.assertIn(ua, self.manager.available_user_agents)
+        self.assertNotIn(ua, self.manager.in_use_user_agents)
+
+    def test_block_user_agent(self):
+        ua = self.manager.acquire_user_agent()
+        self.manager.block_user_agent(ua, block_time=1)
+        self.assertNotIn(ua, self.manager.available_user_agents)
+        self.assertNotIn(ua, self.manager.in_use_user_agents)
+        self.assertIn(ua, self.manager.blocked_user_agents)
+        
+        # Try to acquire a blocked UA immediately
+        self.assertIsNone(self.manager.acquire_user_agent())
+
+    def test_unblock_user_agents_after_time(self):
+        ua = self.manager.acquire_user_agent()
+        self.manager.block_user_agent(ua, block_time=1) # Block for 1 second
+        
+        # Simulate time passing
+        time.sleep(1.1)
+        
+        # Now, the UA should be available again
+        unblocked_ua = self.manager.acquire_user_agent()
+        self.assertEqual(unblocked_ua, ua)
+        self.assertNotIn(ua, self.manager.blocked_user_agents)
+
+    def test_acquire_prefers_unblocked(self):
+        ua1 = self.manager.acquire_user_agent() # UA_1
+        self.manager.block_user_agent(ua1, block_time=10)
+        
+        ua2 = self.manager.acquire_user_agent() # UA_2
+        self.assertNotEqual(ua1, ua2)
+        self.assertIn(ua1, self.manager.blocked_user_agents)
+        self.assertIn(ua2, self.manager.in_use_user_agents)
+
+        self.manager.release_user_agent(ua2)
+        self.assertIn(ua2, self.manager.available_user_agents)
+
+        # UA1 is still blocked, so UA2 should be acquired again
+        ua_reacquired = self.manager.acquire_user_agent()
+        self.assertEqual(ua_reacquired, ua2)
+
+    def test_no_user_agents_initially(self):
+        manager = UserAgentManager([])
+        self.assertIsNone(manager.acquire_user_agent())
+
+    def test_release_non_existent_user_agent(self):
+        # Should not raise an error, just do nothing
+        self.manager.release_user_agent("NON_EXISTENT_UA")
+        # No assertions needed, just ensuring it doesn't crash
+
+    def test_block_non_existent_user_agent(self):
+        # Should not raise an error, just do nothing
+        self.manager.block_user_agent("NON_EXISTENT_UA", block_time=1)
+        # No assertions needed, just ensuring it doesn't crash
+
 if __name__ == '__main__':
     unittest.main()

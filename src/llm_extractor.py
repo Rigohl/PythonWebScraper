@@ -1,6 +1,6 @@
 import instructor
 from openai import OpenAI
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 import logging
 from typing import Type, TypeVar
 
@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=BaseModel)
 
 class LLMExtractor:
+    """
+<<<<<<< HEAD
+    class LLMExtractor:
     """
     Utiliza un LLM (a través de la API de OpenAI y `instructor`) para realizar
     tareas de procesamiento de lenguaje natural como limpieza y extracción estructurada.
@@ -36,7 +39,7 @@ class LLMExtractor:
                 model=settings.LLM_MODEL,
                 response_model=CleanedText,
                 messages=[
-                    {"role": "system", "content": "Eres un experto en limpiar contenido HTML. Tu tarea es eliminar todo el texto que no sea el contenido principal de la página, como barras de navegación, pies de página, anuncios, pop-ups y texto legal. Devuelve únicamente el contenido principal."}, 
+                    {"role": "system", "content": "Eres un experto en limpiar contenido HTML. Tu tarea es eliminar todo el texto que no sea el contenido principal de la página, como barras de navegación, pies de página, anuncios, pop-ups y texto legal. Devuelve únicamente el contenido principal."},
                     {"role": "user", "content": text}
                 ]
             )
@@ -75,3 +78,60 @@ class LLMExtractor:
             logger.error(f"Error durante la extracción Zero-Shot con LLM para el modelo {response_model.__name__}: {e}", exc_info=True)
             # En caso de error, devolvemos una instancia vacía del modelo para no romper el flujo
             return response_model()
+
+    async def extract_structured_data_dynamic_schema(self, html_content: str, schema_dict: dict) -> dict | None:
+        """
+        Extrae datos estructurados usando un LLM y un esquema Pydantic dinámico.
+        `schema_dict` debe ser un diccionario que describa un modelo Pydantic,
+        por ejemplo: {"name": (str, ...), "price": (float, ...)}.
+        """
+        if not self.client:
+            logger.warning("LLM no configurado, no se puede realizar la extracción estructurada dinámica.")
+            return None
+        
+        if not schema_dict:
+            logger.debug("No se proporcionó un esquema para la extracción LLM estructurada dinámica.")
+            return None
+
+        try:
+            # Construir dinámicamente el modelo Pydantic a partir del diccionario
+            DynamicSchema = create_model('DynamicSchema', **{
+                field: (field_type, ...) for field, field_type in schema_dict.items()
+            }) # Default value should be Ellipsis (...) for required fields
+
+            response = await self.client.chat.completions.create(
+                model=settings.LLM_MODEL,  # Use settings.LLM_MODEL
+                response_model=DynamicSchema,
+                messages=[
+                    {"role": "system", "content": "You are an expert data extraction bot. Extract information from the provided HTML content based on the user's schema רבי"},
+                    {"role": "user", "content": f"Extract the following information from the HTML content:\n\nHTML:\n{html_content}\n\nSchema: {schema_dict}"
+                    }
+                ]
+            )
+            return response.model_dump()
+        except Exception as e:
+            logger.error(f"Error en la extracción estructurada dinámica con LLM: {e}", exc_info=True)
+            return None
+
+    async def summarize_content(self, text_content: str, max_words: int = 100) -> str | None:
+        """
+        Sumariza contenido usando un LLM.
+        """
+        if not self.client:
+            logger.warning("LLM no configurado, no se puede realizar la sumarización inteligente.")
+            return text_content # Devuelve el texto original si no hay LLM
+
+        try:
+            response = await self.client.chat.completions.create(
+                model=settings.LLM_MODEL, # Use settings.LLM_MODEL
+                messages=[
+                    {"role": "system", "content": f"You are a helpful assistant. Summarize the following text in approximately {max_words} words רבי"},
+                    {"role": "user", "content": text_content}
+                ],
+                temperature=0.7,
+                max_tokens=max_words * 2 # Permitir más tokens para asegurar que el resumen se complete
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Error al sumarizar contenido con LLM: {e}", exc_info=True)
+            return text_content # Devuelve el texto original en caso de error
