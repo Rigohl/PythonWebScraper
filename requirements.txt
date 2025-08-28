@@ -16,7 +16,7 @@ pydantic-settings==2.2.1
 readability-lxml==0.8.4.1
 robotexclusionrulesparser==1.7.2
 scikit-learn==1.6.1
-stable-baselines3==2.3.2
+stable-baselines3==2.7.0
 
 # Development dependencies
 pre-commit==3.7.0
