@@ -43,12 +43,12 @@ class FrontierClassifier:
             A 1×3 numpy array of integers.
         """
         parsed = urlparse(url)
-        path_segments = [segment for segment in parsed.path.split(''/'') if segment]
-        query_params = parsed.query.split(''&'') if parsed.query else []
+        path_segments = [segment for segment in parsed.path.split('/') if segment]
+        query_params = parsed.query.split('&') if parsed.query else []
         features = [
             len(path_segments),
             len(query_params),
-            1 if parsed.scheme == ''https'' else 0,
+            1 if parsed.scheme == 'https' else 0,
         ]
         return np.array(features, dtype=float).reshape(1, -1)
 
