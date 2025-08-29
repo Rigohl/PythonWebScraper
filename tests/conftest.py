@@ -1,61 +1,57 @@
-import pytest
+"""
+pytest configuration file for shared fixtures.
+
+This file defines fixtures that can be used across multiple test files,
+promoting code reuse and simplifying test setup.
+"""
+
 import os
-from unittest.mock import AsyncMock, Mock, patch
-from src.database import DatabaseManager
-from src.llm_extractor import LLMExtractor
-from src.settings import settings
+import shutil
+import tempfile
+import threading
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-@pytest.fixture
-def html_file():
-    path = os.path.join(os.path.dirname(__file__), 'test_page.html')
-    return path
+import pytest
 
-@pytest.fixture
-def mock_page():
-    """Mock de playwright.async_api.Page."""
-    mock = AsyncMock()
-    mock.context = AsyncMock() # Mock the context attribute
-    mock.context.cookies.return_value = [] # Default empty cookies
-    yield mock
 
-@pytest.fixture
-def mock_db_manager():
-    """Mock de src.database.DatabaseManager."""
-    mock = Mock(spec=DatabaseManager)
-    mock.load_cookies.return_value = None # Default no stored cookies
-    yield mock
+class QuietHTTPRequestHandler(SimpleHTTPRequestHandler):
+    """A request handler that doesn't log to the console."""
+    def log_message(self, format, *args):
+        pass
 
-@pytest.fixture
-def mock_llm_extractor():
-    """Mock de src.llm_extractor.LLMExtractor."""
-    mock = AsyncMock(spec=LLMExtractor)
-    mock.clean_text_content.side_effect = lambda x: x # Default: return original text
-    mock.extract_structured_data.return_value = None
-    mock.summarize_content.side_effect = lambda x, y: x # Default: return original text
-    yield mock
 
-@pytest.fixture(autouse=True)
-def mock_settings_min_content_length():
-    with patch('src.settings.settings.MIN_CONTENT_LENGTH', 10) as mock_len:
-        yield mock_len
+def run_server(server):
+    """Function to run the server in a thread."""
+    server.serve_forever()
 
-@pytest.fixture(autouse=True)
-def mock_settings_forbidden_phrases():
-    with patch('src.settings.settings.FORBIDDEN_PHRASES', ["acceso denegado", "error"]) as mock_phrases:
-        yield mock_phrases
 
-@pytest.fixture(autouse=True)
-def mock_settings_retryable_status_codes():
-    with patch('src.settings.settings.RETRYABLE_STATUS_CODES', [429, 500]) as mock_codes:
-        yield mock_codes
+@pytest.fixture(scope="session")
+def http_server():
+    """
+    A session-scoped fixture that starts a local HTTP server in a separate
+    thread to serve test HTML files.
+    """
+    test_dir = tempfile.mkdtemp()
+    server_port = 8089
 
-@pytest.fixture(autouse=True)
-def mock_imagehash_phash():
-    with patch('imagehash.phash') as mock:
-        mock.return_value = "mock_visual_hash"
-        yield mock
+    # Create dummy HTML files
+    index_html = '<html><head><title>Index</title></head><body><a href="/page1.html">Page 1</a></body></html>'
+    page1_html = '<html><head><title>Page 1</title></head><body><a href="/page2.html">Page 2</a></body></html>'
+    page2_html = '<html><head><title>Page 2</title></head><body>End.</body></html>'
 
-@pytest.fixture(autouse=True)
-def mock_pil_image_open():
-    with patch('PIL.Image.open') as mock:
-        yield mock
+    with open(os.path.join(test_dir, "index.html"), "w") as f: f.write(index_html)
+    with open(os.path.join(test_dir, "page1.html"), "w") as f: f.write(page1_html)
+    with open(os.path.join(test_dir, "page2.html"), "w") as f: f.write(page2_html)
+
+    handler = lambda *args, **kwargs: QuietHTTPRequestHandler(*args, directory=test_dir, **kwargs)
+    httpd = HTTPServer(("localhost", server_port), handler)
+    server_thread = threading.Thread(target=run_server, args=(httpd,))
+    server_thread.daemon = True
+    server_thread.start()
+
+    yield f"http://localhost:{server_port}"
+
+    httpd.shutdown()
+    httpd.server_close()
+    server_thread.join()
+    shutil.rmtree(test_dir)
