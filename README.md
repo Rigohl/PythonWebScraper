@@ -105,22 +105,29 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 
 ## Estructura del Proyecto (Detallado)
 
-- `src/`: **Carpeta Principal del Código Fuente.**
-  - `src/main.py`: **Punto de Entrada.** Parsea los argumentos de la CLI y decide si lanzar el crawler o la TUI.
-  - `src/tui.py`: **Interfaz Gráfica de Usuario (TUI).** Construye y gestiona la interfaz interactiva con `textual`. Incluye un dashboard con estadísticas globales y una tabla detallada con métricas de rendimiento en tiempo real para cada dominio.
-  - `src/orchestrator.py`: **El Cerebro del Crawler.** Contiene la clase `ScrapingOrchestrator`, que gestiona la cola de URLs, la concurrencia de los trabajadores y el ciclo de vida del navegador.
-  - `src/scraper.py`: Contiene la clase `AdvancedScraper` y el modelo de datos `ScrapeResult` (Pydantic). Encapsula la lógica para descargar, analizar y validar la calidad y estructura de los datos de una sola página.
-  - `src/database.py`: Contiene la clase `DatabaseManager`, que gestiona la comunicación con la base de datos SQLite.
-  - `src/settings.py`: Módulo de configuración basado en `pydantic-settings` que carga desde variables de entorno y archivos `.env`.
-  - `src/user_agent_manager.py`: Gestiona la rotación y el ciclo de vida de los User-Agents.
-  - `src/fingerprint_manager.py`: Genera perfiles de navegador completos y consistentes para evasión avanzada.
-  - `src/llm_extractor.py`: Integra LLMs para la limpieza y extracción de datos.
-  - `src/rl_agent.py`: Implementa un Agente de Aprendizaje por Refuerzo (RL) que optimiza la estrategia de scraping.
-
-- `tests/`: Carpeta que contiene todas las pruebas unitarias y de integración. La suite de pruebas ha sido mejorada y expandida para cubrir más funcionalidades.
+- `src/`: **Carpeta Principal del Código Fuente.** Organizada por funcionalidad.
+  - `main.py`: **Punto de Entrada.** Parsea argumentos de CLI y lanza la TUI o el crawler.
+  - `settings.py`: Configuración global del proyecto vía `pydantic-settings`.
+  - `core/`: **Lógica central del scraping.**
+    - `orchestrator.py`: Gestiona la concurrencia, la cola de tareas y el ciclo de vida del crawling.
+    - `scraper.py`: Lógica para descargar y procesar una única página con Playwright.
+  - `db/`: **Persistencia de datos.**
+    - `manager.py`: Abstracción sobre la base de datos SQLite para guardar resultados, cookies, etc.
+  - `intelligence/`: **Módulos de IA.**
+    - `llm_extractor.py`: Integra LLMs para limpieza y extracción de datos estructurados.
+    - `rl_agent.py`: Agente de Aprendizaje por Refuerzo para optimización dinámica.
+  - `managers/`: **Gestores de recursos.**
+    - `fingerprint_manager.py`: Genera perfiles de navegador para evasión.
+    - `user_agent_manager.py`: Rota User-Agents para reducir bloqueos.
+  - `models/`: **Modelos de datos Pydantic.**
+    - `results.py`: Define la estructura de `ScrapeResult`.
+  - `tui/`: **Interfaz de Usuario en Terminal.**
+    - `app.py`: Define la aplicación Textual y sus componentes.
+    - `styles.css`: Hoja de estilos para la TUI.
+- `tests/`: Pruebas unitarias y de integración.
   - `tests/regression_fixtures/`: Contiene archivos HTML de sitios reales para realizar **testing de regresión**, asegurando que la lógica de extracción no se rompa con futuros cambios.
 - `requirements.txt`: Lista de todas las dependencias de Python.
-- `styles.css`: Hoja de estilos para la TUI.
+- `requirements-dev.txt`: Dependencias para desarrollo (testing, linting).
 - `MEJORAS.md`: La hoja de ruta estratégica del proyecto.
 - `README.md`: Este mismo archivo.
 

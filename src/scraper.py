@@ -39,15 +39,15 @@ from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from readability import Document
 from pydantic import BaseModel
 
-from .database import DatabaseManager
+from .db.manager import DatabaseManager
 from .exceptions import (
     ContentQualityError,
     NetworkError,
     ParsingError,
     ScraperException,
 )
-from .llm_extractor import LLMExtractor
-from .models.results import ScrapeResult
+from ..intelligence.llm_extractor import LLMExtractor
+from ..models.results import ScrapeResult
 from .settings import settings
 
 
