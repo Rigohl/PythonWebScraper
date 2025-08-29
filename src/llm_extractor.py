@@ -26,7 +26,7 @@ except Exception:
     OPENAI_AVAILABLE = False
 
 from pydantic import BaseModel, create_model
-from src.settings import settings
+from .settings import settings
 
 logger = logging.getLogger(__name__)
 

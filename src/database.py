@@ -22,7 +22,7 @@ from typing import Optional, Iterable, List, Dict, Iterator
 
 import dataset
 
-from src.models.results import ScrapeResult
+from .models.results import ScrapeResult
 
 logger = logging.getLogger(__name__)
 
@@ -263,3 +263,4 @@ class DatabaseManager:
                 except (json.JSONDecodeError, TypeError):
                     row[field] = None if field == 'extracted_data' else []
         return row
+
