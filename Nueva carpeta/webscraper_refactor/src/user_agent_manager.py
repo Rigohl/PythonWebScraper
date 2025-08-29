@@ -71,7 +71,7 @@ class UserAgentManager:
         self._clean_expired_blocks()
         if not self.available_user_agents:
             # All are blocked; fall back to sequential rotation through the
-            # original list.  We don''t remove the block entry here because
+            # original list.  We don't remove the block entry here because
             # the block timeout may still be in force.
             self._rotation_index = (self._rotation_index + 1) % len(self.user_agents)
             return self.user_agents[self._rotation_index]
@@ -91,7 +91,7 @@ class UserAgentManager:
         """
         if user_agent in self.available_user_agents:
             self.available_user_agents.remove(user_agent)
-        # Always set/update the blocked expiry time, even if the agent wasn''t available.
+        # Always set/update the blocked expiry time, even if the agent wasn't available.
         self.blocked_user_agents[user_agent] = datetime.now() + timedelta(seconds=duration_seconds)
 
     def release_user_agent(self, user_agent: str) -> None:

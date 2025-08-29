@@ -315,7 +315,7 @@ class AdvancedScraper:
         for phrase in settings.FORBIDDEN_PHRASES:
             if phrase in lower_text or phrase in lower_title:
                 raise ContentQualityError(
-                    f"Contenido parece ser una página de error (contiene: ''{phrase}'')."
+                    f"Contenido parece ser una página de error (contiene: '{phrase}')."
                 )
 
     def _classify_content(self, title: Optional[str], content_text: Optional[str]) -> str:

@@ -124,8 +124,8 @@ class FingerprintManager:
         js_overrides = {
             "navigator.webdriver": False,
             # Provide languages as a Python list literal for injection.
-            "navigator.languages": "[''en-US'', ''en'']",
-            "navigator.platform": f"''{platform}''",
+            "navigator.languages": "['en-US', 'en']",
+            "navigator.platform": f"'{platform}'",
             "navigator.plugins.length": 0,
             "screen.colorDepth": 24,
             "navigator.hardwareConcurrency": self._random.choice([4, 8, 16]),

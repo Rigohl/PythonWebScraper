@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 REM --- Verificaciones Previas ---
 echo [INFO] Verificando que el script se ejecute desde la raiz del proyecto...
 if not exist "requirements.txt" (
-    echo [ERROR] Este script debe ejecutarse desde la carpeta raiz del proyecto (donde se encuentra 'requirements.txt').
+    echo [ERROR] Este script debe ejecutarse desde la carpeta raiz del proyecto.
     pause
     exit /b 1
 )
@@ -29,6 +29,12 @@ set "PYTHON_VERSION="
 for /f "tokens=2" %%i in ('%PYTHON_EXE% --version 2^>^&1') do set "PYTHON_VERSION=%%i"
 
 echo [INFO] Version de Python detectada: !PYTHON_VERSION!
+if not defined PYTHON_VERSION (
+    echo [ERROR] No se pudo determinar la version de Python.
+    pause
+    exit /b 1
+)
+
 for /f "tokens=1,2 delims=." %%a in ("!PYTHON_VERSION!") do (
     if "%%a" NEQ "3" (
         echo [ERROR] Se requiere Python 3. Version encontrada: !PYTHON_VERSION!
@@ -50,8 +56,8 @@ if exist "%VENV_DIR%" (
     echo [INFO] Eliminando entorno virtual anterior...
     rmdir /s /q "%VENV_DIR%"
     if errorlevel 1 (
-        echo [ERROR] No se pudo eliminar el entorno virtual anterior en "%VENV_DIR%".
-        echo [ERROR] Asegurate de que no este en uso por otra aplicacion (p.ej. tu editor de codigo o una terminal activa).
+        echo [ERROR] No se pudo eliminar el entorno virtual anterior.
+        echo [ERROR] Asegurate de que no este en uso por otra aplicacion.
         pause
         exit /b 1
     )
@@ -66,29 +72,30 @@ if errorlevel 1 (
 )
 
 REM --- Instalacion de Dependencias ---
-echo [INFO] Activando entorno virtual e instalando dependencias...
-call "%VENV_DIR%\Scripts\activate.bat"
+echo [INFO] Instalando dependencias...
+
+set "VENV_PYTHON=%VENV_DIR%\Scripts\python.exe"
+set "VENV_PIP=%VENV_DIR%\Scripts\pip.exe"
+set "VENV_PLAYWRIGHT=%VENV_DIR%\Scripts\playwright.exe"
 
 echo [INFO] Actualizando pip...
-python -m pip install --upgrade pip
+"%VENV_PYTHON%" -m pip install --upgrade pip
 if errorlevel 1 (
     echo [WARNING] No se pudo actualizar pip, se continuara con la version actual.
 )
 
-echo [INFO] Instalando dependencias de 'requirements.txt'...
-python -m pip install -r requirements.txt
+echo [INFO] Instalando dependencias de requirements.txt...
+"%VENV_PIP%" install -r requirements.txt
 if errorlevel 1 (
     echo [ERROR] No se pudieron instalar las dependencias de Python (pip).
-    echo [ERROR] Revisa el archivo 'requirements.txt' y tu conexion a internet.
     pause
     exit /b 1
 )
 
 echo [INFO] Instalando navegadores para Playwright...
-playwright install
+"%VENV_PLAYWRIGHT%" install
 if errorlevel 1 (
     echo [ERROR] No se pudieron instalar los navegadores de Playwright.
-    echo [ERROR] Intenta ejecutar 'playwright install' manualmente despues de activar el entorno virtual.
     pause
     exit /b 1
 )
