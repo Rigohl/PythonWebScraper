@@ -1,0 +1,66 @@
+name: Publish Dashboard
+on:
+  workflow_run:
+    workflows: ["Nightly Smoke (Scraper+Metrics)"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency: { group: "pages", cancel-in-progress: true }
+jobs:
+  build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download nightly artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nightly-artifacts
+          run-id: ${{ github.event.workflow_run.id }}
+          path: _nightly
+        continue-on-error: true
+      - name: Build static dashboard
+        run: |
+          mkdir -p _site
+          python - <<'PY'
+import json, pathlib, time
+m = {}
+dq = {}
+try:
+    m = json.loads(pathlib.Path("_nightly/artifacts/metrics.json").read_text(encoding="utf-8"))
+except Exception:
+    pass
+try:
+    dq = json.loads(pathlib.Path("_nightly/artifacts/dq_summary.json").read_text(encoding="utf-8"))
+except Exception:
+    pass
+html = f"""<!doctype html>
+<meta charset="utf-8">
+<title>Scraper Dashboard</title>
+<h1>Scraper Dashboard</h1>
+<p>Updated: {time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())} UTC</p>
+<h2>Métricas</h2>
+<pre>{json.dumps(m, indent=2)}</pre>
+<h2>Data Quality</h2>
+<pre>{json.dumps(dq, indent=2)}</pre>
+<style>body{{font-family:system-ui,Segoe UI,Arial;margin:2rem;}} pre{{background:#f6f8fa;padding:1rem;border-radius:8px;overflow:auto;}}</style>
+"""
+pathlib.Path("_site/index.html").write_text(html, encoding="utf-8")
+PY
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: _site }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

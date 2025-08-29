@@ -1,0 +1,11 @@
+{
+  "targets": [
+    {
+      "url": "https://books.toscrape.com/",
+      "checks": [
+        {"css": "article.product_pod", "min": 1},
+        {"css": "div.page_inner", "min": 1}
+      ]
+    }
+  ]
+}
