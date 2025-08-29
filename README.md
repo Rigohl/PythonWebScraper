@@ -39,18 +39,18 @@ Un crawler y archivador web inteligente, diseñado para ser adaptable, resilient
     # 1. Activa el entorno virtual
     source .venv/bin/activate
     # 2. Lanza la TUI
-    python3 src/main.py --tui
+    python3 -m src.main --tui
     ```
 
 3. **(Opcional) Ejecución por Línea de Comandos (CLI):**
     Para automatización, también puedes ejecutarlo directamente (asegúrate de tener el entorno virtual activado).
 
     ```bash
-    # Ejemplo: Iniciar un crawling desde la CLI
-    python3 src/main.py --crawl http://toscrape.com/
+    # Ejemplo: Iniciar un crawling desde la CLI (desde la raíz del proyecto)
+    python3 -m src.main --crawl http://toscrape.com/
     ```
 
-    Para ver todas las opciones, usa `python3 src/main.py --help`.
+    Para ver todas las opciones, usa `python3 -m src.main --help`.
 
 ---
 
@@ -108,9 +108,8 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 - `src/`: **Carpeta Principal del Código Fuente.** Organizada por funcionalidad.
   - `main.py`: **Punto de Entrada.** Parsea argumentos de CLI y lanza la TUI o el crawler.
   - `settings.py`: Configuración global del proyecto vía `pydantic-settings`.
-  - `core/`: **Lógica central del scraping.**
-    - `orchestrator.py`: Gestiona la concurrencia, la cola de tareas y el ciclo de vida del crawling.
-    - `scraper.py`: Lógica para descargar y procesar una única página con Playwright.
+  - `orchestrator.py`: Gestiona la concurrencia, la cola de tareas y el ciclo de vida del crawling.
+  - `scraper.py`: Lógica para descargar y procesar una única página con Playwright.
   - `db/`: **Persistencia de datos.**
     - `manager.py`: Abstracción sobre la base de datos SQLite para guardar resultados, cookies, etc.
   - `intelligence/`: **Módulos de IA.**

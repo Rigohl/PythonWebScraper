@@ -52,7 +52,7 @@ class DatabaseManager:
                 os.makedirs(db_dir, exist_ok=True)
             self.db = dataset.connect(f"sqlite:///{db_path}")
         else:
-            raise ValueError("Se debe proporcionar ''db_path'' o ''db_connection''.")
+            raise ValueError("Either 'db_path' or 'db_connection' must be provided.")
         # Table handles
         self.table = self.db["pages"]
         self.apis_table = self.db["discovered_apis"]
@@ -90,7 +90,7 @@ class DatabaseManager:
             "timestamp": datetime.now(timezone.utc),
         }
         self.apis_table.upsert(data, ["page_url", "api_url", "payload_hash"])
-        logger.info(f"API descubierta en {page_url}: {api_url}")
+        logger.info(f"Discovered API on {page_url}: {api_url}")
 
     def save_cookies(self, domain: str, cookies_json: str) -> None:
         """Persist cookies for the given domain."""
@@ -100,7 +100,7 @@ class DatabaseManager:
             "timestamp": datetime.now(timezone.utc),
         }
         self.cookies_table.upsert(data, ["domain"])
-        logger.debug(f"Cookies guardadas para el dominio: {domain}")
+        logger.debug(f"Saved cookies for domain: {domain}")
 
     def load_cookies(self, domain: str) -> Optional[str]:
         """Retrieve cookies for a domain or ``None`` if not found."""
@@ -115,7 +115,7 @@ class DatabaseManager:
             "timestamp": datetime.now(timezone.utc),
         }
         self.llm_schemas_table.upsert(data, ["domain"])
-        logger.debug(f"Esquema LLM guardado para el dominio: {domain}")
+        logger.debug(f"Saved LLM schema for domain: {domain}")
 
     def load_llm_extraction_schema(self, domain: str) -> Optional[str]:
         """Retrieve a stored LLM extraction schema or ``None`` if missing."""
@@ -136,7 +136,7 @@ class DatabaseManager:
         if result.content_hash:
             existing = self.table.find_one(content_hash=result.content_hash)
             if existing and existing.get("url") != result.url:
-                logger.info(f"Contenido duplicado detectado para {result.url}. Original: {existing['url']}. Marcando como DUPLICATE.")
+                logger.info(f"Duplicate content detected for {result.url}. Original: {existing['url']}. Marking as DUPLICATE.")
                 result.status = "DUPLICATE"
 
         data = result.model_dump(mode='json')
@@ -150,7 +150,7 @@ class DatabaseManager:
             data["healing_events"] = json.dumps(data["healing_events"])
 
         self.table.upsert(data, ["url"])
-        logger.debug(f"Resultado para {result.url} guardado en la base de datos.")
+        logger.debug(f"Result for {result.url} saved to database.")
 
     def get_result_by_url(self, url: str) -> Optional[Dict[str, Any]]:
         """Fetch a stored result by URL and deserialise JSON fields."""
@@ -174,7 +174,7 @@ class DatabaseManager:
         results_iterator = self.table.find(status='SUCCESS')
         first = next(results_iterator, None)
         if first is None:
-            logger.warning("No hay datos con estado 'SUCCESS' para exportar. No se creará ningún archivo.")
+            logger.warning("No data with 'SUCCESS' status to export. No file will be created.")
             return
 
         import csv
@@ -189,7 +189,7 @@ class DatabaseManager:
                 processed = self._process_csv_row(dict(row))
                 writer.writerow({k: processed.get(k) for k in fieldnames})
                 count += 1
-        logger.info(f"{count} registros con estado 'SUCCESS' exportados a {file_path}")
+        logger.info(f"{count} records with 'SUCCESS' status exported to {file_path}")
 
     def export_to_json(self, file_path: str) -> None:
         """Export all stored results to a JSON file."""
@@ -199,11 +199,11 @@ class DatabaseManager:
 
         results = self.list_results()
         if not results:
-            logger.warning("No hay datos para exportar a JSON. No se creará ningún archivo.")
+            logger.warning("No data to export to JSON. No file will be created.")
             return
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=4, ensure_ascii=False)
-        logger.info(f"{len(results)} registros exportados a {file_path}")
+        logger.info(f"{len(results)} records exported to {file_path}")
 
     # ------------------------------------------------------------------
     # Search operations

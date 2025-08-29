@@ -67,13 +67,13 @@ class FingerprintManager:
                  viewports: Sequence[Dict[str, int]] | None = None,
                  rand: random.Random | None = None) -> None:
         if user_agent_manager is None:
-            raise ValueError("Se debe proporcionar un UserAgentManager.")
+            raise ValueError("A UserAgentManager must be provided.")
         self.user_agent_manager = user_agent_manager
 
         # Use a copy of the default list to avoid accidental mutation.
         self.viewports: list[Dict[str, int]] = list(viewports) if viewports else list(DEFAULT_VIEWPORTS)
         if not self.viewports:
-            raise ValueError("La lista de viewports no puede estar vacía.")
+            raise ValueError("The viewports list cannot be empty.")
 
         # Allow dependency injection of a random generator for testability.
         self._random = rand if rand is not None else random.Random()
@@ -87,7 +87,7 @@ class FingerprintManager:
         """
         vp_list = list(viewports)
         if not vp_list:
-            raise ValueError("La lista de viewports no puede estar vacía.")
+            raise ValueError("The viewports list cannot be empty.")
         self.viewports = vp_list
 
     def _platform_from_ua(self, user_agent: str) -> str:
@@ -124,8 +124,8 @@ class FingerprintManager:
         js_overrides = {
             "navigator.webdriver": False,
             # Provide languages as a Python list literal for injection.
-            "navigator.languages": "[''en-US'', ''en'']",
-            "navigator.platform": f"''{platform}''",
+            "navigator.languages": "['en-US', 'en']",
+            "navigator.platform": f"'{platform}'",
             "navigator.plugins.length": 0,
             "screen.colorDepth": 24,
             "navigator.hardwareConcurrency": self._random.choice([4, 8, 16]),

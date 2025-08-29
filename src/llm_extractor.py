@@ -19,7 +19,7 @@ from typing import Any, Type, TypeVar, Optional
 
 try:
     import instructor
-    from openai import OpenAI
+    from openai import OpenAI, APIError, APITimeoutError, APIConnectionError
     OPENAI_AVAILABLE = True
 except Exception:
     # If the OpenAI SDK or instructor is not installed, we mark the client as unavailable.
@@ -34,12 +34,12 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class LLMExtractor:
-    """Envoltura para un Modelo de Lenguaje para limpiar, extraer y resumir.
+    """Wrapper around a Language Model for cleaning, extracting and summarising.
 
-    Al instanciarse, el extractor intenta construir un cliente de OpenAI
-    parcheado por ``instructor``. Si la clave de API no está configurada o
-    faltan las dependencias requeridas, el extractor operará en modo offline
-    y se basará en una lógica de respaldo determinista.
+    Upon instantiation the extractor attempts to construct an OpenAI client
+    patched by ``instructor``.  If the API key is not set or the required
+    dependencies are missing, the extractor will operate in offline mode and
+    rely on deterministic fallback logic.
     """
 
     def __init__(self) -> None:
@@ -47,20 +47,19 @@ class LLMExtractor:
         if OPENAI_AVAILABLE and settings.LLM_API_KEY:
             try:
                 self.client = instructor.patch(OpenAI(api_key=settings.LLM_API_KEY))
-                logger.info("LLMExtractor inicializado con el cliente de OpenAI parcheado.")
+                logger.info("LLMExtractor initialized with patched OpenAI client.")
             except Exception as e:
-                logger.error(f"Error inicializando OpenAI client: {e}")
+                logger.error(f"Error initializing OpenAI client: {e}")
         else:
-            logger.warning("LLM API no configurada o dependencias faltantes; se usará modo offline.")
+            logger.warning("LLM API key not configured or dependencies missing; using offline mode.")
 
     async def clean_text_content(self, text: str) -> str:
-        """Limpia texto HTML usando un LLM o recurre a heurísticas simples.
+        """Clean HTML text using an LLM or fallback to naive heuristics.
 
-        El prompt de limpieza instruye al LLM para que elimine barras de
-        navegación, pies de página y otros elementos no esenciales. Si la
-        llamada falla o el modo offline está activo, este método devuelve el
-        texto original. En modo offline, se podría extender con un filtro
-        simple de "readability".
+        The cleaning prompt instructs the LLM to remove navigation bars,
+        footers and other non-essential elements. If the call fails or
+        offline mode is active, this method returns the original text. For
+        offline mode one could extend this with a simple readability filter.
         """
         if not self.client:
             # Fallback: no cleaning performed.
@@ -72,21 +71,23 @@ class LLMExtractor:
                 model=settings.LLM_MODEL,
                 response_model=CleanedText,
                 messages=[
-                    {"role": "system", "content": "Eres un experto en limpiar contenido HTML. Tu tarea es eliminar todo el texto que no sea el contenido principal de la página, como barras de navegación, pies de página, anuncios, pop-ups y texto legal. Devuelve únicamente el contenido principal."},
+                    {"role": "system", "content": "You are an expert in cleaning HTML content. Your task is to remove all text that is not the main content of the page, such as navigation bars, footers, ads, pop-ups, and legal text. Return only the main content."},
                     {"role": "user", "content": text},
                 ],
             )
             return response.cleaned_text
+        except (APIError, APITimeoutError, APIConnectionError) as e:
+            logger.error(f"OpenAI API error during text cleaning: {e}", exc_info=True)
+            return text
         except Exception as e:
-            logger.error(f"Error durante la limpieza de texto con LLM: {e}", exc_info=True)
+            logger.error(f"Unexpected error during LLM text cleaning: {e}", exc_info=True)
             return text
 
     async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
-        """Realiza una extracción "zero-shot" de datos estructurados desde HTML.
+        """Perform zero-shot extraction of structured data from HTML.
 
-        Cuando el LLM no está disponible, este método devuelve una instancia
-        vacía de ``response_model`` para que el código que lo llama pueda
-        proceder sin fallar.
+        When the LLM is unavailable this method returns an empty instance of
+        ``response_model`` so that the caller can proceed without crashing.
         """
         if not self.client:
             return response_model()
@@ -95,23 +96,26 @@ class LLMExtractor:
                 model=settings.LLM_MODEL,
                 response_model=response_model,
                 messages=[
-                    {"role": "system", "content": "Eres un experto en extracción de datos de páginas web. Tu tarea es analizar el siguiente contenido HTML y rellenar el esquema Pydantic proporcionado con la información encontrada. Extrae los datos de la forma más precisa posible."},
+                    {"role": "system", "content": "You are an expert in data extraction from web pages. Your task is to analyze the following HTML content and fill the provided Pydantic schema with the information found. Extract the data as accurately as possible."},
                     {"role": "user", "content": html_content},
                 ],
             )
-            logger.info(f"Extracción Zero-Shot exitosa para el modelo {response_model.__name__}.")
+            logger.info(f"Zero-shot extraction successful for model {response_model.__name__}.")
             return response
+        except (APIError, APITimeoutError, APIConnectionError) as e:
+            logger.error(f"OpenAI API error during zero-shot extraction: {e}", exc_info=True)
+            return response_model()
         except Exception as e:
-            logger.error(f"Error durante la extracción Zero-Shot con LLM: {e}", exc_info=True)
+            logger.error(f"Unexpected error during zero-shot extraction: {e}", exc_info=True)
             return response_model()
 
     async def summarize_content(self, text_content: str, max_words: int = 100) -> str:
-        """Resume un bloque de texto usando el LLM o una alternativa simple.
+        """Summarise a block of text using the LLM or a naive fallback.
 
-        Si no se puede llamar al LLM, se aplica una heurística simple de
-        resumen: se devuelven las primeras ``max_words`` palabras. En
-        producción, esto podría reemplazarse con un resumidor offline más
-        sofisticado, como un extractor basado en frecuencia.
+        If the LLM cannot be called, a simple heuristic summarisation is
+        applied: the first ``max_words`` words of the input are returned. In
+        production one could replace this with a more sophisticated offline
+        summariser such as a frequency-based extractor.
         """
         if not self.client:
             # Naive summarisation: return the first ``max_words`` words.
@@ -121,14 +125,18 @@ class LLMExtractor:
             response = await self.client.chat.completions.create(
                 model=settings.LLM_MODEL,
                 messages=[
-                    {"role": "system", "content": f"Eres un asistente útil. Resume el siguiente texto en aproximadamente {max_words} palabras."},
+                    {"role": "system", "content": f"You are a helpful assistant. Summarize the following text in approximately {max_words} words."},
                     {"role": "user", "content": text_content},
                 ],
                 temperature=0.7,
                 max_tokens=max_words * 2,
             )
             # The OpenAI API returns a list of choices; pick the first.
-            return response.choices[0].message.content
+            summary = response.choices[0].message.content
+            return summary if summary is not None else ""
+        except (APIError, APITimeoutError, APIConnectionError) as e:
+            logger.error(f"OpenAI API error during content summarization: {e}", exc_info=True)
+            return " ".join(re.split(r"\s+", text_content)[:max_words])
         except Exception as e:
-            logger.error(f"Error al sumarizar contenido con LLM: {e}", exc_info=True)
-            return text_content[: max_words * 10]
+            logger.error(f"Unexpected error during content summarization: {e}", exc_info=True)
+            return " ".join(re.split(r"\s+", text_content)[:max_words])

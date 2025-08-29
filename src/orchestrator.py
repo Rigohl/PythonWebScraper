@@ -3,7 +3,7 @@ import logging
 from urllib.parse import urlparse, urlunparse, ParseResult
 from playwright.async_api import Browser
 import httpx # Revert to Stealth class
-from playwright_stealth import stealth_async
+from playwright_stealth import stealth
 from robotexclusionrulesparser import RobotExclusionRulesParser
 from pydantic import create_model
 
@@ -224,7 +224,7 @@ class ScrapingOrchestrator:
 
             current_user_agent = self.user_agent_manager.get_user_agent()
             page = await browser.new_page(user_agent=current_user_agent)
-            await stealth_async(page) # Aplicar stealth a cada nueva página
+            await stealth(page) # Aplicar stealth a cada nueva página
 
             await page.route("**/*", self._block_unnecessary_requests)
             scraper = AdvancedScraper(page, self.db_manager, self.llm_extractor)
@@ -426,3 +426,5 @@ class ScrapingOrchestrator:
         except Exception as e:
             self.logger.warning(f"No se pudo cargar o parsear robots.txt desde {robots_url}. Error: {e}")
             if self.alert_callback: self.alert_callback(f"Error al cargar/parsear robots.txt desde {robots_url}. Error: {e}", level="warning")
+
+
