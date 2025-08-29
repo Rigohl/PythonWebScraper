@@ -39,15 +39,15 @@ from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from readability import Document
 from pydantic import BaseModel
 
-from .db.manager import DatabaseManager
+from .database import DatabaseManager
 from .exceptions import (
     ContentQualityError,
     NetworkError,
     ParsingError,
     ScraperException,
 )
-from ..intelligence.llm_extractor import LLMExtractor
-from ..models.results import ScrapeResult
+from .intelligence.llm_extractor import LLMExtractor
+from .models.results import ScrapeResult
 from .settings import settings
 
 
@@ -127,17 +127,17 @@ class AdvancedScraper:
                     url, full_html, response, extraction_schema
                 )
             except (PlaywrightTimeoutError, NetworkError) as exc:
-                self.logger.warning(f"Error de red o timeout en scrape de {url}: {exc}")
+                self.logger.warning(f"Network error or timeout scraping {url}: {exc}")
                 return ScrapeResult(status="RETRY", url=url, error_message=str(exc), retryable=True)
             except (ParsingError, ContentQualityError) as exc:
-                self.logger.error(f"Error de parseo o calidad de contenido en scrape de {url}: {exc}")
+                self.logger.error(f"Parsing or content quality error scraping {url}: {exc}")
                 return ScrapeResult(status="FAILED", url=url, error_message=str(exc))
             except Exception as exc:  # noqa: BLE001
                 # Catch all unexpected errors to avoid crashing the crawler
                 self.logger.error(
-                    f"Error inesperado en scrape de {url}: {exc}", exc_info=True
+                    f"Unexpected error scraping {url}: {exc}", exc_info=True
                 )
-                return ScrapeResult(status="FAILED", url=url, error_message=f"Error inesperado: {exc}")
+                return ScrapeResult(status="FAILED", url=url, error_message=f"Unexpected error: {exc}")
 
         # Set duration and return the result
         end_time = datetime.now(timezone.utc)
@@ -162,7 +162,7 @@ class AdvancedScraper:
                     json_payload = await response.json()
                 except Exception as exc:  # noqa: BLE001
                     self.logger.debug(
-                        f"No se pudo procesar el payload JSON de la API {response.url}: {exc}"
+                        f"Could not process JSON payload from API {response.url}: {exc}"
                     )
                     return
                 payload_str = json.dumps(json_payload, sort_keys=True)
@@ -174,7 +174,7 @@ class AdvancedScraper:
                 except Exception:
                     # Saving API data should never break scraping
                     self.logger.debug(
-                        f"No se pudo guardar la API descubierta para {response.url}", exc_info=True
+                        f"Could not save discovered API for {response.url}", exc_info=True
                     )
 
         # Attach listener
@@ -199,28 +199,28 @@ class AdvancedScraper:
         try:
             cookies = json.loads(cookies_json)
         except json.JSONDecodeError as exc:
-            self.logger.error(f"Error al decodificar cookies para {domain}: {exc}")
+            self.logger.error(f"Error decoding cookies for {domain}: {exc}")
             return
         try:
             await self.page.context.add_cookies(cookies)
-            self.logger.info(f"Cookies cargadas para {domain}")
+            self.logger.info(f"Loaded cookies for {domain}")
         except Exception as exc:  # noqa: BLE001
-            self.logger.debug(f"No se pudieron aplicar cookies para {domain}: {exc}")
+            self.logger.debug(f"Could not apply cookies for {domain}: {exc}")
 
     async def _persist_cookies(self, domain: str) -> None:
         """Persist current cookies for a domain to the database."""
         try:
             current_cookies = await self.page.context.cookies()
         except Exception:
-            self.logger.debug(f"No se pudieron obtener cookies actuales para {domain}")
+            self.logger.debug(f"Could not get current cookies for {domain}")
             return
         if not current_cookies:
             return
         try:
             self.db_manager.save_cookies(domain, json.dumps(current_cookies))
-            self.logger.info(f"Cookies guardadas para {domain}")
+            self.logger.info(f"Saved cookies for {domain}")
         except Exception:  # noqa: BLE001
-            self.logger.debug(f"No se pudieron guardar cookies para {domain}", exc_info=True)
+            self.logger.debug(f"Could not save cookies for {domain}", exc_info=True)
 
     async def _navigate_to_url(self, url: str):
         """Navigate to the target URL and wait for network idle.
@@ -234,7 +234,7 @@ class AdvancedScraper:
         """
         response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30_000)
         if response and response.status in settings.RETRYABLE_STATUS_CODES:
-            raise NetworkError(f"Estado reintentable: {response.status}")
+            raise NetworkError(f"Retryable status: {response.status}")
         # Wait for network to be idle (no pending requests)
         await self.page.wait_for_load_state("networkidle", timeout=15_000)
         return response
@@ -305,17 +305,17 @@ class AdvancedScraper:
             If the content is empty, too short or contains forbidden phrases.
         """
         if not text:
-            raise ContentQualityError("El contenido extraído está vacío después de la limpieza.")
+            raise ContentQualityError("Extracted content is empty after cleaning.")
         if len(text) < settings.MIN_CONTENT_LENGTH:
             raise ContentQualityError(
-                f"El contenido es demasiado corto ({len(text)} caracteres)."
+                f"Content is too short ({len(text)} characters)."
             )
         lower_text = text.lower()
         lower_title = title.lower() if title else ""
         for phrase in settings.FORBIDDEN_PHRASES:
             if phrase in lower_text or phrase in lower_title:
                 raise ContentQualityError(
-                    f"Contenido parece ser una página de error (contiene: ''{phrase}'')."
+                    f"Content appears to be an error page (contains: '{phrase}')."
                 )
 
     def _classify_content(self, title: Optional[str], content_text: Optional[str]) -> str:
@@ -343,3 +343,5 @@ class AdvancedScraper:
         if content_text and len(content_text) > settings.MIN_CONTENT_LENGTH:
             return "GENERAL"
         return "UNKNOWN"
+
+

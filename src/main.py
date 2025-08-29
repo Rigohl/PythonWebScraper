@@ -24,7 +24,7 @@ import logging
 import os
 from typing import Optional
 
-from .db.manager import DatabaseManager
+from .database import DatabaseManager
 from .settings import settings
 
 

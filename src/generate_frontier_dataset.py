@@ -18,7 +18,7 @@ def generate_dummy_frontier_dataset(output_path: str = "data/frontier_dataset.cs
             path_depth = i % 5
             query_param_count = 1
             is_https = i % 2
-            is_promising = 1 if i % 3 == 0 else 0 # Dummy promising logic
+                        is_promising = 1 if i % 3 == 0 else 0 # Dummy promising logic
 
             writer.writerow({
                 'url': url,

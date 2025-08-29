@@ -13,6 +13,7 @@ heuristic for ease of testing.
 from __future__ import annotations
 
 from urllib.parse import urlparse
+import logging
 import numpy as np
 from typing import Iterable, Tuple
 
@@ -43,12 +44,12 @@ class FrontierClassifier:
             A 1×3 numpy array of integers.
         """
         parsed = urlparse(url)
-        path_segments = [segment for segment in parsed.path.split(''/'') if segment]
-        query_params = parsed.query.split(''&'') if parsed.query else []
+        path_segments = [segment for segment in parsed.path.split('/') if segment]
+        query_params = parsed.query.split('&') if parsed.query else []
         features = [
             len(path_segments),
             len(query_params),
-            1 if parsed.scheme == ''https'' else 0,
+            1 if parsed.scheme == 'https' else 0,
         ]
         return np.array(features, dtype=float).reshape(1, -1)
 
@@ -81,4 +82,5 @@ class FrontierClassifier:
         implementation, you would load the dataset, extract features and
         train a model, persisting it to ``self.model_path`` for later use.
         """
-        print(f"Entrenamiento dummy del clasificador con dataset: {dataset_path}")
+        # This is a placeholder. In a real implementation, you would train a model.
+        logging.info(f"Dummy training of classifier with dataset: {dataset_path}")

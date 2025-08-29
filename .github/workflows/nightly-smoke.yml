@@ -21,7 +21,7 @@ jobs:
           mkdir -p artifacts
           START=$(date +%s)
           if [ -f "src/main.py" ]; then
-            python src/main.py --crawl https://books.toscrape.com/
+            python -m src.main --crawl https://books.toscrape.com/
           else
             python -c "import requests; print(requests.get('https://httpbin.org/get', timeout=10).status_code)"
           fi
