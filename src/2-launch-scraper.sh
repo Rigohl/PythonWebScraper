@@ -1,4 +1,5 @@
 #!/bin/bash
-echo "Activando entorno virtual y lanzando la aplicación..."
+# Activa el entorno virtual y lanza la aplicación en modo TUI.
+echo "[INFO] Activando entorno virtual y lanzando la TUI..."
 source .venv/bin/activate
-python src/main.py
+python3 src/main.py --tui
