@@ -1,13 +1,17 @@
 @echo off
-cd /d "%~dp0"
+setlocal
 
-REM [INFO] Activando entorno virtual...
-REM call .\.venv\Scripts\activate
+set VENV_DIR=.\.venv
 
-REM Add project root to PYTHONPATH
-set "PYTHONPATH=%CD%;%PYTHONPATH%"
+echo [INFO] Verificando si el entorno virtual existe...
+if not exist "%VENV_DIR%\Scripts\python.exe" (
+    echo [ERROR] El entorno virtual no se encuentra en "%VENV_DIR%".
+    echo [ERROR] Por favor, ejecuta primero el script '1-Install-Dependencies.bat'.
+    pause
+    goto :eof
+)
 
-echo [INFO] Lanzando Scraper PRO...
-.\.venv\Scripts\python.exe -m src.main --tui
+echo [INFO] Lanzando la interfaz de usuario (TUI)...
+"%VENV_DIR%\Scripts\python.exe" src/main.py --tui
 
 pause

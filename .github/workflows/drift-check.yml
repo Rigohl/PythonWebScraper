@@ -12,7 +12,7 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 lxml || true
+          pip install requests beautifulsoup4 lxml
       - name: Run drift checks
         id: drift
         run: |

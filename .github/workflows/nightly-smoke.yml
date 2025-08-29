@@ -11,21 +11,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - name: Install deps (best-effort)
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt || true; fi
-          pip install requests || true
+          pip install -r requirements.txt
       - name: Run smoke to toscrape
         run: |
-          set -e
           mkdir -p artifacts
           START=$(date +%s)
-          if [ -f "src/main.py" ]; then
-            python src/main.py --crawl https://books.toscrape.com/ || true
-          else
-            python -c "import requests; print(requests.get('https://httpbin.org/get', timeout=10).status_code)"
-          fi
+          python src/main.py --crawl https://books.toscrape.com/
           END=$(date +%s)
           echo "$((END-START))" > artifacts/duration_s.txt
       - name: Build metrics.json (prefer real, fallback safe)

@@ -8,24 +8,29 @@ Un crawler y archivador web inteligente, diseñado para ser adaptable, resilient
 
 ## ¿Cómo Empezar?
 
-1. **Instalar Dependencias:**
-    Ejecuta el script para crear el entorno virtual e instalar todas las librerías necesarias.
+1.  **Instalar Dependencias:**
+    Ejecuta el script correspondiente a tu sistema operativo para crear el entorno virtual e instalar todas las librerías necesarias.
 
-    ```bash
-    .\1-Install-Dependencies.bat
-    ```
+    -   **En Windows:**
+        ```powershell
+        .\1-Install-Dependencies.bat
+        ```
+    -   **En macOS / Linux:**
+        ```bash
+        bash src/1-install-dependencies.sh
+        ```
 
-2. **Lanzar la Aplicación:**
+2.  **Lanzar la Aplicación (TUI):**
     Una vez instaladas las dependencias, ejecuta el scraper a través de su interfaz gráfica de usuario (TUI).
 
-    ```bash
-    .\2-Launch-Scraper.bat
-    ```
+    -   **En Windows:**
+        ```powershell
+        .\2-Launch-Scraper.bat
+        ```
+    -   **En macOS / Linux:** (Necesitarás crear un script `2-launch-scraper.sh` o ejecutar el comando directamente)
 
-    Esto abrirá una interfaz en tu terminal donde podrás introducir la URL de inicio y configurar los parámetros del crawling.
-
-3. **(Opcional) Ejecución por Línea de Comandos (CLI):**
-    Para automatización, también puedes ejecutarlo directamente con `python`.
+3.  **(Opcional) Ejecución por Línea de Comandos (CLI):**
+    Para automatización, también puedes ejecutarlo directamente con el intérprete de Python del entorno virtual.
 
     ```bash
     # Iniciar un crawling desde la CLI
