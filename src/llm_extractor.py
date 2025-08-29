@@ -1,5 +1,5 @@
 import instructor
-from openai import OpenAI
+from openai import AsyncOpenAI
 from pydantic import BaseModel, create_model
 import logging
 from typing import Type, TypeVar
@@ -20,7 +20,7 @@ class LLMExtractor:
             raise ValueError("La clave de API de LLM (LLM_API_KEY) no está configurada en los ajustes.")
 
         # A.2.2: Usar `instructor` para parchear el cliente de OpenAI
-        self.client = instructor.patch(OpenAI(api_key=settings.LLM_API_KEY))
+        self.client = instructor.patch(AsyncOpenAI(api_key=settings.LLM_API_KEY))
         logger.info("LLMExtractor inicializado con el cliente de OpenAI parcheado.")
 
     async def clean_text_content(self, text: str) -> str:
@@ -32,7 +32,7 @@ class LLMExtractor:
             class CleanedText(BaseModel):
                 cleaned_text: str
 
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=settings.LLM_MODEL,
                 response_model=CleanedText,
                 messages=[
@@ -61,7 +61,7 @@ class LLMExtractor:
             Una instancia del `response_model` con los datos extraídos.
         """
         try:
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=settings.LLM_MODEL,
                 response_model=response_model,
                 messages=[
