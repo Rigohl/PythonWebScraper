@@ -50,7 +50,7 @@ class TestIntegration:
 
         # --- Verificaciones ---
         results = list(self.db_manager.table.all())
-        self.assertEqual(len(results), 3, "Deberían haberse guardado 3 páginas en la BD.")
+        assert len(results) == 3, "Deberían haberse guardado 3 páginas en la BD."
 
         saved_urls = {r['url'] for r in results}
         expected_urls = {
@@ -58,7 +58,7 @@ class TestIntegration:
             f"{http_server}/page1.html",
             f"{http_server}/page2.html"
         }
-        self.assertEqual(saved_urls, expected_urls)
+        assert saved_urls == expected_urls
 
         page1_result = self.db_manager.get_result_by_url(f"{http_server}/page1.html")
         assert page1_result['title'] == "Page 1"
