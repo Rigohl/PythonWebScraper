@@ -46,7 +46,7 @@ from .exceptions import (
     ParsingError,
     ScraperException,
 )
-from .intelligence.llm_extractor import LLMExtractor
+from .llm_extractor import LLMExtractor
 from .models.results import ScrapeResult
 from .settings import settings
 
@@ -343,5 +343,3 @@ class AdvancedScraper:
         if content_text and len(content_text) > settings.MIN_CONTENT_LENGTH:
             return "GENERAL"
         return "UNKNOWN"
-
-
