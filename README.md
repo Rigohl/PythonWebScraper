@@ -8,6 +8,7 @@ Un crawler y archivador web inteligente, diseñado para ser adaptable, resilient
 
 ## ¿Cómo Empezar?
 
+<<<<<<< HEAD
 1.  **Instalar Dependencias:**
     Ejecuta el script correspondiente a tu sistema operativo para crear el entorno virtual e instalar todas las librerías necesarias.
 
@@ -31,13 +32,51 @@ Un crawler y archivador web inteligente, diseñado para ser adaptable, resilient
 
 3.  **(Opcional) Ejecución por Línea de Comandos (CLI):**
     Para automatización, también puedes ejecutarlo directamente con el intérprete de Python del entorno virtual.
+=======
+1. **Instalar Dependencias:**
+    Ejecuta el script de instalación correspondiente a tu sistema operativo. Esto creará un entorno virtual, instalará las librerías de Python y los navegadores necesarios para Playwright.
 
-    ```bash
-    # Iniciar un crawling desde la CLI
-    .\.venv\Scripts\python.exe src/main.py --crawl http://toscrape.com/
+    **En Windows:**
+
+    ```powershell
+    .\1-Install-Dependencies.bat
     ```
 
-    Para ver todas las opciones, usa `.\.venv\Scripts\python.exe src\main.py --help`.
+    **En Linux o macOS:**
+
+    ```bash
+    chmod +x 1-Install-Dependencies.sh
+    ./1-Install-Dependencies.sh
+    ```
+
+2. **Lanzar la Aplicación:**
+    Una vez instaladas las dependencias, puedes ejecutar el scraper.
+
+    **En Windows (usando el script de lanzamiento):**
+
+    ```powershell
+    .\2-Launch-Scraper.bat
+    ```
+
+    **En Linux o macOS (manualmente):**
+>>>>>>> c66c3a5ae932ecad1dd596941a458e89cd90479d
+
+    ```bash
+    # 1. Activa el entorno virtual
+    source .venv/bin/activate
+    # 2. Lanza la TUI
+    python3 src/main.py --tui
+    ```
+
+3. **(Opcional) Ejecución por Línea de Comandos (CLI):**
+    Para automatización, también puedes ejecutarlo directamente (asegúrate de tener el entorno virtual activado).
+
+    ```bash
+    # Ejemplo: Iniciar un crawling desde la CLI
+    python3 src/main.py --crawl http://toscrape.com/
+    ```
+
+    Para ver todas las opciones, usa `python3 src/main.py --help`.
 
 ---
 

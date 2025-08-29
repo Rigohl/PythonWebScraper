@@ -18,7 +18,7 @@ class LLMExtractor:
     def __init__(self):
         if not settings.LLM_API_KEY:
             raise ValueError("La clave de API de LLM (LLM_API_KEY) no está configurada en los ajustes.")
-        
+
         # A.2.2: Usar `instructor` para parchear el cliente de OpenAI
         self.client = instructor.patch(OpenAI(api_key=settings.LLM_API_KEY))
         logger.info("LLMExtractor inicializado con el cliente de OpenAI parcheado.")
@@ -76,40 +76,6 @@ class LLMExtractor:
             # En caso de error, devolvemos una instancia vacía del modelo para no romper el flujo
             return response_model()
 
-    async def extract_structured_data_dynamic_schema(self, html_content: str, schema_dict: dict) -> dict | None:
-        """
-        Extrae datos estructurados usando un LLM y un esquema Pydantic dinámico.
-        `schema_dict` debe ser un diccionario que describa un modelo Pydantic,
-        por ejemplo: {"name": (str, ...), "price": (float, ...)}.
-        """
-        if not self.client:
-            logger.warning("LLM no configurado, no se puede realizar la extracción estructurada dinámica.")
-            return None
-        
-        if not schema_dict:
-            logger.debug("No se proporcionó un esquema para la extracción LLM estructurada dinámica.")
-            return None
-
-        try:
-            # Construir dinámicamente el modelo Pydantic a partir del diccionario
-            DynamicSchema = create_model('DynamicSchema', **{
-                field: (field_type, ...) for field, field_type in schema_dict.items()
-            }) # Default value should be Ellipsis (...) for required fields
-
-            response = await self.client.chat.completions.create(
-                model=settings.LLM_MODEL,  # Use settings.LLM_MODEL
-                response_model=DynamicSchema,
-                messages=[
-                    {"role": "system", "content": "You are an expert data extraction bot. Extract information from the provided HTML content based on the user's schema."},
-                    {"role": "user", "content": f"Extract the following information from the HTML content:\n\nHTML:\n{html_content}\n\nSchema: {schema_dict}"
-                    }
-                ]
-            )
-            return response.model_dump()
-        except Exception as e:
-            logger.error(f"Error en la extracción estructurada dinámica con LLM: {e}", exc_info=True)
-            return None
-
     async def summarize_content(self, text_content: str, max_words: int = 100) -> str | None:
         """
         Sumariza contenido usando un LLM.
@@ -122,7 +88,7 @@ class LLMExtractor:
             response = await self.client.chat.completions.create(
                 model=settings.LLM_MODEL, # Use settings.LLM_MODEL
                 messages=[
-                    {"role": "system", "content": f"You are a helpful assistant. Summarize the following text in approximately {max_words} words רבי"},
+                    {"role": "system", "content": f"You are a helpful assistant. Summarize the following text in approximately {max_words} words."},
                     {"role": "user", "content": text_content}
                 ],
                 temperature=0.7,

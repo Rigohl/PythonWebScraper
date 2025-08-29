@@ -1,7 +1,8 @@
 name: Data Quality
 on:
-  schedule: [ { cron: "45 4 * * *" } ]
+  push:
   workflow_dispatch:
+  schedule: [ { cron: "10 4 * * *" } ]
 jobs:
   dq:
     runs-on: ubuntu-latest
@@ -9,17 +10,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - name: Install deps
+      - name: Install pandas
         run: |
           python -m pip install --upgrade pip
           pip install pandas
+<<<<<<< HEAD
       - name: Run basic DQ over CSVs in data/
         id: dq
+=======
+      - name: Run DQ checks
+>>>>>>> c66c3a5ae932ecad1dd596941a458e89cd90479d
         run: |
           python - <<'PY'
-import json, glob, os, pandas as pd, pathlib, sys
+import json, glob, pandas as pd, pathlib
 files = glob.glob("data/*.csv") + glob.glob("artifacts/*.csv")
-summary = []; breaches=[]
+summary, breaches = [], []
 if not files:
   print("No CSVs found, skipping DQ.")
 else:
@@ -28,16 +33,16 @@ else:
       df = pd.read_csv(f)
       n = len(df)
       null_rate = float(df.isna().sum().sum())/(df.size or 1)
-      # Heurística: si hay columna 'id' medir duplicados
-      dup_rate = float(df.duplicated(subset=[c for c in df.columns if c.lower()=="id"]).sum())/n if n and any(c.lower()=="id" for c in df.columns) else 0.0
+      has_id = any(c.lower()=="id" for c in df.columns)
+      dup_rate = (float(df.duplicated(subset=[c for c in df.columns if c.lower()=="id"]).sum())/n) if (n and has_id) else 0.0
       rec = {"file": f, "rows": int(n), "cols": int(df.shape[1]), "null_rate": round(null_rate,4), "dup_id_rate": round(dup_rate,4)}
       summary.append(rec)
-      if rec["null_rate"] > 0.2: breaches.append(f"{f}: null_rate {rec['null_rate']}>0.2")
+      if rec["null_rate"] > 0.20: breaches.append(f"{f}: null_rate {rec['null_rate']}>0.2")
       if rec["dup_id_rate"] > 0.05: breaches.append(f"{f}: dup_id_rate {rec['dup_id_rate']}>0.05")
     except Exception as e:
       breaches.append(f"{f}: error {e}")
 pathlib.Path("artifacts").mkdir(exist_ok=True)
-open("artifacts/dq_summary.json","w").write(json.dumps({"summary":summary, "breaches":breaches}, indent=2))
+pathlib.Path("artifacts/dq_summary.json").write_text(json.dumps({"summary":summary, "breaches":breaches}, indent=2), encoding="utf-8")
 print(json.dumps({"summary":summary, "breaches":breaches}, indent=2))
 PY
       - name: Job Summary
