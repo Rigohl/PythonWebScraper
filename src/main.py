@@ -24,7 +24,7 @@ import logging
 import os
 from typing import Optional
 
-from .database import DatabaseManager
+from .db.manager import DatabaseManager
 from .settings import settings
 
 
@@ -91,7 +91,7 @@ async def main() -> None:
 
     if args.tui:
         # Import lazily to avoid pulling Textual when running CLI
-        from .tui import ScraperTUIApp
+        from .tui.app import ScraperTUIApp
         app = ScraperTUIApp(log_file_path=args.log_file)
         await app.run_async()
         return

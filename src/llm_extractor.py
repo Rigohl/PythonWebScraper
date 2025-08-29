@@ -34,12 +34,12 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class LLMExtractor:
-    """Wrapper around a Language Model for cleaning, extracting and summarising.
+    """Envoltura para un Modelo de Lenguaje para limpiar, extraer y resumir.
 
-    Upon instantiation the extractor attempts to construct an OpenAI client
-    patched by ``instructor``.  If the API key is not set or the required
-    dependencies are missing, the extractor will operate in offline mode and
-    rely on deterministic fallback logic.
+    Al instanciarse, el extractor intenta construir un cliente de OpenAI
+    parcheado por ``instructor``. Si la clave de API no está configurada o
+    faltan las dependencias requeridas, el extractor operará en modo offline
+    y se basará en una lógica de respaldo determinista.
     """
 
     def __init__(self) -> None:
@@ -54,12 +54,13 @@ class LLMExtractor:
             logger.warning("LLM API no configurada o dependencias faltantes; se usará modo offline.")
 
     async def clean_text_content(self, text: str) -> str:
-        """Clean HTML text using an LLM or fallback to naive heuristics.
+        """Limpia texto HTML usando un LLM o recurre a heurísticas simples.
 
-        The cleaning prompt instructs the LLM to remove navigation bars,
-        footers and other non‑essential elements.  If the call fails or
-        offline mode is active, this method returns the original text.  For
-        offline mode one could extend this with a simple readability filter.
+        El prompt de limpieza instruye al LLM para que elimine barras de
+        navegación, pies de página y otros elementos no esenciales. Si la
+        llamada falla o el modo offline está activo, este método devuelve el
+        texto original. En modo offline, se podría extender con un filtro
+        simple de "readability".
         """
         if not self.client:
             # Fallback: no cleaning performed.
@@ -81,10 +82,11 @@ class LLMExtractor:
             return text
 
     async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
-        """Perform zero‑shot extraction of structured data from HTML.
+        """Realiza una extracción "zero-shot" de datos estructurados desde HTML.
 
-        When the LLM is unavailable this method returns an empty instance of
-        ``response_model`` so that the caller can proceed without crashing.
+        Cuando el LLM no está disponible, este método devuelve una instancia
+        vacía de ``response_model`` para que el código que lo llama pueda
+        proceder sin fallar.
         """
         if not self.client:
             return response_model()
@@ -104,12 +106,12 @@ class LLMExtractor:
             return response_model()
 
     async def summarize_content(self, text_content: str, max_words: int = 100) -> str:
-        """Summarise a block of text using the LLM or a naive fallback.
+        """Resume un bloque de texto usando el LLM o una alternativa simple.
 
-        If the LLM cannot be called, a simple heuristic summarisation is
-        applied: the first ``max_words`` words of the input are returned.  In
-        production one could replace this with a more sophisticated offline
-        summariser such as a frequency‑based extractor.
+        Si no se puede llamar al LLM, se aplica una heurística simple de
+        resumen: se devuelven las primeras ``max_words`` palabras. En
+        producción, esto podría reemplazarse con un resumidor offline más
+        sofisticado, como un extractor basado en frecuencia.
         """
         if not self.client:
             # Naive summarisation: return the first ``max_words`` words.
@@ -119,7 +121,7 @@ class LLMExtractor:
             response = await self.client.chat.completions.create(
                 model=settings.LLM_MODEL,
                 messages=[
-                    {"role": "system", "content": f"You are a helpful assistant. Summarize the following text in approximately {max_words} words."},
+                    {"role": "system", "content": f"Eres un asistente útil. Resume el siguiente texto en aproximadamente {max_words} palabras."},
                     {"role": "user", "content": text_content},
                 ],
                 temperature=0.7,
