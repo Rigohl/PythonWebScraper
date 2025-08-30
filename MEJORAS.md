@@ -9,10 +9,10 @@ Este documento detalla las mejoras y las próximas fases planificadas para el pr
 - **Integración de Playwright en Docker (RESUELTO)**:
   - **Problema**: Dificultades para ejecutar Playwright dentro de un contenedor Docker debido a dependencias de navegador.
   - **Solución (Implementada)**: Se ha configurado Dockerfile y las dependencias para asegurar la ejecución estable de Playwright en un entorno contenedorizado.
-- **Rotación de User-Agents y Fingerprinting Avanzado (EN PROGRESO)**:
+- **Rotación de User-Agents y Fingerprinting Avanzado (COMPLETADO)**:
   - **Problema**: Detección y bloqueo por parte de sitios web debido a huellas digitales de navegador consistentes.
   - **Mejora**: Implementar una estrategia dinámica de rotación de User-Agents y técnicas de fingerprinting avanzado (p. ej., WebGL, Canvas, etc.) para emular un comportamiento de usuario real y evitar la detección.
-  - **Solución Actual**: Se ha implementado la rotación de User-Agents basada en el archivo `user_agents.json` para cada worker de Playwright. Pruebas iniciales sugieren que mejora la resistencia a la detección.
+  - **Solución Implementada**: Se ha implementado la rotación de User-Agents (`UserAgentManager`) y la gestión de huellas digitales de navegador (`FingerprintManager`) para simular perfiles de navegador consistentes y reducir la detección.
 - **Manejo Inteligente de Cookies y Sesiones (COMPLETADO)**:
   - **Problema**: La gestión actual de cookies es básica, lo que puede limitar el acceso a contenido protegido o personalizado.
   - **Mejora**: Desarrollar un sistema para persistir y rotar cookies y sesiones por dominio, permitiendo mantener sesiones activas y sortear sistemas de autenticación o límites de acceso.
@@ -62,8 +62,8 @@ Este documento detalla las mejoras y las próximas fases planificadas para el pr
 
 ## Fase 5: Experiencia de Usuario y Observabilidad
 
-- **Dashboard en Tiempo Real:** (En Progreso)
-  - **Solución:** Se ha implementado una pestaña de "Estadísticas en Vivo" en la TUI con métricas globales.
+- **Dashboard en Tiempo Real (COMPLETADO)**:
+  - **Solución**: Se ha implementado una pestaña de "Estadísticas en Vivo" en la TUI con métricas globales y por dominio.
 - **Alertas y Notificaciones (COMPLETADO)**:
   - **Problema**: La falta de notificación sobre problemas críticos (p. ej., bloqueo de IP, fallos de scraping) podía llevar a interrupciones prolongadas.
   - **Mejora**: Implementar un sistema de alertas para notificar sobre eventos importantes o errores.

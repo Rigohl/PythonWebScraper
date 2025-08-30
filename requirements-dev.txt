@@ -1,0 +1,7 @@
+# Development and testing dependencies
+pytest
+pytest-asyncio
+pre-commit
+black
+isort
+flake8

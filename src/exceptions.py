@@ -1,19 +1,23 @@
 class ScraperException(Exception):
-    """Clase base para todas las excepciones personalizadas del scraper."""
+    """Base class for all custom scraper exceptions."""
     pass
 
 class ScrapingError(ScraperException):
-    """Excepción para errores generales durante el proceso de scraping."""
+    """Exception for general errors during the scraping process."""
     pass
 
 class NetworkError(ScraperException):
-    """Excepción para errores relacionados con la red (ej. timeouts, conexiones fallidas)."""
+    """Exception for network-related errors (e.g., timeouts, failed connections)."""
     pass
 
 class ParsingError(ScraperException):
-    """Excepción para errores durante el parseo o extracción de contenido."""
+    """Exception for errors during content parsing or extraction."""
     pass
 
 class ContentQualityError(ScraperException):
-    """Excepción para cuando la calidad del contenido scrapeado es inaceptable."""
+    """Exception for when the quality of scraped content is unacceptable."""
+    pass
+
+class LLMError(ScraperException):
+    """Exception for errors during LLM processing (e.g., API calls)."""
     pass
