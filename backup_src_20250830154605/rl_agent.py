@@ -21,7 +21,6 @@ try:
     from gymnasium import spaces  # type: ignore
     from stable_baselines3 import PPO  # type: ignore
     from stable_baselines3.common.vec_env import DummyVecEnv  # type: ignore
-
     RL_AVAILABLE = True
     Env = gym.Env
 except Exception:
@@ -46,9 +45,9 @@ class ScrapingEnv(Env):
         super().__init__()
         if RL_AVAILABLE:
             # Define observation and action spaces using gymnasium types
-            self.observation_space = spaces.Box(
-                low=np.array([0.0, 0.0, 0.1]), high=np.array([1.0, 1.0, 10.0]), dtype=np.float32
-            )
+            self.observation_space = spaces.Box(low=np.array([0.0, 0.0, 0.1]),
+                                                high=np.array([1.0, 1.0, 10.0]),
+                                                dtype=np.float32)
             self.action_space = spaces.Discrete(3)
         self.current_state = np.zeros(3, dtype=np.float32)
 
@@ -62,14 +61,11 @@ class ScrapingEnv(Env):
 
     def set_state(self, state_dict: dict) -> None:
         """Update the internal state representation from a metrics dictionary."""
-        self.current_state = np.array(
-            [
-                state_dict.get("low_quality_ratio", 0.0),
-                state_dict.get("failure_ratio", 0.0),
-                state_dict.get("current_backoff", 0.1),
-            ],
-            dtype=np.float32,
-        )
+        self.current_state = np.array([
+            state_dict.get("low_quality_ratio", 0.0),
+            state_dict.get("failure_ratio", 0.0),
+            state_dict.get("current_backoff", 0.1),
+        ], dtype=np.float32)
 
 
 class DummyModel:

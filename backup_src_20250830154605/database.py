@@ -18,7 +18,7 @@ import json
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Optional, Iterable, List, Dict, Iterator
 
 import dataset
 
@@ -41,7 +41,9 @@ class DatabaseManager:
     When a path is provided the directory is created if it does not exist.
     """
 
-    def __init__(self, db_path: Optional[str] = None, db_connection: Optional[dataset.Database] = None) -> None:
+    def __init__(self,
+                 db_path: Optional[str] = None,
+                 db_connection: Optional[dataset.Database] = None) -> None:
         if db_connection is not None:
             self.db = db_connection
         elif db_path is not None:
@@ -134,12 +136,10 @@ class DatabaseManager:
         if result.content_hash:
             existing = self.table.find_one(content_hash=result.content_hash)
             if existing and existing.get("url") != result.url:
-                logger.info(
-                    f"Contenido duplicado detectado para {result.url}. Original: {existing['url']}. Marcando como DUPLICATE."
-                )
+                logger.info(f"Contenido duplicado detectado para {result.url}. Original: {existing['url']}. Marcando como DUPLICATE.")
                 result.status = "DUPLICATE"
 
-        data = result.model_dump(mode="json")
+        data = result.model_dump(mode='json')
 
         # JSON serialise complex fields
         if data.get("links") is not None:
@@ -171,15 +171,14 @@ class DatabaseManager:
         if export_dir:
             os.makedirs(export_dir, exist_ok=True)
 
-        results_iterator = self.table.find(status="SUCCESS")
+        results_iterator = self.table.find(status='SUCCESS')
         first = next(results_iterator, None)
         if first is None:
             logger.warning("No hay datos con estado 'SUCCESS' para exportar. No se creará ningún archivo.")
             return
 
         import csv
-
-        with open(file_path, "w", newline="", encoding="utf-8") as csvfile:
+        with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
             processed_first = self._process_csv_row(dict(first))
             fieldnames = list(processed_first.keys())
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -202,7 +201,7 @@ class DatabaseManager:
         if not results:
             logger.warning("No hay datos para exportar a JSON. No se creará ningún archivo.")
             return
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=4, ensure_ascii=False)
         logger.info(f"{len(results)} registros exportados a {file_path}")
 
@@ -224,12 +223,10 @@ class DatabaseManager:
             A list of deserialised results matching the query.
         """
         like_query = f"%{query}%"
-        results_iterator = self.table.find(
-            _or=[
-                {"title": {"like": like_query}},
-                {"content_text": {"like": like_query}},
-            ]
-        )
+        results_iterator = self.table.find(_or=[
+            {'title': {'like': like_query}},
+            {'content_text': {'like': like_query}},
+        ])
         return [self._deserialize_row(dict(row)) for row in results_iterator]
 
     # ------------------------------------------------------------------
@@ -237,15 +234,15 @@ class DatabaseManager:
     # ------------------------------------------------------------------
     def _process_csv_row(self, row: Dict[str, Any]) -> Dict[str, Any]:
         """Flatten extracted data for CSV export and remove the original field."""
-        if row.get("extracted_data"):
+        if row.get('extracted_data'):
             try:
-                extracted = json.loads(row["extracted_data"])
+                extracted = json.loads(row['extracted_data'])
                 for field, data in extracted.items():
-                    row[f"extracted_{field}"] = data.get("value")
+                    row[f'extracted_{field}'] = data.get('value')
             except (json.JSONDecodeError, TypeError):
                 pass
             finally:
-                row.pop("extracted_data", None)
+                row.pop('extracted_data', None)
         return row
 
     def _deserialize_row(self, row: Dict[str, Any]) -> Dict[str, Any]:
@@ -253,16 +250,16 @@ class DatabaseManager:
         if row is None:
             return row
         # Links
-        if row.get("links"):
+        if row.get('links'):
             try:
-                row["links"] = json.loads(row["links"])
+                row['links'] = json.loads(row['links'])
             except (json.JSONDecodeError, TypeError):
-                row["links"] = []
+                row['links'] = []
         # Complex fields
-        for field in ["extracted_data", "healing_events"]:
+        for field in ['extracted_data', 'healing_events']:
             if row.get(field):
                 try:
                     row[field] = json.loads(row[field])
                 except (json.JSONDecodeError, TypeError):
-                    row[field] = None if field == "extracted_data" else []
+                    row[field] = None if field == 'extracted_data' else []
         return row

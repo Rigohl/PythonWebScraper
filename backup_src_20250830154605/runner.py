@@ -1,4 +1,5 @@
 """Crawler execution runner."""
+import asyncio
 import logging
 from urllib.parse import urlparse
 
