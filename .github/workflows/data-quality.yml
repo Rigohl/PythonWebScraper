@@ -32,14 +32,23 @@ else:
       dup_rate = float(df.duplicated(subset=[c for c in df.columns if c.lower()=="id"]).sum())/n if n and any(c.lower()=="id" for c in df.columns) else 0.0
       rec = {"file": f, "rows": int(n), "cols": int(df.shape[1]), "null_rate": round(null_rate,4), "dup_id_rate": round(dup_rate,4)}
       summary.append(rec)
-      if rec["null_rate"] > 0.2: breaches.append(f"{f}: null_rate {rec['null_rate']}>0.2")
-      if rec["dup_id_rate"] > 0.05: breaches.append(f"{f}: dup_id_rate {rec['dup_id_rate']}>0.05")
+      if rec["null_rate"] > NULL_RATE_THRESHOLD: breaches.append(f"{f}: Tasa de nulos {rec['null_rate']} > {NULL_RATE_THRESHOLD}")
+      if rec["dup_id_rate"] > DUPLICATE_ID_RATE_THRESHOLD: breaches.append(f"{f}: Tasa de duplicados {rec['dup_id_rate']} > {DUPLICATE_ID_RATE_THRESHOLD}")
     except Exception as e:
-      breaches.append(f"{f}: error {e}")
+      breaches.append(f"{f}: Error al procesar: {e}")
 pathlib.Path("artifacts").mkdir(exist_ok=True)
-open("artifacts/dq_summary.json","w").write(json.dumps({"summary":summary, "breaches":breaches}, indent=2))
-print(json.dumps({"summary":summary, "breaches":breaches}, indent=2))
+output_data = {"summary":summary, "breaches":breaches}
+output_path = pathlib.Path("artifacts/dq_summary.json")
+output_path.write_text(json.dumps(output_data, indent=2), encoding="utf-8")
+print(f"Resumen de calidad de datos guardado en {output_path}")
+print(json.dumps(output_data, indent=2))
 PY
+      - name: Upload DQ artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dq-summary
+          path: artifacts/dq_summary.json
       - name: Job Summary
         run: |
           echo "## Data Quality" >> $GITHUB_STEP_SUMMARY
