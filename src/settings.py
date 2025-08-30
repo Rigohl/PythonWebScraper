@@ -86,7 +86,6 @@ class Settings(BaseSettings):
         "font",
         "media",
         "other",
-
     ]
     RETRYABLE_STATUS_CODES: List[int] = [429, 500, 502, 503, 504]
 
