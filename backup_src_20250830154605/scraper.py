@@ -21,6 +21,7 @@ appropriate instances of ``DatabaseManager`` and ``LLMExtractor``.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import io
 import json
@@ -34,15 +35,21 @@ import html2text
 import imagehash
 from bs4 import BeautifulSoup
 from PIL import Image
-from pydantic import BaseModel
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from readability import Document
+from pydantic import BaseModel
 
 from .database import DatabaseManager
-from .exceptions import ContentQualityError, NetworkError, ParsingError
+from .exceptions import (
+    ContentQualityError,
+    NetworkError,
+    ParsingError,
+    ScraperException,
+)
 from .llm_extractor import LLMExtractor
 from .models.results import ScrapeResult
 from .settings import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +123,9 @@ class AdvancedScraper:
                     await self._persist_cookies(domain)
                 # Extract raw HTML and parse visible content
                 full_html = await self.page.content()
-                scrape_result = await self._process_content(url, full_html, response, extraction_schema)
+                scrape_result = await self._process_content(
+                    url, full_html, response, extraction_schema
+                )
             except (PlaywrightTimeoutError, NetworkError) as exc:
                 self.logger.warning(f"Error de red o timeout en scrape de {url}: {exc}")
                 return ScrapeResult(status="RETRY", url=url, error_message=str(exc), retryable=True)
@@ -125,7 +134,9 @@ class AdvancedScraper:
                 return ScrapeResult(status="FAILED", url=url, error_message=str(exc))
             except Exception as exc:  # noqa: BLE001
                 # Catch all unexpected errors to avoid crashing the crawler
-                self.logger.error(f"Error inesperado en scrape de {url}: {exc}", exc_info=True)
+                self.logger.error(
+                    f"Error inesperado en scrape de {url}: {exc}", exc_info=True
+                )
                 return ScrapeResult(status="FAILED", url=url, error_message=f"Unexpected error: {exc}")
 
         # Set duration and return the result
@@ -134,7 +145,7 @@ class AdvancedScraper:
         return scrape_result
 
     @asynccontextmanager
-    async def _response_listener(self):
+    async def _response_listener(self) -> Callable[[], None]:
         """Context manager to attach and detach a response listener.
 
         The listener captures XHR/Fetch responses with JSON payloads and
@@ -150,7 +161,9 @@ class AdvancedScraper:
                 try:
                     json_payload = await response.json()
                 except Exception as exc:  # noqa: BLE001
-                    self.logger.debug(f"No se pudo procesar el payload JSON de la API {response.url}: {exc}")
+                    self.logger.debug(
+                        f"No se pudo procesar el payload JSON de la API {response.url}: {exc}"
+                    )
                     return
                 payload_str = json.dumps(json_payload, sort_keys=True)
                 payload_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
@@ -160,7 +173,9 @@ class AdvancedScraper:
                     )
                 except Exception:
                     # Saving API data should never break scraping
-                    self.logger.debug(f"No se pudo guardar la API descubierta para {response.url}", exc_info=True)
+                    self.logger.debug(
+                        f"No se pudo guardar la API descubierta para {response.url}", exc_info=True
+                    )
 
         # Attach listener
         self.page.on("response", handler)
@@ -292,12 +307,16 @@ class AdvancedScraper:
         if not text:
             raise ContentQualityError("El contenido extraído está vacío después de la limpieza.")
         if len(text) < settings.MIN_CONTENT_LENGTH:
-            raise ContentQualityError(f"El contenido es demasiado corto ({len(text)} caracteres).")
+            raise ContentQualityError(
+                f"El contenido es demasiado corto ({len(text)} caracteres)."
+            )
         lower_text = text.lower()
         lower_title = title.lower() if title else ""
         for phrase in settings.FORBIDDEN_PHRASES:
             if phrase in lower_text or phrase in lower_title:
-                raise ContentQualityError(f"Contenido parece ser una página de error (contiene: '{phrase}').")
+                raise ContentQualityError(
+                    f"Contenido parece ser una página de error (contiene: '{phrase}')."
+                )
 
     def _classify_content(self, title: Optional[str], content_text: Optional[str]) -> str:
         """Classify the type of content based on title and body text."""
@@ -313,7 +332,8 @@ class AdvancedScraper:
             return "PRODUCT"
         # Blog posts
         if any(
-            keyword in title_lower or keyword in content_lower for keyword in ["blog", "articulo", "noticia", "leer más"]
+            keyword in title_lower or keyword in content_lower
+            for keyword in ["blog", "articulo", "noticia", "leer más"]
         ):
             return "BLOG_POST"
         # Articles/tutorials

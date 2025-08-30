@@ -1,6 +1,5 @@
-from typing import Dict, List
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List, Dict
 
 
 class Settings(BaseSettings):
@@ -73,20 +72,11 @@ class Settings(BaseSettings):
     VISUAL_CHANGE_THRESHOLD: int = 5
     MIN_CONTENT_LENGTH: int = 250
     FORBIDDEN_PHRASES: List[str] = [
-        "acceso denegado",
-        "enable javascript",
-        "habilite las cookies",
-        "acceso restringido",
-        "login required",
-        "please log in",
+        "acceso denegado", "enable javascript", "habilite las cookies",
+        "acceso restringido", "login required", "please log in",
     ]
     BLOCKED_RESOURCE_TYPES: List[str] = [
-        "image",
-        "stylesheet",
-        "font",
-        "media",
-        "other",
-
+        "image", "stylesheet", "font", "media", "other",
     ]
     RETRYABLE_STATUS_CODES: List[int] = [429, 500, 502, 503, 504]
 

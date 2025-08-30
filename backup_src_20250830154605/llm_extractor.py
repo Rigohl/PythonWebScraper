@@ -12,23 +12,21 @@ the scraper resilient in offline environments and simplifies testing.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
-from typing import Any, Optional, Type, TypeVar
-
-from pydantic import BaseModel
-
-from .settings import settings
+from typing import Any, Type, TypeVar, Optional
 
 try:
     import instructor
-    from openai import APIConnectionError, APIError, APITimeoutError, OpenAI
-
+    from openai import OpenAI, APIError, APITimeoutError, APIConnectionError
     OPENAI_AVAILABLE = True
 except Exception:
     # If the OpenAI SDK or instructor is not installed, we mark the client as unavailable.
     OPENAI_AVAILABLE = False
 
+from pydantic import BaseModel, create_model
+from .settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -66,19 +64,14 @@ class LLMExtractor:
         if not self.client:
             # Fallback: no cleaning performed.
             return text
-
-        class CleanedText(BaseModel):
-            cleaned_text: str
-
         try:
+            class CleanedText(BaseModel):
+                cleaned_text: str
             response = await self.client.chat.completions.create(
                 model=settings.LLM_MODEL,
                 response_model=CleanedText,
                 messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert in cleaning HTML content. Your task is to remove all text that is not the main content of the page, such as navigation bars, footers, ads, pop-ups, and legal text. Return only the main content.",
-                    },
+                    {"role": "system", "content": "You are an expert in cleaning HTML content. Your task is to remove all text that is not the main content of the page, such as navigation bars, footers, ads, pop-ups, and legal text. Return only the main content."},
                     {"role": "user", "content": text},
                 ],
             )
@@ -103,10 +96,7 @@ class LLMExtractor:
                 model=settings.LLM_MODEL,
                 response_model=response_model,
                 messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert in data extraction from web pages. Your task is to analyze the following HTML content and fill the provided Pydantic schema with the information found. Extract the data as accurately as possible.",
-                    },
+                    {"role": "system", "content": "You are an expert in data extraction from web pages. Your task is to analyze the following HTML content and fill the provided Pydantic schema with the information found. Extract the data as accurately as possible."},
                     {"role": "user", "content": html_content},
                 ],
             )
@@ -135,10 +125,7 @@ class LLMExtractor:
             response = await self.client.chat.completions.create(
                 model=settings.LLM_MODEL,
                 messages=[
-                    {
-                        "role": "system",
-                        "content": f"You are a helpful assistant. Summarize the following text in approximately {max_words} words.",
-                    },
+                    {"role": "system", "content": f"You are a helpful assistant. Summarize the following text in approximately {max_words} words."},
                     {"role": "user", "content": text_content},
                 ],
                 temperature=0.7,

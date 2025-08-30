@@ -21,7 +21,7 @@ import random
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, Sequence
 
-from .user_agent_manager import UserAgentManager
+from src.user_agent_manager import UserAgentManager
 
 # A predefined set of common screen resolutions.  These values are taken from
 # public browser statistics and can be extended or replaced by consumers.
@@ -62,12 +62,10 @@ class FingerprintManager:
     the ``rand`` argument for deterministic testing.
     """
 
-    def __init__(
-        self,
-        user_agent_manager: UserAgentManager,
-        viewports: Sequence[Dict[str, int]] | None = None,
-        rand: random.Random | None = None,
-    ) -> None:
+    def __init__(self,
+                 user_agent_manager: UserAgentManager,
+                 viewports: Sequence[Dict[str, int]] | None = None,
+                 rand: random.Random | None = None) -> None:
         if user_agent_manager is None:
             raise ValueError("Se debe proporcionar un UserAgentManager.")
         self.user_agent_manager = user_agent_manager
