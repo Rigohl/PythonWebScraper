@@ -22,14 +22,16 @@ try:
     from stable_baselines3 import PPO  # type: ignore
     from stable_baselines3.common.vec_env import DummyVecEnv  # type: ignore
     RL_AVAILABLE = True
+    Env = gym.Env
 except Exception:
     # Provide minimal shims when RL libraries are missing
     RL_AVAILABLE = False
+    Env = object
 
 logger = logging.getLogger(__name__)
 
 
-class ScrapingEnv:
+class ScrapingEnv(Env):
     """Gymnasium environment for the RL agent.
 
     The environment defines a continuous observation space representing
@@ -40,6 +42,7 @@ class ScrapingEnv:
     """
 
     def __init__(self) -> None:
+        super().__init__()
         if RL_AVAILABLE:
             # Define observation and action spaces using gymnasium types
             self.observation_space = spaces.Box(low=np.array([0.0, 0.0, 0.1]),
@@ -111,7 +114,7 @@ class RLAgent:
             # Load existing model if possible
             if model_path and os.path.exists(f"{model_path}.zip"):
                 try:
-                    self.model = PPO.load(model_path, env=self.vec_env, custom_objects={"observation_space": self.env.observation_space, "action_space": self.env.action_space})  # type: ignore
+                    self.model = PPO.load(model_path, env=self.vec_env)  # type: ignore
                     logger.info(f"Modelo RL cargado desde: {model_path}")
                 except Exception as e:
                     logger.error(f"Error al cargar el modelo RL desde {model_path}: {e}. Inicializando uno nuevo.")

@@ -11,6 +11,7 @@ import os
 import sys
 import tempfile
 import csv
+import json
 
 import dataset
 import pytest
@@ -27,9 +28,30 @@ async def run_cli_command(*args):
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
-    stdout, stderr = await process.communicate()
-    return process.returncode, stdout.decode(), stderr.decode()
 
+    # To prevent deadlocks from full I/O buffers, we must read from the
+    # streams concurrently while the process is running, instead of waiting
+    # with .communicate(), which can block if the buffer fills up.
+    async def read_stream(stream, output_list):
+        """Reads a stream line by line and appends to a list."""
+        while True:
+            line = await stream.readline()
+            if not line:
+                break
+            output_list.append(line.decode(errors="ignore"))
+
+    stdout_lines = []
+    stderr_lines = []
+
+    # Create concurrent tasks to read stdout and stderr
+    stdout_task = asyncio.create_task(read_stream(process.stdout, stdout_lines))
+    stderr_task = asyncio.create_task(read_stream(process.stderr, stderr_lines))
+
+    # Wait for the subprocess to finish, and for the readers to drain the streams.
+    await process.wait()
+    await asyncio.gather(stdout_task, stderr_task)
+
+    return process.returncode, "".join(stdout_lines), "".join(stderr_lines)
 
 async def test_cli_help_message():
     """Verify that the --help flag works and prints usage information."""
@@ -39,17 +61,22 @@ async def test_cli_help_message():
     assert "usage: main.py" in stdout
 
 
+async def test_cli_no_action_prints_help():
+    """Verify that running with no action prints help and exits with a warning."""
+    return_code, stdout, stderr = await run_cli_command()
+    assert return_code == 0
+    assert "usage: main.py" in stdout
+    assert "Ninguna acción especificada" in stderr
+
+
 async def test_cli_crawl_and_export(http_server):
     """
     Perform an end-to-end test: crawl a site via CLI and then export the
     results to CSV via another CLI command.
     """
-    with tempfile.NamedTemporaryFile(suffix=".db", delete=True) as db_file, \
-         tempfile.NamedTemporaryFile(suffix=".csv", delete=True) as csv_file:
-
-        db_path = db_file.name
-        csv_path = csv_file.name
-
+    with tempfile.TemporaryDirectory() as temp_dir:
+        db_path = os.path.join(temp_dir, "test.db")
+        csv_path = os.path.join(temp_dir, "export.csv")
         # 1. Run the crawler via CLI
         start_url = f"{http_server}/index.html"
         return_code, stdout, stderr = await run_cli_command("--crawl", start_url, "--db-path", db_path)
@@ -65,7 +92,51 @@ async def test_cli_crawl_and_export(http_server):
         assert return_code == 0, f"Export process failed with stderr: {stderr}"
 
         # 4. Verify CSV content
-        with open(csv_path, 'r') as f:
-            reader = csv.reader(f)
+        assert os.path.exists(csv_path)
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
             rows = list(reader)
-            assert len(rows) == 4  # 1 header + 3 data rows
+
+        assert len(rows) == 3, "El CSV debería tener 3 filas de datos."
+
+        urls_in_csv = {row['url'] for row in rows}
+        expected_urls = {
+            f"{http_server}/index.html",
+            f"{http_server}/page1.html",
+            f"{http_server}/page2.html"
+        }
+        assert urls_in_csv == expected_urls
+
+        page1_row = next((row for row in rows if row['url'] == f"{http_server}/page1.html"), None)
+        assert page1_row is not None
+        assert page1_row['title'] == "Page 1"
+
+
+async def test_cli_crawl_and_export_json(http_server):
+    """
+    Perform an end-to-end test: crawl a site via CLI and then export the
+    results to JSON.
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+        db_path = os.path.join(temp_dir, "test.db")
+        json_path = os.path.join(temp_dir, "export.json")
+        start_url = f"{http_server}/index.html"
+        return_code, _, stderr = await run_cli_command("--crawl", start_url, "--db-path", db_path)
+        assert return_code == 0, f"Crawler process failed with stderr: {stderr}"
+
+        return_code, _, stderr = await run_cli_command("--export-json", json_path, "--db-path", db_path)
+        assert return_code == 0, f"Export process failed with stderr: {stderr}"
+
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        assert len(data) == 3
+        urls_in_json = {item['url'] for item in data}
+        assert f"{http_server}/page1.html" in urls_in_json
+
+
+async def test_cli_mutually_exclusive_args():
+    """Verify that providing mutually exclusive actions fails as expected."""
+    return_code, stdout, stderr = await run_cli_command("--crawl", "http://a.com", "--export-csv", "b.csv")
+    assert return_code != 0
+    assert "not allowed with" in stderr
