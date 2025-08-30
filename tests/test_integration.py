@@ -3,6 +3,7 @@ import os
 import tempfile
 import csv
 
+from urllib.parse import urlparse
 import dataset
 from playwright.async_api import async_playwright
 
@@ -23,7 +24,6 @@ class TestIntegration:
         self.db_manager = DatabaseManager(db_connection=self.db_connection)
         self.user_agent_manager = UserAgentManager(user_agents=["TestAgent/1.0"])
         self.llm_extractor = LLMExtractor()
-        self.rl_agent = RLAgent()
 
     @pytest.mark.asyncio
     async def test_full_crawl_simulation(self, http_server):
@@ -32,6 +32,8 @@ class TestIntegration:
         Verifica que todas las páginas alcanzables son visitadas y guardadas.
         """
         start_url = f"{http_server}/index.html"
+        domain = urlparse(start_url).netloc
+        rl_agent = RLAgent(domain=domain)
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -41,7 +43,7 @@ class TestIntegration:
                 db_manager=self.db_manager,
                 user_agent_manager=self.user_agent_manager,
                 llm_extractor=self.llm_extractor,
-                rl_agent=self.rl_agent,
+                rl_agent=rl_agent,
                 concurrency=2
             )
 

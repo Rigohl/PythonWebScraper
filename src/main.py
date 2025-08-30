@@ -53,6 +53,37 @@ def setup_logging(log_file_path: Optional[str] = None, tui_handler: Optional[log
     logging.getLogger("playwright").setLevel(logging.WARNING)
 
 
+async def _handle_tui(log_file_path: str) -> None:
+    """Launch the Textual User Interface."""
+    # Import lazily to avoid pulling Textual when running CLI
+    from .tui.app import ScraperTUIApp
+    app = ScraperTUIApp(log_file_path=log_file_path)
+    await app.run_async()
+
+
+def _handle_export(args: argparse.Namespace) -> None:
+    """Handle data export operations."""
+    db_manager = DatabaseManager(db_path=args.db_path)
+    if args.export_csv:
+        logging.info("Exportando datos a %s…", args.export_csv)
+        db_manager.export_to_csv(args.export_csv)
+    elif args.export_json:
+        logging.info("Exportando datos a %s…", args.export_json)
+        db_manager.export_to_json(args.export_json)
+
+
+async def _handle_crawl(args: argparse.Namespace) -> None:
+    """Handle the crawling process."""
+    # Importing here to avoid heavy imports when not crawling
+    from .runner import run_crawler  # type: ignore
+    await run_crawler(
+        start_urls=args.crawl,
+        db_path=args.db_path,
+        concurrency=args.concurrency,
+        respect_robots_txt=args.respect_robots,
+        use_rl=args.use_rl,
+    )
+
 async def main() -> None:
     parser = argparse.ArgumentParser(
         description="Web Scraper PRO - Un crawler y archivador web inteligente."
@@ -90,40 +121,22 @@ async def main() -> None:
     setup_logging(log_file_path=args.log_file)
 
     if args.tui:
-        # Import lazily to avoid pulling Textual when running CLI
-        from .tui.app import ScraperTUIApp
-        app = ScraperTUIApp(log_file_path=args.log_file)
-        await app.run_async()
-        return
-
-    # If no high‑level action is provided, print help and exit
-    if not args.crawl and not args.export_csv and not args.export_json:
-        parser.print_help()
-        logging.warning("Ninguna acción especificada (p.ej. --crawl, --export-csv, --export-json). Saliendo.")
+        await _handle_tui(args.log_file)
         return
 
     # Exports take precedence over crawling
-    db_manager = DatabaseManager(db_path=args.db_path)
-    if args.export_csv:
-        logging.info("Exportando datos a %s…", args.export_csv)
-        db_manager.export_to_csv(args.export_csv)
-        return
-    if args.export_json:
-        logging.info("Exportando datos a %s…", args.export_json)
-        db_manager.export_to_json(args.export_json)
+    if args.export_csv or args.export_json:
+        _handle_export(args)
         return
 
-    # Launch crawler via run_crawler stub
+    # Launch crawler
     if args.crawl:
-        # Importing here to avoid heavy imports when not crawling
-        from .runner import run_crawler  # type: ignore
-        await run_crawler(
-            start_urls=args.crawl,
-            db_path=args.db_path,
-            concurrency=args.concurrency,
-            respect_robots_txt=args.respect_robots,
-            use_rl=args.use_rl,
-        )
+        await _handle_crawl(args)
+        return
+
+    # If no action is provided, print help and exit
+    parser.print_help()
+    logging.warning("Ninguna acción especificada (p.ej. --crawl, --export-csv, --tui). Saliendo.")
 
 
 if __name__ == "__main__":
