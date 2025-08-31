@@ -7,7 +7,7 @@ import json
 import csv
 
 from src.models.results import ScrapeResult
-from src.database import DatabaseManager
+from src.db.database import DatabaseManager
 
 
 @pytest.fixture

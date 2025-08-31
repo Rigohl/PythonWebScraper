@@ -24,7 +24,7 @@ import logging
 import os
 from typing import Optional
 
-from .database import DatabaseManager
+from .db.database import DatabaseManager
 from .settings import settings
 
 
@@ -115,10 +115,21 @@ async def main() -> None:
         "--respect-robots", action="store_true", default=False, help="Respeta las reglas de robots.txt. Por defecto se ignoran.",
     )
     parser.add_argument(
+        "--enable-ethics", action="store_true", default=settings.ETHICS_CHECKS_ENABLED, help="Activa comprobaciones éticas/compliance (placeholder).",
+    )
+    parser.add_argument(
+        "--online", action="store_true", default=not settings.OFFLINE_MODE, help="Fuerza modo online (permite llamadas a LLM remotos).",
+    )
+    parser.add_argument(
         "--use-rl", action="store_true", help="Activa el agente de Aprendizaje por Refuerzo para optimización dinámica.",
     )
     args = parser.parse_args()
     setup_logging(log_file_path=args.log_file)
+
+    # Propagar overrides tempranos (para la TUI también)
+    settings.ROBOTS_ENABLED = args.respect_robots
+    settings.ETHICS_CHECKS_ENABLED = args.enable_ethics
+    settings.OFFLINE_MODE = not args.online
 
     if args.tui:
         await _handle_tui(args.log_file)

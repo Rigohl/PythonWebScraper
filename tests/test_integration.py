@@ -8,10 +8,10 @@ import dataset
 from playwright.async_api import async_playwright
 
 from src.orchestrator import ScrapingOrchestrator
-from src.database import DatabaseManager
-from src.user_agent_manager import UserAgentManager
-from src.llm_extractor import LLMExtractor
-from src.rl_agent import RLAgent
+from src.db.database import DatabaseManager
+from src.managers.user_agent_manager import UserAgentManager
+from src.intelligence.llm_extractor import LLMExtractor
+from src.intelligence.rl_agent import RLAgent
 from src.settings import settings
 import pytest
 

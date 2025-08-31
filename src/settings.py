@@ -65,6 +65,15 @@ class Settings(BaseSettings):
     # environment or ``.env`` file.
     LLM_MODEL: str = "gpt-3.5-turbo"
 
+    # --- Feature / Policy Toggles ---
+    # By default we want a fast, fully local scraper experience, so all
+    # potentially restrictive / external‑call features start disabled.
+    ROBOTS_ENABLED: bool = False  # Respect robots.txt if True
+    ETHICS_CHECKS_ENABLED: bool = False  # Placeholder for future ethical / compliance filters
+    OFFLINE_MODE: bool = True  # If True, never call remote LLM APIs even if keys are present
+    # Accelerated test mode (skips network HEAD prequalification & long stealth)
+    FAST_TEST_MODE: bool = False
+
     # --- RL Agent configuration ---
     RL_MODEL_PATH: str = "models/rl_agent_model.pkl"
 
