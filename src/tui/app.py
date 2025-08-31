@@ -315,3 +315,4 @@ class ScraperTUIApp(App):
     def action_quit(self) -> None:
         """Sale de la aplicación."""
         self.exit()
+

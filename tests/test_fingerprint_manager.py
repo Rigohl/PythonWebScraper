@@ -69,4 +69,4 @@ def test_get_fingerprint_js_overrides_content(fingerprint_manager):
     assert js_overrides["navigator.webdriver"] is False
     # Check that the platform string is correctly embedded
     platform_string = fingerprint_manager._platform_from_ua(fingerprint.user_agent)
-    assert platform_string in js_overrides["navigator.platform"]
+    assert js_overrides["navigator.platform"] == f'"{platform_string}"'

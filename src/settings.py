@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     LLM_MODEL: str = "gpt-3.5-turbo"
 
     # --- RL Agent configuration ---
-    RL_MODEL_PATH: str = "models/rl_agent_model"
+    RL_MODEL_PATH: str = "models/rl_agent_model.pkl"
 
     # --- Scraper configuration ---
     SCRAPER_VERSION: str = "0.11.0"

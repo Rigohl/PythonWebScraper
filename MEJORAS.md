@@ -71,3 +71,4 @@ Este documento detalla las mejoras y las próximas fases planificadas para el pr
 - **Persistencia de Estado de la TUI (PLANIFICADO)**:
   - **Problema**: La configuración y el estado de la TUI se pierden al reiniciar la aplicación.
   - **Mejora**: Permitir guardar y cargar la configuración de la TUI para mantener el estado entre sesiones.
+
