@@ -86,7 +86,7 @@ class DomainStats(Container):
 class ScraperTUIApp(App):
     """Una interfaz de usuario textual para Web Scraper PRO."""
 
-    CSS_PATH = "../styles.css"
+    CSS_PATH = "../../styles.css"
     TITLE = "Scraper PRO"
     SUB_TITLE = "Un crawler y archivador web inteligente."
 
@@ -140,12 +140,12 @@ class ScraperTUIApp(App):
                 yield Button("Salir", variant="default", id="quit_button")
 
             with Container(id="right-pane"):
-                yield Log(id="log_view", highlight=True, markup=True)
+                yield Log(id="log_view", highlight=True)
         yield Footer()
 
     def on_mount(self) -> None:
         """Se llama cuando la app se monta en el DOM."""
-        log_widget = self.query_one(Log)
+        log_widget = self.query_one("#log_view", Log)
         # Pasamos el handler de la TUI a la configuración de logging
         setup_logging(log_file_path=self.log_file_path, tui_handler=TextualHandler(log_widget))
         self.query_one("#progress_bar").visible = False
@@ -292,8 +292,8 @@ class ScraperTUIApp(App):
 
         db_manager = DatabaseManager(db_path=db_path)
         user_agent_manager = UserAgentManager(user_agents=settings.USER_AGENT_LIST)
-        llm_extractor = LLMExtractor(api_key=settings.LLM_API_KEY)
-        rl_agent = RLAgent(model_path="./rl_model") if use_rl else None
+        llm_extractor = LLMExtractor()
+        rl_agent = RLAgent(model_path=settings.RL_MODEL_PATH) if use_rl else None
 
         orchestrator = ScrapingOrchestrator(
             start_urls=start_urls, db_manager=db_manager, user_agent_manager=user_agent_manager,

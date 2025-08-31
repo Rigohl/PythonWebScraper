@@ -127,7 +127,7 @@ class FingerprintManager:
             "navigator.webdriver": False,
             # Provide languages as a Python list literal for injection.
             "navigator.languages": "['en-US', 'en']",
-            "navigator.platform": f"'{platform}'",
+            "navigator.platform": f'"{platform}"',
             "navigator.plugins.length": 0,
             "screen.colorDepth": 24,
             "navigator.hardwareConcurrency": self._random.choice([4, 8, 16]),
@@ -135,3 +135,4 @@ class FingerprintManager:
         }
 
         return Fingerprint(user_agent=user_agent, viewport=viewport, js_overrides=js_overrides)
+

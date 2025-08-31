@@ -12,6 +12,7 @@ from src.database import DatabaseManager
 from src.user_agent_manager import UserAgentManager
 from src.llm_extractor import LLMExtractor
 from src.rl_agent import RLAgent
+from src.settings import settings
 import pytest
 
 class TestIntegration:
@@ -32,8 +33,8 @@ class TestIntegration:
         Verifica que todas las páginas alcanzables son visitadas y guardadas.
         """
         start_url = f"{http_server}/index.html"
-        domain = urlparse(start_url).netloc
-        rl_agent = RLAgent(domain=domain)
+        # Corregir la inicialización para que coincida con la TUI
+        rl_agent = RLAgent(model_path=settings.RL_MODEL_PATH)
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -64,3 +65,32 @@ class TestIntegration:
 
         page1_result = self.db_manager.get_result_by_url(f"{http_server}/page1.html")
         assert page1_result['title'] == "Page 1"
+
+    @pytest.mark.asyncio
+    async def test_duplicate_content_is_not_reprocessed(self, http_server):
+        """
+        Verifica que si dos URLs tienen el mismo contenido, la segunda se marca
+        como DUPLICATE y sus enlaces no se añaden a la cola.
+        El servidor de prueba tiene /page1.html y /page1_clone.html con idéntico contenido.
+        """
+        start_url = f"{http_server}/index_with_clone.html"
+        rl_agent = RLAgent(model_path=settings.RL_MODEL_PATH)
+
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            orchestrator = ScrapingOrchestrator(
+                start_urls=[start_url],
+                db_manager=self.db_manager,
+                user_agent_manager=self.user_agent_manager,
+                llm_extractor=self.llm_extractor,
+                rl_agent=rl_agent,
+                concurrency=2
+            )
+            await orchestrator.run(browser)
+            await browser.close()
+
+        # Se deben procesar 3 URLs: index, page1, y page1_clone. page2 no debe ser alcanzada.
+        results = list(self.db_manager.table.all())
+        assert len(results) == 3, "Deberían haberse procesado 3 URLs."
+        clone_result = self.db_manager.get_result_by_url(f"{http_server}/page1_clone.html")
+        assert clone_result['status'] == 'DUPLICATE', "La página clonada debería marcarse como duplicada."
