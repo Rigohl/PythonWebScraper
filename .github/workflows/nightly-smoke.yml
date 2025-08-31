@@ -25,7 +25,7 @@ jobs:
             python src/main.py --crawl https://books.toscrape.com/ || true
           else
             python - <<'PY'
-import requests, time, json, os, pathlib
+import requests, time, json, pathlib, os
 t0=time.perf_counter()
 r=requests.get("https://httpbin.org/get", timeout=10)
 lat=time.perf_counter()-t0
@@ -77,13 +77,14 @@ PY
             const fs = require('fs');
             const m = JSON.parse(fs.readFileSync('artifacts/metrics.json','utf8'));
             const th = { success_min: 0.90, rate_limit_max: 0.05, server_error_max: 0.03 };
-            const sr = Number.isFinite(m.success_rate) ? m.success_rate : 1;
-            const r429 = Number.isFinite(m.rate_limit_rate) ? m.rate_limit_rate : 0;
-            const r5x  = Number.isFinite(m.server_error_rate) ? m.server_error_rate : 0;
+            const num = v => Number.isFinite(v) ? v : (typeof v === 'number' ? v : (parseFloat(v)||0));
+            const sr = num(m.success_rate) || 1;
+            const r429 = num(m.rate_limit_rate) || 0;
+            const r5x = num(m.server_error_rate) || 0;
             let breaches = [];
             if (sr < th.success_min) breaches.push(`Success ${sr} < ${th.success_min}`);
             if (r429 > th.rate_limit_max) breaches.push(`429 ${r429} > ${th.rate_limit_max}`);
-            if (r5x  > th.server_error_max) breaches.push(`5xx ${r5x} > ${th.server_error_max}`);
+            if (r5x > th.server_error_max) breaches.push(`5xx ${r5x} > ${th.server_error_max}`);
             if (breaches.length) {
               await github.rest.issues.create({
                 owner: context.repo.owner, repo: context.repo.repo,

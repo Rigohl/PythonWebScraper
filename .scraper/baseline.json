@@ -1,0 +1,4 @@
+[
+  { "url": "https://books.toscrape.com/", "selector": "h1", "expect_contains": "All products",    "max_age_days": 7 },
+  { "url": "https://httpbin.org/html",    "selector": "h1", "expect_contains": "Herman Melville", "max_age_days": 7 }
+]

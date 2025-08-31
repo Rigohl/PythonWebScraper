@@ -1,6 +1,6 @@
-name: Drift & Selector Check
+name: Drift Check
 on:
-  schedule: [ { cron: "15 4 * * *" } ]
+  schedule: [ { cron: "0 6 * * *" } ]
   workflow_dispatch:
 jobs:
   drift:
@@ -9,46 +9,53 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - name: Install deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 lxml || true
-      - name: Run drift checks
-        id: drift
+      - name: Check drift from baseline
         run: |
           python - <<'PY'
-import sys, json, time, requests
-from bs4 import BeautifulSoup
-urls = ["https://books.toscrape.com/"]
-errors=[]
-for u in urls:
-  try:
-    r = requests.get(u, timeout=15); r.raise_for_status()
-    s = BeautifulSoup(r.text, "lxml")
-    # Selectores básicos: grid de libros y título
-    grid = s.select(".product_pod")
-    title = s.select_one("title")
-    if not grid or not title:
-      errors.append(f"{u}: selectores vacíos (grid:{len(grid)}, title:{bool(title)})")
-  except Exception as e:
-    errors.append(f"{u}: {e}")
-out = {"ok": not errors, "errors": errors}
+import json, time, pathlib, re
+from urllib.request import Request, urlopen
+base = json.loads(pathlib.Path(".scraper/baseline.json").read_text(encoding="utf-8"))
+report, breaches = [], []
+def fetch(u, timeout=20):
+    req = Request(u, headers={"User-Agent":"DriftCheck/1.0"})
+    with urlopen(req, timeout=timeout) as r:
+        return r.read().decode("utf-8", errors="ignore")
+def find_sel(html, selector):
+    tag = selector.split('.')[0].split('#')[0]
+    m = re.findall(fr"<{tag}[^>]*>(.*?)</{tag}>", html, flags=re.I|re.S)
+    return " ".join([re.sub(r"<[^>]+>"," ",x).strip() for x in m])[:2000]
+for entry in base:
+    url = entry["url"]; sel = entry["selector"]; exp = entry.get("expect_contains","")
+    try:
+        html = fetch(url)
+        text = find_sel(html, sel)
+        ok = (exp.lower() in text.lower()) if exp else (len(text)>0)
+        rec = {"url":url,"selector":sel,"ok":ok,"sample":text[:200]}
+        report.append(rec)
+        if not ok:
+            breaches.append(f"{url} selector '{sel}' no cumple expectativa '{exp}'")
+    except Exception as e:
+        breaches.append(f"{url} error {e}")
+out = {"timestamp": int(time.time()), "report": report, "breaches": breaches}
+pathlib.Path("artifacts").mkdir(exist_ok=True)
+pathlib.Path("artifacts/drift.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
 print(json.dumps(out, indent=2))
-open("artifacts_drift.json","w").write(json.dumps(out))
-sys.exit(0)
 PY
-      - name: Open issue if drift detected
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: drift-artifacts, path: artifacts }
+      - name: Open issue on drift
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            if (!fs.existsSync('artifacts_drift.json')) return;
-            const r = JSON.parse(fs.readFileSync('artifacts_drift.json','utf8'));
-            if (r.ok) return;
+            if (!fs.existsSync('artifacts/drift.json')) return;
+            const d = JSON.parse(fs.readFileSync('artifacts/drift.json','utf8'));
+            if (!d.breaches || !d.breaches.length) return;
             await github.rest.issues.create({
               owner: context.repo.owner, repo: context.repo.repo,
-              title: `Drift detectado en selectores (${new Date().toISOString()})`,
-              body: "Errores:\n```\n"+r.errors.join("\n")+"\n```",
-              labels: ["type/bug","area/orchestrator","prio/P1-soon"]
+              title: `Scraper drift (${new Date().toISOString()})`,
+              body: "Brechas detectadas:\n```\n"+d.breaches.join("\n")+"\n```",
+              labels: ["type/bug","area/orchestrator","ci","prio/P1-soon"]
             });
