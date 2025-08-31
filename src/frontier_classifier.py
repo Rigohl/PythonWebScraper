@@ -54,6 +54,10 @@ class FrontierClassifier:
         ]
         return np.array(features, dtype=float).reshape(1, -1)
 
+    # Backwards compatibility: some tests or legacy code may reference
+    # a private helper named `_extract_features`.
+    _extract_features = extract_features
+
     def predict_score(self, url: str) -> float:
         """Compute a heuristic score for the given URL.
 

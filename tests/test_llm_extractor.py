@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock, patch
 from pydantic import BaseModel, Field
 
-from src.llm_extractor import LLMExtractor
+from src.intelligence.llm_extractor import LLMExtractor
 
 
 class MockProduct(BaseModel):
@@ -13,12 +13,12 @@ class MockProduct(BaseModel):
 @pytest.fixture
 def llm_extractor():
     """Fixture para el LLMExtractor con una API key de prueba."""
-    with patch('src.llm_extractor.settings.LLM_API_KEY', 'test-key'):
+    with patch('src.intelligence.llm_extractor.settings.LLM_API_KEY', 'test-key'):
         extractor = LLMExtractor()
     return extractor
 
 
-@patch('instructor.patch')
+@patch('src.intelligence.llm_extractor.instructor.patch')
 def test_llm_extraction_logic(mock_instructor_patch, llm_extractor):
     """
     Prueba que el extractor de LLM construye el prompt correctamente y

@@ -105,19 +105,19 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 
 - `src/`: **Carpeta Principal del Código Fuente.** Organizada por funcionalidad.
   - `main.py`: **Punto de Entrada.** Parsea argumentos de CLI y lanza la TUI o el crawler.
+  - `runner.py`: **Orquestador de Ejecución.** Contiene la lógica para configurar y lanzar una sesión de crawling completa.
   - `settings.py`: Configuración global del proyecto vía `pydantic-settings`.
   - `orchestrator.py`: Gestiona la concurrencia, la cola de tareas y el ciclo de vida del crawling.
   - `scraper.py`: Lógica para descargar y procesar una única página con Playwright.
   - `db/`: **Persistencia de datos.**
-    - `manager.py`: Abstracción sobre la base de datos SQLite para guardar resultados, cookies, etc.
+    - `database.py`: Abstracción sobre la base de datos SQLite para guardar resultados, cookies, etc.
   - `intelligence/`: **Módulos de IA.**
     - `llm_extractor.py`: Integra LLMs para limpieza y extracción de datos estructurados.
     - `rl_agent.py`: Agente de Aprendizaje por Refuerzo para optimización dinámica.
   - `managers/`: **Gestores de recursos.**
     - `fingerprint_manager.py`: Genera perfiles de navegador para evasión.
     - `user_agent_manager.py`: Rota User-Agents para reducir bloqueos.
-  - `models/`: **Modelos de datos Pydantic.**
-    - `results.py`: Define la estructura de `ScrapeResult`.
+  - `models/results.py`: **Modelos de datos Pydantic.** Define la estructura de `ScrapeResult`.
   - `tui/`: **Interfaz de Usuario en Terminal.**
     - `app.py`: Define la aplicación Textual y sus componentes.
     - `styles.css`: Hoja de estilos para la TUI.
@@ -130,6 +130,65 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 
 ---
 
+---
+
+## Tabla de Módulos y Propósito
+
+| Módulo/Carpeta         | Propósito Principal |
+|------------------------|--------------------|
+| src/main.py            | CLI/TUI, entrada principal |
+| src/runner.py          | Orquestador de ejecución |
+| src/settings.py        | Configuración global |
+| src/orchestrator.py    | Lógica de scraping concurrente |
+| src/scraper.py         | Descarga y procesamiento de páginas |
+| src/db/database.py     | Persistencia y exportación de resultados |
+| src/intelligence/      | IA: LLM y RL agent |
+| src/managers/          | Gestión de User-Agents y fingerprint |
+| src/models/results.py  | Modelos de datos Pydantic |
+| src/tui/               | Interfaz de usuario textual |
+| tests/                 | Pruebas unitarias/integración |
+
+## Recomendaciones de Desarrollo
+
+- Mantén los tests actualizados en `tests/`.
+- Usa `.env` para configuración sensible.
+- Documenta nuevas funciones y módulos.
+- Ejecuta `pytest` antes de cada despliegue.
+- Usa `requirements-dev.txt` para dependencias de desarrollo.
+- Revisa `MEJORAS.md` para la hoja de ruta y sugerencias de optimización.
+
+## Funcionalidades Clave
+
+- Scraping concurrente y adaptable.
+- Extracción inteligente con LLM (offline por defecto, configurable).
+- Agente RL para optimización dinámica.
+- Rotación avanzada de User-Agents y evasión de fingerprinting.
+- Exportación de resultados a CSV/JSON.
+- Interfaz TUI moderna y configurable.
+- Sistema de alertas y notificaciones.
+- Persistencia robusta en SQLite.
+- Cumplimiento ético y robots.txt configurable desde la GUI.
+
+## Buenas Prácticas
+
+- Mantén la raíz del proyecto limpia: solo scripts, configs y docs.
+- Los módulos deben estar en `src/` y organizados por funcionalidad.
+- Los tests deben estar en `tests/` y cubrir todos los módulos principales.
+- Elimina archivos temporales, duplicados y backups antiguos.
+- Actualiza el README y la documentación con cada cambio relevante.
+
 ## Registro de Cambios
 
+- **2025-08-31**: Auditoría, limpieza y reorganización completa del proyecto. README actualizado.
 - **2025-08-28**: Completada la implementación de Extracción de Datos Zero-Shot con LLMs (Tarea A.2).
+
+---
+
+## Quick start (actualizado)
+
+- Instalar dependencias (si necesitas usar los scripts legacy):
+
+  - Windows (legacy backup): `backups\\files\\backup_1-Install-Dependencies.bat`
+  - Lanzar scraper (legacy backup): `backups\\files\\backup_2-Launch-Scraper.bat`
+
+> Nota: Los scripts de instalación y lanzamiento legacy se han movido a `backups/files/` para mantener la raíz del repo más limpia. Revisa `backups/README.md` para más detalles.

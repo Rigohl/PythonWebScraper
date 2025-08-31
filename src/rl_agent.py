@@ -60,6 +60,10 @@ class ScrapingEnv(Env):
         self.current_state = np.zeros(3, dtype=np.float32)
         return self.current_state, {}
 
+    def render(self, mode: str = "human") -> None:
+        """Render the environment. Required by gymnasium interface."""
+        pass
+
     def set_state(self, state_dict: dict) -> None:
         """Update the internal state representation from a metrics dictionary."""
         self.current_state = np.array(
@@ -105,7 +109,7 @@ class RLAgent:
     optional filesystem path for loading and saving the trained model.
     """
 
-    def __init__(self, domain: str, model_path: Optional[str] = None, training_mode: bool = True) -> None:
+    def __init__(self, domain: Optional[str] = None, model_path: Optional[str] = None, training_mode: bool = True) -> None:
         self.domain = domain
         self.model_path = model_path
         self.training_mode = training_mode

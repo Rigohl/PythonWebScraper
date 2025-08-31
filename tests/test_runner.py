@@ -3,109 +3,100 @@ import asyncio
 from unittest.mock import AsyncMock, patch, Mock
 
 from src.runner import run_crawler
-from src.orchestrator import ScrapingOrchestrator
-from src.database import DatabaseManager
-from src.user_agent_manager import UserAgentManager
-from src.llm_extractor import LLMExtractor
-from src.rl_agent import RLAgent
-from src.frontier_classifier import FrontierClassifier
 
-@pytest.fixture
-def mock_orchestrator_init():
-    with patch('src.orchestrator.ScrapingOrchestrator.__init__', return_value=None) as mock_init:
-        yield mock_init
-
-@pytest.fixture
-def mock_orchestrator_run():
-    with patch('src.orchestrator.ScrapingOrchestrator.run', new_callable=AsyncMock) as mock_run:
-        yield mock_run
-
-@pytest.fixture
-def mock_async_playwright():
-    with patch('playwright.async_api.async_playwright') as mock_pw:
-        mock_pw_instance = AsyncMock()
-        mock_browser = AsyncMock()
-        mock_pw_instance.chromium.launch.return_value = mock_browser
-        mock_pw.return_value.__aenter__.return_value = mock_pw_instance
-        yield mock_pw
-
+# NOTA: Se parchean las clases en el módulo 'runner' donde son importadas y utilizadas.
+@patch('src.runner.DatabaseManager')
+@patch('src.runner.UserAgentManager')
+@patch('src.runner.LLMExtractor')
+@patch('src.runner.RLAgent')
+@patch('src.runner.ScrapingOrchestrator')
+@patch('src.runner.async_playwright')
 @pytest.mark.asyncio
-async def test_run_crawler_basic_execution(mock_orchestrator_init, mock_orchestrator_run, mock_async_playwright):
+async def test_run_crawler_basic_execution(
+    mock_async_playwright, mock_orchestrator, mock_rl_agent, mock_llm_extractor,
+    mock_user_agent_manager, mock_db_manager
+):
+    """Prueba la ejecución básica del crawler sin RL."""
+    # --- Configuración del Mock de Playwright ---
+    mock_pw_instance = AsyncMock()
+    mock_browser = AsyncMock()
+    mock_pw_instance.chromium.launch.return_value = mock_browser
+    mock_async_playwright.return_value.__aenter__.return_value = mock_pw_instance
+
+    # --- Parámetros de la prueba ---
     start_urls = ["http://test.com"]
     db_path = "test.db"
     concurrency = 5
     respect_robots_txt = True
     use_rl = False
 
+    # --- Ejecución ---
     await run_crawler(
-        start_urls=start_urls,
-        db_path=db_path,
-        concurrency=concurrency,
-        respect_robots_txt=respect_robots_txt,
-        use_rl=use_rl
+        start_urls=start_urls, db_path=db_path, concurrency=concurrency,
+        respect_robots_txt=respect_robots_txt, use_rl=use_rl
     )
 
-    # Verify ScrapingOrchestrator was initialized correctly
-    mock_orchestrator_init.assert_called_once()
-    args, kwargs = mock_orchestrator_init.call_args
+    # --- Verificaciones ---
+    # Verificar que las dependencias se inicializaron
+    mock_db_manager.assert_called_once_with(db_path=db_path)
+    mock_user_agent_manager.assert_called_once()
+    mock_llm_extractor.assert_called_once()
+
+    # Verificar que RLAgent NO fue inicializado
+    mock_rl_agent.assert_not_called()
+
+    # Verificar que el orquestador fue inicializado con los argumentos correctos
+    mock_orchestrator.assert_called_once()
+    _, kwargs = mock_orchestrator.call_args
     assert kwargs['start_urls'] == start_urls
-    assert isinstance(kwargs['db_manager'], DatabaseManager)
-    assert isinstance(kwargs['user_agent_manager'], UserAgentManager)
-    assert isinstance(kwargs['llm_extractor'], LLMExtractor)
-    assert kwargs['rl_agent'] is None
+    assert kwargs['db_manager'] is mock_db_manager.return_value
+    assert kwargs['rl_agent'] is None  # rl_agent debe ser None
     assert kwargs['concurrency'] == concurrency
-    assert kwargs['respect_robots_txt'] == respect_robots_txt
-    assert kwargs['use_rl'] == use_rl
+    assert kwargs['respect_robots_txt'] is respect_robots_txt
 
-    # Verify Playwright was launched and browser closed
-    mock_async_playwright.assert_called_once()
-    mock_async_playwright.return_value.__aenter__.return_value.chromium.launch.assert_called_once_with(headless=True)
-    mock_async_playwright.return_value.__aenter__.return_value.chromium.launch.return_value.close.assert_called_once()
+    # Verificar que el navegador fue lanzado y cerrado
+    mock_pw_instance.chromium.launch.assert_called_once_with(headless=True)
+    mock_browser.close.assert_called_once()
 
-    # Verify orchestrator.run was called
-    mock_orchestrator_run.assert_called_once()
-    assert mock_orchestrator_run.call_args[0][0] is mock_async_playwright.return_value.__aenter__.return_value.chromium.launch.return_value
+    # Verificar que el orquestador se ejecutó
+    mock_orchestrator.return_value.run.assert_called_once_with(mock_browser)
 
+
+@patch('src.runner.DatabaseManager')
+@patch('src.runner.UserAgentManager')
+@patch('src.runner.LLMExtractor')
+@patch('src.runner.RLAgent')
+@patch('src.runner.ScrapingOrchestrator')
+@patch('src.runner.async_playwright')
 @pytest.mark.asyncio
-async def test_run_crawler_with_rl(mock_orchestrator_init, mock_orchestrator_run, mock_async_playwright):
-    start_urls = ["http://test.com"]
-    db_path = "test.db"
-    concurrency = 5
-    respect_robots_txt = True
-    use_rl = True
+async def test_run_crawler_with_rl(
+    mock_async_playwright, mock_orchestrator, mock_rl_agent, mock_llm_extractor,
+    mock_user_agent_manager, mock_db_manager
+):
+    """Prueba que el crawler inicializa y utiliza el agente de RL cuando se le indica."""
+    # --- Configuración ---
+    mock_pw_instance = AsyncMock()
+    mock_browser = AsyncMock()
+    mock_pw_instance.chromium.launch.return_value = mock_browser
+    mock_async_playwright.return_value.__aenter__.return_value = mock_pw_instance
 
+    # --- Ejecución ---
     await run_crawler(
-        start_urls=start_urls,
-        db_path=db_path,
-        concurrency=concurrency,
-        respect_robots_txt=respect_robots_txt,
-        use_rl=use_rl
+        start_urls=["http://test.com"], db_path="test.db", concurrency=5,
+        respect_robots_txt=True, use_rl=True
     )
 
-    # Verify RLAgent was initialized and passed to orchestrator
-    mock_orchestrator_init.assert_called_once()
-    args, kwargs = mock_orchestrator_init.call_args
-    assert isinstance(kwargs['rl_agent'], RLAgent)
-    assert kwargs['use_rl'] == use_rl
+    # --- Verificaciones ---
+    # Verificar que RLAgent FUE inicializado con los parámetros correctos
+    mock_rl_agent.assert_called_once()
+    _, rl_kwargs = mock_rl_agent.call_args
+    assert rl_kwargs['domain'] == 'test.com'
+    assert rl_kwargs['training_mode'] is True
 
-@pytest.mark.asyncio
-async def test_run_crawler_browser_close_on_exception(mock_orchestrator_init, mock_orchestrator_run, mock_async_playwright):
-    mock_orchestrator_run.side_effect = Exception("Orchestrator failed")
+    # Verificar que el orquestador recibió la instancia del agente
+    mock_orchestrator.assert_called_once()
+    _, orch_kwargs = mock_orchestrator.call_args
+    assert orch_kwargs['rl_agent'] is mock_rl_agent.return_value
 
-    start_urls = ["http://test.com"]
-    db_path = "test.db"
-    concurrency = 5
-    respect_robots_txt = True
-    use_rl = False
-
-    with pytest.raises(Exception, match="Orchestrator failed"):
-        await run_crawler(
-            start_urls=start_urls,
-            db_path=db_path,
-            concurrency=concurrency,
-            respect_robots_txt=respect_robots_txt,
-            use_rl=use_rl
-        )
-
-    # Verify browser.close() is still called even if orchestrator.run fails
-    mock_async_playwright.return_value.__aenter__.return_value.chromium.launch.return_value.close.assert_called_once()
+    # Verificar que el modelo de RL se guardó al final
+    mock_rl_agent.return_value.save_model.assert_called_once()

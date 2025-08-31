@@ -8,12 +8,9 @@ from textual.logging import TextualHandler
 from textual.worker import Worker, WorkerState
 
 from src.settings import settings
-from src.database import DatabaseManager
-from src.llm_extractor import LLMExtractor
-from src.orchestrator import ScrapingOrchestrator
-from src.user_agent_manager import UserAgentManager
-from src.rl_agent import RLAgent
 from src.main import setup_logging
+from src.runner import run_crawler
+
 
 # New widget for displaying alerts
 class AlertsDisplay(Container):
@@ -86,7 +83,7 @@ class DomainStats(Container):
 class ScraperTUIApp(App):
     """Una interfaz de usuario textual para Web Scraper PRO."""
 
-    CSS_PATH = "../../styles.css"
+    CSS_PATH = "styles.css"
     TITLE = "Scraper PRO"
     SUB_TITLE = "Un crawler y archivador web inteligente."
 
@@ -121,7 +118,9 @@ class ScraperTUIApp(App):
                         yield Input(placeholder="http://toscrape.com/", id="start_url")
                         yield Label("Trabajadores concurrentes:")
                         yield Input(value=str(settings.CONCURRENCY), id="concurrency")
-                        yield Checkbox("Ignorar robots.txt", id="no_robots")
+                        yield Checkbox("Respetar robots.txt", value=settings.ROBOTS_ENABLED, id="respect_robots")
+                        yield Checkbox("Activar comprobaciones Ética/Compliance", value=settings.ETHICS_CHECKS_ENABLED, id="ethics_checks")
+                        yield Checkbox("Modo Offline (no LLM remoto)", value=settings.OFFLINE_MODE, id="offline_mode")
                         yield Checkbox("Usar Agente RL (WIP)", value=False, id="use_rl")
                     with TabPane("Estadísticas", id="stats-tab"):
                         yield LiveStats()
@@ -203,7 +202,9 @@ class ScraperTUIApp(App):
         """Inicia el proceso de crawling en un worker."""
         start_url_input = self.query_one("#start_url", Input)
         concurrency_input = self.query_one("#concurrency", Input)
-        no_robots_checkbox = self.query_one("#no_robots", Checkbox)
+    respect_robots_checkbox = self.query_one("#respect_robots", Checkbox)
+    ethics_checkbox = self.query_one("#ethics_checks", Checkbox)
+    offline_checkbox = self.query_one("#offline_mode", Checkbox)
         use_rl_checkbox = self.query_one("#use_rl", Checkbox)
 
         start_url = start_url_input.value
@@ -227,12 +228,17 @@ class ScraperTUIApp(App):
         self.query_one(AlertsDisplay).reset() # Reset alerts
 
 
+        # Aplicar toggles runtime a settings global para componentes subsiguientes
+        settings.ROBOTS_ENABLED = respect_robots_checkbox.value
+        settings.ETHICS_CHECKS_ENABLED = ethics_checkbox.value
+        settings.OFFLINE_MODE = offline_checkbox.value
+
         self.scraper_worker = self.run_worker(
             self.crawl_worker(
                 start_urls=[start_url],
                 db_path=settings.DB_PATH,
                 concurrency=concurrency,
-                respect_robots_txt=not no_robots_checkbox.value,
+                respect_robots_txt=respect_robots_checkbox.value,
                 use_rl=use_rl_checkbox.value,
                 stats_callback=self.stats_update_callback,
                 alert_callback=self.alert_callback # Pass the new callback
@@ -271,7 +277,9 @@ class ScraperTUIApp(App):
         self.query_one("#stop_button").disabled = not is_crawling
         self.query_one("#start_url").disabled = is_crawling
         self.query_one("#concurrency").disabled = is_crawling
-        self.query_one("#no_robots").disabled = is_crawling
+    self.query_one("#respect_robots").disabled = is_crawling
+    self.query_one("#ethics_checks").disabled = is_crawling
+    self.query_one("#offline_mode").disabled = is_crawling
         self.query_one("#use_rl").disabled = is_crawling
 
         progress_bar = self.query_one(ProgressBar)
@@ -287,32 +295,20 @@ class ScraperTUIApp(App):
     async def crawl_worker(
         self, start_urls: list[str], db_path: str, concurrency: int, respect_robots_txt: bool, use_rl: bool, stats_callback, alert_callback
     ) -> None:
-        """La función asíncrona que ejecuta el scraper."""
+        """
+        Función de trabajo (worker) que invoca al corredor de crawling centralizado.
+        """
         logging.info(f"Iniciando crawling para: {start_urls}")
-
-        db_manager = DatabaseManager(db_path=db_path)
-        user_agent_manager = UserAgentManager(user_agents=settings.USER_AGENT_LIST)
-        llm_extractor = LLMExtractor()
-        rl_agent = RLAgent(model_path=settings.RL_MODEL_PATH) if use_rl else None
-
-        orchestrator = ScrapingOrchestrator(
-            start_urls=start_urls, db_manager=db_manager, user_agent_manager=user_agent_manager,
-            llm_extractor=llm_extractor, rl_agent=rl_agent, concurrency=concurrency,
-            respect_robots_txt=respect_robots_txt, use_rl=use_rl, stats_callback=stats_callback,
-            alert_callback=alert_callback
+        await run_crawler(
+            start_urls=start_urls,
+            db_path=db_path,
+            concurrency=concurrency,
+            respect_robots_txt=respect_robots_txt,
+            use_rl=use_rl,
+            stats_callback=stats_callback,
+            alert_callback=alert_callback,
         )
-
-        from playwright.async_api import async_playwright
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            try:
-                await orchestrator.run(browser)
-            finally:
-                if rl_agent:
-                    rl_agent.save_model() # Save the model on graceful shutdown
-                await browser.close()
 
     def action_quit(self) -> None:
         """Sale de la aplicación."""
         self.exit()
-

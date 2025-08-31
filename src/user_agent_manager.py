@@ -58,6 +58,11 @@ class UserAgentManager:
             self.available_user_agents.add(ua)
             del self.blocked_user_agents[ua]
 
+    # Backwards compatibility: older tests expect a method named
+    # ``_clean_blocked_user_agents`` with equivalent behaviour.
+    def _clean_blocked_user_agents(self) -> None:  # pragma: no cover - simple alias
+        self._clean_expired_blocks()
+
     def get_user_agent(self) -> str:
         """Return the next available User‑Agent, rotating through the pool.
 
