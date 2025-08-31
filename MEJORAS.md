@@ -29,7 +29,7 @@ Este documento detalla las mejoras y las próximas fases planificadas para el pr
 - **Reintentos Adaptativos con Backoff Exponencial (COMPLETADO)**:
   - **Problema**: Fallos intermitentes en la red o en el servidor web pueden causar interrupciones innecesarias.
   - **Mejora**: Implementar una lógica de reintentos con backoff exponencial y jitter para manejar fallos temporales de manera más eficiente y menos intrusiva.
-  - **Solución Implementada**: El `ScrapingOrchestrator` ya incluye una lógica de reintentos adaptativos con backoff exponencial. En caso de `NetworkError`, el worker espera un tiempo que aumenta exponencialmente con cada intento fallido, multiplicado por un factor de backoff dinámico por dominio, antes de reintentar el scrapeo de la URL.
+  - **Solución Implementada**: El `ScrapingOrchestrator` ya incluye una lógica de reintentos adaptativos con backoff exponencial. En caso de `NetworkError`, el worker espera un tiempo que aumenta exponencialmente con cada intento fallido, multiplicado por un factor de backoff dinámico por dominio, antes de reintentar el scrapeo de la URL. **(PENDIENTE: Crear test de regresión para esta lógica)**.
 - **Manejo de Errores y Retries Específicos de Scraper (PLANIFICADO)**:
   - **Problema**: Los errores durante el scraping pueden ser variados (p. ej., CAPTCHAs, errores de renderizado).
   - **Mejora**: Permitir a cada `BaseScraper` definir estrategias de reintento o manejo de errores específicas para su dominio o tipo de contenido.
