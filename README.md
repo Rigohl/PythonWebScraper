@@ -182,13 +182,18 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 - **2025-08-31**: Auditoría, limpieza y reorganización completa del proyecto. README actualizado.
 - **2025-08-28**: Completada la implementación de Extracción de Datos Zero-Shot con LLMs (Tarea A.2).
 
+### Cambios operativos (2025-08-31)
+
+- Reubiqué backups y scripts legacy a `backups/` para limpiar la raíz del repo.
+- Añadí `backups/RESTORE_GUIDE.md` y `backups/cleanup_backups.ps1`.
+
 ---
 
 ## Quick start (actualizado)
 
 - Instalar dependencias (si necesitas usar los scripts legacy):
 
-  - Windows (legacy backup): `backups\\files\\backup_1-Install-Dependencies.bat`
-  - Lanzar scraper (legacy backup): `backups\\files\\backup_2-Launch-Scraper.bat`
+  - Windows (legacy): `backups\\files\\backup_1-Install-Dependencies.bat`
+  - Lanzar scraper (legacy): `backups\\files\\backup_2-Launch-Scraper.bat`
 
 > Nota: Los scripts de instalación y lanzamiento legacy se han movido a `backups/files/` para mantener la raíz del repo más limpia. Revisa `backups/README.md` para más detalles.
