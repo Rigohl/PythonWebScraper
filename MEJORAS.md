@@ -180,3 +180,11 @@ Estas recomendaciones se han añadido al documento para que el roadmap tenga acc
 - Si quieres, puedo generar parches concretos (por ejemplo, aplicar locks en [proxy_manager.py](http://_vscodecontentref_/6)) y/o ejecutar [pytest](http://_vscodecontentref_/7) para listar fallos; indícame si deseas que proceda con esos cambios.
 - Mantener este archivo como la fuente de verdad para roadmap; cualquier mejora o decisión importante añadirla aquí con fecha y responsable.
 
+### Cambios operativos realizados (2025-08-31)
+
+- Reorganización de backups: se movieron snapshots y scripts de backup desde la raíz del repositorio a `backups/snapshots/` y `backups/files/`.
+- Añadidos `backups/RESTORE_GUIDE.md` y `backups/cleanup_backups.ps1`.
+- Actualizado `README.md` para referenciar las nuevas ubicaciones de los scripts legacy.
+
+Recomendación inmediata: decidir si `backups/` debe permanecer versionado. Si se desea excluirlo, añadir `backups/` a `.gitignore` y ejecutar `git rm -r --cached backups`.
+
