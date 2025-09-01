@@ -99,9 +99,9 @@ def test_duplicate_content_handling(db_manager):
 
 def test_list_and_search_results(db_manager):
     """Prueba que listar y buscar resultados funciona correctamente."""
-    result1 = ScrapeResult(status="SUCCESS", url="http://site.com/page1", title="Articulo sobre Python", links=[])
-    result2 = ScrapeResult(status="SUCCESS", url="http://site.com/page2", title="Articulo sobre Java", links=[])
-    result3 = ScrapeResult(status="FAILED", url="http://site.com/page3", title="Articulo fallido", links=[])
+    result1 = ScrapeResult(status="SUCCESS", url="http://site.com/page1", title="Articulo sobre Python", content_text="Este es un articulo sobre Python programming", links=[])
+    result2 = ScrapeResult(status="SUCCESS", url="http://site.com/page2", title="Articulo sobre Java", content_text="Este es un articulo sobre Java programming", links=[])
+    result3 = ScrapeResult(status="FAILED", url="http://site.com/page3", title="Articulo fallido", content_text="Este articulo fallo", links=[])
     db_manager.save_result(result1)
     db_manager.save_result(result2)
     db_manager.save_result(result3)

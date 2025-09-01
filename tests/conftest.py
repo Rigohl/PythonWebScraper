@@ -4,13 +4,19 @@ pytest configuration file for shared fixtures.
 This file defines fixtures that are used across multiple test files.
 """
 import os
+import sys
 import asyncio
 from unittest.mock import Mock, AsyncMock
 
+# Ensure the project root is on sys.path so `src` imports work under pytest
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
 import pytest
 from playwright.async_api import Page, Response
-from src.database import DatabaseManager
-from src.llm_extractor import LLMExtractor
+from src.db.database import DatabaseManager
+from src.intelligence.llm_extractor import LLMExtractor
 
 
 @pytest.fixture
@@ -70,3 +76,102 @@ def mock_llm_extractor():
 def html_file():
     """Fixture that provides the path to the test HTML file."""
     return os.path.join(os.path.dirname(__file__), "test_page.html")
+
+
+@pytest.fixture
+def http_server():
+    """A local HTTP server fixture for integration tests."""
+    import asyncio
+    import aiohttp
+    from aiohttp import web
+
+    async def create_server():
+        async def index_handler(request):
+            return web.Response(text="""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Test Site</title></head>
+            <body>
+                <h1>Test Index</h1>
+                <a href="/page1.html">Page 1</a>
+                <a href="/page2.html">Page 2</a>
+            </body>
+            </html>
+            """, content_type='text/html')
+
+        async def page1_handler(request):
+            return web.Response(text="""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Page 1</title></head>
+            <body>
+                <h1>Page 1</h1>
+                <p>This is page 1 content.</p>
+            </body>
+            </html>
+            """, content_type='text/html')
+
+        async def page2_handler(request):
+            return web.Response(text="""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Page 2</title></head>
+            <body>
+                <h1>Page 2</h1>
+                <p>This is page 2 content.</p>
+            </body>
+            </html>
+            """, content_type='text/html')
+
+        async def index_with_clone_handler(request):
+            return web.Response(text="""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Test Site with Clone</title></head>
+            <body>
+                <h1>Test Index with Clone</h1>
+                <a href="/page1.html">Page 1</a>
+                <a href="/page1_clone.html">Page 1 Clone</a>
+            </body>
+            </html>
+            """, content_type='text/html')
+
+        async def page1_clone_handler(request):
+            return web.Response(text="""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Page 1 Clone</title></head>
+            <body>
+                <h1>Page 1 Clone</h1>
+                <p>This is identical content to page 1.</p>
+            </body>
+            </html>
+            """, content_type='text/html')
+
+        app = web.Application()
+        app.router.add_get('/', index_handler)
+        app.router.add_get('/index.html', index_handler)
+        app.router.add_get('/page1.html', page1_handler)
+        app.router.add_get('/page2.html', page2_handler)
+        app.router.add_get('/index_with_clone.html', index_with_clone_handler)
+        app.router.add_get('/page1_clone.html', page1_clone_handler)
+
+        runner = web.AppRunner(app)
+        await runner.setup()
+
+        site = web.TCPSite(runner, 'localhost', 0)  # Use port 0 for auto-assignment
+        await site.start()
+
+        # Get the actual port
+        port = site._server.sockets[0].getsockname()[1]
+        base_url = f"http://localhost:{port}"
+
+        return base_url, runner
+
+    # Run the async server creation
+    base_url, runner = asyncio.run(create_server())
+
+    yield base_url
+
+    # Cleanup
+    asyncio.run(runner.cleanup())

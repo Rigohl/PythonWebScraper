@@ -139,9 +139,11 @@ Estas recomendaciones se han añadido al documento para que el roadmap tenga acc
 - **3) Ejecutar y arreglar la suite de tests; completar TODOs**
   - Objetivo: Ejecutar `pytest` completo y priorizar arreglar fallos y cubrir los tests con `TODO` (p. ej. `tests/test_orchestrator_logic.py`).
   - Comando sugerido:
+
     ```powershell
     py -m pytest -q
     ```
+
   - Por qué: Garantiza que cambios en concurrencia/tz no rompan comportamientos esperados.
 
 - **4) Añadir chequeos de tipos y linters en CI**
@@ -187,4 +189,3 @@ Estas recomendaciones se han añadido al documento para que el roadmap tenga acc
 - Actualizado `README.md` para referenciar las nuevas ubicaciones de los scripts legacy.
 
 Recomendación inmediata: decidir si `backups/` debe permanecer versionado. Si se desea excluirlo, añadir `backups/` a `.gitignore` y ejecutar `git rm -r --cached backups`.
-

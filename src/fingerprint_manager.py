@@ -73,9 +73,12 @@ class FingerprintManager:
         self.user_agent_manager = user_agent_manager
 
         # Use a copy of the default list to avoid accidental mutation.
-        self.viewports: list[Dict[str, int]] = list(viewports) if viewports else list(DEFAULT_VIEWPORTS)
-        if not self.viewports:
-            raise ValueError("La lista de viewports no puede estar vacía.")
+        if viewports is not None:
+            if not viewports:
+                raise ValueError("La lista de viewports no puede estar vacía.")
+            self.viewports: list[Dict[str, int]] = list(viewports)
+        else:
+            self.viewports: list[Dict[str, int]] = list(DEFAULT_VIEWPORTS)
 
         # Allow dependency injection of a random generator for testability.
         self._random = rand if rand is not None else random.Random()
@@ -99,12 +102,12 @@ class FingerprintManager:
             return "Win32"
         if "macintosh" in ua_lower or "mac os" in ua_lower:
             return "MacIntel"
+        if "android" in ua_lower:
+            return "Linux armv8l"
         if "linux" in ua_lower:
             return "Linux x86_64"
         if "iphone" in ua_lower or "ipad" in ua_lower:
             return "iPhone"
-        if "android" in ua_lower:
-            return "Linux armv8l"
         return "Win32"
 
     def get_fingerprint(self) -> Fingerprint:
