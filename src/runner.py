@@ -47,11 +47,8 @@ async def run_crawler(
                 stats_callback=stats_callback,
                 alert_callback=alert_callback,
             )
-            if hasattr(orchestrator.run, '__call__') and hasattr(orchestrator.run, '__await__'):
-                await orchestrator.run(browser)
-            else:
-                # For test mocks that are not awaitable
-                orchestrator.run(browser)
+            # Always await the orchestrator.run since it's an async method
+            await orchestrator.run(browser)
         finally:
             if rl_agent:
                 rl_agent.save_model()  # Guardar el modelo al finalizar

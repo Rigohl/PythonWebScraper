@@ -13,11 +13,11 @@ def fingerprint_manager(mock_user_agent_manager):
     return FingerprintManager(mock_user_agent_manager)
 
 def test_init_with_invalid_user_agent_manager():
-    with pytest.raises(ValueError, match="A UserAgentManager must be provided."):
+    with pytest.raises(ValueError, match="Se debe proporcionar un UserAgentManager."):
         FingerprintManager(None)
 
 def test_init_with_empty_viewports(mock_user_agent_manager):
-    with pytest.raises(ValueError, match="The viewports list cannot be empty."):
+    with pytest.raises(ValueError, match="La lista de viewports no puede estar vacía."):
         FingerprintManager(mock_user_agent_manager, viewports=[])
 
 @pytest.mark.parametrize(

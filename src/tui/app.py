@@ -202,9 +202,9 @@ class ScraperTUIApp(App):
         """Inicia el proceso de crawling en un worker."""
         start_url_input = self.query_one("#start_url", Input)
         concurrency_input = self.query_one("#concurrency", Input)
-    respect_robots_checkbox = self.query_one("#respect_robots", Checkbox)
-    ethics_checkbox = self.query_one("#ethics_checks", Checkbox)
-    offline_checkbox = self.query_one("#offline_mode", Checkbox)
+        respect_robots_checkbox = self.query_one("#respect_robots", Checkbox)
+        ethics_checkbox = self.query_one("#ethics_checks", Checkbox)
+        offline_checkbox = self.query_one("#offline_mode", Checkbox)
         use_rl_checkbox = self.query_one("#use_rl", Checkbox)
 
         start_url = start_url_input.value
@@ -277,9 +277,9 @@ class ScraperTUIApp(App):
         self.query_one("#stop_button").disabled = not is_crawling
         self.query_one("#start_url").disabled = is_crawling
         self.query_one("#concurrency").disabled = is_crawling
-    self.query_one("#respect_robots").disabled = is_crawling
-    self.query_one("#ethics_checks").disabled = is_crawling
-    self.query_one("#offline_mode").disabled = is_crawling
+        self.query_one("#respect_robots").disabled = is_crawling
+        self.query_one("#ethics_checks").disabled = is_crawling
+        self.query_one("#offline_mode").disabled = is_crawling
         self.query_one("#use_rl").disabled = is_crawling
 
         progress_bar = self.query_one(ProgressBar)

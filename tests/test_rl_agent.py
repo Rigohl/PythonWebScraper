@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import numpy as np
 import os
 
-from src.rl_agent import RLAgent, ScrapingEnv
+from src.intelligence.rl_agent import RLAgent, ScrapingEnv
 
 # Fixtures for mocking dependencies
 @pytest.fixture
@@ -45,7 +45,7 @@ def test_scraping_env_set_state():
     env = ScrapingEnv()
     state_dict = {"low_quality_ratio": 0.1, "failure_ratio": 0.2, "current_backoff": 1.5}
     env.set_state(state_dict)
-    assert np.array_equal(env.current_state, np.array([0.1, 0.2, 1.5]))
+    assert np.array_equal(env.current_state, np.array([0.1, 0.2, 1.5], dtype=np.float32))
 
 def test_scraping_env_step_reset_render_close():
     env = ScrapingEnv()
@@ -104,7 +104,7 @@ def test_rl_agent_learn_calls_model_learn(mock_ppo_predict, mock_ppo_save):
     # This test confirms that agent.model.learn is called, but does NOT
     # verify the effectiveness of the RL learning due to the on-policy nature
     # of PPO and the current integration design.
-    agent = RLAgent(domain="test.com")
+    agent = RLAgent(domain="test.com", model_path="/tmp/test_model")
     agent.model = Mock() # Mock the PPO model instance
     agent.buffer_size = 1 # Set buffer size to 1 for immediate learning
 
@@ -116,6 +116,7 @@ def test_rl_agent_learn_calls_model_learn(mock_ppo_predict, mock_ppo_save):
     agent.learn(state, action_taken, reward, next_state)
 
     agent.model.learn.assert_called_once_with(total_timesteps=agent.buffer_size)
+    # Note: save is called in finally block, so it should be called even if learn fails
     agent.model.save.assert_called_once() # save_model should be called after learn
     assert len(agent.experience_buffer) == 0 # Buffer should be cleared
 

@@ -1,7 +1,7 @@
 import pytest
 import time
 from datetime import datetime, timedelta
-from src.user_agent_manager import UserAgentManager
+from src.managers.user_agent_manager import UserAgentManager
 
 @pytest.fixture
 def user_agent_manager():
@@ -50,7 +50,7 @@ def test_get_user_agent_all_blocked(user_agent_manager):
     all_uas = list(user_agent_manager.user_agents)
     for ua in all_uas:
         user_agent_manager.block_user_agent(ua, duration_seconds=0.1)
-    
+
     # All are blocked, so it should return one from the original list
     returned_ua = user_agent_manager.get_user_agent()
     assert returned_ua in all_uas

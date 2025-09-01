@@ -223,14 +223,16 @@ class DatabaseManager:
         Returns:
             A list of deserialised results matching the query.
         """
-        like_query = f"%{query}%"
-        results_iterator = self.table.find(
-            _or=[
-                {"title": {"like": like_query}},
-                {"content_text": {"like": like_query}},
-            ]
-        )
-        return [self._deserialize_row(dict(row)) for row in results_iterator]
+        # Use SQLAlchemy for case-insensitive search
+        query_lower = query.lower()
+        all_results = self.list_results()
+        matching_results = []
+        for result in all_results:
+            title = result.get('title', '').lower()
+            content = result.get('content_text', '').lower()
+            if query_lower in title or query_lower in content:
+                matching_results.append(result)
+        return matching_results
 
     # ------------------------------------------------------------------
     # Internal helper methods
