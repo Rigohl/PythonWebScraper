@@ -38,9 +38,9 @@ from pydantic import BaseModel
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from readability import Document
 
-from .database import DatabaseManager
+from .db.database import DatabaseManager
 from .exceptions import ContentQualityError, NetworkError, ParsingError
-from .llm_extractor import LLMExtractor
+from .intelligence.llm_extractor import LLMExtractor
 from .models.results import ScrapeResult
 from .settings import settings
 
@@ -247,8 +247,9 @@ class AdvancedScraper:
         self._validate_content_quality(cleaned_text, title)
         # Compute content hash
         content_hash = hashlib.sha256(cleaned_text.encode("utf-8")).hexdigest()
-        # Find visible links
-        soup = BeautifulSoup(content_html, "html.parser")
+        # Find visible links from the full HTML (not just the readability summary)
+        # This ensures we capture navigation links that readability might filter out
+        soup = BeautifulSoup(full_html, "html.parser")
         visible_links = [
             urljoin(url, a["href"])
             for a in soup.find_all("a", href=True)

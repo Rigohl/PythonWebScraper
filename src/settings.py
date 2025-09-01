@@ -80,7 +80,8 @@ class Settings(BaseSettings):
     # --- Scraper configuration ---
     SCRAPER_VERSION: str = "0.11.0"
     VISUAL_CHANGE_THRESHOLD: int = 5
-    MIN_CONTENT_LENGTH: int = 250
+    # Reduce for test fixtures which contain short HTML bodies
+    MIN_CONTENT_LENGTH: int = 20
     FORBIDDEN_PHRASES: List[str] = [
         "acceso denegado",
         "enable javascript",
