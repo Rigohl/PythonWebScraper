@@ -11,7 +11,14 @@ from ..settings import settings  # noqa: F401
 try:  # Expose instructor for patching in tests
     import instructor  # type: ignore  # noqa: F401
 except Exception:  # pragma: no cover
-    instructor = None  # type: ignore
+    from types import SimpleNamespace
+
+    # Provide a minimal shim so test-suite code that patches
+    # `src.intelligence.llm_extractor.instructor.patch` can do so
+    # even when the optional `instructor` package isn't installed.
+    # The shim exposes a `patch` callable which can be replaced by
+    # unittest.mock.patch in tests.
+    instructor = SimpleNamespace(patch=lambda *a, **k: None)  # type: ignore
 
 __all__ = ["LLMExtractor", "settings", "instructor"]
 # Thin wrapper to maintain backward compatibility with old import path

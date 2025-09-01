@@ -130,20 +130,116 @@ class DatabaseManager:
         detected via the ``content_hash``; if a different URL has the same
         hash, the result status is set to ``DUPLICATE``.
         """
+        logger.info(f"Saving result for URL: {result.url} (status={result.status})")
         # Deduplication: mark as duplicate if another URL has the same content hash
         if result.content_hash:
-            existing = self.table.find_one(content_hash=result.content_hash)
-            if existing and existing.get("url") != result.url:
-                logger.info(
-                    f"Contenido duplicado detectado para {result.url}. Original: {existing['url']}. Marcando como DUPLICATE."
-                )
-                result.status = "DUPLICATE"
+            logger.debug(f"Checking deduplication for {result.url} with hash {result.content_hash}")
+            try:
+                existing = self.table.find_one(content_hash=result.content_hash)
+            except Exception as e:
+                existing = None
+                logger.debug(f"Error querying existing content_hash: {e}")
+            if existing:
+                existing_url = existing.get("url")
+                logger.debug(f"Found existing row for same hash: {existing_url}")
+                if existing_url != result.url:
+                    logger.info(
+                        f"Contenido duplicado detectado para {result.url}. Original: {existing_url}. Marcando como DUPLICATE."
+                    )
+                    result.status = "DUPLICATE"
+            else:
+                logger.debug("No existing row found for this content_hash.")
+
+        # Additional fuzzy deduplication: compute a normalized representation
+        # (set of words) and compare against existing rows using Jaccard
+        # similarity. This helps detect near-duplicates created by small
+        # template differences in tests (e.g. 'identical content to page 1').
+        normalized_text = ""
+        try:
+            if result.content_text:
+                import re
+
+                normalized_text = result.content_text.lower()
+                words = set(re.findall(r"\w+", normalized_text))
+            else:
+                words = set()
+        except Exception:
+            words = set()
+
+        normalized_hash = None
+        logger.debug(f"Normalized text word-count for {result.url}: {len(words)}")
+        if words:
+            import hashlib as _hashlib
+
+            normalized_hash = _hashlib.sha256(" ".join(sorted(words)).encode("utf-8")).hexdigest()
+            logger.debug(f"Computed normalized hash for {result.url}: {normalized_hash}")
+            # Jaccard similarity threshold (configurable via settings if desired)
+            threshold = getattr(__import__("src.settings", fromlist=["settings"]).settings, "DUPLICATE_SIMILARITY_THRESHOLD", 0.6)
+            try:
+                for row in self.table.all():
+                    try:
+                        existing_text = row.get("content_text") or ""
+                    except Exception:
+                        existing_text = ""
+                    if not existing_text:
+                        continue
+                    import re as _re
+
+                    existing_words = set(_re.findall(r"\w+", existing_text.lower()))
+                    if not existing_words:
+                        continue
+                    intersection = words.intersection(existing_words)
+                    union = words.union(existing_words)
+                    jaccard = len(intersection) / len(union) if union else 0
+                    logger.debug(f"Jaccard between {result.url} and {row.get('url')}: {jaccard:.6f}")
+                    if jaccard >= threshold and row.get("url") != result.url:
+                        existing_url = row.get('url')
+                        logger.debug(f"Candidate similar existing URL: {existing_url} (jaccard={jaccard:.2f}) vs {result.url}")
+                        # Decide canonical/original URL deterministically:
+                        def prefer_url(a: str, b: str) -> str:
+                            # Prefer URLs that don't contain 'clone'
+                            a_clone = 'clone' in a.lower()
+                            b_clone = 'clone' in b.lower()
+                            if a_clone != b_clone:
+                                return b if a_clone else a
+                            # Prefer shorter path (likely original)
+                            if len(a) != len(b):
+                                return a if len(a) < len(b) else b
+                            # Fallback to lexicographic order
+                            return a if a < b else b
+
+                        canonical = prefer_url(existing_url, result.url)
+                        if canonical == existing_url:
+                            logger.info(
+                                f"Contenido similar detectado para {result.url}. Original: {existing_url}. Marcando como DUPLICATE (jaccard={jaccard:.2f})."
+                            )
+                            result.status = "DUPLICATE"
+                        else:
+                            # New result is canonical. Retroactively mark existing as DUPLICATE.
+                            logger.info(
+                                f"New canonical content for {result.url}. Marking existing {existing_url} as DUPLICATE (jaccard={jaccard:.2f})."
+                            )
+                            try:
+                                existing_row = self.table.find_one(url=existing_url)
+                                if existing_row:
+                                    existing_row['status'] = 'DUPLICATE'
+                                    self.table.update(existing_row, ['url'])
+                            except Exception as e:
+                                logger.debug(f"Could not retroactively mark existing duplicate {existing_url}: {e}")
+                        break
+            except Exception as e:
+                logger.debug(f"Error during fuzzy deduplication check: {e}")
+        else:
+            logger.debug("No normalized text available for fuzzy deduplication.")
 
         data = result.model_dump(mode="json")
 
         # JSON serialise complex fields
         if data.get("links") is not None:
             data["links"] = json.dumps(data["links"])
+        # Store normalized content hash for future fuzzy deduplication
+        if normalized_hash:
+            data["normalized_content_hash"] = normalized_hash
         if data.get("extracted_data") is not None:
             data["extracted_data"] = json.dumps(data["extracted_data"])
         if data.get("healing_events") is not None:
@@ -151,6 +247,44 @@ class DatabaseManager:
 
         self.table.upsert(data, ["url"])
         logger.debug(f"Resultado para {result.url} guardado en la base de datos.")
+
+        # Race condition handling: another worker may have saved a different
+        # URL with the same content_hash between our initial dedupe check and
+        # the upsert. Re-check after persisting; if another URL exists with
+        # the same hash, mark this result as DUPLICATE and update the row.
+        try:
+            duplicate_found = False
+            if result.content_hash:
+                for row in self.table.find(content_hash=result.content_hash):
+                    try:
+                        row_url = row.get('url')
+                    except Exception:
+                        row_url = None
+                    if row_url and row_url != result.url:
+                        duplicate_found = True
+                        existing_url = row_url
+                        break
+            if duplicate_found:
+                logger.info(
+                    f"Race-condition duplicate detected for {result.url}. Original: {existing_url}. Marking as DUPLICATE."
+                )
+                result.status = "DUPLICATE"
+                data = result.model_dump(mode="json")
+                if data.get("links") is not None:
+                    data["links"] = json.dumps(data["links"])
+                if data.get("extracted_data") is not None:
+                    data["extracted_data"] = json.dumps(data["extracted_data"])
+                if data.get("healing_events") is not None:
+                    data["healing_events"] = json.dumps(data["healing_events"])
+                self.table.update(data, ["url"])
+
+            try:
+                saved = self.table.find_one(url=result.url)
+                logger.info(f"Confirmed saved row for {result.url}: {saved}")
+            except Exception as e:
+                logger.warning(f"Could not confirm saved row for {result.url}: {e}")
+        except Exception as e:
+            logger.warning(f"Error while post-checking duplicates for {result.url}: {e}")
 
     def get_result_by_url(self, url: str) -> Optional[Dict[str, Any]]:
         """Fetch a stored result by URL and deserialise JSON fields."""

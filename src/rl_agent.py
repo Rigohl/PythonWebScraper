@@ -28,6 +28,14 @@ except Exception:
     # Provide minimal shims when RL libraries are missing
     RL_AVAILABLE = False
     Env = object
+    # Minimal space shims used for tests when `gymnasium` is not installed.
+    class _BoxShim:
+        def __init__(self, shape):
+            self.shape = tuple(shape)
+
+    class _DiscreteShim:
+        def __init__(self, n):
+            self.n = int(n)
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +52,18 @@ class ScrapingEnv(Env):
 
     def __init__(self) -> None:
         super().__init__()
+        # Define observation and action spaces using gymnasium types when
+        # available, otherwise use lightweight shims that provide the
+        # attributes tests need (`shape` and `n`). This keeps the class
+        # usable in environments without gymnasium installed.
         if RL_AVAILABLE:
-            # Define observation and action spaces using gymnasium types
             self.observation_space = spaces.Box(
                 low=np.array([0.0, 0.0, 0.1]), high=np.array([1.0, 1.0, 10.0]), dtype=np.float32
             )
             self.action_space = spaces.Discrete(3)
+        else:
+            self.observation_space = _BoxShim((3,))
+            self.action_space = _DiscreteShim(3)
         self.current_state = np.zeros(3, dtype=np.float32)
 
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, dict]:
@@ -63,6 +77,11 @@ class ScrapingEnv(Env):
     def render(self, mode: str = "human") -> None:
         """Render the environment. Required by gymnasium interface."""
         pass
+
+    def close(self) -> None:
+        """Optional cleanup hook. Mirrors gymnasium Env.close()."""
+        # No-op for the simple test environment; present for API parity.
+        return None
 
     def set_state(self, state_dict: dict) -> None:
         """Update the internal state representation from a metrics dictionary."""
