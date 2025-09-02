@@ -79,7 +79,9 @@ real API keys in the repository. Create a `.env` file with the key like:
 ```powershell
 setx LLM_API_KEY "sk-..."
 ```
+
 DB_PATH="data/mi_base_de_datos.db"
+
 ```
 
 ---
