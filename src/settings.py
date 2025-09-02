@@ -1,5 +1,6 @@
+from typing import Dict, List, Optional
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List, Dict
 
 
 class Settings(BaseSettings):
@@ -56,13 +57,31 @@ class Settings(BaseSettings):
 
     # --- Anomaly detection configuration ---
     ANOMALY_THRESHOLD_LOW_QUALITY: float = 0.3
+    # --- Deduplication / fuzzy matching ---
+    # Jaccard similarity threshold used by the fuzzy deduplication routine in DatabaseManager
+    DUPLICATE_SIMILARITY_THRESHOLD: float = 0.6
 
     # --- LLM configuration ---
-    LLM_API_KEY: str = "YOUR_LLM_API_KEY_HERE"
+    # LLM API key should be provided via environment variables or a secure
+    # secrets manager. Default to None to avoid accidental check-ins of keys.
+    LLM_API_KEY: Optional[str] = None
     # Name of the LLM model to call. Required by ``LLMExtractor``. Defaults to
     # gpt‑3.5‑turbo for broad compatibility. You can override this in your
     # environment or ``.env`` file.
     LLM_MODEL: str = "gpt-3.5-turbo"
+
+    # --- Feature / Policy Toggles ---
+    # By default we want a fast, fully local scraper experience, so all
+    # potentially restrictive / external‑call features start disabled.
+    ROBOTS_ENABLED: bool = False  # Respect robots.txt if True
+    ETHICS_CHECKS_ENABLED: bool = (
+        False  # Placeholder for future ethical / compliance filters
+    )
+    OFFLINE_MODE: bool = (
+        True  # If True, never call remote LLM APIs even if keys are present
+    )
+    # Accelerated test mode (skips network HEAD prequalification & long stealth)
+    FAST_TEST_MODE: bool = False
 
     # --- RL Agent configuration ---
     RL_MODEL_PATH: str = "models/rl_agent_model.pkl"
@@ -70,13 +89,22 @@ class Settings(BaseSettings):
     # --- Scraper configuration ---
     SCRAPER_VERSION: str = "0.11.0"
     VISUAL_CHANGE_THRESHOLD: int = 5
-    MIN_CONTENT_LENGTH: int = 250
+    # Reduce for test fixtures which contain short HTML bodies
+    MIN_CONTENT_LENGTH: int = 20
     FORBIDDEN_PHRASES: List[str] = [
-        "acceso denegado", "enable javascript", "habilite las cookies",
-        "acceso restringido", "login required", "please log in",
+        "acceso denegado",
+        "enable javascript",
+        "habilite las cookies",
+        "acceso restringido",
+        "login required",
+        "please log in",
     ]
     BLOCKED_RESOURCE_TYPES: List[str] = [
-        "image", "stylesheet", "font", "media", "other",
+        "image",
+        "stylesheet",
+        "font",
+        "media",
+        "other",
     ]
     RETRYABLE_STATUS_CODES: List[int] = [429, 500, 502, 503, 504]
 

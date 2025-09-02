@@ -1,43 +1,55 @@
+"""Crawler execution runner."""
 import logging
+from typing import Callable, Optional
+from urllib.parse import urlparse
+
 from playwright.async_api import async_playwright
-from src.orchestrator import ScrapingOrchestrator
-from src.database import DatabaseManager
-from src.settings import settings
-from src.user_agent_manager import UserAgentManager
-from src.llm_extractor import LLMExtractor
-from src.rl_agent import RLAgent
+
+from .database import DatabaseManager
+from .llm_extractor import LLMExtractor
+from .orchestrator import ScrapingOrchestrator
+from .rl_agent import RLAgent
+from .settings import settings
+from .user_agent_manager import UserAgentManager
+
 
 async def run_crawler(
     start_urls: list[str],
     db_path: str,
     concurrency: int,
     respect_robots_txt: bool,
-    use_rl: bool
-):
-    """
-    Configura y ejecuta el proceso de crawling.
-    Esta función contiene la lógica principal del crawler para ser reutilizable.
-    """
+    use_rl: bool,
+    stats_callback: Optional[Callable] = None,
+    alert_callback: Optional[Callable] = None,
+) -> None:
+    """Helper function to set up and run the crawler."""
     logging.info(f"Iniciando crawler con {concurrency} trabajadores para las URLs: {start_urls}")
-
-    # 1. Crear dependencias
     db_manager = DatabaseManager(db_path=db_path)
     user_agent_manager = UserAgentManager(user_agents=settings.USER_AGENT_LIST)
     llm_extractor = LLMExtractor()
-    rl_agent = RLAgent(model_path=settings.RL_MODEL_PATH)
 
-    # 2. Gestionar el ciclo de vida de Playwright
+    rl_agent = None
+    if use_rl:
+        domain = urlparse(start_urls[0]).netloc if start_urls else "default"
+        rl_agent = RLAgent(domain=domain, model_path=settings.RL_MODEL_PATH, training_mode=use_rl)
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-
-        # 3. Crear el orquestador e inyectar dependencias
-        orchestrator = ScrapingOrchestrator(
-            start_urls=start_urls, db_manager=db_manager,
-            user_agent_manager=user_agent_manager, llm_extractor=llm_extractor,
-            rl_agent=rl_agent, concurrency=concurrency,
-            respect_robots_txt=respect_robots_txt, use_rl=use_rl
-        )
-
-        # 4. Ejecutar el crawler
-        await orchestrator.run(browser=browser)
-        await browser.close()
+        try:
+            orchestrator = ScrapingOrchestrator(
+                start_urls=start_urls,
+                db_manager=db_manager,
+                user_agent_manager=user_agent_manager,
+                llm_extractor=llm_extractor,
+                rl_agent=rl_agent,
+                concurrency=concurrency,
+                respect_robots_txt=respect_robots_txt,
+                stats_callback=stats_callback,
+                alert_callback=alert_callback,
+            )
+            # Always await the orchestrator.run since it's an async method
+            await orchestrator.run(browser)
+        finally:
+            if rl_agent:
+                rl_agent.save_model()  # Guardar el modelo al finalizar
+            await browser.close()

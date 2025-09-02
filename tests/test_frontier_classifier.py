@@ -12,7 +12,7 @@ def test_frontier_classifier_init(frontier_classifier):
 @pytest.mark.parametrize(
     "url, expected_features",
     [
-        ("http://example.com/path/to/page?param=1", [2, 1, 0]),
+        ("http://example.com/path/to/page?param=1", [3, 1, 0]),
         ("https://example.com/", [0, 0, 1]),
         ("http://example.com/one/two/three", [3, 0, 0]),
         ("https://example.com/page?a=1&b=2", [1, 2, 1]),
