@@ -1,15 +1,16 @@
 import logging
+
 from textual.app import App, ComposeResult
 from textual.containers import Container, Grid
-from textual.widgets import (
-    Header, Footer, Button, Input, Log, ProgressBar, Label, TabbedContent, TabPane, Checkbox, DataTable
-)
 from textual.logging import TextualHandler
+from textual.widgets import (Button, Checkbox, DataTable, Footer, Header,
+                             Input, Label, Log, ProgressBar, TabbedContent,
+                             TabPane)
 from textual.worker import Worker, WorkerState
 
-from ..settings import settings
 from ..main import setup_logging
 from ..runner import run_crawler
+from ..settings import settings
 
 
 # New widget for displaying alerts

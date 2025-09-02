@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
+
 
 class ProxyManager:
     def __init__(self, proxies=None):

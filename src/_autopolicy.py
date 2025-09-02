@@ -1,8 +1,13 @@
 from __future__ import annotations
-import json, os, time, threading, socket
+
+import json
+import os
+import socket
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from urllib.parse import urlparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 _DEFAULT_POLICY = {
     "default": {
@@ -85,7 +90,8 @@ try:
 
     _HAVE_REQUESTS = True
 except Exception:
-    import urllib.request, urllib.error
+    import urllib.error
+    import urllib.request
 
     _HAVE_REQUESTS = False
 

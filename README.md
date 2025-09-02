@@ -73,7 +73,12 @@ Para personalizar tu configuración, simplemente copia el archivo `.env.example`
 ```bash
 # Ejemplo de contenido para tu archivo .env
 CONCURRENCY=10
-LLM_API_KEY="sk-xxxxxxxxxxxxxxxxxxxx"
+LLM_API_KEY is read from the environment or a `.env` file. Do NOT hardcode
+real API keys in the repository. Create a `.env` file with the key like:
+
+```powershell
+setx LLM_API_KEY "sk-..."
+```
 DB_PATH="data/mi_base_de_datos.db"
 ```
 

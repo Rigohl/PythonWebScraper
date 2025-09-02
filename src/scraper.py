@@ -34,8 +34,9 @@ import html2text
 import imagehash
 from bs4 import BeautifulSoup
 from PIL import Image
+from playwright.async_api import Page
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from pydantic import BaseModel
-from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from readability import Document
 
 from .database import DatabaseManager

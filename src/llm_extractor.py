@@ -22,7 +22,8 @@ from .settings import settings
 
 try:  # Optional dependencies
     import instructor  # type: ignore
-    from openai import APIConnectionError, APIError, APITimeoutError, OpenAI  # type: ignore
+    from openai import (APIConnectionError, APIError,  # type: ignore
+                        APITimeoutError, OpenAI)
 
     OPENAI_AVAILABLE = True
 except Exception:  # pragma: no cover - defensive
