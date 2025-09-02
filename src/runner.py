@@ -1,7 +1,7 @@
 """Crawler execution runner."""
 import logging
+from typing import Callable, Optional
 from urllib.parse import urlparse
-from typing import Optional, Callable
 
 from playwright.async_api import async_playwright
 

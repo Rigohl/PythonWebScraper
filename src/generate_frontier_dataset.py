@@ -1,6 +1,7 @@
 import csv
 import os
 
+
 def generate_dummy_frontier_dataset(output_path: str = "data/frontier_dataset.csv", num_samples: int = 100):
     """
     Genera un dataset dummy para el FrontierClassifier.

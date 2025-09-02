@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Iterable, List, Set, Dict
+from typing import Dict, Iterable, List, Set
 
 
 @dataclass
@@ -47,7 +47,9 @@ class UserAgentManager:
         # Normalise to a list to allow index-based rotation and create a set
         # of available agents for fast membership tests.
         self.user_agents = list(dict.fromkeys(self.user_agents))
-        self.available_user_agents = set(self.user_agents)
+        # Maintain both a list (for deterministic rotation) and a set for
+        # fast membership checks. Keep order stable between runs.
+        self.available_user_agents = list(self.user_agents)
 
     def _clean_expired_blocks(self) -> None:
         """Remove expired entries from the blocked user agents dictionary."""
@@ -55,7 +57,8 @@ class UserAgentManager:
         expired = [ua for ua, until in self.blocked_user_agents.items() if now > until]
         for ua in expired:
             # Re-add to available and delete from blocked
-            self.available_user_agents.add(ua)
+            if ua not in self.available_user_agents:
+                self.available_user_agents.append(ua)
             del self.blocked_user_agents[ua]
 
     # Backwards compatibility: older tests expect a method named
@@ -76,15 +79,13 @@ class UserAgentManager:
         self._clean_expired_blocks()
         if not self.available_user_agents:
             # All are blocked; fall back to sequential rotation through the
-            # original list.  We don''t remove the block entry here because
-            # the block timeout may still be in force.
+            # original list. Keep deterministic rotation using _rotation_index.
             self._rotation_index = (self._rotation_index + 1) % len(self.user_agents)
             return self.user_agents[self._rotation_index]
 
-        # Cycle through only available agents
-        available_list = list(self.available_user_agents)
-        self._rotation_index = (self._rotation_index + 1) % len(available_list)
-        return available_list[self._rotation_index]
+        # Cycle through the available list deterministically
+        self._rotation_index = (self._rotation_index + 1) % len(self.available_user_agents)
+        return self.available_user_agents[self._rotation_index]
 
     def block_user_agent(self, user_agent: str, duration_seconds: int = 300) -> None:
         """Temporarily block a User‑Agent for a given number of seconds.
@@ -95,7 +96,10 @@ class UserAgentManager:
             duration_seconds: The number of seconds to block the User‑Agent.
         """
         if user_agent in self.available_user_agents:
-            self.available_user_agents.remove(user_agent)
+            try:
+                self.available_user_agents.remove(user_agent)
+            except ValueError:
+                pass
         # Always set/update the blocked expiry time, even if the agent wasn''t available.
         self.blocked_user_agents[user_agent] = datetime.now() + timedelta(seconds=duration_seconds)
 
@@ -108,7 +112,8 @@ class UserAgentManager:
         """
         if user_agent in self.blocked_user_agents:
             del self.blocked_user_agents[user_agent]
-            self.available_user_agents.add(user_agent)
+            if user_agent not in self.available_user_agents:
+                self.available_user_agents.append(user_agent)
 
     def is_blocked(self, user_agent: str) -> bool:
         """Check whether a User‑Agent is currently blocked."""

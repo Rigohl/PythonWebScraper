@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
+from typing import List, Optional
+
 from pydantic import BaseModel, Field
-from typing import Optional, List
 
 from ..settings import settings
+
 
 class RetryableError(Exception):
     """Excepción personalizada para errores que permiten reintentos."""

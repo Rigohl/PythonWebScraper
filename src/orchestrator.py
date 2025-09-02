@@ -1,9 +1,10 @@
 import asyncio
 import logging
 import os
-from urllib.parse import urlparse, urlunparse, ParseResult
-from playwright.async_api import Browser
+from urllib.parse import ParseResult, urlparse, urlunparse
+
 import httpx  # Revert to Stealth class
+from playwright.async_api import Browser
 
 try:
     from playwright_stealth import stealth  # type: ignore
@@ -13,22 +14,22 @@ except Exception:  # pragma: no cover
         return None
 
 
-from robotexclusionrulesparser import RobotExclusionRulesParser
-from pydantic import create_model
-
-from .scraper import AdvancedScraper
-from .db.database import DatabaseManager
-from .settings import settings
-from collections import defaultdict
-from .models.results import ScrapeResult
-from .exceptions import NetworkError
 import json
+from collections import defaultdict
 
-# Importar los nuevos módulos
-from .managers.user_agent_manager import UserAgentManager
+from pydantic import create_model
+from robotexclusionrulesparser import RobotExclusionRulesParser
+
+from .db.database import DatabaseManager
+from .exceptions import NetworkError
+from .frontier_classifier import FrontierClassifier
 from .intelligence.llm_extractor import LLMExtractor
 from .intelligence.rl_agent import RLAgent
-from .frontier_classifier import FrontierClassifier
+# Importar los nuevos módulos
+from .managers.user_agent_manager import UserAgentManager
+from .models.results import ScrapeResult
+from .scraper import AdvancedScraper
+from .settings import settings
 
 try:
     import imagehash  # type: ignore

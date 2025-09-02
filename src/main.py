@@ -190,6 +190,7 @@ async def main() -> None:
     if args.demo:
         # Minimal demo: load local HTML and run a very small extraction path
         from pathlib import Path
+
         from .models.results import ScrapeResult
 
         demo_file = Path(__file__).resolve().parents[1] / "toscrape_com_book.html"
