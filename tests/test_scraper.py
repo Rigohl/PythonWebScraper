@@ -1,6 +1,7 @@
 import pytest
 import os
-from src.scraper import AdvancedScraper, ScrapeResult
+from src.scraper import AdvancedScraper
+from src.models.results import ScrapeResult
 
 
 @pytest.mark.asyncio

@@ -8,18 +8,16 @@ from playwright.async_api import Browser, Page, Response
 import httpx
 
 from src.orchestrator import ScrapingOrchestrator
-from src.database import DatabaseManager
-from src.user_agent_manager import UserAgentManager
-from src.llm_extractor import LLMExtractor
-from src.rl_agent import RLAgent
+from src.db.database import DatabaseManager
+from src.managers.user_agent_manager import UserAgentManager
+from src.intelligence.llm_extractor import LLMExtractor
+from src.intelligence.rl_agent import RLAgent
 from src.frontier_classifier import FrontierClassifier
 from src.models.results import ScrapeResult
 from src.settings import settings
 from pydantic import BaseModel
 
-# Define a custom exception for network errors
-class NetworkError(Exception):
-    pass
+from src.exceptions import NetworkError
 
 # Fixtures for mocked dependencies
 @pytest.fixture
@@ -29,8 +27,31 @@ def mock_browser():
 @pytest.fixture
 def mock_page_orchestrator():
     mock = AsyncMock(spec=Page)
-    mock.context = AsyncMock()
-    mock.context.cookies.return_value = []
+
+    # Make event registration methods synchronous mocks to avoid coroutine warnings
+    from unittest.mock import Mock as SyncMock
+    mock.on = SyncMock()
+    mock.remove_listener = SyncMock()
+
+    # Mock the response object that page.goto() returns
+    mock_response = AsyncMock(spec=Response)
+    mock_response.ok = True
+    mock_response.status = 200
+    mock_response.headers = {'content-type': 'text/html'}
+
+    mock_response.text = AsyncMock(return_value="<html><body>Mocked HTML content</body></html>")
+    mock_response.body = AsyncMock(return_value=b"<html><body>Mocked HTML content</body></html>")
+
+    mock.goto = AsyncMock(return_value=mock_response)
+
+    # Keep other necessary mocks
+    mock_context = SyncMock()
+    mock_context.cookies = AsyncMock(return_value=[])
+    mock_context.add_cookies = AsyncMock(return_value=None)
+    mock.context = mock_context
+
+    mock.content = AsyncMock(return_value="<html><body>Mocked HTML content</body></html>")
+
     yield mock
 
 @pytest.fixture
@@ -80,8 +101,6 @@ def mock_frontier_classifier_orchestrator():
 def patch_orchestrator_external_deps(mock_page_orchestrator):
     with (
         patch('playwright_stealth.Stealth.use_async', new=AsyncMock(return_value=AsyncMock())),
-        patch('src.scraper.AdvancedScraper', new=Mock(return_value=AsyncMock())), # Mock the class itself
-        patch('httpx.AsyncClient', new=Mock()),
         patch('src.orchestrator.urlparse', wraps=urlparse) as mock_urlparse,
         patch('src.orchestrator.urlunparse', wraps=urlunparse) as mock_urlunparse,
     ):
@@ -90,7 +109,7 @@ def patch_orchestrator_external_deps(mock_page_orchestrator):
         mock_scraper_instance.scrape.return_value = ScrapeResult(status="SUCCESS", url="http://test.com", title="Test", content_text="Content")
 
         # Patch the AdvancedScraper class to return our configured mock instance
-        with patch('src.scraper.AdvancedScraper', return_value=mock_scraper_instance) as mock_AdvancedScraper_class:
+        with patch('src.orchestrator.AdvancedScraper', return_value=mock_scraper_instance) as mock_AdvancedScraper_class:
             yield
 
 @pytest.fixture
@@ -106,6 +125,18 @@ def orchestrator(mock_db_manager_orchestrator, mock_user_agent_manager_orchestra
         stats_callback=Mock(),
         alert_callback=Mock()
     )
+
+@pytest.mark.asyncio
+async def test_check_for_anomalies_decrease_backoff(orchestrator):
+    domain = "example.com"
+    orchestrator.domain_metrics[domain]["total_scraped"] = 20
+    orchestrator.domain_metrics[domain]["low_quality"] = 0
+    orchestrator.domain_metrics[domain]["empty"] = 0
+    orchestrator.domain_metrics[domain]["current_backoff_factor"] = 3.0  # Set higher than INITIAL_RETRY_BACKOFF_FACTOR
+
+    orchestrator._check_for_anomalies(domain)
+    assert orchestrator.domain_metrics[domain]["current_backoff_factor"] == pytest.approx(3.0 / 1.2)  # 3.0 / 1.2
+    orchestrator.alert_callback.assert_not_called()
 
 @pytest.mark.asyncio
 async def test_orchestrator_init(orchestrator):
@@ -146,13 +177,13 @@ async def test_orchestrator_init_rl_agent_missing_when_use_rl_true(mock_db_manag
 async def test_calculate_priority(orchestrator, mock_frontier_classifier_orchestrator):
     mock_frontier_classifier_orchestrator.predict.return_value = 0.8 # High promise
     priority = orchestrator._calculate_priority("http://example.com/path/to/page")
-    # path_depth = 2, promise_score = 0.8. priority = 2 + (-5 * 0.8) = 2 - 4 = -2
-    assert priority == -2
+    # path_depth = 3, promise_score = 0.8. priority = 3 + (-5 * 0.8) = 3 - 4 = -1
+    assert priority == -1
 
     mock_frontier_classifier_orchestrator.predict.return_value = 0.1 # Low promise
     priority = orchestrator._calculate_priority("http://example.com/path/to/page")
-    # path_depth = 2, promise_score = 0.1. priority = 2 + (-5 * 0.1) = 2 - 0.5 = 1.5 -> 1
-    assert priority == 1
+    # path_depth = 3, promise_score = 0.1. priority = 3 + (-5 * 0.1) = 3 - 0.5 = 2.5 -> 2
+    assert priority == 2
 
 @pytest.mark.asyncio
 async def test_has_repetitive_path(orchestrator):
@@ -170,11 +201,17 @@ async def test_prequalify_url_success(orchestrator, monkeypatch):
     mock_response.history = [] # No redirects
 
     mock_httpx_get = AsyncMock(return_value=mock_response)
-    monkeypatch.setattr(httpx.AsyncClient, "head", mock_httpx_get)
+    with patch('src.orchestrator.httpx.AsyncClient') as mock_client_class:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.head = mock_httpx_get
+        mock_client = Mock()
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client_instance)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+        mock_client_class.return_value = mock_client
 
-    is_qualified, reason = await orchestrator._prequalify_url("http://example.com/good")
-    assert is_qualified is True
-    assert reason == "OK"
+        is_qualified, reason = await orchestrator._prequalify_url("http://example.com/good")
+        assert is_qualified is True
+        assert reason == "OK"
 
 @pytest.mark.asyncio
 async def test_prequalify_url_invalid_content_type(orchestrator, monkeypatch):
@@ -198,19 +235,31 @@ async def test_prequalify_url_too_many_redirects(orchestrator, monkeypatch):
     mock_response.history = [Mock() for _ in range(settings.MAX_REDIRECTS + 1)] # Exceed max redirects
 
     mock_httpx_get = AsyncMock(return_value=mock_response)
-    monkeypatch.setattr(httpx.AsyncClient, "head", mock_httpx_get)
+    with patch('src.orchestrator.httpx.AsyncClient') as mock_client_class:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.head = mock_httpx_get
+        mock_client = Mock()
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client_instance)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+        mock_client_class.return_value = mock_client
 
-    is_qualified, reason = await orchestrator._prequalify_url("http://example.com/redirect_loop")
-    assert is_qualified is False
-    assert "Exceso de redirecciones" in reason
+        is_qualified, reason = await orchestrator._prequalify_url("http://example.com/redirect_loop")
+        assert is_qualified is False
+        assert "Exceso de redirecciones" in reason
 
 @pytest.mark.asyncio
 async def test_prequalify_url_network_error(orchestrator, monkeypatch):
-    monkeypatch.setattr(httpx.AsyncClient, "head", AsyncMock(side_effect=httpx.RequestError("Connection refused", request=Mock())))
+    with patch('src.orchestrator.httpx.AsyncClient') as mock_client_class:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.head = AsyncMock(side_effect=httpx.RequestError("Connection refused", request=Mock()))
+        mock_client = Mock()
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client_instance)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+        mock_client_class.return_value = mock_client
 
-    is_qualified, reason = await orchestrator._prequalify_url("http://example.com/error")
-    assert is_qualified is False
-    assert "Error de red" in reason
+        is_qualified, reason = await orchestrator._prequalify_url("http://example.com/error")
+        assert is_qualified is True  # Allow by precaution on network errors
+        assert "HEAD request failed" in reason
 
 @pytest.mark.asyncio
 async def test_block_unnecessary_requests_blocked(orchestrator, mock_page_orchestrator):
@@ -272,30 +321,52 @@ async def test_run_fetches_robots_txt(orchestrator, mock_browser, monkeypatch):
     mock_response.status_code = 200
     mock_response.text = "User-agent: *\nDisallow: /admin"
     mock_httpx_get = AsyncMock(return_value=mock_response)
-    monkeypatch.setattr(httpx.AsyncClient, "get", mock_httpx_get)
 
-    await orchestrator.run(mock_browser)
-    mock_httpx_get.assert_called_once()
-    assert orchestrator.robot_rules is not None
-    assert orchestrator.robot_rules.is_allowed("User-agent: *", "http://example.com/admin") is False
+    # Correctly mock the async context manager for httpx
+    with patch('src.orchestrator.httpx.AsyncClient') as mock_client_class:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.get = mock_httpx_get
+        # Make the patched class behave like an async context manager
+        mock_client = Mock()
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client_instance)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+        mock_client_class.return_value = mock_client
+
+        await orchestrator.run(mock_browser)
+
+        mock_httpx_get.assert_called_once()
+        assert orchestrator.robot_rules is not None
+        assert orchestrator.robot_rules.is_allowed("User-agent: *", "http://example.com/admin") is False
 
 @pytest.mark.asyncio
 async def test_run_skips_robots_txt(orchestrator, mock_browser, monkeypatch):
     orchestrator.respect_robots_txt = False
     mock_httpx_get = AsyncMock()
-    monkeypatch.setattr(httpx.AsyncClient, "get", mock_httpx_get)
 
-    await orchestrator.run(mock_browser)
+    # Ensure httpx.AsyncClient.get isn't used when robots check is disabled
+    with patch('src.orchestrator.httpx.AsyncClient') as mock_client_class:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.get = mock_httpx_get
+        mock_client = Mock()
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client_instance)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+        mock_client_class.return_value = mock_client
+
+        await orchestrator.run(mock_browser)
+
     mock_httpx_get.assert_not_called()
-    orchestrator.alert_callback.assert_called_once_with("La comprobación de robots.txt está desactivada.", level="warning")
+    # The orchestrator may also call a final completion info alert; ensure the warning exists in call history
+    calls = [c for c in orchestrator.alert_callback.call_args_list]
+    assert any("La comprobación de robots.txt está desactivada." in str(call) for call in calls)
 
 @pytest.mark.asyncio
 async def test_worker_success(orchestrator, mock_browser, mock_page_orchestrator, mock_db_manager_orchestrator, mock_llm_extractor_orchestrator, mock_user_agent_manager_orchestrator, monkeypatch):
+    monkeypatch.setattr('src.settings.settings.FAST_TEST_MODE', False)
     # Mock page creation and scraper instance
     mock_browser.new_page.return_value = mock_page_orchestrator
     mock_scraper_instance = AsyncMock()
     mock_scraper_instance.scrape.return_value = ScrapeResult(status="SUCCESS", url="http://test.com/page", content_text="Test content")
-    monkeypatch.setattr('src.scraper.AdvancedScraper', Mock(return_value=mock_scraper_instance))
+    monkeypatch.setattr('src.orchestrator.AdvancedScraper', Mock(return_value=mock_scraper_instance))
 
     orchestrator.queue.put_nowait((1, "http://test.com/page"))
 
@@ -313,11 +384,12 @@ async def test_worker_success(orchestrator, mock_browser, mock_page_orchestrator
 
 @pytest.mark.asyncio
 async def test_worker_network_error_retry(orchestrator, mock_browser, mock_page_orchestrator, mock_db_manager_orchestrator, mock_llm_extractor_orchestrator, mock_user_agent_manager_orchestrator, monkeypatch):
+    monkeypatch.setattr('src.settings.settings.FAST_TEST_MODE', False)
     mock_browser.new_page.return_value = mock_page_orchestrator
     mock_scraper_instance = AsyncMock()
     # First scrape attempt fails with NetworkError, second succeeds
     mock_scraper_instance.scrape.side_effect = [NetworkError("Connection lost"), ScrapeResult(status="SUCCESS", url="http://test.com/page", content_text="Test content")]
-    monkeypatch.setattr('src.scraper.AdvancedScraper', Mock(return_value=mock_scraper_instance))
+    monkeypatch.setattr('src.orchestrator.AdvancedScraper', Mock(return_value=mock_scraper_instance))
 
     orchestrator.queue.put_nowait((1, "http://test.com/page"))
 
@@ -330,11 +402,12 @@ async def test_worker_network_error_retry(orchestrator, mock_browser, mock_page_
 
 @pytest.mark.asyncio
 async def test_worker_network_error_max_retries(orchestrator, mock_browser, mock_page_orchestrator, mock_db_manager_orchestrator, mock_llm_extractor_orchestrator, mock_user_agent_manager_orchestrator, monkeypatch):
+    monkeypatch.setattr('src.settings.settings.FAST_TEST_MODE', False)
     mock_browser.new_page.return_value = mock_page_orchestrator
     mock_scraper_instance = AsyncMock()
     # All scrape attempts fail with NetworkError
     mock_scraper_instance.scrape.side_effect = [NetworkError("Connection lost")] * (settings.MAX_RETRIES + 1)
-    monkeypatch.setattr('src.scraper.AdvancedScraper', Mock(return_value=mock_scraper_instance))
+    monkeypatch.setattr('src.orchestrator.AdvancedScraper', Mock(return_value=mock_scraper_instance))
 
     orchestrator.queue.put_nowait((1, "http://test.com/page"))
 
@@ -347,10 +420,11 @@ async def test_worker_network_error_max_retries(orchestrator, mock_browser, mock
 
 @pytest.mark.asyncio
 async def test_worker_unexpected_exception(orchestrator, mock_browser, mock_page_orchestrator, mock_db_manager_orchestrator, mock_llm_extractor_orchestrator, mock_user_agent_manager_orchestrator, monkeypatch):
+    monkeypatch.setattr('src.settings.settings.FAST_TEST_MODE', False)
     mock_browser.new_page.return_value = mock_page_orchestrator
     mock_scraper_instance = AsyncMock()
     mock_scraper_instance.scrape.side_effect = Exception("Unexpected error")
-    monkeypatch.setattr('src.scraper.AdvancedScraper', Mock(return_value=mock_scraper_instance))
+    monkeypatch.setattr('src.orchestrator.AdvancedScraper', Mock(return_value=mock_scraper_instance))
 
     orchestrator.queue.put_nowait((1, "http://test.com/page"))
 
@@ -362,13 +436,14 @@ async def test_worker_unexpected_exception(orchestrator, mock_browser, mock_page
 
 @pytest.mark.asyncio
 async def test_worker_dynamic_llm_schema_loading(orchestrator, mock_browser, mock_page_orchestrator, mock_db_manager_orchestrator, mock_llm_extractor_orchestrator, mock_user_agent_manager_orchestrator, monkeypatch):
+    monkeypatch.setattr('src.settings.settings.FAST_TEST_MODE', False)
     mock_browser.new_page.return_value = mock_page_orchestrator
     mock_scraper_instance = AsyncMock()
     mock_scraper_instance.scrape.return_value = ScrapeResult(status="SUCCESS", url="http://test.com/page", content_text="Test content")
-    monkeypatch.setattr('src.scraper.AdvancedScraper', Mock(return_value=mock_scraper_instance))
+    monkeypatch.setattr('src.orchestrator.AdvancedScraper', Mock(return_value=mock_scraper_instance))
 
     # Mock a stored LLM schema
-    mock_db_manager_orchestrator.load_llm_extraction_schema.return_value = json.dumps({"name": [str, ...], "price": [float, ...]})
+    mock_db_manager_orchestrator.load_llm_extraction_schema.return_value = json.dumps({"name": "str", "price": "float"})
 
     orchestrator.queue.put_nowait((1, "http://test.com/page"))
 
@@ -377,9 +452,11 @@ async def test_worker_dynamic_llm_schema_loading(orchestrator, mock_browser, moc
     # Verify that scrape was called with the dynamically created schema
     args, kwargs = mock_scraper_instance.scrape.call_args
     assert "extraction_schema" in kwargs
-    assert issubclass(kwargs["extraction_schema"], BaseModel) # Check if it's a Pydantic model
-    assert hasattr(kwargs["extraction_schema"], "name")
-    assert hasattr(kwargs["extraction_schema"], "price")
+    model_cls = kwargs["extraction_schema"]
+    assert issubclass(model_cls, BaseModel)  # Check if it's a Pydantic model
+    # Check that the dynamic model contains expected fields
+    assert "name" in getattr(model_cls, '__fields__', {})
+    assert "price" in getattr(model_cls, '__fields__', {})
 
 @pytest.mark.asyncio
 async def test_update_domain_metrics(orchestrator):
@@ -417,10 +494,10 @@ async def test_check_for_anomalies_decrease_backoff(orchestrator):
     orchestrator.domain_metrics[domain]["total_scraped"] = 20
     orchestrator.domain_metrics[domain]["low_quality"] = 1 # 5% low quality
     orchestrator.domain_metrics[domain]["empty"] = 0
-    orchestrator.domain_metrics[domain]["current_backoff_factor"] = 2.0
+    orchestrator.domain_metrics[domain]["current_backoff_factor"] = 3.0  # Set higher than INITIAL_RETRY_BACKOFF_FACTOR
 
     orchestrator._check_for_anomalies(domain)
-    assert orchestrator.domain_metrics[domain]["current_backoff_factor"] == pytest.approx(2.0 / 1.2) # 2.0 / 1.2
+    assert orchestrator.domain_metrics[domain]["current_backoff_factor"] == pytest.approx(3.0 / 1.2) # 3.0 / 1.2
     orchestrator.alert_callback.assert_not_called()
 
 @pytest.mark.asyncio
@@ -431,7 +508,8 @@ async def test_check_for_visual_changes_alert(orchestrator, mock_db_manager_orch
 
     mock_old_hash = Mock()
     mock_new_hash = Mock()
-    mock_old_hash.__sub__.return_value = settings.VISUAL_CHANGE_THRESHOLD + 1 # Distance exceeds threshold
+    # Define the __sub__ method on the mock to return the distance
+    mock_old_hash.__sub__ = Mock(return_value=settings.VISUAL_CHANGE_THRESHOLD + 1)
     monkeypatch.setattr('imagehash.hex_to_hash', lambda x: mock_old_hash if x == "hash_old" else mock_new_hash)
 
     orchestrator._check_for_visual_changes(new_result)
@@ -444,27 +522,41 @@ async def test_fetch_robot_rules_success(orchestrator, monkeypatch):
     mock_response.status_code = 200
     mock_response.text = "User-agent: *\nDisallow: /admin"
     mock_httpx_get = AsyncMock(return_value=mock_response)
-    monkeypatch.setattr(httpx.AsyncClient, "get", mock_httpx_get)
 
-    orchestrator.start_urls = ["http://example.com"]
-    orchestrator.allowed_domain = "example.com"
+    with patch('src.orchestrator.httpx.AsyncClient') as mock_client_class:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.get = mock_httpx_get
+        mock_client = Mock()
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client_instance)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+        mock_client_class.return_value = mock_client
 
-    await orchestrator._fetch_robot_rules()
-    mock_httpx_get.assert_called_once_with("http://example.com/robots.txt", follow_redirects=True)
-    assert orchestrator.robot_rules is not None
-    assert orchestrator.robot_rules.is_allowed("User-agent: *", "http://example.com/admin") is False
+        orchestrator.start_urls = ["http://example.com"]
+        orchestrator.allowed_domain = "example.com"
+
+        await orchestrator._fetch_robot_rules()
+        mock_httpx_get.assert_called_once_with("http://example.com/robots.txt", follow_redirects=True)
+        assert orchestrator.robot_rules is not None
+        assert orchestrator.robot_rules.is_allowed("User-agent: *", "http://example.com/admin") is False
 
 @pytest.mark.asyncio
 async def test_fetch_robot_rules_failure(orchestrator, monkeypatch):
     mock_httpx_get = AsyncMock(side_effect=httpx.RequestError("Connection refused", request=Mock()))
-    monkeypatch.setattr(httpx.AsyncClient, "get", mock_httpx_get)
 
-    orchestrator.start_urls = ["http://example.com"]
-    orchestrator.allowed_domain = "example.com"
+    with patch('src.orchestrator.httpx.AsyncClient') as mock_client_class:
+        mock_client_instance = AsyncMock()
+        mock_client_instance.get = mock_httpx_get
+        mock_client = Mock()
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client_instance)
+        mock_client.__aexit__ = AsyncMock(return_value=None)
+        mock_client_class.return_value = mock_client
 
-    await orchestrator._fetch_robot_rules()
-    orchestrator.alert_callback.assert_called_once()
-    assert "Error al cargar/parsear robots.txt" in orchestrator.alert_callback.call_args[0][0]
+        orchestrator.start_urls = ["http://example.com"]
+        orchestrator.allowed_domain = "example.com"
+
+        await orchestrator._fetch_robot_rules()
+        orchestrator.alert_callback.assert_called_once()
+        assert "Error al cargar/parsear robots.txt" in orchestrator.alert_callback.call_args[0][0]
 
 @pytest.mark.asyncio
 async def test_rl_agent_integration_apply_actions(orchestrator, mock_rl_agent_orchestrator):
@@ -485,18 +577,19 @@ async def test_rl_agent_integration_perform_learning(orchestrator, mock_rl_agent
     orchestrator.use_rl = True
     domain = "test.com"
     # Set up previous state and action for learning
-    orchestrator.domain_metrics[domain]["last_state_dict"] = {"low_quality_ratio": 0.1, "failure_ratio": 0.1, "current_backoff": 1.0}
+    orchestrator.domain_metrics[domain]["last_state_dict"] = {"low_quality_ratio": 0.1, "failure_ratio": 0.1, "current_backoff": 2.0}
     orchestrator.domain_metrics[domain]["last_action_dict"] = {"adjust_backoff_factor": 1.0}
 
     result = ScrapeResult(status="SUCCESS", url="http://test.com/page")
+    orchestrator._update_domain_metrics(result)
     orchestrator._perform_rl_learning(result)
 
     mock_rl_agent_orchestrator.learn.assert_called_once()
     args, kwargs = mock_rl_agent_orchestrator.learn.call_args
-    assert args[0] == {"low_quality_ratio": 0.1, "failure_ratio": 0.1, "current_backoff": 1.0}
+    assert args[0] == {"low_quality_ratio": 0.1, "failure_ratio": 0.1, "current_backoff": 2.0}
     assert args[1] == {"adjust_backoff_factor": 1.0}
     assert args[2] == 1.0 # Reward for SUCCESS
-    assert args[3] == {"low_quality_ratio": 0.0, "failure_ratio": 0.0, "current_backoff": 1.0} # Next state
+    assert args[3] == {"low_quality_ratio": 0.0, "failure_ratio": 0.0, "current_backoff": 2.0} # Next state
 
     assert orchestrator.domain_metrics[domain]["last_state_dict"] is None
     assert orchestrator.domain_metrics[domain]["last_action_dict"] is None

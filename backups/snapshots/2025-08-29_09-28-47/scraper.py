@@ -1,0 +1,158 @@
+import asyncio
+import logging
+import hashlib
+import json
+from datetime import datetime, timezone
+from readability import Document
+from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError, Locator
+import html2text
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
+import imagehash
+from PIL import Image
+import io
+from typing import Optional, List, Type
+from pydantic import BaseModel
+
+from src.settings import settings
+from src.database import DatabaseManager
+from src.llm_extractor import LLMExtractor
+from src.models.results import ScrapeResult
+from src.exceptions import NetworkError, ParsingError, ContentQualityError, ScraperException
+
+logger = logging.getLogger(__name__)
+
+class AdvancedScraper:
+    """Encapsula la lógica de scraping para una sola página, ahora con limpieza inteligente y auto-reparación."""
+
+    def __init__(self, page: Page, db_manager: DatabaseManager, llm_extractor: LLMExtractor):
+        self.page = page
+        self.db_manager = db_manager
+        self.llm_extractor = llm_extractor
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    async def scrape(self,
+                     url: str,
+                     extraction_schema: Optional[Type[BaseModel]] = None,
+                     ) -> ScrapeResult:
+        """Realiza el scraping, limpieza, extracción y validación de una URL."""
+        start_time = datetime.now(timezone.utc)
+
+        async def response_handler(response):
+            if response.request.resource_type in ["xhr", "fetch"] and "application/json" in response.headers.get("content-type", ""):
+                try:
+                    json_payload = await response.json()
+                    payload_str = json.dumps(json_payload, sort_keys=True)
+                    payload_hash = hashlib.sha256(payload_str.encode('utf-8')).hexdigest()
+                    self.db_manager.save_discovered_api(
+                        page_url=self.page.url,
+                        api_url=response.url,
+                        payload_hash=payload_hash
+                    )
+                except Exception as e:
+                    self.logger.debug(f"No se pudo procesar el payload JSON de la API {response.url}: {e}")
+
+        self.page.on("response", response_handler)
+
+        # Cookie Management - Load cookies before navigation
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc
+        if domain:
+            stored_cookies_json = self.db_manager.load_cookies(domain)
+            if stored_cookies_json:
+                try:
+                    stored_cookies = json.loads(stored_cookies_json)
+                    await self.page.context.add_cookies(stored_cookies)
+                    self.logger.info(f"Cookies cargadas para {domain}")
+                except json.JSONDecodeError as e:
+                    self.logger.error(f"Error al decodificar cookies para {domain}: {e}")
+
+        try:
+            response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            if response and response.status in settings.RETRYABLE_STATUS_CODES:
+                raise NetworkError(f"Estado reintentable: {response.status}")
+            await self.page.wait_for_load_state("networkidle", timeout=15000)
+
+            # Cookie Management - Save cookies after successful navigation
+            if domain:
+                current_cookies = await self.page.context.cookies()
+                if current_cookies:
+                    self.db_manager.save_cookies(domain, json.dumps(current_cookies))
+                    self.logger.info(f"Cookies guardadas para {domain}")
+
+            full_html = await self.page.content()
+            doc = Document(full_html)
+            title = doc.title()
+            content_html = doc.summary()
+
+            h = html2text.HTML2Text()
+            h.ignore_links = True
+            h.ignore_images = True
+            raw_text = h.handle(content_html).strip()
+
+            cleaned_text = await self.llm_extractor.clean_text_content(raw_text)
+
+            self._validate_content_quality(cleaned_text, title)
+            content_hash = hashlib.sha256(cleaned_text.encode('utf-8')).hexdigest()
+
+            soup = BeautifulSoup(content_html, 'html.parser')
+            visible_links = [urljoin(url, a['href']) for a in soup.find_all('a', href=True) if 'display: none' not in a.get('style', '').lower()]
+            screenshot = await self.page.screenshot()
+            visual_hash = str(imagehash.phash(Image.open(io.BytesIO(screenshot))))
+
+            # Structured Extraction with LLM
+            extracted_data = None
+            if extraction_schema: # Use the dynamically loaded schema from orchestrator
+                llm_extracted = await self.llm_extractor.extract_structured_data(full_html, extraction_schema)
+                if llm_extracted:
+                    extracted_data = llm_extracted.model_dump() # Store as dict
+
+            # Healing events are no longer applicable with LLM structured extraction, set to empty list
+            healing_events = []
+
+            end_time = datetime.now(timezone.utc)
+            return ScrapeResult(
+                status="SUCCESS", url=url, title=title, content_text=cleaned_text, content_html=content_html,
+                links=visible_links, visual_hash=visual_hash, content_hash=content_hash,
+                http_status_code=response.status if response else None,
+                crawl_duration=(end_time - start_time).total_seconds(),
+                content_type=self._classify_content(title, cleaned_text),
+                extracted_data=extracted_data, # Populated by LLM
+                healing_events=healing_events
+            )
+
+        except (PlaywrightTimeoutError, NetworkError) as e:
+            self.logger.warning(f"Error de red o timeout en scrape de {url}: {e}")
+            return ScrapeResult(status="RETRY", url=url, error_message=str(e), retryable=True)
+        except (ParsingError, ContentQualityError) as e:
+            self.logger.error(f"Error de parseo o calidad de contenido en scrape de {url}: {e}")
+            return ScrapeResult(status="FAILED", url=url, error_message=str(e))
+        except Exception as e:
+            self.logger.error(f"Error inesperado en scrape de {url}: {e}", exc_info=True)
+            return ScrapeResult(status="FAILED", url=url, error_message=f"Error inesperado: {e}")
+        finally:
+            self.page.remove_listener("response", response_handler)
+
+    def _validate_content_quality(self, text: Optional[str], title: Optional[str]):
+        """Valida la calidad del contenido extraído y limpio."""
+        if not text:
+            raise ContentQualityError("El contenido extraído está vacío después de la limpieza.")
+        if len(text) < settings.MIN_CONTENT_LENGTH:
+            raise ContentQualityError(f"El contenido es demasiado corto ({len(text)} caracteres).")
+        for phrase in settings.FORBIDDEN_PHRASES:
+            if phrase in text.lower() or (title and phrase in title.lower()):
+                raise ContentQualityError(f"Contenido parece ser una página de error (contiene: '{phrase}').")
+
+    def _classify_content(self, title: Optional[str], content_text: Optional[str]) -> str:
+        """Clasifica el contenido de la página basado en palabras clave."""
+        title_lower = title.lower() if title else ""
+        content_lower = content_text.lower() if content_text else ""
+        if "producto" in title_lower or "comprar" in title_lower or "precio" in content_lower or "añadir al carrito" in content_lower:
+            return "PRODUCT"
+        if "blog" in title_lower or "articulo" in title_lower or "noticia" in title_lower or "leer más" in content_lower:
+            return "BLOG_POST"
+        if "guia" in title_lower or "tutorial" in title_lower:
+            return "ARTICLE"
+        if content_text and len(content_text) > settings.MIN_CONTENT_LENGTH:
+            return "GENERAL"
+        return "UNKNOWN"
