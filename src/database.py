@@ -286,6 +286,16 @@ class DatabaseManager:
         except Exception as e:
             logger.warning(f"Error while post-checking duplicates for {result.url}: {e}")
 
+    # ------------------------------------------------------------------
+    # Backwards compatibility wrappers
+    # ------------------------------------------------------------------
+    def save_scrape_result(self, result: ScrapeResult) -> None:
+        """Compatibility shim for older callers that expect `save_scrape_result`.
+
+        Delegates to :meth:`save_result`.
+        """
+        return self.save_result(result)
+
     def get_result_by_url(self, url: str) -> Optional[Dict[str, Any]]:
         """Fetch a stored result by URL and deserialise JSON fields."""
         row = self.table.find_one(url=url)
@@ -357,16 +367,18 @@ class DatabaseManager:
         Returns:
             A list of deserialised results matching the query.
         """
-        # Use SQLAlchemy for case-insensitive search
-        query_lower = query.lower()
-        all_results = self.list_results()
-        matching_results = []
-        for result in all_results:
-            title = result.get('title', '').lower()
-            content = result.get('content_text', '').lower()
-            if query_lower in title or query_lower in content:
-                matching_results.append(result)
-        return matching_results
+        # Use dataset's query capabilities for efficient searching
+        # This avoids loading the entire table into memory.
+        # The `ilike` operator provides case-insensitive matching.
+        from sqlalchemy import or_
+        
+        table = self.db.load_table(self.table.name)
+        # Using raw SQLAlchemy for a more complex OR query
+        statement = table.table.select().where(
+            or_(table.table.c.title.ilike(f"%{query}%"), table.table.c.content_text.ilike(f"%{query}%"))
+        )
+        rows = self.db.query(statement)
+        return [self._deserialize_row(dict(row)) for row in rows]
 
     # ------------------------------------------------------------------
     # Internal helper methods

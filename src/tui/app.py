@@ -7,9 +7,9 @@ from textual.widgets import (
 from textual.logging import TextualHandler
 from textual.worker import Worker, WorkerState
 
-from src.settings import settings
-from src.main import setup_logging
-from src.runner import run_crawler
+from ..settings import settings
+from ..main import setup_logging
+from ..runner import run_crawler
 
 
 # New widget for displaying alerts

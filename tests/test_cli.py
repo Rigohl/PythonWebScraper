@@ -76,7 +76,7 @@ async def test_cli_crawl_and_export(http_server):
     """
     import tempfile
     import os
-    
+
     # Use a regular temp directory that won't auto-cleanup to avoid Windows permission issues
     temp_dir = tempfile.mkdtemp(prefix="test_cli_")
     try:
@@ -127,7 +127,7 @@ async def test_cli_crawl_and_export_json(http_server):
     """
     import tempfile
     import os
-    
+
     # Use a regular temp directory that won't auto-cleanup to avoid Windows permission issues
     temp_dir = tempfile.mkdtemp(prefix="test_cli_json_")
     try:

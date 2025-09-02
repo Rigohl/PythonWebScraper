@@ -24,7 +24,7 @@ import logging
 import os
 from typing import Optional
 
-from .db.database import DatabaseManager
+from .database import DatabaseManager
 from .settings import settings
 
 
@@ -123,6 +123,9 @@ async def main() -> None:
     parser.add_argument(
         "--use-rl", action="store_true", help="Activa el agente de Aprendizaje por Refuerzo para optimización dinámica.",
     )
+    parser.add_argument(
+        "--demo", action="store_true", help="Ejecuta un modo demo ligero que procesa un fichero HTML local sin requerir Playwright.",
+    )
     args = parser.parse_args()
     setup_logging(log_file_path=args.log_file)
 
@@ -143,6 +146,65 @@ async def main() -> None:
     # Launch crawler
     if args.crawl:
         await _handle_crawl(args)
+        return
+
+    # Demo mode: run a simple local-html based scraping flow without Playwright
+    if args.demo:
+        # Minimal demo: load local HTML and run a very small extraction path
+        from pathlib import Path
+        from .models.results import ScrapeResult
+
+        demo_file = Path(__file__).resolve().parents[1] / "toscrape_com_book.html"
+        if not demo_file.exists():
+            logging.error("Archivo demo no encontrado: %s", str(demo_file))
+            return
+
+        html = demo_file.read_text(encoding="utf-8")
+
+        # Very small, dependency-free extraction: grab title and first <p>
+        try:
+            from bs4 import BeautifulSoup
+        except Exception:
+            logging.error("Para ejecutar el modo demo es necesario 'beautifulsoup4' en el entorno. Instálalo con: pip install beautifulsoup4")
+            return
+
+        soup = BeautifulSoup(html, "html.parser")
+        title = soup.title.string if soup.title else "(sin título)"
+        first_p = soup.find("p")
+        content = first_p.get_text(strip=True) if first_p else "(sin contenido)"
+
+        result = ScrapeResult(status="SUCCESS", url=str(demo_file), title=title, content_text=content, content_html=str(first_p or ""), links=[a.get('href') for a in soup.find_all('a', href=True)], visual_hash="demo", content_hash="demo_hash", http_status_code=200, crawl_duration=0.0, content_type="DEMO", extracted_data=None, healing_events=[])
+        logging.info("Resultado demo:\nTitle: %s\nContent snippet: %s", title, content[:200])
+        # Persist if DB available; also write JSON to artifacts for visibility
+        wrote_to_db = False
+        try:
+            db = DatabaseManager(db_path=args.db_path)
+            try:
+                db.save_scrape_result(result)
+                logging.info("Resultado demo guardado en la base de datos: %s", args.db_path)
+                wrote_to_db = True
+            except Exception as exc:  # pragma: no cover - best-effort
+                logging.debug("No se pudo guardar resultado demo en BD: %s", exc)
+        except Exception:
+            logging.debug("No se pudo inicializar DatabaseManager para persistencia demo.")
+
+        # Always write a JSON fallback in artifacts so the user can inspect the demo output
+        try:
+            import json
+            artifacts_dir = Path(__file__).resolve().parents[1] / "artifacts"
+            artifacts_dir.mkdir(parents=True, exist_ok=True)
+            demo_out = artifacts_dir / "demo_result.json"
+            with demo_out.open("w", encoding="utf-8") as fh:
+                json.dump({
+                    "title": title,
+                    "content": content,
+                    "url": str(demo_file),
+                    "links": [a.get('href') for a in soup.find_all('a', href=True)],
+                    "saved_to_db": wrote_to_db,
+                }, fh, ensure_ascii=False, indent=2)
+            logging.info("Resultado demo escrito a: %s", str(demo_out))
+        except Exception as exc:  # pragma: no cover - best-effort
+            logging.debug("No se pudo escribir artifacts/demo_result.json: %s", exc)
         return
 
     # If no action is provided, print help and exit

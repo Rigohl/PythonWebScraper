@@ -5,12 +5,12 @@ from typing import Optional, Callable
 
 from playwright.async_api import async_playwright
 
-from .db.database import DatabaseManager
-from .intelligence.llm_extractor import LLMExtractor
+from .database import DatabaseManager
+from .llm_extractor import LLMExtractor
 from .orchestrator import ScrapingOrchestrator
-from .intelligence.rl_agent import RLAgent
+from .rl_agent import RLAgent
 from .settings import settings
-from .managers.user_agent_manager import UserAgentManager
+from .user_agent_manager import UserAgentManager
 
 
 async def run_crawler(

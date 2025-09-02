@@ -127,7 +127,7 @@ def fetch(url: str, limiter: RateLimiter, retrier: Retrier, metrics: MetricsLogg
             if metrics: metrics.log(url, host, status or 0, dt, attempt, content_len, error=err)
             retryable = (status in (429,500,502,503,504)) or ("timed out" in (err or "").lower())
             if attempt < retrier.max_retries and retryable:
-                time.sleep(Retrier({"default":{"max_retries":0,"timeout_s":0}}).backoff(attempt)); continue
+                time.sleep(retrier.backoff(attempt)); continue
             return None
 
 def build_runtime():
