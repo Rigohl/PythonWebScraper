@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -57,9 +57,14 @@ class Settings(BaseSettings):
 
     # --- Anomaly detection configuration ---
     ANOMALY_THRESHOLD_LOW_QUALITY: float = 0.3
+    # --- Deduplication / fuzzy matching ---
+    # Jaccard similarity threshold used by the fuzzy deduplication routine in DatabaseManager
+    DUPLICATE_SIMILARITY_THRESHOLD: float = 0.6
 
     # --- LLM configuration ---
-    LLM_API_KEY: str = "YOUR_LLM_API_KEY_HERE"
+    # LLM API key should be provided via environment variables or a secure
+    # secrets manager. Default to None to avoid accidental check-ins of keys.
+    LLM_API_KEY: Optional[str] = None
     # Name of the LLM model to call. Required by ``LLMExtractor``. Defaults to
     # gpt‑3.5‑turbo for broad compatibility. You can override this in your
     # environment or ``.env`` file.
@@ -69,8 +74,12 @@ class Settings(BaseSettings):
     # By default we want a fast, fully local scraper experience, so all
     # potentially restrictive / external‑call features start disabled.
     ROBOTS_ENABLED: bool = False  # Respect robots.txt if True
-    ETHICS_CHECKS_ENABLED: bool = False  # Placeholder for future ethical / compliance filters
-    OFFLINE_MODE: bool = True  # If True, never call remote LLM APIs even if keys are present
+    ETHICS_CHECKS_ENABLED: bool = (
+        False  # Placeholder for future ethical / compliance filters
+    )
+    OFFLINE_MODE: bool = (
+        True  # If True, never call remote LLM APIs even if keys are present
+    )
     # Accelerated test mode (skips network HEAD prequalification & long stealth)
     FAST_TEST_MODE: bool = False
 

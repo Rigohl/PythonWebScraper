@@ -41,7 +41,11 @@ class DatabaseManager:
     When a path is provided the directory is created if it does not exist.
     """
 
-    def __init__(self, db_path: Optional[str] = None, db_connection: Optional[dataset.Database] = None) -> None:
+    def __init__(
+        self,
+        db_path: Optional[str] = None,
+        db_connection: Optional[dataset.Database] = None,
+    ) -> None:
         if db_connection is not None:
             self.db = db_connection
         elif db_path is not None:
@@ -56,6 +60,14 @@ class DatabaseManager:
         self.apis_table = self.db["discovered_apis"]
         self.cookies_table = self.db["cookies"]
         self.llm_schemas_table = self.db["llm_extraction_schemas"]
+        # Ensure common indexes exist to improve query performance for dedup checks
+        try:
+            self._ensure_indexes()
+        except Exception:
+            # Don't fail construction if index creation is not possible
+            logger.debug(
+                "No se pudieron crear índices en la base de datos (entorno restringido)."
+            )
 
     # ------------------------------------------------------------------
     # Context manager API
@@ -68,14 +80,55 @@ class DatabaseManager:
         # explicitly when using a context manager for clarity.  Any exception
         # raised during exit is suppressed and must be handled by the caller.
         try:
-            self.db.executable.close()
+            # Use SQLAlchemy engine dispose if available to close connections cleanly
+            if hasattr(self.db, "engine") and getattr(self.db, "engine") is not None:
+                try:
+                    self.db.engine.dispose()
+                except Exception:
+                    # Best-effort fallback
+                    pass
+            # dataset.Database exposes .executable in some versions; attempt to close if present
+            if (
+                hasattr(self.db, "executable")
+                and getattr(self.db, "executable") is not None
+            ):
+                try:
+                    self.db.executable.close()
+                except Exception:
+                    pass
         except Exception:
             pass
+
+    def _ensure_indexes(self) -> None:
+        """Create helpful indexes for deduplication and lookups (best-effort).
+
+        This method runs lightweight SQL commands to create indexes if the
+        underlying engine supports executing raw SQL. It's intentionally
+        tolerant to keep the manager usable in restricted environments.
+        """
+        try:
+            # Only operate for SQLite/SQLAlchemy engines where `execute` is available
+            if hasattr(self.db, "engine") and self.db.engine is not None:
+                # Pages table: index on content_hash, normalized_content_hash and url
+                with self.db.engine.begin() as conn:  # type: ignore[attr-defined]
+                    conn.execute(
+                        "CREATE INDEX IF NOT EXISTS idx_pages_content_hash ON pages(content_hash);"
+                    )
+                    conn.execute(
+                        "CREATE INDEX IF NOT EXISTS idx_pages_normalized_content_hash ON pages(normalized_content_hash);"
+                    )
+                    conn.execute(
+                        "CREATE INDEX IF NOT EXISTS idx_pages_url ON pages(url);"
+                    )
+        except Exception as e:
+            logger.debug(f"_ensure_indexes failed: {e}")
 
     # ------------------------------------------------------------------
     # Discovered APIs and cookies
     # ------------------------------------------------------------------
-    def save_discovered_api(self, page_url: str, api_url: str, payload_hash: str) -> None:
+    def save_discovered_api(
+        self, page_url: str, api_url: str, payload_hash: str
+    ) -> None:
         """Insert or update a discovered API call.
 
         Duplicate entries are avoided by using a composite key of
@@ -133,7 +186,9 @@ class DatabaseManager:
         logger.info(f"Saving result for URL: {result.url} (status={result.status})")
         # Deduplication: mark as duplicate if another URL has the same content hash
         if result.content_hash:
-            logger.debug(f"Checking deduplication for {result.url} with hash {result.content_hash}")
+            logger.debug(
+                f"Checking deduplication for {result.url} with hash {result.content_hash}"
+            )
             try:
                 existing = self.table.find_one(content_hash=result.content_hash)
             except Exception as e:
@@ -171,12 +226,30 @@ class DatabaseManager:
         if words:
             import hashlib as _hashlib
 
-            normalized_hash = _hashlib.sha256(" ".join(sorted(words)).encode("utf-8")).hexdigest()
-            logger.debug(f"Computed normalized hash for {result.url}: {normalized_hash}")
+            normalized_hash = _hashlib.sha256(
+                " ".join(sorted(words)).encode("utf-8")
+            ).hexdigest()
+            logger.debug(
+                f"Computed normalized hash for {result.url}: {normalized_hash}"
+            )
             # Jaccard similarity threshold (configurable via settings if desired)
-            threshold = getattr(__import__("src.settings", fromlist=["settings"]).settings, "DUPLICATE_SIMILARITY_THRESHOLD", 0.6)
+            threshold = getattr(
+                __import__("src.settings", fromlist=["settings"]).settings,
+                "DUPLICATE_SIMILARITY_THRESHOLD",
+                0.6,
+            )
             try:
-                for row in self.table.all():
+                # Limit the number of rows scanned for fuzzy deduplication to avoid
+                # O(N^2) behavior on large tables. We prioritise recent rows by
+                # ordering by an assumed `scraped_at` timestamp if present, and
+                # fall back to scanning up to 1000 rows.
+                try:
+                    rows_iter = self.db.query(
+                        f"SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT 1000"
+                    )
+                except Exception:
+                    rows_iter = list(self.table.limit(1000))
+                for row in rows_iter:
                     try:
                         existing_text = row.get("content_text") or ""
                     except Exception:
@@ -191,15 +264,20 @@ class DatabaseManager:
                     intersection = words.intersection(existing_words)
                     union = words.union(existing_words)
                     jaccard = len(intersection) / len(union) if union else 0
-                    logger.debug(f"Jaccard between {result.url} and {row.get('url')}: {jaccard:.6f}")
+                    logger.debug(
+                        f"Jaccard between {result.url} and {row.get('url')}: {jaccard:.6f}"
+                    )
                     if jaccard >= threshold and row.get("url") != result.url:
-                        existing_url = row.get('url')
-                        logger.debug(f"Candidate similar existing URL: {existing_url} (jaccard={jaccard:.2f}) vs {result.url}")
+                        existing_url = row.get("url")
+                        logger.debug(
+                            f"Candidate similar existing URL: {existing_url} (jaccard={jaccard:.2f}) vs {result.url}"
+                        )
+
                         # Decide canonical/original URL deterministically:
                         def prefer_url(a: str, b: str) -> str:
                             # Prefer URLs that don't contain 'clone'
-                            a_clone = 'clone' in a.lower()
-                            b_clone = 'clone' in b.lower()
+                            a_clone = "clone" in a.lower()
+                            b_clone = "clone" in b.lower()
                             if a_clone != b_clone:
                                 return b if a_clone else a
                             # Prefer shorter path (likely original)
@@ -222,10 +300,12 @@ class DatabaseManager:
                             try:
                                 existing_row = self.table.find_one(url=existing_url)
                                 if existing_row:
-                                    existing_row['status'] = 'DUPLICATE'
-                                    self.table.update(existing_row, ['url'])
+                                    existing_row["status"] = "DUPLICATE"
+                                    self.table.update(existing_row, ["url"])
                             except Exception as e:
-                                logger.debug(f"Could not retroactively mark existing duplicate {existing_url}: {e}")
+                                logger.debug(
+                                    f"Could not retroactively mark existing duplicate {existing_url}: {e}"
+                                )
                         break
             except Exception as e:
                 logger.debug(f"Error during fuzzy deduplication check: {e}")
@@ -257,7 +337,7 @@ class DatabaseManager:
             if result.content_hash:
                 for row in self.table.find(content_hash=result.content_hash):
                     try:
-                        row_url = row.get('url')
+                        row_url = row.get("url")
                     except Exception:
                         row_url = None
                     if row_url and row_url != result.url:
@@ -284,7 +364,9 @@ class DatabaseManager:
             except Exception as e:
                 logger.warning(f"Could not confirm saved row for {result.url}: {e}")
         except Exception as e:
-            logger.warning(f"Error while post-checking duplicates for {result.url}: {e}")
+            logger.warning(
+                f"Error while post-checking duplicates for {result.url}: {e}"
+            )
 
     # ------------------------------------------------------------------
     # Backwards compatibility wrappers
@@ -318,7 +400,9 @@ class DatabaseManager:
         results_iterator = self.table.find(status="SUCCESS")
         first = next(results_iterator, None)
         if first is None:
-            logger.warning("No hay datos con estado 'SUCCESS' para exportar. No se creará ningún archivo.")
+            logger.warning(
+                "No hay datos con estado 'SUCCESS' para exportar. No se creará ningún archivo."
+            )
             return
 
         import csv
@@ -344,7 +428,9 @@ class DatabaseManager:
 
         results = self.list_results()
         if not results:
-            logger.warning("No hay datos para exportar a JSON. No se creará ningún archivo.")
+            logger.warning(
+                "No hay datos para exportar a JSON. No se creará ningún archivo."
+            )
             return
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=4, ensure_ascii=False)
@@ -371,11 +457,14 @@ class DatabaseManager:
         # This avoids loading the entire table into memory.
         # The `ilike` operator provides case-insensitive matching.
         from sqlalchemy import or_
-        
+
         table = self.db.load_table(self.table.name)
         # Using raw SQLAlchemy for a more complex OR query
         statement = table.table.select().where(
-            or_(table.table.c.title.ilike(f"%{query}%"), table.table.c.content_text.ilike(f"%{query}%"))
+            or_(
+                table.table.c.title.ilike(f"%{query}%"),
+                table.table.c.content_text.ilike(f"%{query}%"),
+            )
         )
         rows = self.db.query(statement)
         return [self._deserialize_row(dict(row)) for row in rows]
