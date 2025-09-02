@@ -4,6 +4,8 @@ pause
 
 setlocal enabledelayedexpansion
 
+echo [INFO] Si deseas probar rapidamente sin instalar Playwright, ejecuta: python -m src.main --demo
+
 REM --- Verificaciones Previas ---
 echo [INFO] Verificando que el script se ejecute desde la raiz del proyecto...
 if not exist "requirements.txt" (

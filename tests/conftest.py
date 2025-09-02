@@ -81,97 +81,111 @@ def html_file():
 @pytest.fixture
 def http_server():
     """A local HTTP server fixture for integration tests."""
-    import asyncio
-    import aiohttp
-    from aiohttp import web
+    import threading
+    import time
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    import socket
 
-    async def create_server():
-        async def index_handler(request):
-            return web.Response(text="""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Test Site</title></head>
-            <body>
-                <h1>Test Index</h1>
-                <a href="/page1.html">Page 1</a>
-                <a href="/page2.html">Page 2</a>
-            </body>
-            </html>
-            """, content_type='text/html')
+    class TestHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path in ['/', '/index.html']:
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"""
+                <!DOCTYPE html>
+                <html>
+                <head><title>Test Site</title></head>
+                <body>
+                    <h1>Test Index</h1>
+                    <a href="/page1.html">Page 1</a>
+                    <a href="/page2.html">Page 2</a>
+                </body>
+                </html>
+                """)
+            elif self.path == '/page1.html':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"""
+                <!DOCTYPE html>
+                <html>
+                <head><title>Page 1</title></head>
+                <body>
+                    <h1>Page 1</h1>
+                    <p>This is page 1 content.</p>
+                </body>
+                </html>
+                """)
+            elif self.path == '/page2.html':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"""
+                <!DOCTYPE html>
+                <html>
+                <head><title>Page 2</title></head>
+                <body>
+                    <h1>Page 2</h1>
+                    <p>This is page 2 content.</p>
+                </body>
+                </html>
+                """)
+            elif self.path == '/index_with_clone.html':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"""
+                <!DOCTYPE html>
+                <html>
+                <head><title>Test Site with Clone</title></head>
+                <body>
+                    <h1>Test Index with Clone</h1>
+                    <a href="/page1.html">Page 1</a>
+                    <a href="/page1_clone.html">Page 1 Clone</a>
+                </body>
+                </html>
+                """)
+            elif self.path == '/page1_clone.html':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"""
+                <!DOCTYPE html>
+                <html>
+                <head><title>Page 1 Clone</title></head>
+                <body>
+                    <h1>Page 1 Clone</h1>
+                    <p>This is identical content to page 1.</p>
+                </body>
+                </html>
+                """)
+            else:
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"Page not found")
 
-        async def page1_handler(request):
-            return web.Response(text="""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Page 1</title></head>
-            <body>
-                <h1>Page 1</h1>
-                <p>This is page 1 content.</p>
-            </body>
-            </html>
-            """, content_type='text/html')
+        def log_message(self, format, *args):
+            # Suppress server logs
+            pass
 
-        async def page2_handler(request):
-            return web.Response(text="""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Page 2</title></head>
-            <body>
-                <h1>Page 2</h1>
-                <p>This is page 2 content.</p>
-            </body>
-            </html>
-            """, content_type='text/html')
+    # Find an available port
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('', 0))
+        port = s.getsockname()[1]
 
-        async def index_with_clone_handler(request):
-            return web.Response(text="""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Test Site with Clone</title></head>
-            <body>
-                <h1>Test Index with Clone</h1>
-                <a href="/page1.html">Page 1</a>
-                <a href="/page1_clone.html">Page 1 Clone</a>
-            </body>
-            </html>
-            """, content_type='text/html')
+    server = HTTPServer(('localhost', port), TestHandler)
+    server_thread = threading.Thread(target=server.serve_forever, daemon=True)
+    server_thread.start()
 
-        async def page1_clone_handler(request):
-            return web.Response(text="""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Page 1 Clone</title></head>
-            <body>
-                <h1>Page 1 Clone</h1>
-                <p>This is identical content to page 1.</p>
-            </body>
-            </html>
-            """, content_type='text/html')
+    # Give the server a moment to start
+    time.sleep(0.1)
 
-        app = web.Application()
-        app.router.add_get('/', index_handler)
-        app.router.add_get('/index.html', index_handler)
-        app.router.add_get('/page1.html', page1_handler)
-        app.router.add_get('/page2.html', page2_handler)
-        app.router.add_get('/index_with_clone.html', index_with_clone_handler)
-        app.router.add_get('/page1_clone.html', page1_clone_handler)
-
-        runner = web.AppRunner(app)
-        await runner.setup()
-
-        site = web.TCPSite(runner, 'localhost', 0)  # Use port 0 for auto-assignment
-        await site.start()
-
-        # Get the actual port
-        port = site._server.sockets[0].getsockname()[1]
-        base_url = f"http://localhost:{port}"
-
-        return base_url, runner
-
-    # Run the async server creation
-    base_url, runner = asyncio.run(create_server())
+    base_url = f"http://localhost:{port}"
 
     yield base_url
 
     # Cleanup
-    asyncio.run(runner.cleanup())
+    server.shutdown()
+    server.server_close()
+    server_thread.join(timeout=1.0)

@@ -1,6 +1,6 @@
 import os
-from src.frontier_classifier import FrontierClassifier
-from src.generate_frontier_dataset import generate_dummy_frontier_dataset
+from .frontier_classifier import FrontierClassifier
+from .generate_frontier_dataset import generate_dummy_frontier_dataset
 
 def train_dummy_classifier(dataset_path: str = "data/frontier_dataset.csv", model_output_path: str = "models/frontier_classifier_model.pkl"):
     """

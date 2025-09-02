@@ -23,6 +23,10 @@ async def test_run_crawler_basic_execution(
     mock_pw_instance.chromium.launch.return_value = mock_browser
     mock_async_playwright.return_value.__aenter__.return_value = mock_pw_instance
 
+    # --- Configuración del Mock del Orquestador ---
+    mock_orchestrator_instance = AsyncMock()
+    mock_orchestrator.return_value = mock_orchestrator_instance
+
     # --- Parámetros de la prueba ---
     start_urls = ["http://test.com"]
     db_path = "test.db"
@@ -59,7 +63,7 @@ async def test_run_crawler_basic_execution(
     mock_browser.close.assert_called_once()
 
     # Verificar que el orquestador se ejecutó
-    mock_orchestrator.return_value.run.assert_called_once_with(mock_browser)
+    mock_orchestrator_instance.run.assert_called_once_with(mock_browser)
 
 
 @patch('src.runner.DatabaseManager')
@@ -79,6 +83,10 @@ async def test_run_crawler_with_rl(
     mock_browser = AsyncMock()
     mock_pw_instance.chromium.launch.return_value = mock_browser
     mock_async_playwright.return_value.__aenter__.return_value = mock_pw_instance
+
+    # --- Configuración del Mock del Orquestador ---
+    mock_orchestrator_instance = AsyncMock()
+    mock_orchestrator.return_value = mock_orchestrator_instance
 
     # --- Ejecución ---
     await run_crawler(

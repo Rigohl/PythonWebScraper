@@ -25,22 +25,28 @@ Un crawler y archivador web inteligente, diseñado para ser adaptable, resilient
     ```
 
 2. **Lanzar la Aplicación:**
-    Una vez instaladas las dependencias, puedes ejecutar el scraper.
+  Una vez instaladas las dependencias, puedes ejecutar el scraper.
 
-    **En Windows (usando el script de lanzamiento):**
+  Modo demo (sin Playwright): útil para probar rápidamente sin instalar navegadores.
 
-    ```powershell
-    .\2-Launch-Scraper.bat
-    ```
+  ```powershell
+  python -m src.main --demo
+  ```
 
-    **En Linux o macOS (manualmente):**
+  **En Windows (script de lanzamiento legado):**
 
-    ```bash
-    # 1. Activa el entorno virtual
-    source .venv/bin/activate
-    # 2. Lanza la TUI
-    python3 -m src.main --tui
-    ```
+  ```powershell
+  .\backups\files\backup_2-Launch-Scraper.bat
+  ```
+
+  **En Linux o macOS (manualmente):**
+
+  ```bash
+  # 1. Activa el entorno virtual
+  source .venv/bin/activate
+  # 2. Lanza la TUI
+  python3 -m src.main --tui
+  ```
 
 3. **(Opcional) Ejecución por Línea de Comandos (CLI):**
     Para automatización, también puedes ejecutarlo directamente (asegúrate de tener el entorno virtual activado).
@@ -195,5 +201,12 @@ El proceso de scraping es gestionado por un orquestador concurrente:
 
   - Windows (legacy): `backups\\files\\backup_1-Install-Dependencies.bat`
   - Lanzar scraper (legacy): `backups\\files\\backup_2-Launch-Scraper.bat`
+
+Alternatively, install dependencies manually and run the demo mode:
+
+```powershell
+python -m pip install -r requirements.txt
+python -m src.main --demo
+```
 
 > Nota: Los scripts de instalación y lanzamiento legacy se han movido a `backups/files/` para mantener la raíz del repo más limpia. Revisa `backups/README.md` para más detalles.

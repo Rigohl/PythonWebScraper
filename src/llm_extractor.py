@@ -155,45 +155,6 @@ class LLMExtractor:
     # ------------------------------------------------------------------
     # Backwards compatibility (legacy sync API expected by some tests)
     # ------------------------------------------------------------------
-    def extract(self, html_content: str, response_model: Type[T]) -> T:
-        """Synchronous wrapper retained for backwards compatibility.
-
-        Older code/tests call ``extract(...)`` synchronously. The new
-        implementation provides the richer async method
-        ``extract_structured_data``; however to avoid refactoring every
-        caller we expose this thin sync facade which performs the same
-        zero‑shot structured extraction when an online client is available
-        and otherwise returns an empty instance of ``response_model``.
-        """
-        if not self.client or settings.OFFLINE_MODE:
-            try:
-                return response_model()  # type: ignore[call-arg]
-            except Exception:
-                # In very rare cases model may require positional args; fall back to construct
-                return response_model.model_construct()  # type: ignore[attr-defined]
-        try:
-            response = self.client.chat.completions.create(  # type: ignore[union-attr]
-                model=settings.LLM_MODEL,
-                response_model=response_model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "Extract structured data matching the provided Pydantic schema from the HTML. "
-                            "If a field is absent, leave it empty."
-                        ),
-                    },
-                    {"role": "user", "content": html_content},
-                ],
-            )
-            return response
-        except Exception as e:  # pragma: no cover - defensive
-            logger.warning(f"LLMExtractor.extract sync fallback due to error: {e}")
-            try:
-                return response_model()
-            except Exception:
-                return response_model.model_construct()  # type: ignore[attr-defined]
-
     # ---------------------------------------------------------------------
     # Backward compatibility sync alias
     # ---------------------------------------------------------------------
