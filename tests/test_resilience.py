@@ -17,6 +17,7 @@ class TestDeduplicationResilience:
         
         # Primer resultado
         result1 = ScrapeResult(
+            status="success",
             url="https://example.com/page1",
             content_text="Same content here",
             content_hash="abc123"
@@ -25,6 +26,7 @@ class TestDeduplicationResilience:
         
         # Segundo resultado con mismo hash
         result2 = ScrapeResult(
+            status="success",
             url="https://example.com/page2", 
             content_text="Same content here",
             content_hash="abc123"  # Mismo hash
@@ -45,6 +47,7 @@ class TestDeduplicationResilience:
         content2 = "This is a sample article about Python programming language"  # Muy similar
         
         result1 = ScrapeResult(
+            status="success",
             url="https://example.com/1",
             content_text=content1,
             content_hash="hash1"
@@ -52,6 +55,7 @@ class TestDeduplicationResilience:
         db.save_result(result1)
         
         result2 = ScrapeResult(
+            status="success",
             url="https://example.com/2", 
             content_text=content2,
             content_hash="hash2"
@@ -115,11 +119,10 @@ class TestOrchestratorTimeout:
         
         orchestrator = ScrapingOrchestrator(
             start_urls=["https://example.com"],
-            allowed_domain="example.com",
             db_manager=db_manager,
             user_agent_manager=user_agent_manager,
             llm_extractor=llm_extractor,
-            max_workers=1
+            concurrency=1
         )
         
         # Mock browser
@@ -149,11 +152,10 @@ class TestOrchestratorTimeout:
         
         orchestrator = ScrapingOrchestrator(
             start_urls=["https://slow-site.com"],
-            allowed_domain="slow-site.com", 
             db_manager=db_manager,
             user_agent_manager=user_agent_manager,
             llm_extractor=llm_extractor,
-            max_workers=1
+            concurrency=1
         )
         
         # Mock browser con página que timeout
@@ -203,18 +205,17 @@ class TestSharedFixtures:
         """Orchestrator configurado para tests."""
         return ScrapingOrchestrator(
             start_urls=["https://test.com"],
-            allowed_domain="test.com",
             db_manager=mock_db_manager,
             user_agent_manager=mock_user_agent_manager,
             llm_extractor=Mock(),
-            max_workers=2
+            concurrency=2
         )
     
     def test_orchestrator_initialization(self, orchestrator):
         """Verifica inicialización correcta del orchestrator."""
-        assert orchestrator.allowed_domain == "test.com"
+        assert orchestrator.start_urls[0] == "https://test.com"
         assert len(orchestrator.start_urls) == 1
-        assert orchestrator.max_workers == 2
+        assert orchestrator.concurrency == 2
         
     @pytest.mark.asyncio
     async def test_queue_operations(self, orchestrator):
