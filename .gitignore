@@ -1,6 +1,7 @@
 # Archivos de entorno virtual
 .venv/
 venv/
+venv_validation/
 
 # Archivos de caché de Python
 __pycache__/
