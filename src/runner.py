@@ -1,4 +1,5 @@
 """Crawler execution runner."""
+
 import logging
 from typing import Callable, Optional
 from urllib.parse import urlparse
@@ -23,7 +24,11 @@ async def run_crawler(
     alert_callback: Optional[Callable] = None,
 ) -> None:
     """Helper function to set up and run the crawler."""
-    logging.info(f"Iniciando crawler con {concurrency} trabajadores para las URLs: {start_urls}")
+    logging.info(
+        "Iniciando crawler con %s trabajadores para las URLs: %s",
+        concurrency,
+        start_urls,
+    )
     db_manager = DatabaseManager(db_path=db_path)
     user_agent_manager = UserAgentManager(user_agents=settings.USER_AGENT_LIST)
     llm_extractor = LLMExtractor()
@@ -31,7 +36,9 @@ async def run_crawler(
     rl_agent = None
     if use_rl:
         domain = urlparse(start_urls[0]).netloc if start_urls else "default"
-        rl_agent = RLAgent(domain=domain, model_path=settings.RL_MODEL_PATH, training_mode=use_rl)
+        rl_agent = RLAgent(
+            domain=domain, model_path=settings.RL_MODEL_PATH, training_mode=use_rl
+        )
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)

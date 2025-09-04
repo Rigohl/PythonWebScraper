@@ -13,7 +13,6 @@ heuristic for ease of testing.
 from __future__ import annotations
 
 import logging
-from typing import Tuple
 from urllib.parse import urlparse
 
 import numpy as np

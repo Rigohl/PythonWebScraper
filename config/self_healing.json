@@ -1,0 +1,13 @@
+{
+  "auto_fix_enabled": true,
+  "max_fixes_per_session": 16,
+  "confidence_threshold": 0.6,
+  "categories_enabled": {
+    "performance": true,
+    "reliability": true,
+    "code_quality": true,
+    "security": false
+  },
+  "learning_enabled": true,
+  "backup_before_fix": true
+}

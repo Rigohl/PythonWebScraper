@@ -20,7 +20,7 @@ def run_command(command, cwd=None, capture_output=True):
         result = subprocess.run(command, shell=True, cwd=cwd, capture_output=capture_output, text=True, check=True)
         return result.stdout, result.stderr
     except subprocess.CalledProcessError as e:
-        logger.error(f"Comando falló: {command}\n{e.stderr}")
+        logger.error("Comando falló: %scommand\n%se.stderr")
         return None, e.stderr
 
 def verify_test_files():
@@ -30,7 +30,7 @@ def verify_test_files():
         logger.warning("Directorio tests/ no existe.")
         return []
     test_files = [f for f in os.listdir(tests_dir) if f.startswith('test_') and f.endswith('.py')]
-    logger.info(f"Archivos de pruebas encontrados: {test_files}")
+    logger.info("Archivos de pruebas encontrados: %stest_files")
     return test_files
 
 async def run_orchestrator_test():
@@ -64,7 +64,7 @@ async def run_orchestrator_test():
         logger.info("Prueba del orquestador completada exitosamente.")
         return "Sin errores en la ejecución del orquestador."
     except Exception as e:
-        logger.error(f"Prueba del orquestador falló: {e}")
+        logger.error("Prueba del orquestador falló: %se")
         return f"Excepción: {e}"
 
 
@@ -85,7 +85,7 @@ def main():
     else:
         stdout, stderr = run_command("python -m venv .venv", cwd=project_root)
         if stderr:
-            logger.error(f"Error en creación de venv: {stderr}")
+            logger.error("Error en creación de venv: %sstderr")
             return
 
     # Paso 2: Activar venv e instalar dependencias
@@ -94,7 +94,7 @@ def main():
     pip_cmd = f'"{activate_script}" && python -m pip install --upgrade pip && pip install -r requirements.txt -r requirements-dev.txt'
     stdout, stderr = run_command(pip_cmd, cwd=project_root)
     if stderr:
-        logger.error(f"Error en instalación de dependencias: {stderr}")
+        logger.error("Error en instalación de dependencias: %sstderr")
         return
 
     # Paso 3: Instalar Playwright
@@ -102,7 +102,7 @@ def main():
     playwright_cmd = f'"{activate_script}" && playwright install'
     stdout, stderr = run_command(playwright_cmd, cwd=project_root)
     if stderr:
-        logger.error(f"Error en instalación de Playwright: {stderr}")
+        logger.error("Error en instalación de Playwright: %sstderr")
         return
 
     # Paso 4: Ejecutar pytest
@@ -110,7 +110,7 @@ def main():
     pytest_cmd = f'"{activate_script}" && pytest -q'
     stdout, stderr = run_command(pytest_cmd, cwd=project_root)
     pytest_output = stdout or stderr
-    logger.info(f"Salida de pytest:\n{pytest_output}")
+    logger.info("Salida de pytest:\n%spytest_output")
 
     # Paso 5: Ejecutar prueba del orquestador
     logger.info("Ejecutando validación del orquestador...")

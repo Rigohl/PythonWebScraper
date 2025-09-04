@@ -3,9 +3,19 @@ import logging
 from textual.app import App, ComposeResult
 from textual.containers import Container, Grid
 from textual.logging import TextualHandler
-from textual.widgets import (Button, Checkbox, DataTable, Footer, Header,
-                             Input, Label, Log, ProgressBar, TabbedContent,
-                             TabPane)
+from textual.widgets import (
+    Button,
+    Checkbox,
+    DataTable,
+    Footer,
+    Header,
+    Input,
+    Label,
+    Log,
+    ProgressBar,
+    TabbedContent,
+    TabPane,
+)
 from textual.worker import Worker, WorkerState
 
 from ..main import setup_logging
@@ -16,15 +26,20 @@ from ..settings import settings
 # New widget for displaying alerts
 class AlertsDisplay(Container):
     """Un widget para mostrar alertas críticas."""
+
     def compose(self) -> ComposeResult:
         yield Log(id="alert_log", classes="alerts")
 
     def add_alert(self, message: str, level: str = "warning"):
         # Textual Log widget uses markup, so we can style messages
         if level == "error":
-            self.query_one("#alert_log").write(f"[bold red]ERROR: {message}[/]")
+            self.query_one("#alert_log").write(
+                f"[bold red]ERROR: {message}[/]"
+            )
         elif level == "warning":
-            self.query_one("#alert_log").write(f"[yellow]WARNING: {message}[/]")
+            self.query_one("#alert_log").write(
+                f"[yellow]WARNING: {message}[/]"
+            )
         else:
             self.query_one("#alert_log").write(message)
 
@@ -34,6 +49,7 @@ class AlertsDisplay(Container):
 
 class LiveStats(Container):
     """Un widget para mostrar estadísticas en tiempo real."""
+
     def compose(self) -> ComposeResult:
         yield Label("URLs en cola: 0", id="queue_label")
         yield Label("Procesadas: 0", id="processed_label")
@@ -56,12 +72,15 @@ class LiveStats(Container):
 
 class DomainStats(Container):
     """Un widget para mostrar estadísticas por dominio en una tabla."""
+
     def compose(self) -> ComposeResult:
         yield DataTable(id="domain_metrics_table")
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
-        table.add_columns("Dominio", "Backoff", "Procesadas", "Baja Calidad", "Vacías", "Fallos")
+        table.add_columns(
+            "Dominio", "Backoff", "Procesadas", "Baja Calidad", "Vacías", "Fallos"
+        )
         self.border_title = "Métricas por Dominio"
 
     def update_stats(self, domain_metrics: dict):
@@ -119,23 +138,42 @@ class ScraperTUIApp(App):
                         yield Input(placeholder="http://toscrape.com/", id="start_url")
                         yield Label("Trabajadores concurrentes:")
                         yield Input(value=str(settings.CONCURRENCY), id="concurrency")
-                        yield Checkbox("Respetar robots.txt", value=settings.ROBOTS_ENABLED, id="respect_robots")
-                        yield Checkbox("Activar comprobaciones Ética/Compliance", value=settings.ETHICS_CHECKS_ENABLED, id="ethics_checks")
-                        yield Checkbox("Modo Offline (no LLM remoto)", value=settings.OFFLINE_MODE, id="offline_mode")
+                        yield Checkbox(
+                            "Respetar robots.txt",
+                            value=settings.ROBOTS_ENABLED,
+                            id="respect_robots",
+                        )
+                        yield Checkbox(
+                            "Activar comprobaciones Ética/Compliance",
+                            value=settings.ETHICS_CHECKS_ENABLED,
+                            id="ethics_checks",
+                        )
+                        yield Checkbox(
+                            "Modo Offline (no LLM remoto)",
+                            value=settings.OFFLINE_MODE,
+                            id="offline_mode",
+                        )
                         yield Checkbox("Usar Agente RL (WIP)", value=False, id="use_rl")
                     with TabPane("Estadísticas", id="stats-tab"):
                         yield LiveStats()
                         yield DomainStats()
 
                 with Container(id="actions-pane"):
-                    yield Button("Iniciar Crawling", variant="primary", id="start_button")
-                    yield Button("Detener Crawling", variant="error", id="stop_button", disabled=True)
+                    yield Button(
+                        "Iniciar Crawling", variant="primary", id="start_button"
+                    )
+                    yield Button(
+                        "Detener Crawling",
+                        variant="error",
+                        id="stop_button",
+                        disabled=True,
+                    )
 
                 with Container(id="progress-container"):
                     yield Label("Progreso:", id="stats_label")
                     yield ProgressBar(id="progress_bar", total=100, show_eta=False)
 
-                yield AlertsDisplay(id="alerts_display") # New widget for alerts
+                yield AlertsDisplay(id="alerts_display")  # New widget for alerts
 
                 yield Button("Salir", variant="default", id="quit_button")
 
@@ -147,12 +185,18 @@ class ScraperTUIApp(App):
         """Se llama cuando la app se monta en el DOM."""
         log_widget = self.query_one("#log_view", Log)
         # Pasamos el handler de la TUI a la configuración de logging
-        setup_logging(log_file_path=self.log_file_path, tui_handler=TextualHandler(log_widget))
+        setup_logging(
+            log_file_path=self.log_file_path, tui_handler=TextualHandler(log_widget)
+        )
         self.query_one("#progress_bar").visible = False
         self.query_one(LiveStats).border_title = "Estadísticas Globales"
-        self.query_one(DomainStats).border_title = "Métricas por Dominio" # Ensure DomainStats has a border title
-        self.query_one(AlertsDisplay).border_title = "Alertas Críticas" # Set border title for alerts
-        self.query_one(AlertsDisplay).reset() # Clear alerts on mount
+        self.query_one(DomainStats).border_title = (
+            "Métricas por Dominio"  # Ensure DomainStats has a border title
+        )
+        self.query_one(AlertsDisplay).border_title = (
+            "Alertas Críticas"  # Set border title for alerts
+        )
+        self.query_one(AlertsDisplay).reset()  # Clear alerts on mount
         self.query_one("#stats_label").update("Listo para iniciar.")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -168,7 +212,9 @@ class ScraperTUIApp(App):
         """Callback que el orquestador llamará para actualizar las estadísticas."""
         # Actualizar estadísticas globales
         self.live_stats_data["processed"] += update.get("processed", 0)
-        self.live_stats_data["queue_size"] = update.get("queue_size", self.live_stats_data["queue_size"])
+        self.live_stats_data["queue_size"] = update.get(
+            "queue_size", self.live_stats_data["queue_size"]
+        )
         status = update.get("status")
         if status in self.live_stats_data:
             self.live_stats_data[status] += 1
@@ -186,8 +232,9 @@ class ScraperTUIApp(App):
             progress_bar.total = total_urls
             progress_bar.progress = processed_count
             percentage = (processed_count / total_urls) * 100
-            stats_label.update(f"Procesadas: {processed_count} de {total_urls} ({percentage:.2f}%)")
-
+            stats_label.update(
+                f"Procesadas: {processed_count} de {total_urls} ({percentage:.2f}%)"
+            )
 
         # B.1.3: Actualizar la tabla de métricas por dominio
         domain_metrics_data = update.get("domain_metrics")
@@ -210,13 +257,17 @@ class ScraperTUIApp(App):
 
         start_url = start_url_input.value
         if not start_url:
-            self.query_one("#stats_label").update("[bold red]Error: La URL de inicio no puede estar vacía.[/]")
+            self.query_one("#stats_label").update(
+                "[bold red]Error: La URL de inicio no puede estar vacía.[/]"
+            )
             return
 
         try:
             concurrency = int(concurrency_input.value)
         except ValueError:
-            self.query_one("#stats_label").update("[bold red]Error: La concurrencia debe ser un número.[/]")
+            self.query_one("#stats_label").update(
+                "[bold red]Error: La concurrencia debe ser un número.[/]"
+            )
             return
 
         self.set_ui_for_crawling(True)
@@ -225,9 +276,8 @@ class ScraperTUIApp(App):
         self.query_one("#stats_label").update("Iniciando...")
         self.query_one(ProgressBar).update(total=100, progress=0)
         self.query_one(LiveStats).reset()
-        self.query_one(DomainStats).reset() # Reset domain stats too
-        self.query_one(AlertsDisplay).reset() # Reset alerts
-
+        self.query_one(DomainStats).reset()  # Reset domain stats too
+        self.query_one(AlertsDisplay).reset()  # Reset alerts
 
         # Aplicar toggles runtime a settings global para componentes subsiguientes
         settings.ROBOTS_ENABLED = respect_robots_checkbox.value
@@ -242,9 +292,9 @@ class ScraperTUIApp(App):
                 respect_robots_txt=respect_robots_checkbox.value,
                 use_rl=use_rl_checkbox.value,
                 stats_callback=self.stats_update_callback,
-                alert_callback=self.alert_callback # Pass the new callback
+                alert_callback=self.alert_callback,  # Pass the new callback
             ),
-            name="ScraperWorker"
+            name="ScraperWorker",
         )
 
     def action_stop_crawl(self) -> None:
@@ -262,14 +312,22 @@ class ScraperTUIApp(App):
                 self.query_one("#stats_label").update("¡Crawling completado!")
             elif event.state == WorkerState.CANCELLED:
                 logging.warning("El proceso de crawling ha sido cancelado.")
-                self.query_one("#stats_label").update("Proceso detenido por el usuario.")
+                self.query_one("#stats_label").update(
+                    "Proceso detenido por el usuario."
+                )
             elif event.state == WorkerState.ERROR:
                 logging.error(f"El worker de crawling ha fallado: {event.worker.error}")
                 self.query_one(ProgressBar).add_class("error")
-                self.query_one("#stats_label").update("[bold red]Error durante el crawling.[/]")
+                self.query_one("#stats_label").update(
+                    "[bold red]Error durante el crawling.[/]"
+                )
 
             # En cualquier caso de finalización, restaurar la UI
-            if event.state in (WorkerState.SUCCESS, WorkerState.CANCELLED, WorkerState.ERROR):
+            if event.state in (
+                WorkerState.SUCCESS,
+                WorkerState.CANCELLED,
+                WorkerState.ERROR,
+            ):
                 self.set_ui_for_crawling(False)
 
     def set_ui_for_crawling(self, is_crawling: bool) -> None:
@@ -294,7 +352,14 @@ class ScraperTUIApp(App):
             progress_bar.visible = False
 
     async def crawl_worker(
-        self, start_urls: list[str], db_path: str, concurrency: int, respect_robots_txt: bool, use_rl: bool, stats_callback, alert_callback
+        self,
+        start_urls: list[str],
+        db_path: str,
+        concurrency: int,
+        respect_robots_txt: bool,
+        use_rl: bool,
+        stats_callback,
+        alert_callback,
     ) -> None:
         """
         Función de trabajo (worker) que invoca al corredor de crawling centralizado.

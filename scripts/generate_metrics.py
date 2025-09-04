@@ -10,10 +10,11 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from collections import defaultdict
 
-# Añadir src al path para imports
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+# Añadir directorio raíz al path para imports
+root_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(root_dir))
 
-from src.db.database import DatabaseManager
+from src.database import DatabaseManager
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -70,22 +71,22 @@ def generate_metrics(db_path: str = 'data/scraper.db', output_file: str = None):
         }
 
         logger.info("Métricas generadas:")
-        logger.info(f"  Total de resultados: {total_results}")
-        logger.info(f"  Tasa de éxito: {quality_score:.2%}")
-        logger.info(f"  Duración promedio: {avg_duration:.2f}s")
-        logger.info(f"  Longitud promedio de contenido: {avg_content_length:.0f} caracteres")
-        logger.info(f"  Dominios cubiertos: {len(domains)}")
+        logger.info("  Total de resultados: %s", total_results)
+        logger.info("  Tasa de éxito: %.2%", quality_score)
+        logger.info("  Duración promedio: %.2fs", avg_duration)
+        logger.info("  Longitud promedio de contenido: %.0f caracteres", avg_content_length)
+        logger.info("  Dominios cubiertos: %s", len(domains))
 
         if output_file:
             import json
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(metrics, f, indent=2, default=str)
-            logger.info(f"Métricas guardadas en {output_file}")
+            logger.info("Métricas guardadas en %s", output_file)
 
         return metrics
 
     except Exception as e:
-        logger.error(f"Error generando métricas: {e}")
+        logger.error("Error generando métricas: %s", e)
         return None
 
 if __name__ == "__main__":

@@ -22,8 +22,12 @@ from .settings import settings
 
 try:  # Optional dependencies
     import instructor  # type: ignore
-    from openai import (APIConnectionError, APIError,  # type: ignore
-                        APITimeoutError, OpenAI)
+    from openai import (
+        APIConnectionError,
+        APIError,  # type: ignore
+        APITimeoutError,
+        OpenAI,
+    )
 
     OPENAI_AVAILABLE = True
 except Exception:  # pragma: no cover - defensive
@@ -78,8 +82,9 @@ class LLMExtractor:
                     {
                         "role": "system",
                         "content": (
-                            "You are an expert in cleaning HTML content. Remove navigation, footer, ads, pop-ups, legal and boilerplate; "
-                            "return ONLY core article/body text."
+                            "You are an expert in cleaning HTML content. Remove navigation, "
+                            "footer, ads, pop-ups, legal and boilerplate; return ONLY core "
+                            "article/body text."
                         ),
                     },
                     {"role": "user", "content": text},
@@ -87,13 +92,15 @@ class LLMExtractor:
             )
             return response.cleaned_text
         except (APIError, APITimeoutError, APIConnectionError) as e:
-            logger.warning(f"LLMExtractor.clean_text_content API error: {e}")
+            logger.warning("LLMExtractor.clean_text_content API error: %s", e)
             return text
         except Exception as e:  # pragma: no cover - defensive
-            logger.error(f"LLMExtractor.clean_text_content unexpected error: {e}")
+            logger.error("LLMExtractor.clean_text_content unexpected error: %s", e)
             return text
 
-    async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
+    async def extract_structured_data(
+        self, html_content: str, response_model: Type[T]
+    ) -> T:
         """Zero‑shot structured extraction into a Pydantic ``response_model``.
 
         Offline fallback: instantiate and return an empty model.
@@ -108,22 +115,25 @@ class LLMExtractor:
                     {
                         "role": "system",
                         "content": (
-                            "Extract structured data matching the provided Pydantic schema from the HTML. "
-                            "If a field is absent, leave it empty."
+                            "Extract structured data matching the provided Pydantic schema "
+                            "from the HTML. If a field is absent, leave it empty."
                         ),
                     },
                     {"role": "user", "content": html_content},
                 ],
             )
             logger.info(
-                "LLMExtractor: extracción zero-shot completada para %s", response_model.__name__
+                "LLMExtractor: extracción zero-shot completada para %s",
+                response_model.__name__,
             )
             return response
         except (APIError, APITimeoutError, APIConnectionError) as e:
-            logger.warning(f"LLMExtractor.extract_structured_data API error: {e}")
+            logger.warning("LLMExtractor.extract_structured_data API error: %s", e)
             return response_model()
         except Exception as e:  # pragma: no cover
-            logger.error(f"LLMExtractor.extract_structured_data unexpected error: {e}")
+            logger.error(
+                "LLMExtractor.extract_structured_data unexpected error: %s", e
+            )
             return response_model()
 
     async def summarize_content(self, text_content: str, max_words: int = 100) -> str:
@@ -137,7 +147,10 @@ class LLMExtractor:
                 messages=[
                     {
                         "role": "system",
-                        "content": f"Summarize the following text in about {max_words} words, concise and factual.",
+                        "content": (
+                            f"Summarize the following text in about {max_words} words, "
+                            "concise and factual."
+                        ),
                     },
                     {"role": "user", "content": text_content},
                 ],
@@ -147,10 +160,10 @@ class LLMExtractor:
             summary = response.choices[0].message.content
             return summary or ""
         except (APIError, APITimeoutError, APIConnectionError) as e:
-            logger.warning(f"LLMExtractor.summarize_content API error: {e}")
+            logger.warning("LLMExtractor.summarize_content API error: %s", e)
             return " ".join(re.split(r"\s+", text_content)[:max_words])
         except Exception as e:  # pragma: no cover
-            logger.error(f"LLMExtractor.summarize_content unexpected error: {e}")
+            logger.error("LLMExtractor.summarize_content unexpected error: %s", e)
             return " ".join(re.split(r"\s+", text_content)[:max_words])
 
     # ------------------------------------------------------------------
@@ -169,13 +182,18 @@ class LLMExtractor:
         - Else fabricate instance with defaults via model_construct.
         """
         from pydantic.fields import FieldInfo
+
         global instructor, OpenAI  # type: ignore
 
         # Attempt late client creation if mocked patch exists
-        if (not getattr(self, 'client', None)) and 'instructor' in globals() and hasattr(instructor, 'patch'):
+        if (
+            (not getattr(self, "client", None))
+            and "instructor" in globals()
+            and hasattr(instructor, "patch")
+        ):
             try:
                 # OFFLINE_MODE bypass ONLY for test context where patch is a MagicMock
-                self.client = instructor.patch(OpenAI(api_key='test-key'))  # type: ignore
+                self.client = instructor.patch(OpenAI(api_key="test-key"))  # type: ignore
             except Exception:
                 self.client = None
 
@@ -212,4 +230,6 @@ class LLMExtractor:
         try:
             return response_model.model_construct(**values)  # type: ignore[attr-defined]
         except Exception:
-            return response_model(**{k: v for k, v in values.items() if v not in (None,)})
+            return response_model(
+                **{k: v for k, v in values.items() if v not in (None,)}
+            )

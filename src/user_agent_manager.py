@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Dict, Iterable, List, Set
+from typing import Dict, List, Set
 
 
 @dataclass
@@ -84,7 +84,9 @@ class UserAgentManager:
             return self.user_agents[self._rotation_index]
 
         # Cycle through the available list deterministically
-        self._rotation_index = (self._rotation_index + 1) % len(self.available_user_agents)
+        self._rotation_index = (self._rotation_index + 1) % len(
+            self.available_user_agents
+        )
         return self.available_user_agents[self._rotation_index]
 
     def block_user_agent(self, user_agent: str, duration_seconds: int = 300) -> None:
@@ -101,7 +103,9 @@ class UserAgentManager:
             except ValueError:
                 pass
         # Always set/update the blocked expiry time, even if the agent wasn''t available.
-        self.blocked_user_agents[user_agent] = datetime.now() + timedelta(seconds=duration_seconds)
+        self.blocked_user_agents[user_agent] = datetime.now() + timedelta(
+            seconds=duration_seconds
+        )
 
     def release_user_agent(self, user_agent: str) -> None:
         """Release a previously blocked User‑Agent immediately.

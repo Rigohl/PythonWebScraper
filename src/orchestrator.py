@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import os
-from urllib.parse import ParseResult, urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse
 
 import httpx  # Revert to Stealth class
 from playwright.async_api import Browser
@@ -25,6 +25,7 @@ from .exceptions import NetworkError
 from .frontier_classifier import FrontierClassifier
 from .intelligence.llm_extractor import LLMExtractor
 from .intelligence.rl_agent import RLAgent
+
 # Importar los nuevos módulos
 from .managers.user_agent_manager import UserAgentManager
 from .models.results import ScrapeResult

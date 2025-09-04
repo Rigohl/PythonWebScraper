@@ -27,7 +27,7 @@ import json
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
-from typing import Callable, List, Optional, Type
+from typing import Optional, Type
 from urllib.parse import urljoin, urlparse
 
 import html2text
@@ -71,7 +71,9 @@ class AdvancedScraper:
         extract structured data according to a Pydantic schema.
     """
 
-    def __init__(self, page: Page, db_manager: DatabaseManager, llm_extractor: LLMExtractor) -> None:
+    def __init__(
+        self, page: Page, db_manager: DatabaseManager, llm_extractor: LLMExtractor
+    ) -> None:
         self.page = page
         self.db_manager = db_manager
         self.llm_extractor = llm_extractor
@@ -117,17 +119,27 @@ class AdvancedScraper:
                     await self._persist_cookies(domain)
                 # Extract raw HTML and parse visible content
                 full_html = await self.page.content()
-                scrape_result = await self._process_content(url, full_html, response, extraction_schema)
+                scrape_result = await self._process_content(
+                    url, full_html, response, extraction_schema
+                )
             except (PlaywrightTimeoutError, NetworkError) as exc:
                 self.logger.warning(f"Error de red o timeout en scrape de {url}: {exc}")
-                return ScrapeResult(status="RETRY", url=url, error_message=str(exc), retryable=True)
+                return ScrapeResult(
+                    status="RETRY", url=url, error_message=str(exc), retryable=True
+                )
             except (ParsingError, ContentQualityError) as exc:
-                self.logger.error(f"Error de parseo o calidad de contenido en scrape de {url}: {exc}")
+                self.logger.error(
+                    f"Error de parseo o calidad de contenido en scrape de {url}: {exc}"
+                )
                 return ScrapeResult(status="FAILED", url=url, error_message=str(exc))
             except Exception as exc:  # noqa: BLE001
                 # Catch all unexpected errors to avoid crashing the crawler
-                self.logger.error(f"Error inesperado en scrape de {url}: {exc}", exc_info=True)
-                return ScrapeResult(status="FAILED", url=url, error_message=f"Unexpected error: {exc}")
+                self.logger.error(
+                    f"Error inesperado en scrape de {url}: {exc}", exc_info=True
+                )
+                return ScrapeResult(
+                    status="FAILED", url=url, error_message=f"Unexpected error: {exc}"
+                )
 
         # Set duration and return the result
         end_time = datetime.now(timezone.utc)
@@ -147,21 +159,31 @@ class AdvancedScraper:
         async def handler(response) -> None:
             content_type = response.headers.get("content-type", "")
             # Only capture JSON responses
-            if response.request.resource_type in {"xhr", "fetch"} and "application/json" in content_type:
+            if (
+                response.request.resource_type in {"xhr", "fetch"}
+                and "application/json" in content_type
+            ):
                 try:
                     json_payload = await response.json()
                 except Exception as exc:  # noqa: BLE001
-                    self.logger.debug(f"No se pudo procesar el payload JSON de la API {response.url}: {exc}")
+                    self.logger.debug(
+                        f"No se pudo procesar el payload JSON de la API {response.url}: {exc}"
+                    )
                     return
                 payload_str = json.dumps(json_payload, sort_keys=True)
                 payload_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
                 try:
                     self.db_manager.save_discovered_api(
-                        page_url=self.page.url, api_url=response.url, payload_hash=payload_hash
+                        page_url=self.page.url,
+                        api_url=response.url,
+                        payload_hash=payload_hash,
                     )
                 except Exception:
                     # Saving API data should never break scraping
-                    self.logger.debug(f"No se pudo guardar la API descubierta para {response.url}", exc_info=True)
+                    self.logger.debug(
+                        f"No se pudo guardar la API descubierta para {response.url}",
+                        exc_info=True,
+                    )
 
         # Attach listener
         self.page.on("response", handler)
@@ -206,7 +228,9 @@ class AdvancedScraper:
             self.db_manager.save_cookies(domain, json.dumps(current_cookies))
             self.logger.info(f"Cookies guardadas para {domain}")
         except Exception:  # noqa: BLE001
-            self.logger.debug(f"No se pudieron guardar cookies para {domain}", exc_info=True)
+            self.logger.debug(
+                f"No se pudieron guardar cookies para {domain}", exc_info=True
+            )
 
     async def _navigate_to_url(self, url: str):
         """Navigate to the target URL and wait for network idle.
@@ -218,7 +242,9 @@ class AdvancedScraper:
         PlaywrightTimeoutError
             If navigation times out.
         """
-        response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30_000)
+        response = await self.page.goto(
+            url, wait_until="domcontentloaded", timeout=30_000
+        )
         if response and response.status in settings.RETRYABLE_STATUS_CODES:
             raise NetworkError(f"Estado reintentable: {response.status}")
         # Wait for network to be idle (no pending requests)
@@ -266,7 +292,9 @@ class AdvancedScraper:
         # Optionally perform structured extraction
         extracted_data = None
         if extraction_schema:
-            llm_output = await self.llm_extractor.extract_structured_data(full_html, extraction_schema)
+            llm_output = await self.llm_extractor.extract_structured_data(
+                full_html, extraction_schema
+            )
             if llm_output:
                 try:
                     extracted_data = llm_output.model_dump()
@@ -291,7 +319,9 @@ class AdvancedScraper:
         )
         return result
 
-    def _validate_content_quality(self, text: Optional[str], title: Optional[str]) -> None:
+    def _validate_content_quality(
+        self, text: Optional[str], title: Optional[str]
+    ) -> None:
         """Validate that the extracted content meets quality thresholds.
 
         Raises
@@ -300,16 +330,24 @@ class AdvancedScraper:
             If the content is empty, too short or contains forbidden phrases.
         """
         if not text:
-            raise ContentQualityError("El contenido extraído está vacío después de la limpieza.")
+            raise ContentQualityError(
+                "El contenido extraído está vacío después de la limpieza."
+            )
         if len(text) < settings.MIN_CONTENT_LENGTH:
-            raise ContentQualityError(f"El contenido es demasiado corto ({len(text)} caracteres).")
+            raise ContentQualityError(
+                f"El contenido es demasiado corto ({len(text)} caracteres)."
+            )
         lower_text = text.lower()
         lower_title = title.lower() if title else ""
         for phrase in settings.FORBIDDEN_PHRASES:
             if phrase in lower_text or phrase in lower_title:
-                raise ContentQualityError(f"Contenido parece ser una página de error (contiene: '{phrase}').")
+                raise ContentQualityError(
+                    f"Contenido parece ser una página de error (contiene: '{phrase}')."
+                )
 
-    def _classify_content(self, title: Optional[str], content_text: Optional[str]) -> str:
+    def _classify_content(
+        self, title: Optional[str], content_text: Optional[str]
+    ) -> str:
         """Classify the type of content based on title and body text."""
         if not title and not content_text:
             return "UNKNOWN"
@@ -323,7 +361,8 @@ class AdvancedScraper:
             return "PRODUCT"
         # Blog posts
         if any(
-            keyword in title_lower or keyword in content_lower for keyword in ["blog", "articulo", "noticia", "leer más"]
+            keyword in title_lower or keyword in content_lower
+            for keyword in ["blog", "articulo", "noticia", "leer más"]
         ):
             return "BLOG_POST"
         # Articles/tutorials

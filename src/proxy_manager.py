@@ -10,7 +10,7 @@ class ProxyManager:
         self.blocked_proxies = {}  # {proxy: block_until_timestamp}
 
     def _clean_blocked_proxies(self):
-        """Removes expired blocked proxies from the blocked list and makes them available."""
+        """Removes expired blocked proxies from the blocked list."""
         now = datetime.now()
         for proxy, block_until in list(self.blocked_proxies.items()):
             if now > block_until:
@@ -36,7 +36,9 @@ class ProxyManager:
             self.available_proxies.remove(proxy)
         # Only add to blocked if it's a known proxy
         if proxy in self.proxies:
-            self.blocked_proxies[proxy] = datetime.now() + timedelta(seconds=block_duration_seconds)
+            self.blocked_proxies[proxy] = datetime.now() + timedelta(
+                seconds=block_duration_seconds
+            )
 
     def return_proxy(self, proxy):
         """Returns a proxy to the available pool."""

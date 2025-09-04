@@ -6,15 +6,12 @@ Incluye actualización de robots.txt, user agents, y otras políticas.
 
 import sys
 import os
+import json
 from pathlib import Path
 import asyncio
 import httpx
-from urllib.parse import urljoin
-
-# Añadir src al path para imports
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
-
-from src.managers.user_agent_manager import UserAgentManager
+# Añadir src al path para imports - ahora desde tools/
+sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -32,20 +29,20 @@ async def update_robots_txt(domain: str, output_file: str = None):
 
         if response.status_code == 200:
             robots_content = response.text
-            logger.info(f"robots.txt actualizado para {domain}")
+            logger.info("robots.txt actualizado para %s", domain)
 
             if output_file:
                 with open(output_file, 'w', encoding='utf-8') as f:
                     f.write(robots_content)
-                logger.info(f"Guardado en {output_file}")
+                logger.info("Guardado en %s", output_file)
 
             return robots_content
         else:
-            logger.warning(f"No se pudo obtener robots.txt para {domain}: {response.status_code}")
+            logger.warning("No se pudo obtener robots.txt para %s: %s", domain, response.status_code)
             return None
 
-    except Exception as e:
-        logger.error(f"Error actualizando robots.txt: {e}")
+    except (httpx.RequestError, httpx.HTTPStatusError) as e:
+        logger.error("Error actualizando robots.txt: %s", e)
         return None
 
 def update_user_agents(user_agents_file: str = 'data/user_agents.txt'):
@@ -59,19 +56,19 @@ def update_user_agents(user_agents_file: str = 'data/user_agents.txt'):
             with open(user_agents_file, 'r', encoding='utf-8') as f:
                 agents = f.readlines()
 
-            logger.info(f"Archivo de user agents encontrado con {len(agents)} agentes")
+            logger.info("Archivo de user agents encontrado con %d agentes", len(agents))
 
             # Validar formato básico
             valid_agents = [agent.strip() for agent in agents if agent.strip()]
-            logger.info(f"Agentes válidos: {len(valid_agents)}")
+            logger.info("Agentes válidos: %d", len(valid_agents))
 
             return len(valid_agents) > 0
         else:
-            logger.warning(f"Archivo de user agents no encontrado: {user_agents_file}")
+            logger.warning("Archivo de user agents no encontrado: %s", user_agents_file)
             return False
 
-    except Exception as e:
-        logger.error(f"Error actualizando user agents: {e}")
+    except (IOError, json.JSONDecodeError) as e:
+        logger.error("Error actualizando user agents: %s", e)
         return False
 
 def update_scraping_policy(policy_file: str = 'data/scraping_policy.json'):
@@ -95,11 +92,11 @@ def update_scraping_policy(policy_file: str = 'data/scraping_policy.json'):
         with open(policy_file, 'w', encoding='utf-8') as f:
             json.dump(default_policy, f, indent=2)
 
-        logger.info(f"Política de scraping actualizada en {policy_file}")
+        logger.info("Política de scraping actualizada en %s", policy_file)
         return True
 
-    except Exception as e:
-        logger.error(f"Error actualizando política de scraping: {e}")
+    except (IOError, json.JSONDecodeError) as e:
+        logger.error("Error actualizando política de scraping: %s", e)
         return False
 
 async def main():

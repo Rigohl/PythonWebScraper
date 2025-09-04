@@ -1,0 +1,1928 @@
+[
+  {
+    "id": 1,
+    "url": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\toscrape_com_book.html",
+    "title": "A Light in the Attic - Books to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 0.0
+  },
+  {
+    "id": 2,
+    "url": "https://quotes.toscrape.com/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 5.474253
+  },
+  {
+    "id": 3,
+    "url": "https://quotes.toscrape.com/login",
+    "title": null,
+    "content": "",
+    "timestamp": "",
+    "status": "FAILED",
+    "crawl_duration": null
+  },
+  {
+    "id": 4,
+    "url": "https://quotes.toscrape.com/author/Albert-Einstein",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.535651
+  },
+  {
+    "id": 5,
+    "url": "https://quotes.toscrape.com/author/Andre-Gide",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.513238
+  },
+  {
+    "id": 6,
+    "url": "https://quotes.toscrape.com/author/Eleanor-Roosevelt",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.527386
+  },
+  {
+    "id": 7,
+    "url": "https://quotes.toscrape.com/author/J-K-Rowling",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.484506
+  },
+  {
+    "id": 8,
+    "url": "https://quotes.toscrape.com/author/Jane-Austen",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.429776
+  },
+  {
+    "id": 9,
+    "url": "https://quotes.toscrape.com/author/Marilyn-Monroe",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.494082
+  },
+  {
+    "id": 10,
+    "url": "https://quotes.toscrape.com/author/Steve-Martin",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.800777
+  },
+  {
+    "id": 11,
+    "url": "https://quotes.toscrape.com/author/Thomas-A-Edison",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 3.044008
+  },
+  {
+    "id": 12,
+    "url": "https://quotes.toscrape.com/page/2/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 6.641999
+  },
+  {
+    "id": 13,
+    "url": "https://quotes.toscrape.com/author/Allen-Saunders",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.765231
+  },
+  {
+    "id": 14,
+    "url": "https://quotes.toscrape.com/author/Bob-Marley",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.552258
+  },
+  {
+    "id": 15,
+    "url": "https://quotes.toscrape.com/author/Douglas-Adams",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.505088
+  },
+  {
+    "id": 16,
+    "url": "https://quotes.toscrape.com/author/Dr-Seuss",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 3.408056
+  },
+  {
+    "id": 17,
+    "url": "https://quotes.toscrape.com/author/Elie-Wiesel",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.888871
+  },
+  {
+    "id": 18,
+    "url": "https://quotes.toscrape.com/author/Friedrich-Nietzsche",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 2.102343
+  },
+  {
+    "id": 19,
+    "url": "https://quotes.toscrape.com/author/Mark-Twain",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.743787
+  },
+  {
+    "id": 20,
+    "url": "https://quotes.toscrape.com/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.352347
+  },
+  {
+    "id": 21,
+    "url": "https://quotes.toscrape.com/page/3/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.570276
+  },
+  {
+    "id": 22,
+    "url": "https://quotes.toscrape.com/author/Garrison-Keillor",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.432179
+  },
+  {
+    "id": 23,
+    "url": "https://quotes.toscrape.com/author/Jim-Henson",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.399861
+  },
+  {
+    "id": 24,
+    "url": "https://quotes.toscrape.com/author/Mother-Teresa",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.452004
+  },
+  {
+    "id": 25,
+    "url": "https://quotes.toscrape.com/author/Pablo-Neruda",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.461465
+  },
+  {
+    "id": 26,
+    "url": "https://quotes.toscrape.com/author/Ralph-Waldo-Emerson",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 2.083054
+  },
+  {
+    "id": 27,
+    "url": "https://quotes.toscrape.com/page/4/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 2.026984
+  },
+  {
+    "id": 28,
+    "url": "https://quotes.toscrape.com/author/Charles-M-Schulz",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 2.047784
+  },
+  {
+    "id": 29,
+    "url": "https://quotes.toscrape.com/author/George-Eliot",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 2.890858
+  },
+  {
+    "id": 30,
+    "url": "https://quotes.toscrape.com/author/Jorge-Luis-Borges",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 2.140229
+  },
+  {
+    "id": 31,
+    "url": "https://quotes.toscrape.com/author/William-Nicholson",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 2.016535
+  },
+  {
+    "id": 32,
+    "url": "https://quotes.toscrape.com/page/5/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.205778
+  },
+  {
+    "id": 33,
+    "url": "https://quotes.toscrape.com/author/C-S-Lewis",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.627535
+  },
+  {
+    "id": 34,
+    "url": "https://quotes.toscrape.com/author/George-R-R-Martin",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.31948
+  },
+  {
+    "id": 35,
+    "url": "https://quotes.toscrape.com/author/James-Baldwin",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.359729
+  },
+  {
+    "id": 36,
+    "url": "https://quotes.toscrape.com/author/Martin-Luther-King-Jr",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.405075
+  },
+  {
+    "id": 37,
+    "url": "https://quotes.toscrape.com/page/6/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.526656
+  },
+  {
+    "id": 38,
+    "url": "https://quotes.toscrape.com/author/Alexandre-Dumas-fils",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.350961
+  },
+  {
+    "id": 39,
+    "url": "https://quotes.toscrape.com/author/Ernest-Hemingway",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.369823
+  },
+  {
+    "id": 40,
+    "url": "https://quotes.toscrape.com/author/George-Bernard-Shaw",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.458909
+  },
+  {
+    "id": 41,
+    "url": "https://quotes.toscrape.com/author/Haruki-Murakami",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 3.331991
+  },
+  {
+    "id": 42,
+    "url": "https://quotes.toscrape.com/author/Helen-Keller",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.847281
+  },
+  {
+    "id": 43,
+    "url": "https://quotes.toscrape.com/author/Stephenie-Meyer",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.856589
+  },
+  {
+    "id": 44,
+    "url": "https://quotes.toscrape.com/page/7/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.539547
+  },
+  {
+    "id": 45,
+    "url": "https://quotes.toscrape.com/author/Charles-Bukowski",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.769576
+  },
+  {
+    "id": 46,
+    "url": "https://quotes.toscrape.com/author/J-R-R-Tolkien",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.688355
+  },
+  {
+    "id": 47,
+    "url": "https://quotes.toscrape.com/author/Suzanne-Collins",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.658898
+  },
+  {
+    "id": 48,
+    "url": "https://quotes.toscrape.com/page/8/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.622835
+  },
+  {
+    "id": 49,
+    "url": "https://quotes.toscrape.com/author/Alfred-Tennyson",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.524919
+  },
+  {
+    "id": 50,
+    "url": "https://quotes.toscrape.com/author/Ayn-Rand",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.646545
+  },
+  {
+    "id": 51,
+    "url": "https://quotes.toscrape.com/author/George-Carlin",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.485195
+  },
+  {
+    "id": 52,
+    "url": "https://quotes.toscrape.com/author/J-D-Salinger",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.548028
+  },
+  {
+    "id": 53,
+    "url": "https://quotes.toscrape.com/author/John-Lennon",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.697134
+  },
+  {
+    "id": 54,
+    "url": "https://quotes.toscrape.com/author/Terry-Pratchett",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.857369
+  },
+  {
+    "id": 55,
+    "url": "https://quotes.toscrape.com/author/W-C-Fields",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.722585
+  },
+  {
+    "id": 56,
+    "url": "https://quotes.toscrape.com/page/9/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.534229
+  },
+  {
+    "id": 57,
+    "url": "https://quotes.toscrape.com/page/10/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 2.656011
+  },
+  {
+    "id": 58,
+    "url": "https://quotes.toscrape.com/author/E-E-Cummings",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.997139
+  },
+  {
+    "id": 59,
+    "url": "https://quotes.toscrape.com/author/Harper-Lee",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.912348
+  },
+  {
+    "id": 60,
+    "url": "https://quotes.toscrape.com/author/J-M-Barrie",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.553723
+  },
+  {
+    "id": 61,
+    "url": "https://quotes.toscrape.com/author/Jimi-Hendrix",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 3.414502
+  },
+  {
+    "id": 62,
+    "url": "https://quotes.toscrape.com/author/Khaled-Hosseini",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.453263
+  },
+  {
+    "id": 63,
+    "url": "https://quotes.toscrape.com/author/Madeleine-LEngle",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.753054
+  },
+  {
+    "id": 64,
+    "url": "https://quotes.toscrape.com/tag/books/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.352381
+  },
+  {
+    "id": 65,
+    "url": "https://quotes.toscrape.com/tag/friends/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.362059
+  },
+  {
+    "id": 66,
+    "url": "https://quotes.toscrape.com/tag/friendship/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.306604
+  },
+  {
+    "id": 67,
+    "url": "https://quotes.toscrape.com/tag/humor/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.374167
+  },
+  {
+    "id": 68,
+    "url": "https://quotes.toscrape.com/tag/inspirational/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.366645
+  },
+  {
+    "id": 69,
+    "url": "https://quotes.toscrape.com/tag/life/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.405216
+  },
+  {
+    "id": 70,
+    "url": "https://quotes.toscrape.com/tag/love/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.47768
+  },
+  {
+    "id": 71,
+    "url": "https://quotes.toscrape.com/tag/reading/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.323062
+  },
+  {
+    "id": 72,
+    "url": "https://quotes.toscrape.com/tag/simile/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.28298
+  },
+  {
+    "id": 73,
+    "url": "https://quotes.toscrape.com/tag/truth/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.391978
+  },
+  {
+    "id": 74,
+    "url": "https://quotes.toscrape.com/tag/abilities/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.250095
+  },
+  {
+    "id": 75,
+    "url": "https://quotes.toscrape.com/tag/activism/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.27293
+  },
+  {
+    "id": 76,
+    "url": "https://quotes.toscrape.com/tag/adulthood/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.273388
+  },
+  {
+    "id": 77,
+    "url": "https://quotes.toscrape.com/tag/adventure/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.350841
+  },
+  {
+    "id": 78,
+    "url": "https://quotes.toscrape.com/tag/age/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.303131
+  },
+  {
+    "id": 79,
+    "url": "https://quotes.toscrape.com/tag/alcohol/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.297968
+  },
+  {
+    "id": 80,
+    "url": "https://quotes.toscrape.com/tag/aliteracy/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.399078
+  },
+  {
+    "id": 81,
+    "url": "https://quotes.toscrape.com/tag/apathy/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.355747
+  },
+  {
+    "id": 82,
+    "url": "https://quotes.toscrape.com/tag/attributed-no-source/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.351403
+  },
+  {
+    "id": 83,
+    "url": "https://quotes.toscrape.com/tag/attributed/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 2.660095
+  },
+  {
+    "id": 84,
+    "url": "https://quotes.toscrape.com/tag/authors/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.283904
+  },
+  {
+    "id": 85,
+    "url": "https://quotes.toscrape.com/tag/be-yourself/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.284377
+  },
+  {
+    "id": 86,
+    "url": "https://quotes.toscrape.com/tag/beatles/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.372024
+  },
+  {
+    "id": 87,
+    "url": "https://quotes.toscrape.com/tag/better-life-empathy/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.307542
+  },
+  {
+    "id": 88,
+    "url": "https://quotes.toscrape.com/tag/bilbo/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.255642
+  },
+  {
+    "id": 89,
+    "url": "https://quotes.toscrape.com/tag/books/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.187726
+  },
+  {
+    "id": 90,
+    "url": "https://quotes.toscrape.com/tag/books/page/2/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.126963
+  },
+  {
+    "id": 91,
+    "url": "https://quotes.toscrape.com/tag/change/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.010122
+  },
+  {
+    "id": 92,
+    "url": "https://quotes.toscrape.com/tag/children/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.067354
+  },
+  {
+    "id": 93,
+    "url": "https://quotes.toscrape.com/tag/chocolate/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 2.584556
+  },
+  {
+    "id": 94,
+    "url": "https://quotes.toscrape.com/tag/choices/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.057551
+  },
+  {
+    "id": 95,
+    "url": "https://quotes.toscrape.com/tag/christianity/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.132483
+  },
+  {
+    "id": 96,
+    "url": "https://quotes.toscrape.com/tag/classic/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.14681
+  },
+  {
+    "id": 97,
+    "url": "https://quotes.toscrape.com/tag/comedy/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.122194
+  },
+  {
+    "id": 98,
+    "url": "https://quotes.toscrape.com/tag/connection/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.075916
+  },
+  {
+    "id": 99,
+    "url": "https://quotes.toscrape.com/tag/contentment/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.126804
+  },
+  {
+    "id": 100,
+    "url": "https://quotes.toscrape.com/tag/courage/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.148394
+  },
+  {
+    "id": 101,
+    "url": "https://quotes.toscrape.com/tag/death/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.07297
+  },
+  {
+    "id": 102,
+    "url": "https://quotes.toscrape.com/tag/deep-thoughts/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.113247
+  },
+  {
+    "id": 103,
+    "url": "https://quotes.toscrape.com/tag/difficult/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.076391
+  },
+  {
+    "id": 104,
+    "url": "https://quotes.toscrape.com/tag/dreamers/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.070609
+  },
+  {
+    "id": 105,
+    "url": "https://quotes.toscrape.com/tag/dreaming/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.117428
+  },
+  {
+    "id": 106,
+    "url": "https://quotes.toscrape.com/tag/dreams/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.092764
+  },
+  {
+    "id": 107,
+    "url": "https://quotes.toscrape.com/tag/drug/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.064546
+  },
+  {
+    "id": 108,
+    "url": "https://quotes.toscrape.com/tag/dumbledore/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.089692
+  },
+  {
+    "id": 109,
+    "url": "https://quotes.toscrape.com/tag/edison/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.088861
+  },
+  {
+    "id": 110,
+    "url": "https://quotes.toscrape.com/tag/education/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.120587
+  },
+  {
+    "id": 111,
+    "url": "https://quotes.toscrape.com/tag/elizabeth-bennet/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.108604
+  },
+  {
+    "id": 112,
+    "url": "https://quotes.toscrape.com/tag/failure/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.093287
+  },
+  {
+    "id": 113,
+    "url": "https://quotes.toscrape.com/tag/fairy-tales/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.140381
+  },
+  {
+    "id": 114,
+    "url": "https://quotes.toscrape.com/tag/fairytales/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.15016
+  },
+  {
+    "id": 115,
+    "url": "https://quotes.toscrape.com/tag/faith/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.09224
+  },
+  {
+    "id": 116,
+    "url": "https://quotes.toscrape.com/tag/fantasy/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.143299
+  },
+  {
+    "id": 117,
+    "url": "https://quotes.toscrape.com/tag/fate/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.23846
+  },
+  {
+    "id": 118,
+    "url": "https://quotes.toscrape.com/tag/fear/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.119469
+  },
+  {
+    "id": 119,
+    "url": "https://quotes.toscrape.com/tag/food/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.166747
+  },
+  {
+    "id": 120,
+    "url": "https://quotes.toscrape.com/tag/friends/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.176183
+  },
+  {
+    "id": 121,
+    "url": "https://quotes.toscrape.com/tag/friendship/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.258618
+  },
+  {
+    "id": 122,
+    "url": "https://quotes.toscrape.com/tag/girls/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.131788
+  },
+  {
+    "id": 123,
+    "url": "https://quotes.toscrape.com/tag/god/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.145611
+  },
+  {
+    "id": 124,
+    "url": "https://quotes.toscrape.com/tag/good/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.150467
+  },
+  {
+    "id": 125,
+    "url": "https://quotes.toscrape.com/tag/growing-up/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.275152
+  },
+  {
+    "id": 126,
+    "url": "https://quotes.toscrape.com/tag/grown-ups/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.474754
+  },
+  {
+    "id": 127,
+    "url": "https://quotes.toscrape.com/tag/happiness/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.237286
+  },
+  {
+    "id": 128,
+    "url": "https://quotes.toscrape.com/tag/hate/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.268056
+  },
+  {
+    "id": 129,
+    "url": "https://quotes.toscrape.com/tag/heartbreak/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.274662
+  },
+  {
+    "id": 130,
+    "url": "https://quotes.toscrape.com/tag/hope/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.324698
+  },
+  {
+    "id": 131,
+    "url": "https://quotes.toscrape.com/tag/humor/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.300727
+  },
+  {
+    "id": 132,
+    "url": "https://quotes.toscrape.com/tag/humor/page/2/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.249308
+  },
+  {
+    "id": 133,
+    "url": "https://quotes.toscrape.com/tag/imagination/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.243879
+  },
+  {
+    "id": 134,
+    "url": "https://quotes.toscrape.com/tag/indifference/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 3.111956
+  },
+  {
+    "id": 135,
+    "url": "https://quotes.toscrape.com/tag/insanity/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.303604
+  },
+  {
+    "id": 136,
+    "url": "https://quotes.toscrape.com/tag/inspiration/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.290788
+  },
+  {
+    "id": 137,
+    "url": "https://quotes.toscrape.com/tag/inspirational/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.321975
+  },
+  {
+    "id": 138,
+    "url": "https://quotes.toscrape.com/tag/inspirational/page/2/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.306642
+  },
+  {
+    "id": 139,
+    "url": "https://quotes.toscrape.com/tag/integrity/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.395928
+  },
+  {
+    "id": 140,
+    "url": "https://quotes.toscrape.com/tag/jane-austen/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.474098
+  },
+  {
+    "id": 141,
+    "url": "https://quotes.toscrape.com/tag/journey/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.425752
+  },
+  {
+    "id": 142,
+    "url": "https://quotes.toscrape.com/tag/knowledge/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.367373
+  },
+  {
+    "id": 143,
+    "url": "https://quotes.toscrape.com/tag/lack-of-friendship/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.466801
+  },
+  {
+    "id": 144,
+    "url": "https://quotes.toscrape.com/tag/lack-of-love/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.340072
+  },
+  {
+    "id": 145,
+    "url": "https://quotes.toscrape.com/tag/learning/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.292022
+  },
+  {
+    "id": 146,
+    "url": "https://quotes.toscrape.com/tag/library/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.372953
+  },
+  {
+    "id": 147,
+    "url": "https://quotes.toscrape.com/tag/lies/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.328614
+  },
+  {
+    "id": 148,
+    "url": "https://quotes.toscrape.com/tag/life/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.365169
+  },
+  {
+    "id": 149,
+    "url": "https://quotes.toscrape.com/tag/life/page/2/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.365134
+  },
+  {
+    "id": 150,
+    "url": "https://quotes.toscrape.com/tag/literature/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.407921
+  },
+  {
+    "id": 151,
+    "url": "https://quotes.toscrape.com/tag/live-death-love/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.307401
+  },
+  {
+    "id": 152,
+    "url": "https://quotes.toscrape.com/tag/live/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.394738
+  },
+  {
+    "id": 153,
+    "url": "https://quotes.toscrape.com/tag/lost/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.329422
+  },
+  {
+    "id": 154,
+    "url": "https://quotes.toscrape.com/tag/love/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.358323
+  },
+  {
+    "id": 155,
+    "url": "https://quotes.toscrape.com/tag/lying/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.384471
+  },
+  {
+    "id": 156,
+    "url": "https://quotes.toscrape.com/tag/marriage/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.339782
+  },
+  {
+    "id": 157,
+    "url": "https://quotes.toscrape.com/tag/mind/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.30411
+  },
+  {
+    "id": 158,
+    "url": "https://quotes.toscrape.com/tag/miracle/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.376771
+  },
+  {
+    "id": 159,
+    "url": "https://quotes.toscrape.com/tag/miracles/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.366767
+  },
+  {
+    "id": 160,
+    "url": "https://quotes.toscrape.com/tag/misattributed-eleanor-roosevelt/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.457032
+  },
+  {
+    "id": 161,
+    "url": "https://quotes.toscrape.com/tag/misattributed-john-lennon/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.411405
+  },
+  {
+    "id": 162,
+    "url": "https://quotes.toscrape.com/tag/misattributed-mark-twain/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.544787
+  },
+  {
+    "id": 163,
+    "url": "https://quotes.toscrape.com/tag/misattributed-to-c-s-lewis/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.543036
+  },
+  {
+    "id": 164,
+    "url": "https://quotes.toscrape.com/tag/misattributed-to-einstein/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.276136
+  },
+  {
+    "id": 165,
+    "url": "https://quotes.toscrape.com/tag/misattributed-to-mother-teresa/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.460031
+  },
+  {
+    "id": 166,
+    "url": "https://quotes.toscrape.com/tag/mistakes/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.326766
+  },
+  {
+    "id": 167,
+    "url": "https://quotes.toscrape.com/tag/music/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.300399
+  },
+  {
+    "id": 168,
+    "url": "https://quotes.toscrape.com/tag/navigation/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.302028
+  },
+  {
+    "id": 169,
+    "url": "https://quotes.toscrape.com/tag/novelist-quotes/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.283527
+  },
+  {
+    "id": 170,
+    "url": "https://quotes.toscrape.com/tag/obvious/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.291325
+  },
+  {
+    "id": 171,
+    "url": "https://quotes.toscrape.com/tag/open-mind/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.29989
+  },
+  {
+    "id": 172,
+    "url": "https://quotes.toscrape.com/tag/opposite/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.355989
+  },
+  {
+    "id": 173,
+    "url": "https://quotes.toscrape.com/tag/paraphrased/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.517968
+  },
+  {
+    "id": 174,
+    "url": "https://quotes.toscrape.com/tag/peace/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.559562
+  },
+  {
+    "id": 175,
+    "url": "https://quotes.toscrape.com/tag/philosophy/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.515542
+  },
+  {
+    "id": 176,
+    "url": "https://quotes.toscrape.com/tag/planning/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.567018
+  },
+  {
+    "id": 177,
+    "url": "https://quotes.toscrape.com/tag/plans/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.242851
+  },
+  {
+    "id": 178,
+    "url": "https://quotes.toscrape.com/tag/poetry/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.091353
+  },
+  {
+    "id": 179,
+    "url": "https://quotes.toscrape.com/tag/quest/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.058252
+  },
+  {
+    "id": 180,
+    "url": "https://quotes.toscrape.com/tag/read/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.045849
+  },
+  {
+    "id": 181,
+    "url": "https://quotes.toscrape.com/tag/readers/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.12888
+  },
+  {
+    "id": 182,
+    "url": "https://quotes.toscrape.com/tag/reading-books/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.136669
+  },
+  {
+    "id": 183,
+    "url": "https://quotes.toscrape.com/tag/reading/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.083244
+  },
+  {
+    "id": 184,
+    "url": "https://quotes.toscrape.com/tag/regrets/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.075592
+  },
+  {
+    "id": 185,
+    "url": "https://quotes.toscrape.com/tag/religion/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.098434
+  },
+  {
+    "id": 186,
+    "url": "https://quotes.toscrape.com/tag/romance/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.127057
+  },
+  {
+    "id": 187,
+    "url": "https://quotes.toscrape.com/tag/romantic/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.072028
+  },
+  {
+    "id": 188,
+    "url": "https://quotes.toscrape.com/tag/self-indulgence/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.068633
+  },
+  {
+    "id": 189,
+    "url": "https://quotes.toscrape.com/tag/seuss/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.118502
+  },
+  {
+    "id": 190,
+    "url": "https://quotes.toscrape.com/tag/simile/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.188612
+  },
+  {
+    "id": 191,
+    "url": "https://quotes.toscrape.com/tag/simplicity/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.073157
+  },
+  {
+    "id": 192,
+    "url": "https://quotes.toscrape.com/tag/sinister/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.072946
+  },
+  {
+    "id": 193,
+    "url": "https://quotes.toscrape.com/tag/sisters/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.118613
+  },
+  {
+    "id": 194,
+    "url": "https://quotes.toscrape.com/tag/success/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.149729
+  },
+  {
+    "id": 195,
+    "url": "https://quotes.toscrape.com/tag/sun/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.267376
+  },
+  {
+    "id": 196,
+    "url": "https://quotes.toscrape.com/tag/tea/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.181004
+  },
+  {
+    "id": 197,
+    "url": "https://quotes.toscrape.com/tag/the-hunger-games/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.088852
+  },
+  {
+    "id": 198,
+    "url": "https://quotes.toscrape.com/tag/thinking/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.316358
+  },
+  {
+    "id": 199,
+    "url": "https://quotes.toscrape.com/tag/thought/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.290003
+  },
+  {
+    "id": 200,
+    "url": "https://quotes.toscrape.com/tag/travel/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.341684
+  },
+  {
+    "id": 201,
+    "url": "https://quotes.toscrape.com/tag/troubles/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.348283
+  },
+  {
+    "id": 202,
+    "url": "https://quotes.toscrape.com/tag/truth/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.349378
+  },
+  {
+    "id": 203,
+    "url": "https://quotes.toscrape.com/tag/understand/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 2.714683
+  },
+  {
+    "id": 204,
+    "url": "https://quotes.toscrape.com/tag/understanding/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.51221
+  },
+  {
+    "id": 205,
+    "url": "https://quotes.toscrape.com/tag/unhappy-marriage/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.61568
+  },
+  {
+    "id": 206,
+    "url": "https://quotes.toscrape.com/tag/value/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.687789
+  },
+  {
+    "id": 207,
+    "url": "https://quotes.toscrape.com/tag/wander/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.433753
+  },
+  {
+    "id": 208,
+    "url": "https://quotes.toscrape.com/tag/wisdom/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.411677
+  },
+  {
+    "id": 209,
+    "url": "https://quotes.toscrape.com/tag/women/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.319107
+  },
+  {
+    "id": 210,
+    "url": "https://quotes.toscrape.com/tag/world/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.300359
+  },
+  {
+    "id": 211,
+    "url": "https://quotes.toscrape.com/tag/write/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "SUCCESS",
+    "crawl_duration": 1.324613
+  },
+  {
+    "id": 212,
+    "url": "https://quotes.toscrape.com/tag/writers/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.329545
+  },
+  {
+    "id": 213,
+    "url": "https://quotes.toscrape.com/tag/writing/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.23494
+  },
+  {
+    "id": 214,
+    "url": "https://quotes.toscrape.com/tag/yourself/page/1/",
+    "title": "Quotes to Scrape",
+    "content": "",
+    "timestamp": "",
+    "status": "DUPLICATE",
+    "crawl_duration": 1.297878
+  }
+]

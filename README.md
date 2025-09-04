@@ -6,47 +6,53 @@ Un crawler y archivador web inteligente, diseñado para ser adaptable, resilient
 
 - Python 3.10 o superior.
 
-## ¿Cómo Empezar?
+## ¿Cómo Empezar? (Método Simple)
+
+### Opción 1: Launcher Unificado (Recomendado)
+
+1. **Ejecutar el launcher principal:**
+
+   **En Windows:**
+
+   ```cmd
+   WebScraperPRO.bat
+   ```
+
+   **En Linux/macOS:**
+
+   ```bash
+   ./WebScraperPRO.sh
+   ```
+
+   El launcher te guiará através de un menú interactivo donde podrás:
+   - Instalar dependencias automáticamente
+   - Ejecutar la interfaz TUI
+   - Hacer crawling de URLs específicas
+   - Exportar datos
+   - Ejecutar tests y más
+
+### Opción 2: Instalación Manual
 
 1. **Instalar Dependencias:**
-    Ejecuta el script de instalación correspondiente a tu sistema operativo. Esto creará un entorno virtual, instalará las librerías de Python y los navegadores necesarios para Playwright.
 
-    **En Windows:**
-
-    ```powershell
-    .\1-Install-Dependencies.bat
-    ```
-
-    **En Linux o macOS:**
-
-    ```bash
-    chmod +x 1-Install-Dependencies.sh
-    ./1-Install-Dependencies.sh
-    ```
+   ```bash
+   pip install -r requirements.txt
+   python -m playwright install
+   ```
 
 2. **Lanzar la Aplicación:**
-  Una vez instaladas las dependencias, puedes ejecutar el scraper.
 
-  Modo demo (sin Playwright): útil para probar rápidamente sin instalar navegadores.
+   **Interfaz TUI (Recomendado):**
 
-  ```powershell
-  python -m src.main --demo
-  ```
+   ```bash
+   python -m src.main --tui
+   ```
 
-  **En Windows (script de lanzamiento legado):**
+   **Modo Demo (sin Playwright):**
 
-  ```powershell
-  .\backups\files\backup_2-Launch-Scraper.bat
-  ```
-
-  **En Linux o macOS (manualmente):**
-
-  ```bash
-  # 1. Activa el entorno virtual
-  source .venv/bin/activate
-  # 2. Lanza la TUI
-  python3 -m src.main --tui
-  ```
+   ```bash
+   python -m src.main --demo
+   ```
 
 3. **(Opcional) Ejecución por Línea de Comandos (CLI):**
     Para automatización, también puedes ejecutarlo directamente (asegúrate de tener el entorno virtual activado).

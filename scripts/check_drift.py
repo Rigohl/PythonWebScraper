@@ -5,13 +5,13 @@ Compara resultados recientes con históricos para identificar cambios significat
 """
 
 import sys
-import os
+
 from pathlib import Path
 from datetime import datetime, timedelta
 import hashlib
 
-# Añadir src al path para imports
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+# Añadir src al path para imports - ahora desde scripts/
+sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from src.db.database import DatabaseManager
 import logging
@@ -30,7 +30,7 @@ def detect_content_drift(db_path: str = 'data/scraper.db', days_threshold: int =
         cutoff_date = datetime.now() - timedelta(days=days_threshold)
         recent_results = list(db.table.find(created_at={'$gt': cutoff_date.isoformat()}))
 
-        logger.info(f"Analizando {len(recent_results)} resultados recientes")
+        logger.info("Analizando %slen(recent_results) resultados recientes")
 
         drift_detected = []
 
@@ -62,20 +62,20 @@ def detect_content_drift(db_path: str = 'data/scraper.db', days_threshold: int =
                     })
 
         if drift_detected:
-            logger.warning(f"Drift detectado en {len(drift_detected)} URLs:")
+            logger.warning("Drift detectado en %slen(drift_detected) URLs:")
             for drift in drift_detected[:10]:  # Mostrar primeros 10
-                logger.warning(f"  - {drift['url']} cambió el {drift['current_date']}")
+                logger.warning("  - %sdrift['url'] cambió el %sdrift['current_date']")
         else:
             logger.info("No se detectó drift significativo.")
 
         return len(drift_detected)
 
     except Exception as e:
-        logger.error(f"Error detectando drift: {e}")
+        logger.error("Error detectando drift: %se")
         return -1
 
 if __name__ == "__main__":
     drift_count = detect_content_drift()
     if drift_count > 0:
-        logger.info(f"Se detectaron {drift_count} cambios de contenido")
+        logger.info("Se detectaron %sdrift_count cambios de contenido")
     sys.exit(0 if drift_count >= 0 else 1)

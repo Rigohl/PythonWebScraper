@@ -7,4 +7,3 @@ Provides re-export of `DatabaseManager` from the refactored flat module
 from ..database import DatabaseManager  # re-export
 
 __all__ = ["DatabaseManager"]
-from ..database import DatabaseManager  # re-export for legacy path

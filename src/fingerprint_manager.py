@@ -137,5 +137,6 @@ class FingerprintManager:
             "navigator.deviceMemory": self._random.choice([4, 8]),
         }
 
-        return Fingerprint(user_agent=user_agent, viewport=viewport, js_overrides=js_overrides)
-
+        return Fingerprint(
+            user_agent=user_agent, viewport=viewport, js_overrides=js_overrides
+        )

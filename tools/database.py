@@ -10,8 +10,8 @@ from pathlib import Path
 import argparse
 import json
 
-# Añadir src al path para imports
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+# Añadir src al path para imports - ahora desde tools/
+sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from src.db.database import DatabaseManager
 import logging

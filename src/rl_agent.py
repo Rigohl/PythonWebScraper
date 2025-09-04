@@ -28,6 +28,7 @@ except Exception:
     # Provide minimal shims when RL libraries are missing
     RL_AVAILABLE = False
     Env = object
+
     # Minimal space shims used for tests when `gymnasium` is not installed.
     class _BoxShim:
         def __init__(self, shape):
@@ -36,6 +37,7 @@ except Exception:
     class _DiscreteShim:
         def __init__(self, n):
             self.n = int(n)
+
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +60,9 @@ class ScrapingEnv(Env):
         # usable in environments without gymnasium installed.
         if RL_AVAILABLE:
             self.observation_space = spaces.Box(
-                low=np.array([0.0, 0.0, 0.1]), high=np.array([1.0, 1.0, 10.0]), dtype=np.float32
+                low=np.array([0.0, 0.0, 0.1]),
+                high=np.array([1.0, 1.0, 10.0]),
+                dtype=np.float32,
             )
             self.action_space = spaces.Discrete(3)
         else:
@@ -106,7 +110,9 @@ class DummyModel:
     def __init__(self) -> None:
         pass
 
-    def predict(self, obs: np.ndarray, deterministic: bool = True) -> Tuple[np.ndarray, None]:
+    def predict(
+        self, obs: np.ndarray, deterministic: bool = True
+    ) -> Tuple[np.ndarray, None]:
         return np.array([1]), None  # action 1 corresponds to no change
 
     def learn(self, total_timesteps: int) -> None:
@@ -128,7 +134,12 @@ class RLAgent:
     optional filesystem path for loading and saving the trained model.
     """
 
-    def __init__(self, domain: Optional[str] = None, model_path: Optional[str] = None, training_mode: bool = True) -> None:
+    def __init__(
+        self,
+        domain: Optional[str] = None,
+        model_path: Optional[str] = None,
+        training_mode: bool = True,
+    ) -> None:
         self.domain = domain
         self.model_path = model_path
         self.training_mode = training_mode
@@ -144,32 +155,46 @@ class RLAgent:
                     self.model = PPO.load(model_path, env=self.vec_env)  # type: ignore
                     logger.info(f"Modelo RL cargado desde: {model_path}")
                 except Exception as e:
-                    logger.error(f"Error al cargar el modelo RL desde {model_path}: {e}. Inicializando uno nuevo.")
-                    self.model = PPO("MlpPolicy", self.vec_env, verbose=0, device="cpu")  # type: ignore
+                    logger.error(
+                        "Error al cargar el modelo RL desde %s: %s. Creando uno nuevo.",
+                        model_path,
+                        e,
+                    )
+                    self.model = PPO(
+                        "MlpPolicy", self.vec_env, verbose=0, device="cpu"
+                    )  # type: ignore
             else:
                 self.model = PPO("MlpPolicy", self.vec_env, verbose=0, device="cpu")  # type: ignore
                 logger.info("Nuevo modelo PPO inicializado.")
         else:
             # Fallback: dummy model
             self.model = DummyModel()
-            logger.warning("stable_baselines3 no está disponible; usando DummyModel para RL.")
+            logger.warning(
+                "stable_baselines3 no está disponible; usando DummyModel para RL."
+            )
 
     def get_action(self, state_dict: dict) -> dict:
         """Compute an action dictionary from a state dictionary."""
         self.env.set_state(state_dict)
         obs = self.env.current_state
         action, _ = self.model.predict(obs, deterministic=True)
-        action_val = int(action) if isinstance(action, (np.ndarray, list)) else int(action)
+        action_val = (
+            int(action) if isinstance(action, (np.ndarray, list)) else int(action)
+        )
         if action_val == 0:
             return {"adjust_backoff_factor": 0.8}
         if action_val == 1:
             return {"adjust_backoff_factor": 1.0}
         if action_val == 2:
             return {"adjust_backoff_factor": 1.2}
-        logger.warning(f"Acción RL desconocida: {action_val}. Devolviendo acción por defecto.")
+        logger.warning(
+            f"Acción RL desconocida: {action_val}. Devolviendo acción por defecto."
+        )
         return {"adjust_backoff_factor": 1.0}
 
-    def learn(self, state: dict, action_taken: dict, reward: float, next_state: dict) -> None:
+    def learn(
+        self, state: dict, action_taken: dict, reward: float, next_state: dict
+    ) -> None:
         """Append an experience to the buffer and train when full.
 
         In dummy mode this method records the experience but does not
@@ -195,7 +220,9 @@ class RLAgent:
                 self.model.learn(total_timesteps=self.buffer_size)
                 logger.info(f"Modelo PPO entrenado con {self.buffer_size} pasos.")
             except Exception as e:
-                logger.error(f"Error durante el aprendizaje del modelo PPO: {e}", exc_info=True)
+                logger.error(
+                    f"Error durante el aprendizaje del modelo PPO: {e}", exc_info=True
+                )
             finally:
                 self.experience_buffer = []
                 self.save_model()

@@ -245,7 +245,7 @@ class DatabaseManager:
                 # fall back to scanning up to 1000 rows.
                 try:
                     rows_iter = self.db.query(
-                        f"SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT 1000"
+                        "SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT 1000"
                     )
                 except Exception:
                     rows_iter = list(self.table.limit(1000))
@@ -361,7 +361,7 @@ class DatabaseManager:
             try:
                 saved = self.table.find_one(url=result.url)
                 logger.info(f"Confirmed saved row for {result.url}: {saved}")
-            except Exception as e:
+            except Exception:
                 logger.warning(f"Could not confirm saved row for {result.url}: {e}")
         except Exception as e:
             logger.warning(
