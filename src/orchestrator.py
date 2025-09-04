@@ -1,10 +1,15 @@
 import asyncio
+import json
 import logging
 import os
+from collections import defaultdict
+from datetime import datetime, timezone
 from urllib.parse import urlparse, urlunparse
 
-import httpx  # Revert to Stealth class
+import httpx
 from playwright.async_api import Browser
+from pydantic import create_model
+from robotexclusionrulesparser import RobotExclusionRulesParser
 
 try:
     from playwright_stealth import stealth  # type: ignore
@@ -13,20 +18,11 @@ except Exception:  # pragma: no cover
     async def stealth(page):  # type: ignore
         return None
 
-
-import json
-from collections import defaultdict
-
-from pydantic import create_model
-from robotexclusionrulesparser import RobotExclusionRulesParser
-
 from .db.database import DatabaseManager
 from .exceptions import NetworkError
 from .frontier_classifier import FrontierClassifier
 from .intelligence.llm_extractor import LLMExtractor
 from .intelligence.rl_agent import RLAgent
-
-# Importar los nuevos módulos
 from .managers.user_agent_manager import UserAgentManager
 from .models.results import ScrapeResult
 from .scraper import AdvancedScraper
@@ -42,8 +38,16 @@ logger = logging.getLogger(__name__)
 
 class ScrapingOrchestrator:
     """
-    Orquesta el proceso de scraping completo con concurrencia y gestión de colas.
-    Recibe sus dependencias (como el db_manager) para facilitar las pruebas.
+    Orchestrates the complete scraping process with concurrency and queue management.
+
+    This class manages the lifecycle of web scraping operations, including:
+    - URL prioritization and queue management
+    - Worker task coordination
+    - Metrics collection and anomaly detection
+    - Reinforcement Learning (RL) agent integration
+    - Robot exclusion rules enforcement
+
+    Dependencies are injected to facilitate testing and modularity.
     """
 
     def __init__(
@@ -60,22 +64,44 @@ class ScrapingOrchestrator:
         stats_callback=None,
         alert_callback=None,
     ):
+        """
+        Initialize the orchestrator with all required dependencies.
+
+        Args:
+            start_urls: Initial URLs to begin crawling
+            db_manager: Database manager for persistence
+            user_agent_manager: Manages user agent rotation
+            llm_extractor: LLM-based content extraction
+            rl_agent: Optional reinforcement learning agent
+            frontier_classifier: ML model for URL prioritization
+            concurrency: Number of concurrent workers
+            respect_robots_txt: Whether to respect robots.txt rules
+            use_rl: Enable reinforcement learning optimization
+            stats_callback: Callback for reporting statistics
+            alert_callback: Callback for reporting alerts
+        """
         self.start_urls = start_urls
         self.concurrency = concurrency
         self.db_manager = db_manager  # Injected dependency
         self.user_agent_manager = user_agent_manager
+
         if use_rl and not rl_agent:
             raise ValueError("RLAgent must be provisto cuando use_rl es True.")
+
         self.llm_extractor = llm_extractor  # Injected dependency
         self.rl_agent = rl_agent  # Injected dependency
-        # Permitir inyección de un clasificador de frontera (usado en tests)
+
+        # Allow injection of frontier classifier (used in tests)
         self.frontier_classifier = frontier_classifier or FrontierClassifier()
         self.use_rl = use_rl
-        self.stats_callback = stats_callback  # Para reportar a la TUI
-        self.alert_callback = alert_callback  # Added for reporting alerts to TUI
+        self.stats_callback = stats_callback  # For TUI reporting
+        self.alert_callback = alert_callback  # For TUI alert reporting
 
+        # Core orchestration components
         self.queue = asyncio.PriorityQueue()
         self.seen_urls = set()
+
+        # Configuration for robots.txt respect
         # If respect_robots_txt not provided explicitly, fall back to runtime settings toggle
         self.respect_robots_txt = (
             settings.ROBOTS_ENABLED
@@ -87,7 +113,7 @@ class ScrapingOrchestrator:
         self.robot_rules = None
         self.logger = logging.getLogger(self.__class__.__name__)
 
-        # Métricas para detección de anomalías y ajuste adaptativo
+        # Metrics for anomaly detection and adaptive adjustment
         self.domain_metrics = defaultdict(
             lambda: {
                 "total_scraped": 0,
@@ -95,8 +121,8 @@ class ScrapingOrchestrator:
                 "empty": 0,
                 "failed": 0,
                 "current_backoff_factor": settings.INITIAL_RETRY_BACKOFF_FACTOR,
-                "last_action_dict": None,  # Para RL: almacenar el diccionario de acciones
-                "last_state_dict": None,  # Para RL: almacenar el diccionario de estado
+                "last_action_dict": None,  # For RL: store action dictionary
+                "last_state_dict": None,  # For RL: store state dictionary
             }
         )
 
@@ -104,15 +130,24 @@ class ScrapingOrchestrator:
         self, url: str, parent_content_type: str = "UNKNOWN"
     ) -> int:
         """
-        Calcula la prioridad de una URL. Un número más bajo es más prioritario.
-        Combina la profundidad de la ruta con una puntuación de un modelo de ML.
+        Calculate priority for a URL. Lower number means higher priority.
+
+        Combines path depth with ML model scoring for intelligent prioritization.
+
+        Args:
+            url: The URL to prioritize
+            parent_content_type: Content type of the parent page
+
+        Returns:
+            Integer priority value (lower = higher priority)
         """
         parsed_url = urlparse(url)
         path_depth = len(parsed_url.path.strip("/").split("/"))
 
-        # A.3.3: Use ML model to get a promise score (0.0 to 1.0)
-        # Compatibilidad: algunos tests mockean método `predict`; otros podrían usar `predict_score`.
+        # Use ML model to get a promise score (0.0 to 1.0)
+        # Compatibility: some tests mock `predict` method; others might use `predict_score`.
         promise_score = 0.0
+
         # Try the commonly-used `predict` first (most tests/mock set this),
         # then fallback to `predict_score` for compatibility.
         if hasattr(self.frontier_classifier, "predict"):
@@ -141,10 +176,19 @@ class ScrapingOrchestrator:
         return int(priority)
 
     def _get_rl_state(self, domain: str) -> dict:
-        """Genera el estado actual para el agente de RL."""
+        """
+        Generate current state for the RL agent.
+
+        Args:
+            domain: Domain name for which to generate state
+
+        Returns:
+            Dictionary containing current domain metrics for RL decision making
+        """
         metrics = self.domain_metrics[domain]
         total_scraped = metrics["total_scraped"]
-        # Evitar división por cero
+
+        # Avoid division by zero
         low_quality_ratio = (
             (metrics["low_quality"] + metrics["empty"]) / total_scraped
             if total_scraped > 0
@@ -159,41 +203,61 @@ class ScrapingOrchestrator:
         }
 
     def _calculate_rl_reward(self, result: ScrapeResult) -> float:
-        """Calcula la recompensa para el agente de RL basado en el resultado."""
+        """
+        Calculate reward for the RL agent based on scraping result.
+
+        Args:
+            result: The scraping result to evaluate
+
+        Returns:
+            Float reward value for RL training
+        """
         if result.status == "SUCCESS":
-            return 1.0  # Recompensa alta por éxito
+            return 1.0  # High reward for success
         if result.status in ["LOW_QUALITY", "EMPTY"]:
-            return -0.5  # Penalización media por baja calidad
+            return -0.5  # Medium penalty for low quality
         if result.status == "FAILED":
-            return -1.0  # Penalización alta por fallo
-        return 0.0  # Sin recompensa para otros estados (ej. RETRY)
+            return -1.0  # High penalty for failure
+        return 0.0  # No reward for other states (e.g. RETRY)
 
     async def _apply_rl_actions(self, domain: str):
-        """Obtiene y aplica acciones del agente de RL."""
+        """
+        Get and apply actions from the RL agent for domain optimization.
+
+        Args:
+            domain: Domain name for which to apply RL actions
+        """
         current_state_dict = self._get_rl_state(domain)
         actions_dict = self.rl_agent.get_action(current_state_dict)
 
-        # Aplicar acciones del RL Agent
+        # Apply actions from RL Agent
         if "adjust_backoff_factor" in actions_dict:
             self.domain_metrics[domain]["current_backoff_factor"] *= actions_dict[
                 "adjust_backoff_factor"
             ]
             self.logger.debug(
-                f"RL Agent ajusta backoff para {domain} a {self.domain_metrics[domain]['current_backoff_factor']:.2f}"
+                "RL Agent adjusts backoff for %s to %.2f",
+                domain,
+                self.domain_metrics[domain]["current_backoff_factor"]
             )
 
-        # Almacenar el estado y la acción para el aprendizaje posterior
+        # Store state and action for later learning
         self.domain_metrics[domain]["last_state_dict"] = current_state_dict
         self.domain_metrics[domain]["last_action_dict"] = actions_dict
 
     def _perform_rl_learning(self, result: ScrapeResult):
-        """Calcula la recompensa y entrena al agente de RL."""
+        """
+        Calculate reward and train the RL agent based on scraping results.
+
+        Args:
+            result: The scraping result to learn from
+        """
         domain = urlparse(result.url).netloc
         metrics = self.domain_metrics[domain]
 
         if metrics["last_state_dict"] is None or metrics["last_action_dict"] is None:
             self.logger.debug(
-                f"No hay estado o acción previos para el aprendizaje RL en {domain}."
+                "No previous state or action for RL learning in %s", domain
             )
             return
 
@@ -206,14 +270,22 @@ class ScrapingOrchestrator:
             reward,
             next_state_dict,
         )
-        # Limpiar después de aprender para evitar re-aprender con la misma experiencia
+
+        # Clear after learning to avoid re-learning with same experience
         metrics["last_state_dict"] = None
         metrics["last_action_dict"] = None
 
     def _has_repetitive_path(self, url: str) -> bool:
         """
-        C.3.1: Detects if a URL has a repetitive path structure to avoid traps.
+        Detect if a URL has a repetitive path structure to avoid crawler traps.
+
         Example: /a/b/c/a/b/c -> True
+
+        Args:
+            url: URL to check for repetitive patterns
+
+        Returns:
+            True if repetitive pattern detected, False otherwise
         """
         path_segments = [
             segment for segment in urlparse(url).path.split("/") if segment
@@ -232,19 +304,25 @@ class ScrapingOrchestrator:
                 + 2 * settings.REPETITIVE_PATH_THRESHOLD
             ]
             if sub_sequence == next_sequence:
-                self.logger.warning(f"Repetitive path detected in URL: {url}")
+                self.logger.warning("Repetitive path detected in URL: %s", url)
                 if self.alert_callback:
                     self.alert_callback(
-                        f"URL con patrón repetitivo descartada: {url}", level="warning"
+                        f"URL with repetitive pattern discarded: {url}", level="warning"
                     )
                 return True
         return False
 
     async def _prequalify_url(self, url: str) -> tuple[bool, str]:
         """
-        B.2: Realiza una petición HEAD para pre-calificar una URL antes de encolarla.
-        Comprueba tipo de contenido, tamaño y redirecciones.
-        Devuelve (True, "") si es válida, o (False, "razón") si se descarta.
+        Perform HEAD request to pre-qualify a URL before enqueuing.
+
+        Checks content type, size and redirects to filter out unwanted URLs early.
+
+        Args:
+            url: URL to pre-qualify
+
+        Returns:
+            Tuple of (is_valid, reason). True if valid, False with reason if discarded.
         """
         # Fast path in tests to avoid real network HEAD calls that can hang CI or local runs.
         # If tests have patched/mock `httpx.AsyncClient` or its `head` method, use
@@ -258,7 +336,7 @@ class ScrapingOrchestrator:
                 return True, "Local test server - prequalification skipped"
             try:
                 from unittest.mock import Mock
-            except Exception:
+            except ImportError:
                 Mock = None  # type: ignore
 
             # Case 1: httpx.AsyncClient has been replaced/mocked at the class level
@@ -275,7 +353,7 @@ class ScrapingOrchestrator:
                     # exception, be permissive and accept the URL so that
                     # integration-style tests can proceed deterministically
                     # without external network calls.
-                    self.logger.debug(f"Test fast-path exception during HEAD: {e}")
+                    self.logger.debug("Test fast-path exception during HEAD: %s", e)
                     return True, f"Test fast-path exception: {e}"
 
             # Case 2: the `head` attribute was monkeypatched on the class to an AsyncMock.
@@ -291,7 +369,7 @@ class ScrapingOrchestrator:
                     return True, f"HEAD request failed: {e}"
                 except Exception as e:
                     self.logger.debug(
-                        f"Test fast-path exception calling AsyncClient.head: {e}"
+                        "Test fast-path exception calling AsyncClient.head: %s", e
                     )
                     return True, f"Test fast-path exception: {e}"
 
@@ -307,26 +385,47 @@ class ScrapingOrchestrator:
                 response = await client.head(url)
                 return self._evaluate_prequal_response(response)
         except (httpx.RequestError, asyncio.TimeoutError) as e:
-            # Lógica del parche: permitir en caso de error por seguridad
+            # Allow URL in case of error for safety
             self.logger.warning(
-                f"Fallo en la pre-calificación HEAD para {url}: {e}. Se permitirá por precaución."
+                "HEAD prequalification failed for %s: %s. Will allow as precaution.",
+                url, e
             )
             return True, f"HEAD request failed: {e}"
 
     async def _block_unnecessary_requests(self, route):
-        """Bloquea la carga de recursos no esenciales para acelerar el scraping."""
+        """
+        Block loading of non-essential resources to speed up scraping.
+
+        Args:
+            route: Playwright route object to either abort or continue
+        """
         if route.request.resource_type in settings.BLOCKED_RESOURCE_TYPES:
             await route.abort()
         else:
             await route.continue_()
 
     def _evaluate_prequal_response(self, response) -> tuple[bool, str]:
-        """Shared evaluation logic for HEAD prequalification (supports tests)."""
+        """
+        Shared evaluation logic for HEAD prequalification (supports tests).
+
+        Args:
+            response: HTTP response object to evaluate
+
+        Returns:
+            Tuple of (is_valid, reason)
+        """
         if len(getattr(response, "history", []) or []) > settings.MAX_REDIRECTS:
-            msg = f"URL descartada por exceso de redirecciones ({len(response.history)}): {getattr(response, 'url', '')}"
+            msg = f"URL discarded due to excessive redirects ({len(response.history)}): {getattr(response, 'url', '')}"
             self.logger.warning(msg)
             if self.alert_callback:
-                self.alert_callback(msg, level="warning")
+                # Mensaje traducido al español para tests
+                self.alert_callback(
+                    msg.replace(
+                        "URL discarded due to excessive redirects",
+                        "URL descartada por exceso de redirecciones",
+                    ),
+                    level="warning",
+                )
             return False, "Exceso de redirecciones"
 
         content_type = (
@@ -355,27 +454,26 @@ class ScrapingOrchestrator:
 
     async def _worker(self, browser: Browser, worker_id: int):
         """
-        Tarea trabajadora que procesa URLs de la cola.
+        Worker task that processes URLs from the queue.
+
+        Each worker continuously processes URLs until the queue is empty,
+        applying stealth measures, dynamic schemas, and RL optimization.
+
+        Args:
+            browser: Playwright browser instance
+            worker_id: Unique identifier for this worker
         """
         while True:
             priority, url = await self.queue.get()
             self.logger.info(
-                f"Trabajador {worker_id} procesando: {url} (Prioridad: {priority})"
+                "Worker %d processing: %s (Priority: %d)", worker_id, url, priority
             )
 
             current_user_agent = self.user_agent_manager.get_user_agent()
             page = await browser.new_page(user_agent=current_user_agent)
-            # Skip stealth in tests or enforce timeout to avoid hangs
-            if "PYTEST_CURRENT_TEST" in os.environ:
-                try:
-                    await asyncio.wait_for(stealth(page), timeout=3)
-                except Exception:
-                    pass
-            else:
-                try:
-                    await asyncio.wait_for(stealth(page), timeout=10)
-                except Exception:
-                    self.logger.debug("Stealth timeout o error ignorado.")
+
+            # Apply stealth measures with timeout to avoid hangs
+            await self._apply_stealth_to_page(page)
 
             await page.route("**/*", self._block_unnecessary_requests)
             scraper = AdvancedScraper(page, self.db_manager, self.llm_extractor)
@@ -383,142 +481,213 @@ class ScrapingOrchestrator:
             result = None
             domain = urlparse(url).netloc
 
+            # Apply RL actions if enabled
             if self.use_rl:
                 await self._apply_rl_actions(domain)
 
-            # --- Dynamic LLM Schema Logic ---
-            dynamic_extraction_schema = None
-            schema_definition = self.db_manager.load_llm_extraction_schema(domain)
-            if schema_definition:
-                try:
-                    # Dynamically create a Pydantic model from the stored definition
-                    # This is the correct way, as the scraper expects a Type[BaseModel]
-                    schema_fields = json.loads(schema_definition)
-                    type_mapping = {
-                        "str": str,
-                        "int": int,
-                        "float": float,
-                        "bool": bool,
-                        "list": list,
-                    }
-                    schema_fields = {
-                        k: type_mapping.get(v, str) for k, v in schema_fields.items()
-                    }
-                    dynamic_extraction_schema = create_model(
-                        "DynamicSchema", **schema_fields
-                    )
-                except (json.JSONDecodeError, TypeError) as e:
-                    self.logger.error(
-                        f"Error creating dynamic Pydantic model for {domain}: {e}"
-                    )
-                    if self.alert_callback:
-                        self.alert_callback(
-                            f"Error en esquema dinámico para {domain}: {e}",
-                            level="error",
-                        )
+            # Apply dynamic LLM schema if available
+            dynamic_extraction_schema = await self._get_dynamic_schema(domain)
 
-            for attempt in range(settings.MAX_RETRIES + 1):
-                try:
-                    result = await scraper.scrape(
-                        url, extraction_schema=dynamic_extraction_schema
-                    )
-                    break
-                except NetworkError as e:
-                    self.logger.warning(
-                        f"URL {url} falló por error de red. Reintentando... (Intento {attempt + 1}/{settings.MAX_RETRIES})"
-                    )
-                    if attempt < settings.MAX_RETRIES:
-                        # In test environments, reduce or skip backoff to keep tests fast
-                        if "PYTEST_CURRENT_TEST" in os.environ:
-                            backoff_time = 0
-                        else:
-                            backoff_time = self.domain_metrics[domain][
-                                "current_backoff_factor"
-                            ] * (2**attempt)
-                        await asyncio.sleep(backoff_time)
-                    else:
-                        self.logger.error(
-                            f"URL {url} falló tras {settings.MAX_RETRIES} reintentos de red. Descartando."
-                        )
-                        if self.alert_callback:
-                            self.alert_callback(
-                                f"Fallo de red persistente para {url}. Descartando.",
-                                level="error",
-                            )
-                        result = ScrapeResult(
-                            status="RETRY",
-                            url=url,
-                            error_message=str(e),
-                            retryable=True,
-                        )
-                        break
-                except Exception as e:
-                    self.logger.error(
-                        f"URL {url} falló con error inesperado: {e}. Descartando.",
-                        exc_info=True,
-                    )
-                    # Alert once with unexpected error message; later handling should not duplicate it
-                    if self.alert_callback:
-                        self.alert_callback(
-                            f"Error inesperado al procesar {url}: {e}", level="error"
-                        )
-                    result = ScrapeResult(
-                        status="FAILED", url=url, error_message=f"Error inesperado: {e}"
-                    )
-                    break
+            # Perform scraping with retry logic
+            result = await self._scrape_with_retries(scraper, url, domain, dynamic_extraction_schema)
 
             await page.close()
 
+            # Process results and update metrics
             if result:
-                if result.content_text:
-                    result.llm_summary = await self.llm_extractor.summarize_content(
-                        result.content_text
-                    )
-
-                self.db_manager.save_result(result)
-                self._update_domain_metrics(result)
-
-                if not self.use_rl:
-                    self._check_for_anomalies(domain)
-                else:
-                    self._perform_rl_learning(result)
-
-                if result.status == "SUCCESS":
-                    self._check_for_visual_changes(result)
-                    # Log the discovered links at warning level for test visibility
-                    self.logger.warning(
-                        f"Discovered links for {result.url}: {result.links}"
-                    )
-                    await self._add_links_to_queue(result.links, result.content_type)
-                    self.user_agent_manager.release_user_agent(current_user_agent)
-                elif result.status == "FAILED":
-                    self.user_agent_manager.block_user_agent(current_user_agent)
-                    # Avoid duplicating alerts if an unexpected error was already reported
-                    if self.alert_callback:
-                        if not (
-                            result.error_message
-                            and str(result.error_message).startswith("Error inesperado")
-                        ):
-                            self.alert_callback(
-                                f"Fallo permanente al procesar {url}. Razón: {result.error_message}",
-                                level="error",
-                            )
-                elif result.status == "RETRY":
-                    # Persistent network errors: block the agent. The alert for persistent
-                    # network failure is emitted at the retry loop, so do not duplicate it here.
-                    self.user_agent_manager.block_user_agent(current_user_agent)
+                await self._process_scraping_result(result, current_user_agent)
 
             self.queue.task_done()
-            # En pruebas unitarias `_worker` se invoca directamente dentro de `asyncio.wait_for(...)`.
-            # Para evitar bloqueos (el worker es un bucle infinito), si estamos bajo pytest y
-            # la cola queda vacía tras procesar un ítem, salimos del bucle.
+
+            # Exit loop in test environments when queue is empty
             if "PYTEST_CURRENT_TEST" in os.environ and self.queue.empty():
                 break
 
+    async def _apply_stealth_to_page(self, page):
+        """
+        Apply stealth measures to a Playwright page with timeout protection.
+
+        Args:
+            page: Playwright page instance
+        """
+        # Skip stealth in tests or enforce timeout to avoid hangs
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            try:
+                await asyncio.wait_for(stealth(page), timeout=3)
+            except Exception:
+                pass
+        else:
+            try:
+                await asyncio.wait_for(stealth(page), timeout=10)
+            except Exception:
+                self.logger.debug("Stealth timeout or error ignored.")
+
+    async def _get_dynamic_schema(self, domain: str):
+        """
+        Get dynamic extraction schema for a domain if available.
+
+        Args:
+            domain: Domain name to get schema for
+
+        Returns:
+            Pydantic model class or None
+        """
+        dynamic_extraction_schema = None
+        schema_definition = self.db_manager.load_llm_extraction_schema(domain)
+        if schema_definition:
+            try:
+                # Dynamically create a Pydantic model from the stored definition
+                # This is the correct way, as the scraper expects a Type[BaseModel]
+                schema_fields = json.loads(schema_definition)
+                type_mapping = {
+                    "str": str,
+                    "int": int,
+                    "float": float,
+                    "bool": bool,
+                    "list": list,
+                }
+                schema_fields = {
+                    k: type_mapping.get(v, str) for k, v in schema_fields.items()
+                }
+                dynamic_extraction_schema = create_model(
+                    "DynamicSchema", **schema_fields
+                )
+            except (json.JSONDecodeError, TypeError) as e:
+                self.logger.error(
+                    "Error creating dynamic Pydantic model for %s: %s", domain, e
+                )
+                if self.alert_callback:
+                    self.alert_callback(
+                        f"Error in dynamic schema for {domain}: {e}",
+                        level="error",
+                    )
+        return dynamic_extraction_schema
+
+    async def _scrape_with_retries(self, scraper, url: str, domain: str, dynamic_extraction_schema):
+        """
+        Perform scraping with retry logic for network errors.
+
+        Args:
+            scraper: AdvancedScraper instance
+            url: URL to scrape
+            domain: Domain name
+            dynamic_extraction_schema: Optional Pydantic schema
+
+        Returns:
+            ScrapeResult instance
+        """
+        for attempt in range(settings.MAX_RETRIES + 1):
+            try:
+                result = await scraper.scrape(
+                    url, extraction_schema=dynamic_extraction_schema
+                )
+                return result
+            except NetworkError as e:
+                self.logger.warning(
+                    "URL %s failed due to network error. Retrying... (Attempt %d/%d)",
+                    url, attempt + 1, settings.MAX_RETRIES
+                )
+                if attempt < settings.MAX_RETRIES:
+                    # In test environments, reduce or skip backoff to keep tests fast
+                    if "PYTEST_CURRENT_TEST" in os.environ:
+                        backoff_time = 0
+                    else:
+                        backoff_time = self.domain_metrics[domain][
+                            "current_backoff_factor"
+                        ] * (2**attempt)
+                    await asyncio.sleep(backoff_time)
+                else:
+                    self.logger.error(
+                        "URL %s failed after %d network retries. Discarding.",
+                        url, settings.MAX_RETRIES
+                    )
+                    if self.alert_callback:
+                        self.alert_callback(
+                            f"Fallo de red persistente para {url}. Descartando.",
+                            level="error",
+                        )
+                    return ScrapeResult(
+                        status="RETRY",
+                        url=url,
+                        error_message=str(e),
+                        retryable=True,
+                    )
+            except Exception as e:
+                self.logger.error(
+                    "URL %s failed with unexpected error: %s. Discarding.",
+                    url, e, exc_info=True
+                )
+                # Alert once with unexpected error message; later handling should not duplicate it
+                if self.alert_callback:
+                    self.alert_callback(
+                        f"Error inesperado al procesar {url}: {e}", level="error"
+                    )
+                return ScrapeResult(
+                    status="FAILED", url=url, error_message=f"Unexpected error: {e}"
+                )
+
+    async def _process_scraping_result(self, result: ScrapeResult, current_user_agent: str):
+        """
+        Process scraping result, update metrics, and handle user agent management.
+
+        Args:
+            result: The scraping result to process
+            current_user_agent: User agent that was used for scraping
+        """
+        domain = urlparse(result.url).netloc
+
+        # Add LLM summary if content exists
+        if result.content_text:
+            result.llm_summary = await self.llm_extractor.summarize_content(
+                result.content_text
+            )
+
+        self.db_manager.save_result(result)
+        self._update_domain_metrics(result)
+
+        # Apply appropriate learning/anomaly detection
+        if not self.use_rl:
+            self._check_for_anomalies(domain)
+        else:
+            self._perform_rl_learning(result)
+
+        # Handle different result statuses
+        if result.status == "SUCCESS":
+            self._check_for_visual_changes(result)
+            # Log the discovered links at warning level for test visibility
+            self.logger.warning(
+                "Discovered links for %s: %s", result.url, result.links
+            )
+            await self._add_links_to_queue(result.links, result.content_type)
+            self.user_agent_manager.release_user_agent(current_user_agent)
+        elif result.status == "FAILED":
+            self.user_agent_manager.block_user_agent(current_user_agent)
+            # Avoid duplicating alerts if an unexpected error was already reported
+            if self.alert_callback:
+                if not (
+                    result.error_message
+                    and str(result.error_message).startswith("Unexpected error")
+                ):
+                    self.alert_callback(
+                        f"Permanent failure processing {result.url}. Reason: {result.error_message}",
+                        level="error",
+                    )
+        elif result.status == "RETRY":
+            # Persistent network errors: block the agent. The alert for persistent
+            # network failure is emitted at the retry loop, so do not duplicate it here.
+            self.user_agent_manager.block_user_agent(current_user_agent)
+
     def _update_domain_metrics(self, result: ScrapeResult):
+        """
+        Update domain-specific metrics based on scraping result.
+
+        Args:
+            result: The scraping result to process
+        """
         domain = urlparse(result.url).netloc
         metrics = self.domain_metrics[domain]
         metrics["total_scraped"] += 1
+
         if result.status == "LOW_QUALITY":
             metrics["low_quality"] += 1
         elif result.status == "EMPTY":
@@ -537,6 +706,12 @@ class ScrapingOrchestrator:
             )
 
     def _check_for_anomalies(self, domain: str):
+        """
+        Check for anomalies in domain metrics and adjust backoff factors accordingly.
+
+        Args:
+            domain: Domain name to check for anomalies
+        """
         metrics = self.domain_metrics[domain]
         if metrics["total_scraped"] < 10:
             return
@@ -548,7 +723,10 @@ class ScrapingOrchestrator:
         if low_quality_ratio > settings.ANOMALY_THRESHOLD_LOW_QUALITY:
             old_backoff = metrics["current_backoff_factor"]
             metrics["current_backoff_factor"] *= 1.5
-            alert_message = f'Anomalía detectada en {domain}: {low_quality_ratio:.2f} de baja calidad/vacío. Aumentando backoff de {old_backoff} a {metrics["current_backoff_factor"]:.2f}'
+            alert_message = (
+                f'Anomalía detectada en {domain}: {low_quality_ratio:.2f} contenido de baja calidad/vacío. '
+                f'Increasing backoff from {old_backoff} to {metrics["current_backoff_factor"]:.2f}'
+            )
             self.logger.warning(alert_message)
             if self.alert_callback:
                 self.alert_callback(alert_message, level="warning")
@@ -567,10 +745,18 @@ class ScrapingOrchestrator:
                     settings.INITIAL_RETRY_BACKOFF_FACTOR
                 )
             self.logger.info(
-                f"Rendimiento mejorado en {domain}: {low_quality_ratio:.2f} de baja calidad/vacío. Reduciendo backoff de {old_backoff} a {metrics['current_backoff_factor']:.2f}"
+                "Performance improved in %s: %.2f low quality/empty. "
+                "Reducing backoff from %.2f to %.2f",
+                domain, low_quality_ratio, old_backoff, metrics["current_backoff_factor"]
             )
 
     def _check_for_visual_changes(self, new_result):
+        """
+        Check for visual changes by comparing image hashes with previous results.
+
+        Args:
+            new_result: New scraping result to compare
+        """
         if not new_result.visual_hash:
             return
 
@@ -580,60 +766,72 @@ class ScrapingOrchestrator:
 
         if imagehash is None:
             return
+
         try:
             old_hash = imagehash.hex_to_hash(old_result["visual_hash"])  # type: ignore[attr-defined]
             new_hash = imagehash.hex_to_hash(new_result.visual_hash)  # type: ignore[attr-defined]
             distance = old_hash - new_hash
             if distance > settings.VISUAL_CHANGE_THRESHOLD:
-                alert_message = f"¡ALERTA DE REDISEÑO! Se ha detectado un cambio visual significativo en {new_result.url} (distancia de hash: {distance})"
+                alert_message = (
+                    f"ALERTA DE REDISEÑO! Cambio visual significativo detectado en {new_result.url} "
+                    f"(hash distance: {distance})"
+                )
                 self.logger.warning(alert_message)
                 if self.alert_callback:
                     self.alert_callback(alert_message, level="warning")
         except (AttributeError, TypeError):
             # Handle mock objects in tests that don't support subtraction
             self.logger.debug(
-                f"No se pudo calcular distancia de hash para {new_result.url} (posible mock)"
+                "Could not calculate hash distance for %s (possible mock)", new_result.url
             )
         except Exception as e:
             self.logger.error(
-                f"No se pudo comparar el hash visual para {new_result.url}: {e}"
+                "Could not compare visual hash for %s: %s", new_result.url, e
             )
             if self.alert_callback:
                 self.alert_callback(
-                    f"Error al comparar hash visual para {new_result.url}: {e}",
+                    f"Error comparing visual hash for {new_result.url}: {e}",
                     level="error",
                 )
 
     async def _add_links_to_queue(
         self, links: list[str], parent_content_type: str = "UNKNOWN"
     ):
+        """
+        Add discovered links to the processing queue after validation.
+
+        Args:
+            links: List of URLs discovered during scraping
+            parent_content_type: Content type of the parent page
+        """
         for link in links:
             parsed_link = urlparse(link)
-            # C.4.3: Normalize URL by removing fragment and query params for seen check
+            # Normalize URL by removing fragment and query params for seen check
             clean_link = urlunparse(parsed_link._replace(fragment="", query=""))
 
             link_netloc = urlparse(clean_link).netloc
             if link_netloc != self.allowed_domain:
                 self.logger.warning(
-                    f"Skipping link due to domain mismatch: {clean_link} (netloc={link_netloc}, allowed={self.allowed_domain})"
+                    "Skipping link due to domain mismatch: %s (netloc=%s, allowed=%s)",
+                    clean_link, link_netloc, self.allowed_domain
                 )
                 continue
             if clean_link in self.seen_urls:
-                self.logger.warning(f"Skipping link because already seen: {clean_link}")
+                self.logger.warning("Skipping link because already seen: %s", clean_link)
                 continue
 
-            # C.3.1: Check for repetitive path traps
+            # Check for repetitive path traps
             if self._has_repetitive_path(clean_link):
                 self.logger.warning(
-                    f"Skipping link due to repetitive path: {clean_link}"
+                    "Skipping link due to repetitive path: %s", clean_link
                 )
                 continue
 
-            # B.2: Pre-qualify URL with a HEAD request
+            # Pre-qualify URL with a HEAD request
             is_qualified, reason = await self._prequalify_url(clean_link)
             if not is_qualified:
                 self.logger.warning(
-                    f"URL no calificada descartada: {clean_link} (Razón: {reason})"
+                    "Unqualified URL discarded: %s (Reason: %s)", clean_link, reason
                 )
                 continue
 
@@ -652,18 +850,26 @@ class ScrapingOrchestrator:
                     for token in ["/login", "/logout", "/admin", "/account"]
                 ):
                     self.logger.warning(
-                        f"Ethics/Compliance placeholder filtró URL: {clean_link}"
+                        "Ethics/Compliance placeholder filtered URL: %s", clean_link
                     )
                     continue
 
             if is_allowed_by_robots:
-                self.logger.warning(f"Enqueueing link: {clean_link}")
+                self.logger.warning("Enqueueing link: %s", clean_link)
                 self.seen_urls.add(clean_link)
                 priority = self._calculate_priority(clean_link, parent_content_type)
                 await self.queue.put((priority, clean_link))
-                self.logger.warning(f"Queue size after enqueue: {self.queue.qsize()}")
+                self.logger.warning("Queue size after enqueue: %d", self.queue.qsize())
 
     async def run(self, browser: Browser):
+        """
+        Main orchestrator execution method.
+
+        Initializes the crawling process, manages worker tasks, and handles cleanup.
+
+        Args:
+            browser: Playwright browser instance
+        """
         if not self.start_urls:
             self.logger.error("No se proporcionaron URLs iniciales.")
             if self.alert_callback:
@@ -673,40 +879,49 @@ class ScrapingOrchestrator:
                 )
             return
 
+        # Load robots.txt rules if enabled
         if self.respect_robots_txt:
             await self._fetch_robot_rules()
         else:
-            self.logger.warning("Se ha desactivado la comprobación de robots.txt.")
+            self.logger.warning("robots.txt checking has been disabled.")
             if self.alert_callback:
                 self.alert_callback(
-                    "La comprobación de robots.txt está desactivada.", level="warning"
+                    "robots.txt checking is disabled.", level="warning"
                 )
 
+        # Add start URLs to queue
         for url in self.start_urls:
             if url not in self.seen_urls:
                 self.seen_urls.add(url)
                 priority = self._calculate_priority(url)
                 await self.queue.put((priority, url))
 
+        # Start worker tasks
         worker_tasks = [
             asyncio.create_task(self._worker(browser, i + 1))
             for i in range(self.concurrency)
         ]
 
+        # Wait for all URLs to be processed
         await self.queue.join()
 
+        # Clean up worker tasks
         for task in worker_tasks:
             task.cancel()
         await asyncio.gather(*worker_tasks, return_exceptions=True)
 
+        # Save RL model if enabled
         if self.use_rl and self.rl_agent:
             self.rl_agent.save_model()
 
-        self.logger.info("Proceso de crawling completado.")
+        self.logger.info("Crawling process completed.")
         if self.alert_callback:
-            self.alert_callback("Proceso de crawling completado.", level="info")
+            self.alert_callback("Crawling process completed.", level="info")
 
     async def _fetch_robot_rules(self):
+        """
+        Fetch and parse robots.txt rules from the target domain.
+        """
         robots_url = urlunparse(
             (
                 urlparse(self.start_urls[0]).scheme,
@@ -725,18 +940,22 @@ class ScrapingOrchestrator:
                     self.robot_rules.parse(response.text)
                 else:
                     self.logger.warning(
-                        f"No se pudo obtener robots.txt desde {robots_url}. Código de estado: {response.status_code}"
+                        "Could not fetch robots.txt from %s. Status code: %d",
+                        robots_url, response.status_code
                     )
                     if self.alert_callback:
+                        # Mensaje traducido al español para tests
                         self.alert_callback(
                             f"No se pudo cargar robots.txt desde {robots_url}. Código: {response.status_code}.",
                             level="warning",
                         )
         except Exception as e:
             self.logger.warning(
-                f"No se pudo cargar o parsear robots.txt desde {robots_url}. Error: {e}"
+                "Could not load or parse robots.txt from %s. Error: %s",
+                robots_url, e
             )
             if self.alert_callback:
+                # Mensaje traducido al español para tests
                 self.alert_callback(
                     f"Error al cargar/parsear robots.txt desde {robots_url}. Error: {e}",
                     level="warning",

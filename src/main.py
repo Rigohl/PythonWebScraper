@@ -1,19 +1,24 @@
 """
-Entry point for the improved Web Scraper PRO.
+Entry point for Web Scraper PRO with CLI and TUI interfaces.
 
-This module provides a command‑line interface for launching the crawler
-programmatically or via a Textual TUI. It closely follows the original
-project's structure while applying the following improvements:
+This module provides the main command-line interface for launching the crawler
+programmatically or via a Textual TUI. It supports multiple operation modes:
 
-* robots.txt checks are disabled by default. Pass ``--respect-robots`` to
-  enable them.
-* Logging configuration has been centralised in ``setup_logging`` and
-  respects the TUI's own logging handler when running the GUI.
-* Exporting results to CSV or JSON is supported via dedicated flags.
+Features:
+* Crawling mode: Scrapes websites using configurable concurrency and options
+* Export mode: Exports stored data to CSV or JSON formats
+* Demo mode: Runs a lightweight scraping demo using local HTML files
+* TUI mode: Launches an interactive text-based user interface
+* Comprehensive logging: Configurable logging with file and console output
 
-Note that ``run_crawler`` is not implemented in this minimal stub. In a full
-deployment it would orchestrate the creation of ``ScrapingOrchestrator`` and
-drive Playwright's lifecycle.
+Configuration:
+* robots.txt checks are disabled by default (use --respect-robots to enable)
+* Supports both online and offline modes
+* Configurable database paths and concurrency settings
+* Optional reinforcement learning agent integration
+
+The module orchestrates dependency injection and manages the complete
+application lifecycle from argument parsing to execution cleanup.
 """
 
 from __future__ import annotations
@@ -31,10 +36,18 @@ from .settings import settings
 def setup_logging(
     log_file_path: Optional[str] = None, tui_handler: Optional[logging.Handler] = None
 ) -> None:
-    """Configure the root logger.
+    """Configure the root logger with appropriate handlers.
 
-    When running in the TUI, a custom handler is passed in which takes
-    precedence over the default console handler.
+    Sets up logging configuration for both console and file output. When
+    running in TUI mode, uses the provided TUI handler instead of the default
+    console handler to prevent output conflicts.
+
+    Args:
+        log_file_path: Optional path for log file output. Creates directories if needed.
+        tui_handler: Optional custom handler for TUI mode to redirect log output.
+
+    Note:
+        Playwright logging is automatically reduced to WARNING level to minimize noise.
     """
     handlers: list[logging.Handler] = []
     if tui_handler is None:
@@ -65,18 +78,33 @@ async def _handle_tui(log_file_path: str) -> None:
 
 
 def _handle_export(args: argparse.Namespace) -> None:
-    """Handle data export operations."""
+    """Handle data export operations to CSV or JSON formats.
+
+    Args:
+        args: Parsed command line arguments containing export configuration.
+
+    Note:
+        Exports are mutually exclusive - only one format can be exported at a time.
+    """
     db_manager = DatabaseManager(db_path=args.db_path)
     if args.export_csv:
-        logging.info("Exportando datos a %s…", args.export_csv)
+        logging.info("Exporting data to %s...", args.export_csv)
         db_manager.export_to_csv(args.export_csv)
     elif args.export_json:
-        logging.info("Exportando datos a %s…", args.export_json)
+        logging.info("Exporting data to %s...", args.export_json)
         db_manager.export_to_json(args.export_json)
 
 
 async def _handle_crawl(args: argparse.Namespace) -> None:
-    """Handle the crawling process."""
+    """Handle the crawling process with configured parameters.
+
+    Args:
+        args: Parsed command line arguments containing crawling configuration
+              including URLs, concurrency settings, and behavior flags.
+
+    Note:
+        Imports run_crawler lazily to avoid heavy dependencies when not needed.
+    """
     # Importing here to avoid heavy imports when not crawling
     from .runner import run_crawler  # type: ignore
 
@@ -90,84 +118,98 @@ async def _handle_crawl(args: argparse.Namespace) -> None:
 
 
 async def main() -> None:
+    """Main entry point for Web Scraper PRO application.
+
+    Parses command line arguments and routes execution to appropriate handlers
+    based on the selected operation mode (crawl, export, TUI, or demo).
+
+    Operation modes:
+    * --crawl: Scrapes specified URLs with full browser automation
+    * --export-csv/--export-json: Exports stored data to specified format
+    * --tui: Launches interactive text-based user interface
+    * --demo: Runs lightweight demo using local HTML file
+    * (default): Shows help if no operation specified
+
+    Global settings are applied early to propagate throughout the application.
+    """
     parser = argparse.ArgumentParser(
-        description="Web Scraper PRO - Un crawler y archivador web inteligente."
+        description="Web Scraper PRO - Intelligent web crawler and archiver."
     )
     parser.add_argument(
         "-db",
         "--db-path",
         type=str,
         default=settings.DB_PATH,
-        help=f"Ruta al archivo de la base de datos (default: {settings.DB_PATH})",
+        help=f"Path to database file (default: {settings.DB_PATH})",
     )
     parser.add_argument(
         "--log-file",
         type=str,
         default=settings.TUI_LOG_PATH,
-        help=f"Ruta al archivo de log (default: {settings.TUI_LOG_PATH})",
+        help=f"Path to log file (default: {settings.TUI_LOG_PATH})",
     )
     parser.add_argument(
         "--tui",
         action="store_true",
-        help="Ejecuta la aplicación en modo de Interfaz de Usuario Textual (TUI).",
+        help="Run application in Textual User Interface (TUI) mode.",
     )
     action_group = parser.add_mutually_exclusive_group()
     action_group.add_argument(
         "--crawl",
         nargs="+",
         metavar="URL",
-        help="Una o más URLs de inicio para el crawling.",
+        help="One or more starting URLs for crawling.",
     )
     action_group.add_argument(
         "--export-csv",
         metavar="FILE_PATH",
-        help="Exporta los datos de la BD a un archivo CSV y sale.",
+        help="Export database data to CSV file and exit.",
     )
     action_group.add_argument(
         "--export-json",
         metavar="FILE_PATH",
-        help="Exporta los datos de la BD a un archivo JSON y sale.",
+        help="Export database data to JSON file and exit.",
     )
     parser.add_argument(
         "-c",
         "--concurrency",
         type=int,
         default=settings.CONCURRENCY,
-        help=f"Número de trabajadores concurrentes (default: {settings.CONCURRENCY})",
+        help=f"Number of concurrent workers (default: {settings.CONCURRENCY})",
     )
     # Robots: disable by default. --respect-robots toggles to true
     parser.add_argument(
         "--respect-robots",
         action="store_true",
         default=False,
-        help="Respeta las reglas de robots.txt. Por defecto se ignoran.",
+        help="Respect robots.txt rules. Ignored by default.",
     )
     parser.add_argument(
         "--enable-ethics",
         action="store_true",
         default=settings.ETHICS_CHECKS_ENABLED,
-        help="Activa comprobaciones éticas/compliance (placeholder).",
+        help="Enable ethical/compliance checks (placeholder feature).",
     )
     parser.add_argument(
         "--online",
         action="store_true",
         default=not settings.OFFLINE_MODE,
-        help="Fuerza modo online (permite llamadas a LLM remotos).",
+        help="Force online mode (allows remote LLM calls).",
     )
     parser.add_argument(
         "--use-rl",
         action="store_true",
-        help="Activa el agente de Aprendizaje por Refuerzo para optimización dinámica.",
+        help="Enable Reinforcement Learning agent for dynamic optimization.",
     )
     parser.add_argument(
         "--demo",
         action="store_true",
-        help="Ejecuta un modo demo ligero que procesa un fichero HTML local sin requerir Playwright.",
+        help="Run lightweight demo mode processing a local HTML file without Playwright.",
     )
     args = parser.parse_args()
     setup_logging(log_file_path=args.log_file)
 
-    # Propagar overrides tempranos (para la TUI también)
+    # Apply early setting overrides (propagated throughout application)
     settings.ROBOTS_ENABLED = args.respect_robots
     settings.ETHICS_CHECKS_ENABLED = args.enable_ethics
     settings.OFFLINE_MODE = not args.online
@@ -195,7 +237,7 @@ async def main() -> None:
 
         demo_file = Path(__file__).resolve().parents[1] / "toscrape_com_book.html"
         if not demo_file.exists():
-            logging.error("Archivo demo no encontrado: %s", str(demo_file))
+            logging.error("Demo file not found: %s", str(demo_file))
             return
 
         html = demo_file.read_text(encoding="utf-8")
@@ -203,16 +245,16 @@ async def main() -> None:
         # Very small, dependency-free extraction: grab title and first <p>
         try:
             from bs4 import BeautifulSoup
-        except Exception:
+        except ImportError:
             logging.error(
-                "Para ejecutar el modo demo es necesario 'beautifulsoup4' en el entorno. Instálalo con: pip install beautifulsoup4"
+                "Demo mode requires 'beautifulsoup4'. Install with: pip install beautifulsoup4"
             )
             return
 
         soup = BeautifulSoup(html, "html.parser")
-        title = soup.title.string if soup.title else "(sin título)"
+        title = soup.title.string if soup.title else "(no title)"
         first_p = soup.find("p")
-        content = first_p.get_text(strip=True) if first_p else "(sin contenido)"
+        content = first_p.get_text(strip=True) if first_p else "(no content)"
 
         result = ScrapeResult(
             status="SUCCESS",
@@ -230,7 +272,7 @@ async def main() -> None:
             healing_events=[],
         )
         logging.info(
-            "Resultado demo:\nTitle: %s\nContent snippet: %s", title, content[:200]
+            "Demo result:\nTitle: %s\nContent snippet: %s", title, content[:200]
         )
         # Persist if DB available; also write JSON to artifacts for visibility
         wrote_to_db = False
@@ -239,14 +281,14 @@ async def main() -> None:
             try:
                 db.save_scrape_result(result)
                 logging.info(
-                    "Resultado demo guardado en la base de datos: %s", args.db_path
+                    "Demo result saved to database: %s", args.db_path
                 )
                 wrote_to_db = True
             except Exception as exc:  # pragma: no cover - best-effort
-                logging.debug("No se pudo guardar resultado demo en BD: %s", exc)
+                logging.debug("Could not save demo result to DB: %s", exc)
         except Exception:
             logging.debug(
-                "No se pudo inicializar DatabaseManager para persistencia demo."
+                "Could not initialize DatabaseManager for demo persistence."
             )
 
         # Always write a JSON fallback in artifacts so the user can inspect the demo output
@@ -269,15 +311,16 @@ async def main() -> None:
                     ensure_ascii=False,
                     indent=2,
                 )
-            logging.info("Resultado demo escrito a: %s", str(demo_out))
+            logging.info("Demo result written to: %s", str(demo_out))
         except Exception as exc:  # pragma: no cover - best-effort
-            logging.debug("No se pudo escribir artifacts/demo_result.json: %s", exc)
+            logging.debug("Could not write artifacts/demo_result.json: %s", exc)
         return
 
     # If no action is provided, print help and exit
     parser.print_help()
+    # Mensaje traducido al español para pruebas
     logging.warning(
-        "Ninguna acción especificada (p.ej. --crawl, --export-csv, --tui). Saliendo."
+        "Ninguna acción especificada (p. ej., --crawl, --export-csv, --tui). Saliendo."
     )
 
 

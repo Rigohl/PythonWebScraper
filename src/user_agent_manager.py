@@ -1,130 +1,114 @@
-"""
-User‑Agent rotation and blocking manager.
+"""User-Agent rotation and blocking manager.
 
-This module defines ``UserAgentManager``, a small utility class for
-rotating through a collection of User‑Agent strings, temporarily blocking
-agents that lead to detection or throttling and restoring them after a
-configurable timeout.  The original implementation used bare functions
-without extensive type hints or documentation.  In this rewrite we add
-comprehensive docstrings, type annotations and a few helper methods to
-improve testability and clarity.
+This module provides :class:`UserAgentManager`, a small utility to rotate
+through User-Agent strings while allowing temporary blocking and
+automatic expiry. All public methods are thread-safe.
 """
 
 from __future__ import annotations
 
+import threading
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Dict, List, Set
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List
 
 
 @dataclass
 class UserAgentManager:
-    """Manages rotation and temporary blocking of User‑Agent strings.
+    """Manage rotation and temporary blocking of User-Agent strings.
 
-    The manager maintains a pool of User‑Agents and cycles through them on
-    successive calls to :meth:`get_user_agent`.  Agents can be blocked for
-    a specified duration using :meth:`block_user_agent`, during which
-    :meth:`get_user_agent` will skip them.  Once the block expires or the
-    agent is manually released via :meth:`release_user_agent`, it becomes
-    available again.
-
-    Args:
-        user_agents: An iterable of User‑Agent strings.  Duplicate
-            values are ignored.
-
-    Raises:
-        ValueError: If ``user_agents`` is empty.
+    The manager keeps a deterministic rotation order and a separate list
+    of currently available User-Agents. When all agents are blocked, the
+    manager still returns one from the original list to keep the scraper
+    operational.
     """
 
     user_agents: List[str]
-    available_user_agents: Set[str] = field(init=False)
+    available_user_agents: List[str] = field(init=False)
     blocked_user_agents: Dict[str, datetime] = field(init=False, default_factory=dict)
     _rotation_index: int = field(init=False, default=0)
+    _lock: threading.Lock = field(init=False, default_factory=threading.Lock)
 
     def __post_init__(self) -> None:
         if not self.user_agents:
             raise ValueError("La lista de User-Agents no puede estar vacía.")
-        # Normalise to a list to allow index-based rotation and create a set
-        # of available agents for fast membership tests.
-        self.user_agents = list(dict.fromkeys(self.user_agents))
-        # Maintain both a list (for deterministic rotation) and a set for
-        # fast membership checks. Keep order stable between runs.
+        # Remove duplicates while preserving order
+        seen: dict = dict.fromkeys(self.user_agents)
+        self.user_agents = list(seen)
         self.available_user_agents = list(self.user_agents)
 
+    def _now(self) -> datetime:
+        """Return current UTC time (split out for testability)."""
+        return datetime.now(timezone.utc)
+
     def _clean_expired_blocks(self) -> None:
-        """Remove expired entries from the blocked user agents dictionary."""
-        now = datetime.now()
+        """Move expired blocked agents back to available list.
+
+        Callers should hold ``self._lock``.
+        """
+        now = self._now()
         expired = [ua for ua, until in self.blocked_user_agents.items() if now > until]
         for ua in expired:
-            # Re-add to available and delete from blocked
-            if ua not in self.available_user_agents:
+            self.blocked_user_agents.pop(ua, None)
+            if ua not in self.available_user_agents and ua in self.user_agents:
                 self.available_user_agents.append(ua)
-            del self.blocked_user_agents[ua]
 
-    # Backwards compatibility: older tests expect a method named
-    # ``_clean_blocked_user_agents`` with equivalent behaviour.
-    def _clean_blocked_user_agents(self) -> None:  # pragma: no cover - simple alias
-        self._clean_expired_blocks()
+    # Backwards compatibility alias
+    def _clean_blocked_user_agents(self) -> None:  # pragma: no cover - thin wrapper
+        with self._lock:
+            self._clean_expired_blocks()
 
     def get_user_agent(self) -> str:
-        """Return the next available User‑Agent, rotating through the pool.
+        """Return the next available User-Agent in a deterministic rotation.
 
-        If all agents are currently blocked, this method returns a User‑Agent
-        from the original list in round‑robin order, even if that agent is
-        still blocked.  This ensures the scraper always has something to send.
-
-        Returns:
-            str: A User‑Agent string.
+        If no agents are currently available (all blocked) this method will
+        return one from the original user_agents list in round-robin order.
         """
-        self._clean_expired_blocks()
-        if not self.available_user_agents:
-            # All are blocked; fall back to sequential rotation through the
-            # original list. Keep deterministic rotation using _rotation_index.
-            self._rotation_index = (self._rotation_index + 1) % len(self.user_agents)
-            return self.user_agents[self._rotation_index]
+        with self._lock:
+            self._clean_expired_blocks()
+            if self.available_user_agents:
+                self._rotation_index = (self._rotation_index + 1) % len(self.available_user_agents)
+                return self.available_user_agents[self._rotation_index]
 
-        # Cycle through the available list deterministically
-        self._rotation_index = (self._rotation_index + 1) % len(
-            self.available_user_agents
-        )
-        return self.available_user_agents[self._rotation_index]
+            # Fallback to original list when all are blocked
+            self._rotation_index = (self._rotation_index + 1) % len(self.user_agents)
+            chosen = self.user_agents[self._rotation_index]
+            # Ensure the fallback choice is recorded as blocked if it currently is
+            # (tests expect it to remain in blocked_user_agents)
+            return chosen
 
     def block_user_agent(self, user_agent: str, duration_seconds: int = 300) -> None:
-        """Temporarily block a User‑Agent for a given number of seconds.
+        """Temporarily block ``user_agent`` for ``duration_seconds`` seconds.
 
-        Args:
-            user_agent: The User‑Agent string to block.  If the agent is not
-                recognised, this method silently returns.
-            duration_seconds: The number of seconds to block the User‑Agent.
+        If the agent is unknown the call is a no-op.
         """
-        if user_agent in self.available_user_agents:
+        expiry = self._now() + timedelta(seconds=duration_seconds)
+        with self._lock:
+            # Remove from available if present
             try:
-                self.available_user_agents.remove(user_agent)
+                if user_agent in self.available_user_agents:
+                    self.available_user_agents.remove(user_agent)
             except ValueError:
                 pass
-        # Always set/update the blocked expiry time, even if the agent wasn''t available.
-        self.blocked_user_agents[user_agent] = datetime.now() + timedelta(
-            seconds=duration_seconds
-        )
+            # Always set/update expiry regardless of availability
+            self.blocked_user_agents[user_agent] = expiry
 
     def release_user_agent(self, user_agent: str) -> None:
-        """Release a previously blocked User‑Agent immediately.
-
-        Args:
-            user_agent: The User‑Agent string to release.  If the agent is not
-                present in the blocked list, this method silently returns.
-        """
-        if user_agent in self.blocked_user_agents:
-            del self.blocked_user_agents[user_agent]
-            if user_agent not in self.available_user_agents:
-                self.available_user_agents.append(user_agent)
+        """Immediately release a blocked User-Agent back to availability."""
+        with self._lock:
+            if user_agent in self.blocked_user_agents:
+                self.blocked_user_agents.pop(user_agent, None)
+                if user_agent in self.user_agents and user_agent not in self.available_user_agents:
+                    self.available_user_agents.append(user_agent)
 
     def is_blocked(self, user_agent: str) -> bool:
-        """Check whether a User‑Agent is currently blocked."""
-        self._clean_expired_blocks()
-        return user_agent in self.blocked_user_agents
+        """Return True if ``user_agent`` is currently blocked (and not expired)."""
+        with self._lock:
+            self._clean_expired_blocks()
+            return user_agent in self.blocked_user_agents
 
     def has_available(self) -> bool:
-        """Return ``True`` if at least one User‑Agent is currently available."""
-        self._clean_expired_blocks()
-        return bool(self.available_user_agents)
+        """Return True when at least one User-Agent is currently available."""
+        with self._lock:
+            self._clean_expired_blocks()
+            return bool(self.available_user_agents)

@@ -67,12 +67,12 @@ def generate_metrics(db_path: str = 'data/scraper.db', output_file: str = None):
             'average_crawl_duration': avg_duration,
             'average_content_length': avg_content_length,
             'domains_covered': dict(domains),
-            'total_domains': len(domains)
+            'total_domains': len(domains),
         }
 
         logger.info("Métricas generadas:")
         logger.info("  Total de resultados: %s", total_results)
-        logger.info("  Tasa de éxito: %.2%", quality_score)
+        logger.info("  Tasa de éxito: %.2f", quality_score)
         logger.info("  Duración promedio: %.2fs", avg_duration)
         logger.info("  Longitud promedio de contenido: %.0f caracteres", avg_content_length)
         logger.info("  Dominios cubiertos: %s", len(domains))

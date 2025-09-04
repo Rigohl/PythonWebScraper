@@ -113,31 +113,6 @@ Button:focus {
     border: heavy #00ff88;
 }
 
-/* Estabilización de widgets dinámicos */
-LiveStats,
-DomainStats,
-AlertsDisplay {
-    border: round #00aa44;
-    background: #001100;
-    /* Garantizar altura mínima */
-    min-height: 5;
-    margin-bottom: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-/* Mejoras para notificaciones Toast */
-.toast-content {
-    max-width: 100%;
-}
-
-/* Evitar que las tabs rompan el layout */
-TabbedContent {
-    height: auto;
-    min-height: 10;
-    margin-bottom: 1;
-}
-
 /* Aumentar legibilidad del log */
 Log {
     height: 80%;
@@ -149,6 +124,8 @@ Log {
     /* Mejoras para estabilidad */
     min-height: 20;
     max-width: 100%;
+    word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 /* Estilos para la barra de progreso y el label de estadísticas */
@@ -159,6 +136,7 @@ Log {
     border: round #00aa44;
     background: #001100;
     /* Evitar parpadeos durante transiciones */
+    transition: progress 0.3s ease;
 }
 
 #stats_label {
@@ -246,4 +224,29 @@ DataTable>.datatable--cursor {
     max-height: 10;
     min-height: 5;
     overflow-y: auto;
+}
+
+/* Estabilización de widgets dinámicos */
+LiveStats, DomainStats, AlertsDisplay {
+    border: round #00aa44;
+    background: #001100;
+    /* Garantizar altura mínima */
+    min-height: 5;
+    margin-bottom: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Mejoras para notificaciones Toast */
+.toast-content {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    max-width: 100%;
+}
+
+/* Evitar que las tabs rompan el layout */
+TabbedContent {
+    height: auto;
+    min-height: 10;
+    margin-bottom: 1;
 }

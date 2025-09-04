@@ -1,7 +1,8 @@
 import logging
+import time
 
 from textual.app import App, ComposeResult
-from textual.containers import Container, Grid
+from textual.containers import Container, Grid, Vertical
 from textual.logging import TextualHandler
 from textual.widgets import (
     Button,
@@ -15,6 +16,7 @@ from textual.widgets import (
     ProgressBar,
     TabbedContent,
     TabPane,
+    Static,
 )
 from textual.worker import Worker, WorkerState
 
@@ -32,23 +34,96 @@ class AlertsDisplay(Container):
 
     def add_alert(self, message: str, level: str = "warning"):
         # Textual Log widget uses markup, so we can style messages
+        log = self.query_one("#alert_log")
         if level == "error":
-            self.query_one("#alert_log").write(
-                f"[bold red]ERROR: {message}[/]"
-            )
+            log.write(f"[bold red]ERROR: {message}[/]")
         elif level == "warning":
-            self.query_one("#alert_log").write(
-                f"[yellow]WARNING: {message}[/]"
-            )
+            log.write(f"[yellow]WARNING: {message}[/]")
         else:
-            self.query_one("#alert_log").write(message)
+            log.write(message)
 
     def reset(self):
         self.query_one("#alert_log").clear()
 
 
+class ToastNotification(Static):
+    """Un widget para mostrar notificaciones toast temporales."""
+
+    def __init__(self, message: str, level: str = "info", duration: float = 3.0):
+        super().__init__()
+        self.message = message
+        self.level = level
+        self.duration = duration
+        self._timer = None
+
+    def compose(self) -> ComposeResult:
+        if self.level == "success":
+            self.add_class("toast-success")
+            icon = "✓"
+        elif self.level == "warning":
+            self.add_class("toast-warning")
+            icon = "⚠"
+        elif self.level == "error":
+            self.add_class("toast-error")
+            icon = "✗"
+        else:
+            self.add_class("toast-info")
+            icon = "ℹ"
+
+        yield Static(f"{icon} {self.message}", classes="toast-content")
+
+    async def show(self):
+        """Muestra la notificación y la oculta después de la duración."""
+        self.styles.display = "block"
+        self._timer = self.set_timer(self.duration, self.hide)
+
+    def hide(self):
+        """Oculta la notificación."""
+        self.styles.display = "none"
+        if self._timer:
+            self._timer.stop()
+
+
+class ToastContainer(Vertical):
+    """Contenedor para mostrar múltiples notificaciones toast."""
+
+    def __init__(self):
+        super().__init__()
+        self.notifications = []
+
+    def compose(self) -> ComposeResult:
+        yield from ()
+
+    def show_toast(self, message: str, level: str = "info", duration: float = 3.0):
+        """Muestra una nueva notificación toast."""
+        toast = ToastNotification(message, level, duration)
+        self.notifications.append(toast)
+        self.mount(toast)
+        self.call_later(toast.show)
+
+        # Auto-remover después de la duración
+        self.set_timer(duration + 0.5, lambda: self.remove_toast(toast))
+
+    def remove_toast(self, toast: ToastNotification):
+        """Remueve una notificación toast."""
+        if toast in self.notifications:
+            self.notifications.remove(toast)
+            toast.remove()
+
+
 class LiveStats(Container):
     """Un widget para mostrar estadísticas en tiempo real."""
+
+    def __init__(self):
+        super().__init__()
+        self._update_scheduled = False
+        self._current_stats = {
+            "queue_size": 0,
+            "processed": 0,
+            "SUCCESS": 0,
+            "FAILED": 0,
+            "RETRY": 0,
+        }
 
     def compose(self) -> ComposeResult:
         yield Label("URLs en cola: 0", id="queue_label")
@@ -58,13 +133,35 @@ class LiveStats(Container):
         yield Label("Reintentos: 0", id="retry_label")
 
     def update_stats(self, stats: dict):
-        self.query_one("#queue_label").update(f"URLs en cola: {stats['queue_size']}")
-        self.query_one("#processed_label").update(f"Procesadas: {stats['processed']}")
-        self.query_one("#success_label").update(f"Éxitos: {stats['SUCCESS']}")
-        self.query_one("#failed_label").update(f"Fallos: {stats['FAILED']}")
-        self.query_one("#retry_label").update(f"Reintentos: {stats['RETRY']}")
+        """Actualiza las estadísticas con estrategia de buffer para evitar parpadeos."""
+        # Actualizar los datos internamente
+        for key, value in stats.items():
+            if key in self._current_stats:
+                self._current_stats[key] = value
+
+        # Programar una actualización de UI si no hay una pendiente
+        if not self._update_scheduled:
+            self._update_scheduled = True
+            self.call_after_refresh(self._apply_updates)
+
+    def _apply_updates(self):
+        """Aplica las actualizaciones a la UI como un solo lote."""
+        try:
+            self.query_one("#queue_label").update(
+                f"URLs en cola: {self._current_stats['queue_size']}"
+            )
+            self.query_one("#processed_label").update(
+                f"Procesadas: {self._current_stats['processed']}"
+            )
+            self.query_one("#success_label").update(f"Éxitos: {self._current_stats['SUCCESS']}")
+            self.query_one("#failed_label").update(f"Fallos: {self._current_stats['FAILED']}")
+            self.query_one("#retry_label").update(f"Reintentos: {self._current_stats['RETRY']}")
+        finally:
+            self._update_scheduled = False
 
     def reset(self):
+        """Resetea las estadísticas a cero."""
+        self._current_stats = {k: 0 for k in self._current_stats}
         for label in self.query(Label):
             base_text = label.renderable.split(":")[0]
             label.update(f"{base_text}: 0")
@@ -73,30 +170,70 @@ class LiveStats(Container):
 class DomainStats(Container):
     """Un widget para mostrar estadísticas por dominio en una tabla."""
 
+    def __init__(self):
+        super().__init__()
+        self._update_scheduled = False
+        self._current_metrics = {}
+        self._last_update_time = 0
+
     def compose(self) -> ComposeResult:
         yield DataTable(id="domain_metrics_table")
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
         table.add_columns(
-            "Dominio", "Backoff", "Procesadas", "Baja Calidad", "Vacías", "Fallos"
+            "Dominio",
+            "Backoff",
+            "Procesadas",
+            "Baja Calidad",
+            "Vacías",
+            "Fallos",
         )
         self.border_title = "Métricas por Dominio"
 
     def update_stats(self, domain_metrics: dict):
-        table = self.query_one(DataTable)
-        table.clear()
-        for domain, metrics in domain_metrics.items():
-            table.add_row(
-                domain,
-                f"{metrics.get('current_backoff_factor', 0):.2f}",
-                metrics.get("total_scraped", 0),
-                metrics.get("low_quality", 0),
-                metrics.get("empty", 0),
-                metrics.get("failed", 0),
-            )
+        """Actualiza las métricas por dominio con control de frecuencia para estabilidad."""
+        # Actualizar métricas internamente
+        self._current_metrics = domain_metrics.copy()
+
+        # Limitar la frecuencia de actualización a máximo una vez cada 0.5 segundos
+        import time
+        current_time = time.time()
+        if current_time - self._last_update_time < 0.5 and not self._update_scheduled:
+            self._update_scheduled = True
+            self.call_after_refresh(self._apply_updates)
+        elif not self._update_scheduled:
+            self._last_update_time = current_time
+            self._apply_updates()
+
+    def _apply_updates(self):
+        """Actualiza la tabla con las métricas más recientes."""
+        try:
+            table = self.query_one(DataTable)
+            table.clear()
+
+            # Crear filas en lote para evitar múltiples refrescos
+            rows = []
+            for domain, metrics in self._current_metrics.items():
+                rows.append((
+                    domain,
+                    f"{metrics.get('current_backoff_factor', 0):.2f}",
+                    metrics.get("total_scraped", 0),
+                    metrics.get("low_quality", 0),
+                    metrics.get("empty", 0),
+                    metrics.get("failed", 0),
+                ))
+
+            # Agregar todas las filas de una vez
+            for row in rows:
+                table.add_row(*row)
+        finally:
+            self._update_scheduled = False
+            self._last_update_time = time.time()
 
     def reset(self):
+        """Resetea la tabla de métricas."""
+        self._current_metrics = {}
         self.query_one(DataTable).clear()
 
 
@@ -110,6 +247,11 @@ class ScraperTUIApp(App):
     BINDINGS = [
         ("q", "quit", "Salir"),
         ("d", "toggle_dark", "Modo Oscuro"),
+        ("s", "start", "Iniciar Crawling"),
+        ("t", "stop", "Detener Crawling"),
+        ("r", "toggle_robots", "Toggle Robots.txt"),
+        ("e", "toggle_ethics", "Toggle Ética"),
+        ("o", "toggle_offline", "Toggle Offline"),
     ]
 
     def __init__(self, log_file_path: str | None = None):
@@ -126,9 +268,17 @@ class ScraperTUIApp(App):
             "LOW_QUALITY": 0,
         }
         self.domain_metrics = {}
+        self.toast_container = ToastContainer()
+        # Control para actualizaciones por lotes
+        self._ui_update_scheduled = False
+        self._last_update_time = 0
+        self._ui_update_interval = 0.3  # Actualizar UI cada 0.3 segundos como máximo
 
     def compose(self) -> ComposeResult:
         """Crea los widgets de la aplicación."""
+        # Toast container para notificaciones
+        yield self.toast_container
+
         with Grid(id="app-grid"):
             with Container(id="left-pane"):
                 yield Header()
@@ -160,7 +310,9 @@ class ScraperTUIApp(App):
 
                 with Container(id="actions-pane"):
                     yield Button(
-                        "Iniciar Crawling", variant="primary", id="start_button"
+                        "Iniciar Crawling",
+                        variant="primary",
+                        id="start_button",
                     )
                     yield Button(
                         "Detener Crawling",
@@ -172,6 +324,7 @@ class ScraperTUIApp(App):
                 with Container(id="progress-container"):
                     yield Label("Progreso:", id="stats_label")
                     yield ProgressBar(id="progress_bar", total=100, show_eta=False)
+                    yield Label("Etapa: idle", id="stage_label")
 
                 yield AlertsDisplay(id="alerts_display")  # New widget for alerts
 
@@ -181,23 +334,32 @@ class ScraperTUIApp(App):
                 yield Log(id="log_view", highlight=True)
         yield Footer()
 
+    def show_toast(self, message: str, level: str = "info", duration: float = 3.0):
+        """Muestra una notificación toast."""
+        self.toast_container.show_toast(message, level, duration)
+
     def on_mount(self) -> None:
         """Se llama cuando la app se monta en el DOM."""
         log_widget = self.query_one("#log_view", Log)
         # Pasamos el handler de la TUI a la configuración de logging
         setup_logging(
-            log_file_path=self.log_file_path, tui_handler=TextualHandler(log_widget)
+            log_file_path=self.log_file_path,
+            tui_handler=TextualHandler(log_widget),
         )
         self.query_one("#progress_bar").visible = False
         self.query_one(LiveStats).border_title = "Estadísticas Globales"
-        self.query_one(DomainStats).border_title = (
-            "Métricas por Dominio"  # Ensure DomainStats has a border title
-        )
-        self.query_one(AlertsDisplay).border_title = (
-            "Alertas Críticas"  # Set border title for alerts
-        )
+        self.query_one(DomainStats).border_title = "Métricas por Dominio"
+        self.query_one(AlertsDisplay).border_title = "Alertas Críticas"
         self.query_one(AlertsDisplay).reset()  # Clear alerts on mount
         self.query_one("#stats_label").update("Listo para iniciar.")
+        # Poner foco inicial en el campo de URL para que no necesites ratón
+        try:
+            self.query_one("#start_url").focus()
+        except Exception:
+            pass
+
+        # Mostrar toast de bienvenida
+        self.show_toast("¡Bienvenido a Scraper PRO!", "info", 2.0)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Maneja los clics de los botones."""
@@ -208,19 +370,85 @@ class ScraperTUIApp(App):
         elif event.button.id == "quit_button":
             self.action_quit()
 
+    def action_start(self) -> None:
+        """Binding para iniciar crawling vía teclado (s)."""
+        self.action_start_crawl()
+
+    def action_stop(self) -> None:
+        """Binding para detener crawling vía teclado (t)."""
+        self.action_stop_crawl()
+
+    def action_toggle_robots(self) -> None:
+        """Toggle respect robots.txt."""
+        checkbox = self.query_one("#respect_robots", Checkbox)
+        checkbox.value = not checkbox.value
+        settings.ROBOTS_ENABLED = checkbox.value
+        logging.info(f"Respect robots.txt: {checkbox.value}")
+
+    def action_toggle_ethics(self) -> None:
+        """Toggle ethics checks."""
+        checkbox = self.query_one("#ethics_checks", Checkbox)
+        checkbox.value = not checkbox.value
+        settings.ETHICS_CHECKS_ENABLED = checkbox.value
+        logging.info(f"Ethics checks: {checkbox.value}")
+
+    def action_toggle_offline(self) -> None:
+        """Toggle offline mode."""
+        checkbox = self.query_one("#offline_mode", Checkbox)
+        checkbox.value = not checkbox.value
+        settings.OFFLINE_MODE = checkbox.value
+        logging.info(f"Offline mode: {checkbox.value}")
+
+    
+
     def stats_update_callback(self, update: dict):
         """Callback que el orquestador llamará para actualizar las estadísticas."""
-        # Actualizar estadísticas globales
+        # Actualizar estadísticas globales en la estructura de datos
         self.live_stats_data["processed"] += update.get("processed", 0)
-        self.live_stats_data["queue_size"] = update.get(
-            "queue_size", self.live_stats_data["queue_size"]
-        )
+        queue_size = update.get("queue_size", self.live_stats_data["queue_size"])
+        self.live_stats_data["queue_size"] = queue_size
+
         status = update.get("status")
         if status in self.live_stats_data:
             self.live_stats_data[status] += 1
+
+        # Actualizar métricas por dominio si están disponibles
+        domain_metrics_data = update.get("domain_metrics")
+        if domain_metrics_data:
+            self.domain_metrics = domain_metrics_data
+
+        # Programar actualización de UI si no hay una programada ya
+        import time
+        current_time = time.time()
+        if not self._ui_update_scheduled and (current_time - self._last_update_time > self._ui_update_interval):
+            self._last_update_time = current_time
+            self._update_ui_now()
+        elif not self._ui_update_scheduled:
+            self._ui_update_scheduled = True
+            self.call_after_refresh(self._update_ui_batch)
+
+    def _update_ui_now(self):
+        """Actualiza la UI inmediatamente."""
+        # Actualizar el widget de estadísticas en vivo
         self.query_one(LiveStats).update_stats(self.live_stats_data)
 
-        # Actualizar barra de progreso y etiqueta
+        # Actualizar métricas por dominio
+        self.query_one(DomainStats).update_stats(self.domain_metrics)
+
+        # Actualizar barra de progreso y etiquetas
+        self._update_progress_and_labels()
+
+    def _update_ui_batch(self):
+        """Actualiza la UI como un lote después de un período de espera."""
+        try:
+            self._update_ui_now()
+        finally:
+            self._ui_update_scheduled = False
+            import time
+            self._last_update_time = time.time()
+
+    def _update_progress_and_labels(self):
+        """Actualiza la barra de progreso y etiquetas relacionadas."""
         processed_count = self.live_stats_data["processed"]
         queue_size = self.live_stats_data["queue_size"]
         total_urls = processed_count + queue_size
@@ -233,14 +461,26 @@ class ScraperTUIApp(App):
             progress_bar.progress = processed_count
             percentage = (processed_count / total_urls) * 100
             stats_label.update(
-                f"Procesadas: {processed_count} de {total_urls} ({percentage:.2f}%)"
+                f"Procesadas: {processed_count}/{total_urls} " f"({percentage:.2f}%)"
             )
 
-        # B.1.3: Actualizar la tabla de métricas por dominio
-        domain_metrics_data = update.get("domain_metrics")
-        if domain_metrics_data:
-            self.domain_metrics = domain_metrics_data
-            self.query_one(DomainStats).update_stats(self.domain_metrics)
+        # Actualizar etiqueta de etapa y porcentaje estilo "hacker"
+        try:
+            percentage = (processed_count / total_urls) * 100 if total_urls > 0 else 0
+            # Determinar etapa por condiciones simples
+            if total_urls == 0:
+                stage = "Idle"
+            elif queue_size > 0 and processed_count == 0:
+                stage = "Queueing"
+            elif processed_count < total_urls:
+                stage = "Crawling"
+            else:
+                stage = "Finalizing"
+
+            stage_text = f"{stage} — {processed_count}/{total_urls} ({percentage:.0f}%)"
+            self.query_one("#stage_label").update(f"[green]{stage_text}[/]")
+        except Exception:
+            pass
 
     def alert_callback(self, message: str, level: str = "warning"):
         """Callback para que el orquestador envíe alertas a la TUI."""
@@ -258,8 +498,9 @@ class ScraperTUIApp(App):
         start_url = start_url_input.value
         if not start_url:
             self.query_one("#stats_label").update(
-                "[bold red]Error: La URL de inicio no puede estar vacía.[/]"
+                "[bold red]Error: La URL de inicio es obligatoria.[/]"
             )
+            self.show_toast("URL de inicio requerida", "error")
             return
 
         try:
@@ -268,16 +509,25 @@ class ScraperTUIApp(App):
             self.query_one("#stats_label").update(
                 "[bold red]Error: La concurrencia debe ser un número.[/]"
             )
+            self.show_toast("Valor de concurrencia inválido", "error")
             return
 
         self.set_ui_for_crawling(True)
         # Reiniciar estadísticas
         self.live_stats_data = {k: 0 for k in self.live_stats_data}
         self.query_one("#stats_label").update("Iniciando...")
+        # Mostrar etapa inicial
+        try:
+            self.query_one("#stage_label").update("[green]Starting... 0%[/]")
+        except Exception:
+            pass
         self.query_one(ProgressBar).update(total=100, progress=0)
         self.query_one(LiveStats).reset()
         self.query_one(DomainStats).reset()  # Reset domain stats too
         self.query_one(AlertsDisplay).reset()  # Reset alerts
+
+        # Mostrar toast de inicio
+        self.show_toast(f"Iniciando crawling desde {start_url}", "info")
 
         # Aplicar toggles runtime a settings global para componentes subsiguientes
         settings.ROBOTS_ENABLED = respect_robots_checkbox.value
@@ -292,7 +542,7 @@ class ScraperTUIApp(App):
                 respect_robots_txt=respect_robots_checkbox.value,
                 use_rl=use_rl_checkbox.value,
                 stats_callback=self.stats_update_callback,
-                alert_callback=self.alert_callback,  # Pass the new callback
+                alert_callback=self.alert_callback,
             ),
             name="ScraperWorker",
         )
@@ -300,7 +550,7 @@ class ScraperTUIApp(App):
     def action_stop_crawl(self) -> None:
         """Detiene el worker de crawling."""
         if self.scraper_worker:
-            logging.warning("Deteniendo el proceso de crawling...")
+            logging.warning("Deteniendo el crawling...")
             self.scraper_worker.cancel()
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
@@ -309,18 +559,38 @@ class ScraperTUIApp(App):
             if event.state == WorkerState.SUCCESS:
                 logging.info("El proceso de crawling ha finalizado con éxito.")
                 self.query_one(ProgressBar).update(total=100, progress=100)
-                self.query_one("#stats_label").update("¡Crawling completado!")
+                self.query_one("#stats_label").update(
+                    "¡Crawling completado!"
+                )
+                try:
+                    self.query_one("#stage_label").update("[green]Completed — 100%[/]")
+                except Exception:
+                    pass
+                self.show_toast("Crawling completado exitosamente", "success", 4.0)
             elif event.state == WorkerState.CANCELLED:
                 logging.warning("El proceso de crawling ha sido cancelado.")
                 self.query_one("#stats_label").update(
                     "Proceso detenido por el usuario."
                 )
+                try:
+                    self.query_one("#stage_label").update("[yellow]Cancelled[/]")
+                except Exception:
+                    pass
+                self.show_toast("Crawling cancelado", "warning", 3.0)
             elif event.state == WorkerState.ERROR:
-                logging.error(f"El worker de crawling ha fallado: {event.worker.error}")
+                logging.error(
+                    "El worker de crawling ha fallado: %s",
+                    event.worker.error,
+                )
                 self.query_one(ProgressBar).add_class("error")
                 self.query_one("#stats_label").update(
                     "[bold red]Error durante el crawling.[/]"
                 )
+                try:
+                    self.query_one("#stage_label").update("[red]Error during crawling[/]")
+                except Exception:
+                    pass
+                self.show_toast("Error durante el crawling", "error", 5.0)
 
             # En cualquier caso de finalización, restaurar la UI
             if event.state in (
@@ -336,10 +606,11 @@ class ScraperTUIApp(App):
         self.query_one("#stop_button").disabled = not is_crawling
         self.query_one("#start_url").disabled = is_crawling
         self.query_one("#concurrency").disabled = is_crawling
-        self.query_one("#respect_robots").disabled = is_crawling
-        self.query_one("#ethics_checks").disabled = is_crawling
-        self.query_one("#offline_mode").disabled = is_crawling
-        self.query_one("#use_rl").disabled = is_crawling
+        # Permitir cambiar configuraciones en tiempo real durante el crawling
+        # self.query_one("#respect_robots").disabled = is_crawling
+        # self.query_one("#ethics_checks").disabled = is_crawling
+        # self.query_one("#offline_mode").disabled = is_crawling
+        # self.query_one("#use_rl").disabled = is_crawling
 
         progress_bar = self.query_one(ProgressBar)
         progress_bar.remove_class("error")
