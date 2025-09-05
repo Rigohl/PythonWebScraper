@@ -3,24 +3,22 @@ Pruebas unitarias para el sistema de curiosidad y proactividad
 Unit tests for curiosity and proactivity system
 """
 
-import pytest
-import json
-import tempfile
 import os
+import tempfile
 import time
-from unittest.mock import Mock, MagicMock
-from datetime import datetime
+
+import pytest
 
 from src.intelligence.curiosity import (
     CuriositySystem,
-    EmbeddingAdapter,
-    TFIDFEmbeddingAdapter,
-    VectorStore,
+    MemoryEntry,
     NoveltyDetector,
     ProactivityManager,
-    MemoryEntry,
-    create_curiosity_system
+    TFIDFEmbeddingAdapter,
+    VectorStore,
+    create_curiosity_system,
 )
+
 
 class TestTFIDFEmbeddingAdapter:
     """Pruebas para el adaptador TF-IDF"""
@@ -57,6 +55,7 @@ class TestTFIDFEmbeddingAdapter:
     def test_is_available(self):
         adapter = TFIDFEmbeddingAdapter()
         assert adapter.is_available() is True
+
 
 class TestVectorStore:
     """Pruebas para el almacén vectorial"""
@@ -96,6 +95,7 @@ class TestVectorStore:
         assert "id1" in ids
         assert "id2" in ids
 
+
 class TestNoveltyDetector:
     """Pruebas para el detector de novedad"""
 
@@ -114,7 +114,11 @@ class TestNoveltyDetector:
     def test_detect_novelty_similar_content(self):
         # Añadir contenido similar primero
         self.adapter.add_document("contenido de prueba")
-        self.store.store("test1", self.adapter.encode("contenido de prueba"), {"timestamp": time.time()})
+        self.store.store(
+            "test1",
+            self.adapter.encode("contenido de prueba"),
+            {"timestamp": time.time()},
+        )
 
         # Probar con contenido similar
         content = "contenido de prueba similar"
@@ -131,6 +135,7 @@ class TestNoveltyDetector:
         signals = analysis["context_signals"]
         assert "temporal_freshness" in signals
         assert "content_complexity" in signals
+
 
 class TestProactivityManager:
     """Pruebas para el gestor de proactividad"""
@@ -163,6 +168,7 @@ class TestProactivityManager:
         assert stats["total_notifications"] == 2
         assert "delivery_rate" in stats
 
+
 class TestCuriositySystem:
     """Pruebas para el sistema completo de curiosidad"""
 
@@ -187,7 +193,7 @@ class TestCuriositySystem:
             "title": "Test Page",
             "content": "Este es un contenido de prueba único y novedoso",
             "domain": "example.com",
-            "status": "SUCCESS"
+            "status": "SUCCESS",
         }
 
         analysis = self.system.analyze_scraping_result(result)
@@ -214,10 +220,11 @@ class TestCuriositySystem:
         result = {
             "url": "http://example.com",
             "content": "test content",
-            "status": "SUCCESS"
+            "status": "SUCCESS",
         }
         analysis = self.system.analyze_scraping_result(result)
         assert analysis["status"] == "disabled"
+
 
 class TestMemoryEntry:
     """Pruebas para la entrada de memoria"""
@@ -227,7 +234,7 @@ class TestMemoryEntry:
             content="test content",
             url="http://example.com",
             title="Test Title",
-            timestamp=1234567890.0
+            timestamp=1234567890.0,
         )
 
         assert entry.content == "test content"
@@ -239,7 +246,7 @@ class TestMemoryEntry:
             content="test content",
             url="http://example.com",
             title="Test",
-            timestamp=1234567890.0
+            timestamp=1234567890.0,
         )
 
         entry_id = entry.get_id()
@@ -247,6 +254,7 @@ class TestMemoryEntry:
         assert len(entry_id) > 0
         # ID debería ser consistente
         assert entry.get_id() == entry_id
+
 
 class TestIntegration:
     """Pruebas de integración"""
@@ -266,22 +274,22 @@ class TestIntegration:
                 "title": "Page 1",
                 "content": "Contenido único de la página 1",
                 "domain": "example1.com",
-                "status": "SUCCESS"
+                "status": "SUCCESS",
             },
             {
                 "url": "http://example2.com",
                 "title": "Page 2",
                 "content": "Contenido único de la página 2",
                 "domain": "example2.com",
-                "status": "SUCCESS"
+                "status": "SUCCESS",
             },
             {
                 "url": "http://example1.com",
                 "title": "Page 1 Again",
                 "content": "Contenido único de la página 1",  # Contenido duplicado
                 "domain": "example1.com",
-                "status": "SUCCESS"
-            }
+                "status": "SUCCESS",
+            },
         ]
 
         for result in results:
@@ -296,6 +304,7 @@ class TestIntegration:
         # Verificar almacenamiento
         stored_ids = system.vector_store.get_all_ids()
         assert len(stored_ids) >= 2
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

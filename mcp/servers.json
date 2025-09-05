@@ -1,0 +1,9 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/servers.v1.json",
+  "servers": [
+    { "id": "filesystem", "name": "Local FS", "command": "mcp-filesystem", "args": ["--root", "."] },
+    { "id": "git", "name": "Git Repo", "command": "mcp-git" },
+    { "id": "python", "name": "Python Tools", "command": "mcp-python",
+      "env": { "PYTHON": "c:\\\\Python313\\\\python.exe" } }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "Mode: Builder": {
+    "scope": "markdown,plaintext",
+    "prefix": "mode:builder",
+    "body": [
+      "## MODE: BUILDER",
+      "- Tarea: construir MVP ejecutable.",
+      "- Reglas: crea archivos faltantes, tasks, tests rápidos y run.",
+      "- Entregables: comandos/archivos/verificación.",
+      "- Contexto: ai/system-instructions.md + ai/routines.md"
+    ],
+    "description": "Constructor autónomo"
+  },
+  "Mode: Refactor": {
+    "scope": "markdown,plaintext",
+    "prefix": "mode:refactor",
+    "body": [
+      "## MODE: REFACTOR",
+      "- Refactor sin cambiar comportamiento.",
+      "- Lint/format/tests verdes, dif comentado."
+    ],
+    "description": "Refactor seguro"
+  },
+  "Mode: Debug": {
+    "scope": "markdown,plaintext",
+    "prefix": "mode:debug",
+    "body": [
+      "## MODE: DEBUG",
+      "- Reproducir, instrumentar, test que falle, fix, re-run."
+    ],
+    "description": "Depuración"
+  },
+  "Mode: Docs": {
+    "scope": "markdown,plaintext",
+    "prefix": "mode:docs",
+    "body": [
+      "## MODE: DOCS",
+      "- README + changelog + docstrings, ejemplos ejecutables."
+    ],
+    "description": "Documentación rápida"
+  }
+}

@@ -136,7 +136,9 @@ class Settings(BaseSettings):
     CURIOSITY_EMBEDDINGS_ENABLED: bool = True  # Use embeddings for novelty detection
     CURIOSITY_VECTOR_STORE: str = "sqlite"  # "faiss" or "sqlite" for vector storage
     CURIOSITY_NOVELTY_THRESHOLD: float = 0.7  # Similarity threshold for novelty (0-1)
-    CURIOSITY_RATE_LIMIT_MINUTES: int = 15  # Minimum minutes between curiosity notifications
+    CURIOSITY_RATE_LIMIT_MINUTES: int = (
+        15  # Minimum minutes between curiosity notifications
+    )
     CURIOSITY_MAX_NOTIFICATIONS_PER_HOUR: int = 4  # Max notifications per hour
     CURIOSITY_UI_PRESENCE_CHECK: bool = True  # Check if TUI is open before notifying
     CURIOSITY_ADVISORY_ONLY: bool = True  # Never auto-execute actions, only advise
@@ -202,6 +204,7 @@ settings = Settings()
 # otherwise cause fixture HTML to be rejected as LOW_QUALITY/FAILED.
 try:  # pragma: no cover - environment dependent
     import os
+
     if "PYTEST_CURRENT_TEST" in os.environ:
         # Allow very small pages (like the simple http_server fixtures) to be
         # treated as valid content so integration / CLI tests persist results.

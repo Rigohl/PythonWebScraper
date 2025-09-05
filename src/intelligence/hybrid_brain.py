@@ -710,8 +710,46 @@ class HybridBrain:
                 self.formulate_strategy('optimize_scraping')
             except Exception:
                 pass
+        # Curiosity analysis every 5 min (configurable)
+        if hasattr(self, 'curiosity_system') and self.curiosity_system:
+            try:
+                self._run_curiosity_analysis_cycle()
+            except Exception as e:
+                logger.debug(f"Curiosity analysis cycle failed: {e}")
         # Adaptive tuning: simple reinforcement-like stats logging
         self._adaptive_update()
+
+    def _run_curiosity_analysis_cycle(self):
+        """Ejecuta análisis de curiosidad periódica en segundo plano"""
+        if not hasattr(self, 'last_curiosity_analysis'):
+            self.last_curiosity_analysis = 0
+
+        now = time.time()
+        curiosity_interval = 300  # 5 minutos por defecto
+
+        # Verificar si es tiempo de análisis de curiosidad
+        if now - self.last_curiosity_analysis < curiosity_interval:
+            return
+
+        try:
+            # Ejecutar análisis de curiosidad
+            if hasattr(self.curiosity_system, 'analyze_current_state'):
+                analysis_result = self.curiosity_system.analyze_current_state()
+
+                # Procesar cualquier novedad detectada
+                if analysis_result and analysis_result.get('novelty_detected', False):
+                    logger.info("🧠 Curiosidad: Novedad detectada en el análisis periódico")
+
+                    # Generar notificación si es apropiado
+                    if hasattr(self.curiosity_system, 'generate_notification'):
+                        notification = self.curiosity_system.generate_notification(analysis_result)
+                        if notification:
+                            logger.info(f"🧠 Curiosidad: {notification}")
+
+            self.last_curiosity_analysis = now
+
+        except Exception as e:
+            logger.debug(f"Error en análisis de curiosidad periódica: {e}")
 
     # ===================== Self-Maintenance & Code Awareness =====================
     def run_self_maintenance_cycle(self) -> Dict[str, Any]:
@@ -1118,7 +1156,7 @@ class HybridBrain:
                         # Detectar links a recursos específicos
                         if any(media in link.lower() for media in ['.jpg', '.png', '.pdf', '.mp4']):
                             media_links += 1
-                    except:
+                    except Exception:
                         continue
 
             # Añadir insights de links
@@ -1688,16 +1726,13 @@ class HybridBrain:
         }
 
     def reason_declaratively(self, domain_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-          {
-            'domain': 'example.com',
-            'error_rate': 0.7,
-            'response_time': 3.2,
-            'global_avg': 1.8,
-            'structure_drift_score': 0.5,
-            'healing_ratio': 0.3,
-            'hour_success_gain': 0.4,
-            'best_hour': 14
-          }
+        """Razonamiento declarativo sobre datos de dominio.
+
+        Args:
+            domain_data: Datos del dominio para evaluación
+
+        Returns:
+            Lista de resultados de evaluación de reglas
         """
         try:
             return self.rule_engine.evaluate_all(domain_data)
@@ -2046,6 +2081,24 @@ class HybridBrain:
     # SISTEMA DE OBSERVACIÓN OMNISCIENTE
     # El cerebro puede observar todo el proyecto pero está protegido de cambios externos
     # ============================================================================
+
+    def _initialize_curiosity_system(self):
+        """Inicializa el sistema de curiosidad y proactividad"""
+        try:
+            from .curiosity import CuriositySystem
+
+            # Crear instancia del sistema de curiosidad
+            self.curiosity_system = CuriositySystem(
+                brain_instance=self,
+                tui_app=None,  # Se puede conectar después
+                voice_assistant=None  # Se puede conectar después
+            )
+
+            logger.info("🧠 Sistema de curiosidad inicializado exitosamente")
+
+        except Exception as e:
+            logger.warning(f"Error inicializando sistema de curiosidad: {e}")
+            self.curiosity_system = None
 
     def _initialize_omniscience(self):
         """Inicializa capacidades de observación omnisciente del cerebro"""
@@ -2505,72 +2558,6 @@ class OmniscientProtectionLayer:
         """Detiene el monitoreo continuo"""
         self._monitoring_active = False
         logger.info("🧠 Brain continuous monitoring stopped")
-
-    def apply_intelligent_modifications(self, observations: Dict[str, Any]) -> Dict[str, Any]:
-        """Aplica modificaciones inteligentes basadas en observaciones"""
-        if not hasattr(self, '_protection_layer'):
-            return {'error': 'Protection layer not initialized'}
-
-        assessment = observations.get('brain_assessment', {})
-        recommendations = assessment.get('recommendations', [])
-
-        applied_modifications = []
-        errors = []
-
-        for recommendation in recommendations:
-            try:
-                if recommendation['type'] == 'settings_modification':
-                    result = self._modify_settings_intelligently(recommendation)
-                    applied_modifications.append(result)
-                elif recommendation['type'] == 'database_initialization':
-                    result = self._initialize_database_intelligently(recommendation)
-                    applied_modifications.append(result)
-                # Más tipos de modificaciones pueden añadirse aquí
-
-            except Exception as e:
-                errors.append({
-                    'recommendation': recommendation,
-                    'error': str(e)
-                })
-
-        return {
-            'modifications_applied': applied_modifications,
-            'errors': errors,
-            'brain_state': 'active_modification_mode',
-            'timestamp': datetime.now(timezone.utc).isoformat()
-        }
-
-    def _modify_settings_intelligently(self, recommendation: Dict[str, Any]) -> Dict[str, Any]:
-        """Modifica configuraciones de manera inteligente"""
-        logger.info(f"🧠 Brain considers settings modification: {recommendation['description']}")
-
-        # El cerebro evalúa si la modificación es necesaria
-        if recommendation['suggested_action'] == 'enable_full_intelligence':
-            # Verificar que la inteligencia esté correctamente configurada
-            modifications = {
-                'action': 'settings_verification',
-                'description': 'Verified intelligence configuration is optimal',
-                'result': 'no_changes_needed'
-            }
-
-            logger.info("🧠 Brain verified: intelligence configuration is already optimal")
-            return modifications
-
-        return {
-            'action': 'settings_modification',
-            'description': 'Settings modification evaluated',
-            'result': 'deferred_for_safety'
-        }
-
-    def _initialize_database_intelligently(self, recommendation: Dict[str, Any]) -> Dict[str, Any]:
-        """Inicializa base de datos de manera inteligente"""
-        logger.info(f"🧠 Brain considers database initialization: {recommendation['description']}")
-
-        return {
-            'action': 'database_assessment',
-            'description': 'Database state assessed and deemed acceptable for current operations',
-            'result': 'monitoring_continued'
-        }
 
     # Legacy compatibility methods
     def record_experience(self, event: Any) -> Dict[str, Any]:
