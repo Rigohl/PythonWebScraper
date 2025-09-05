@@ -18,7 +18,7 @@ class TestExampleScraper:
         self.scraper = ExampleScraper()
     
     def test_initialization(self):
-        """Test inicialización básica."""
+        """Test inicializacion basica."""
         assert self.scraper is not None
         assert self.scraper.domain
         assert self.scraper.parser is not None
@@ -61,7 +61,7 @@ class TestExampleScraper:
     
     @pytest.mark.asyncio
     async def test_scrape_multiple_urls(self):
-        """Test scraping múltiple."""
+        """Test scraping multiple."""
         urls = ['http://example1.com', 'http://example2.com']
         
         with patch.object(self.scraper, 'scrape_url') as mock_scrape:
@@ -73,7 +73,7 @@ class TestExampleScraper:
             assert all('title' in result for result in results)
     
     def test_get_stats(self):
-        """Test estadísticas del scraper."""
+        """Test estadisticas del scraper."""
         stats = self.scraper.get_stats()
         
         assert 'domain' in stats
@@ -87,7 +87,7 @@ class TestExampleParser:
         self.parser = ExampleParser()
     
     def test_parse_basic_html(self):
-        """Test parsing básico."""
+        """Test parsing basico."""
         html = """
         <html>
             <body>
@@ -103,7 +103,7 @@ class TestExampleParser:
         assert isinstance(result, dict)
     
     def test_extract_text(self):
-        """Test extracción de texto."""
+        """Test extraccion de texto."""
         html = '<p>  Test text with spaces  </p>'
         soup = BeautifulSoup(html, 'html.parser')
         element = soup.find('p')
@@ -113,7 +113,7 @@ class TestExampleParser:
         assert text == 'Test text with spaces'
     
     def test_extract_price(self):
-        """Test extracción de precios."""
+        """Test extraccion de precios."""
         html = '<span>$123.45</span>'
         soup = BeautifulSoup(html, 'html.parser')
         element = soup.find('span')
@@ -123,7 +123,7 @@ class TestExampleParser:
         assert price == 123.45
     
     def test_validate_data_success(self):
-        """Test validación de datos exitosa."""
+        """Test validacion de datos exitosa."""
         data = {'title': 'Test Title', 'description': 'Test desc'}
         
         is_valid = self.parser.validate_data(data)
@@ -131,7 +131,7 @@ class TestExampleParser:
         assert is_valid is True
     
     def test_validate_data_missing_required(self):
-        """Test validación con campos requeridos faltantes."""
+        """Test validacion con campos requeridos faltantes."""
         data = {'description': 'Test desc'}  # Falta title
         
         is_valid = self.parser.validate_data(data)
