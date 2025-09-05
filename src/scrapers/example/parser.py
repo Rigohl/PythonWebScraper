@@ -11,12 +11,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ExampleParser:
-    """Parser específico para extraer datos estructurados."""
+    """Parser especifico para extraer datos estructurados."""
     
     def __init__(self):
         self.selectors = 'example.com'
         self.fallback_selectors = {
-            # Selectores de respaldo automáticos
+            # Selectores de respaldo automaticos
         }
     
     def parse(self, soup: BeautifulSoup) -> Dict[str, Any]:
@@ -45,13 +45,13 @@ class ExampleParser:
         return data
     
     def _extract_field(self, soup: BeautifulSoup, field: str, selector: str) -> Optional[str]:
-        """Extrae un campo específico usando el selector."""
+        """Extrae un campo especifico usando el selector."""
         element = soup.select_one(selector)
         
         if not element:
             return None
         
-        # Estrategias de extracción específicas por tipo de campo
+        # Estrategias de extraccion especificas por tipo de campo
         if field in ['price', 'cost', 'amount']:
             return self._extract_price(element)
         elif field in ['title', 'name', 'heading']:
@@ -82,17 +82,17 @@ class ExampleParser:
         if not element:
             return ""
         
-        # Preservar saltos de línea
+        # Preservar saltos de linea
         for br in element.find_all("br"):
             br.replace_with("\n")
         
         text = element.get_text()
-        # Normalizar espacios pero preservar saltos de línea
+        # Normalizar espacios pero preservar saltos de linea
         lines = [line.strip() for line in text.split('\n')]
         return '\n'.join(line for line in lines if line)
     
     def _extract_price(self, element: Tag) -> Optional[float]:
-        """Extrae precio como número."""
+        """Extrae precio como numero."""
         text = self._extract_text(element)
         
         # Buscar patrones de precio
@@ -101,7 +101,7 @@ class ExampleParser:
         
         if matches:
             try:
-                # Tomar el primer número encontrado
+                # Tomar el primer numero encontrado
                 price_str = matches[0].replace(',', '')
                 return float(price_str)
             except ValueError:
@@ -136,7 +136,7 @@ class ExampleParser:
         return None
     
     def _post_process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Post-procesa los datos extraídos."""
+        """Post-procesa los datos extraidos."""
         processed = {}
         
         for key, value in data.items():
@@ -154,8 +154,8 @@ class ExampleParser:
         return processed
     
     def validate_data(self, data: Dict[str, Any]) -> bool:
-        """Valida que los datos extraídos sean correctos."""
-        required_fields = ['title']  # Campos mínimos requeridos
+        """Valida que los datos extraidos sean correctos."""
+        required_fields = ['title']  # Campos minimos requeridos
         
         for field in required_fields:
             if field not in data or not data[field]:
