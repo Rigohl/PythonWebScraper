@@ -15,6 +15,7 @@ existing callers will continue to work.
 from __future__ import annotations
 
 import json
+import os
 import logging
 import os
 from datetime import datetime, timezone
@@ -190,6 +191,14 @@ class DatabaseManager:
         for a given content_hash). Fuzzy duplicate detection remains.
         """
         logger.info(f"Saving result for URL: {result.url} (status={result.status})")
+        try:
+            import os as _os
+            if "PYTEST_CURRENT_TEST" in _os.environ:
+                # Lightweight debug line to help diagnose why no SUCCESS rows exported in CLI test
+                clen = len(result.content_text) if result.content_text else 0
+                logger.warning(f"[DEBUG] save_result url={result.url} status={result.status} content_len={clen}")
+        except Exception:
+            pass
 
         # Primary deduplicación exacta por content_hash
         if result.content_hash:
@@ -280,14 +289,15 @@ class DatabaseManager:
             if not words:
                 return
             threshold = getattr(settings, "DUPLICATE_SIMILARITY_THRESHOLD", 0.6)
-            # Collect candidate rows
+            # Collect candidate rows - use DUP_SCAN_LIMIT to optimize scan performance
+            scan_limit = getattr(settings, "DUP_SCAN_LIMIT", 500)
             try:
                 from sqlalchemy import text as _sql_text
                 rows_iter = self.db.query(_sql_text(
-                    "SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT 500"
+                    f"SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT {scan_limit}"
                 ))
             except Exception:
-                rows_iter = list(self.table.limit(500))
+                rows_iter = list(self.table.limit(scan_limit))
 
             for row in rows_iter:
                 existing_url = row.get("url") if row else None
@@ -446,6 +456,14 @@ class DatabaseManager:
             os.makedirs(export_dir, exist_ok=True)
 
         results_iterator = self.table.find(status="SUCCESS")
+        # Debug instrumentation: count SUCCESS rows eagerly when under pytest to help diagnose missing export
+        try:
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                success_count = len(list(self.table.find(status="SUCCESS")))
+                logger.warning(f"[DEBUG] SUCCESS rows before export attempt: {success_count}")
+                results_iterator = self.table.find(status="SUCCESS")  # recreate iterator after consumption
+        except Exception:
+            pass
         first = next(results_iterator, None)
         if first is None:
             logger.warning(

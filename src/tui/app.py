@@ -19,7 +19,7 @@ from textual.widgets import (
 )
 from textual.worker import Worker, WorkerState
 
-from ..main import setup_logging
+from ..runner import setup_logging
 from ..runner import run_crawler
 from ..settings import settings
 
@@ -167,26 +167,18 @@ class LiveStats(Container):
 
 
 class DomainStats(Container):
-    """Un widget para mostrar estadísticas por dominio en una tabla."""
+    """Widget que muestra estadísticas de cada dominio."""
 
     def __init__(self):
         super().__init__()
-        self._update_scheduled = False
         self._current_metrics = {}
         self._last_update_time = 0
+        self._update_scheduled = False
 
     def compose(self) -> ComposeResult:
-        yield DataTable(id="domain_metrics_table")
-
-    def on_mount(self) -> None:
-        table = self.query_one(DataTable)
-        table.add_columns(
-            "Dominio",
-            "Backoff",
-            "Procesadas",
-            "Baja Calidad",
-            "Vacías",
-            "Fallos",
+        yield DataTable(
+            headers=["Dominio", "Backoff", "Scraped", "Baja Calidad", "Vacío", "Fallos"],
+            classes="domain-stats-table",
         )
         self.border_title = "Métricas por Dominio"
 
@@ -207,6 +199,7 @@ class DomainStats(Container):
 
     def _apply_updates(self):
         """Actualiza la tabla con las métricas más recientes."""
+        import time
         try:
             table = self.query_one(DataTable)
             table.clear()
@@ -234,6 +227,117 @@ class DomainStats(Container):
         """Resetea la tabla de métricas."""
         self._current_metrics = {}
         self.query_one(DataTable).clear()
+
+
+class BrainStats(Container):
+    """Widget que muestra métricas del Brain adaptativo."""
+
+    def __init__(self):
+        super().__init__()
+        self._last_snapshot = None
+
+    def compose(self) -> ComposeResult:
+        yield DataTable(
+            headers=["Dominio", "Visitas", "Éxito%", "Error%", "LinkYield", "Prioridad"],
+            classes="brain-stats-table",
+            id="brain_stats_table",
+        )
+        yield Log(id="brain_recent_events", highlight=False)
+        self.border_title = "Brain"
+
+    def update_brain(self, snapshot: dict | None):
+        if not snapshot:
+            return
+        self._last_snapshot = snapshot
+        # Support hybrid snapshot structure
+        if snapshot.get("hybrid_system"):
+            # In hybrid, simple brain stats nested under 'simple_brain'
+            domains = snapshot.get("simple_brain", {}).get("domains", {})
+            recent_events = snapshot.get("simple_brain", {}).get("recent_events", [])
+        else:
+            domains = snapshot.get("domains", {})
+            recent_events = snapshot.get("recent_events", [])
+        table = self.query_one("#brain_stats_table", DataTable)
+        table.clear()
+        rows = []
+        for domain, stats in domains.items():
+            visits = stats.get("visits", 0)
+            success_rate = (stats.get("success", 0) / visits) if visits else 0
+            error_rate = (stats.get("errors", 0) / visits) if visits else 0
+            link_yield = (stats.get("total_new_links", 0) / visits) if visits else 0
+            priority = success_rate * 0.6 + link_yield * 0.4
+            rows.append((domain, visits, f"{success_rate:.2f}", f"{error_rate:.2f}", f"{link_yield:.2f}", f"{priority:.2f}"))
+        for row in rows:
+            table.add_row(*row)
+        # Recent events
+        log = self.query_one("#brain_recent_events", Log)
+        log.clear()
+        for ev in recent_events[-10:]:
+            log.write(f"{ev.get('status')} | {ev.get('domain')} | links={ev.get('new_links')} rt={ev.get('response_time')}")
+
+    def reset(self):
+        try:
+            self.query_one("#brain_stats_table", DataTable).clear()
+            self.query_one("#brain_recent_events", Log).clear()
+        except Exception:
+            pass
+
+
+class IntelligenceStats(Container):
+    """🧠 Widget que muestra estadísticas del sistema de inteligencia autónoma."""
+
+    def __init__(self):
+        super().__init__()
+        self._intelligence_data = {
+            "domains_learned": 0,
+            "total_sessions": 0,
+            "avg_success_rate": 0.0,
+            "patterns_identified": 0,
+            "strategies_optimized": 0,
+            "last_learning": "Nunca"
+        }
+
+    def compose(self) -> ComposeResult:
+        yield Static("🧠 Sistema de Inteligencia Autónoma", classes="intelligence-title")
+        yield DataTable(
+            headers=["Métrica", "Valor"],
+            classes="intelligence-table",
+        )
+        self.border_title = "🧠 Inteligencia Autónoma"
+
+    def update_intelligence_stats(self, intelligence_data: dict):
+        """Actualiza las métricas de inteligencia."""
+        self._intelligence_data.update(intelligence_data)
+        self._refresh_display()
+
+    def _refresh_display(self):
+        """Actualiza la tabla con las métricas de inteligencia."""
+        table = self.query_one(DataTable)
+        table.clear()
+
+        rows = [
+            ("Dominios Aprendidos", self._intelligence_data["domains_learned"]),
+            ("Sesiones de Scraping", self._intelligence_data["total_sessions"]),
+            ("Tasa de Éxito Promedio", f"{self._intelligence_data['avg_success_rate']:.1%}"),
+            ("Patrones Identificados", self._intelligence_data["patterns_identified"]),
+            ("Estrategias Optimizadas", self._intelligence_data["strategies_optimized"]),
+            ("Último Aprendizaje", self._intelligence_data["last_learning"]),
+        ]
+
+        for row in rows:
+            table.add_row(*row)
+
+    def reset(self):
+        """Resetea las métricas de inteligencia."""
+        self._intelligence_data = {
+            "domains_learned": 0,
+            "total_sessions": 0,
+            "avg_success_rate": 0.0,
+            "patterns_identified": 0,
+            "strategies_optimized": 0,
+            "last_learning": "Nunca"
+        }
+        self._refresh_display()
 
 
 class ScraperTUIApp(App):
@@ -306,6 +410,8 @@ class ScraperTUIApp(App):
                     with TabPane("Estadísticas", id="stats-tab"):
                         yield LiveStats()
                         yield DomainStats()
+                        yield IntelligenceStats()
+                        yield BrainStats()
 
                 with Container(id="actions-pane"):
                     yield Button(
@@ -348,6 +454,10 @@ class ScraperTUIApp(App):
         self.query_one("#progress_bar").visible = False
         self.query_one(LiveStats).border_title = "Estadísticas Globales"
         self.query_one(DomainStats).border_title = "Métricas por Dominio"
+        try:
+            self.query_one(BrainStats).border_title = "Brain"
+        except Exception:
+            pass
         self.query_one(AlertsDisplay).border_title = "Alertas Críticas"
         self.query_one(AlertsDisplay).reset()  # Clear alerts on mount
         self.query_one("#stats_label").update("Listo para iniciar.")
@@ -439,6 +549,24 @@ class ScraperTUIApp(App):
         domain_metrics_data = update.get("domain_metrics")
         if domain_metrics_data:
             self.domain_metrics = domain_metrics_data
+
+        # Brain snapshot integration (envía métricas adaptativas a BrainStats)
+        brain_snapshot = update.get("brain")
+        if brain_snapshot:
+            try:
+                self.query_one(BrainStats).update_brain(brain_snapshot)
+            except Exception:
+                pass
+
+        # 🧠 Actualizar métricas de inteligencia si están disponibles
+        intelligence_data = update.get("intelligence_metrics")
+        if intelligence_data:
+            try:
+                intelligence_widget = self.query_one(IntelligenceStats)
+                intelligence_widget.update_intelligence_stats(intelligence_data)
+            except Exception as e:
+                # Silently handle if widget not found (during initialization)
+                pass
 
         # Programar actualización de UI si no hay una programada ya
         import time
@@ -547,6 +675,10 @@ class ScraperTUIApp(App):
         self.query_one(ProgressBar).update(total=100, progress=0)
         self.query_one(LiveStats).reset()
         self.query_one(DomainStats).reset()  # Reset domain stats too
+        try:
+            self.query_one(BrainStats).reset()
+        except Exception:
+            pass
         self.query_one(AlertsDisplay).reset()  # Reset alerts
 
         # Mostrar toast de inicio

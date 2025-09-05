@@ -1,0 +1,28 @@
+{
+  "recent_events": [
+    {
+      "url": "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+      "status": "SUCCESS",
+      "response_time": 25.300814,
+      "content_length": 1400,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:02:27.859008+00:00",
+      "domain": "books.toscrape.com",
+      "extracted_fields": null,
+      "error_type": null
+    }
+  ],
+  "domain_stats": {
+    "books.toscrape.com": {
+      "visits": 1,
+      "success": 1,
+      "errors": 0,
+      "duplicates": 0,
+      "total_new_links": 0,
+      "total_content_length": 1400,
+      "extractions": 0,
+      "response_time_sum": 25.300814
+    }
+  },
+  "error_type_freq": {}
+}

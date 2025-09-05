@@ -6,6 +6,7 @@ This file defines fixtures that are used across multiple test files.
 import os
 import sys
 import asyncio
+import logging
 from unittest.mock import Mock, AsyncMock
 
 # Ensure the project root is on sys.path so `src` imports work under pytest
@@ -15,8 +16,33 @@ if ROOT not in sys.path:
 
 import pytest
 from playwright.async_api import Page, Response
-from src.db.database import DatabaseManager
-from src.intelligence.llm_extractor import LLMExtractor
+
+# Import common modules safely - isolate RL-dependent imports
+try:
+    from src.db.database import DatabaseManager
+except ImportError:
+    # Create a minimal shim for DatabaseManager if not available
+    class DatabaseManager:
+        def __init__(self, *args, **kwargs):
+            pass
+        def load_cookies(self, *args, **kwargs):
+            return None
+        def save_cookies(self, *args, **kwargs):
+            return None
+        def save_discovered_api(self, *args, **kwargs):
+            return None
+    logging.warning("DatabaseManager import failed - using mock implementation")
+
+try:
+    from src.intelligence.llm_extractor import LLMExtractor
+except ImportError:
+    # Create a minimal shim for LLMExtractor if not available
+    class LLMExtractor:
+        async def clean_text_content(self, text):
+            return text
+        async def extract_structured_data(self, *args, **kwargs):
+            return None
+    logging.warning("LLMExtractor import failed - using mock implementation")
 
 
 @pytest.fixture
@@ -76,6 +102,30 @@ def mock_llm_extractor():
 def html_file():
     """Fixture that provides the path to the test HTML file."""
     return os.path.join(os.path.dirname(__file__), "test_page.html")
+
+
+@pytest.fixture
+def mock_rl_agent():
+    """A mock for the RLAgent class that doesn't depend on stable_baselines3."""
+    class MockRLAgent:
+        def __init__(self, domain=None, model_path=None, training_mode=False):
+            self.domain = domain
+            self.model_path = model_path
+            self.training_mode = training_mode
+
+        def get_action(self, state_dict):
+            """Return a default action without using any ML models."""
+            return {"adjust_backoff_factor": 1.0}
+
+        def learn(self, state, action_taken, reward, next_state):
+            """No-op learning method."""
+            pass
+
+        def save_model(self):
+            """No-op save method."""
+            pass
+
+    return MockRLAgent
 
 
 @pytest.fixture

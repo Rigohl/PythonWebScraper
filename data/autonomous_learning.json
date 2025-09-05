@@ -1,0 +1,21 @@
+{
+  "domains": [
+    {
+      "domain": "books.toscrape.com",
+      "total_attempts": 1,
+      "success_rate": 0.0,
+      "avg_response_time": 1.265040700000001,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757041389.2534246,
+      "content_types": {},
+      "best_strategies": []
+    }
+  ],
+  "patterns": {
+    "books.toscrape.com": []
+  },
+  "last_save": 1757041389.2534246
+}

@@ -72,6 +72,9 @@ class Settings(BaseSettings):
     # Controla si los hashes de contenido exactos generan una segunda fila marcada como DUPLICATE
     # o si simplemente se ignoran (skip). Para compatibilidad de tests mantenemos True (guardar fila).
     STORE_EXACT_DUPLICATES: bool = True
+    # Límite de filas recientes a escanear en deduplicación fuzzy para acotar coste O(n).
+    # Si se cambia, actualizar tests relacionados. Valor por defecto alineado con prompt IA-B.
+    DUP_SCAN_LIMIT: int = 500
 
     # --- LLM configuration ---
     # LLM API key should be provided via environment variables or a secure

@@ -38,5 +38,7 @@ class ScrapeResult(BaseModel):
     http_status_code: Optional[int] = None
     content_type: Optional[str] = None  # e.g., PRODUCT, BLOG_POST
     crawl_duration: Optional[float] = None
+    # Added explicit response_time for compatibility with intelligence/brain integrations
+    response_time: Optional[float] = None
     llm_summary: Optional[str] = None
     llm_extracted_data: Optional[dict] = None

@@ -23,6 +23,12 @@ from .exceptions import NetworkError
 from .frontier_classifier import FrontierClassifier
 from .intelligence.llm_extractor import LLMExtractor
 from .intelligence.rl_agent import RLAgent
+from .intelligence.brain import Brain, ExperienceEvent
+try:  # Hybrid brain (IA-B + IA-A fusion) optional
+    from .intelligence.hybrid_brain import HybridBrain
+except Exception:  # pragma: no cover
+    HybridBrain = None  # type: ignore
+from .intelligence import get_intelligence_integration
 from .managers.user_agent_manager import UserAgentManager
 from .models.results import ScrapeResult
 from .scraper import AdvancedScraper
@@ -57,6 +63,7 @@ class ScrapingOrchestrator:
         user_agent_manager: UserAgentManager,
         llm_extractor: LLMExtractor,
         rl_agent: RLAgent | None = None,
+        brain: Brain | None = None,
         frontier_classifier: FrontierClassifier | None = None,
         concurrency: int = settings.CONCURRENCY,
         respect_robots_txt: bool | None = None,
@@ -84,12 +91,27 @@ class ScrapingOrchestrator:
         self.concurrency = concurrency
         self.db_manager = db_manager  # Injected dependency
         self.user_agent_manager = user_agent_manager
+        # Initialize logger early (needed before optional HybridBrain init)
+        self.logger = logging.getLogger(self.__class__.__name__)
 
         if use_rl and not rl_agent:
             raise ValueError("RLAgent must be provisto cuando use_rl es True.")
 
         self.llm_extractor = llm_extractor  # Injected dependency
         self.rl_agent = rl_agent  # Injected dependency
+        # Adaptive learning module (can be simple Brain or HybridBrain)
+        self.brain = brain
+        # Auto-upgrade to HybridBrain if not explicitly provided but available
+        if self.brain is None and 'HYBRID_BRAIN' in os.environ and HybridBrain:  # opt-in via env flag
+            try:
+                self.brain = HybridBrain()
+                self.logger.info("🧠 Using HybridBrain (auto-enabled via HYBRID_BRAIN env flag)")
+            except Exception as e:  # pragma: no cover
+                self.logger.warning(f"Failed to initialize HybridBrain: {e}. Falling back to simple Brain if provided.")
+
+        # Initialize autonomous intelligence integration
+        self.intelligence = get_intelligence_integration()
+        self.logger.info("🧠 Autonomous intelligence system initialized")
 
         # Allow injection of frontier classifier (used in tests)
         self.frontier_classifier = frontier_classifier or FrontierClassifier()
@@ -111,7 +133,6 @@ class ScrapingOrchestrator:
         self.ethics_checks_enabled = settings.ETHICS_CHECKS_ENABLED
         self.allowed_domain = urlparse(start_urls[0]).netloc if start_urls else ""
         self.robot_rules = None
-        self.logger = logging.getLogger(self.__class__.__name__)
 
         # Metrics for anomaly detection and adaptive adjustment
         self.domain_metrics = defaultdict(
@@ -125,6 +146,12 @@ class ScrapingOrchestrator:
                 "last_state_dict": None,  # For RL: store state dictionary
             }
         )
+
+        # Intervalo configurable para sincronización periódica IA_SYNC.md
+        try:
+            self._ia_sync_every = int(os.getenv("IA_SYNC_EVERY", "25"))
+        except ValueError:  # pragma: no cover
+            self._ia_sync_every = 25
 
     def _calculate_priority(
         self, url: str, parent_content_type: str = "UNKNOWN"
@@ -162,18 +189,75 @@ class ScrapingOrchestrator:
                 promise_score = float(raw_score)  # Cast mocks / numpy scalars / etc.
             except Exception:
                 promise_score = 0.0
-
-        # Base priority is path depth.
+        # Base priority starts with path depth.
         priority = float(path_depth)
 
-        # Adjust priority based on the promise score.
-        # A score of 1.0 gives a -5 bonus, a score of 0.0 gives a 0 bonus.
-        # This makes promising URLs much more attractive.
-        priority_bonus = -5 * promise_score
+        # Adjust priority based on the promise score (ML frontier classifier)
+        priority_bonus = -5 * promise_score  # strong lift for high promise
         priority += priority_bonus
+
+        # Brain / HybridBrain driven domain priority adjustment (if enabled)
+        if self.brain:
+            domain = urlparse(url).netloc
+            brain_score = 0.0
+            try:
+                # HybridBrain exposes get_domain_priority; simple Brain exposes domain_priority
+                if hasattr(self.brain, 'get_domain_priority'):
+                    brain_score = getattr(self.brain, 'get_domain_priority')(domain)  # type: ignore
+                else:
+                    brain_score = self.brain.domain_priority(domain)  # type: ignore[attr-defined]
+            except Exception:
+                brain_score = 0.0
+
+            priority += -3 * brain_score  # higher score => better (lower number)
+
+            # Backoff gating
+            try:
+                if hasattr(self.brain, 'should_backoff') and self.brain.should_backoff(domain):  # type: ignore[attr-defined]
+                    priority += 5
+            except Exception:
+                pass
 
         # Return as an integer for the priority queue
         return int(priority)
+
+    # ---------------- Inter-AI Sync Helpers ----------------
+    def _log_ia_sync(self, code: str, message: str) -> None:
+        try:
+            timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+            with open("IA_SYNC.md", "a", encoding="utf-8") as f:
+                f.write(f"{timestamp} | {code} | IA-A: {message}\n")
+        except Exception:
+            pass
+
+    def _maybe_periodic_sync(self):
+        try:
+            interval = getattr(self, "_ia_sync_every", 25)
+            counter = getattr(self, "_ia_sync_counter", 0) + 1
+            self._ia_sync_counter = counter  # type: ignore
+            if counter % interval == 0:
+                brain_summary = ""
+                if self.brain:
+                    try:
+                        if hasattr(self.brain, 'get_comprehensive_stats'):
+                            stats = self.brain.get_comprehensive_stats()  # type: ignore
+                            brain_summary = (
+                                f"hybrid domains={len(stats.get('simple_brain', {}).get('domains', {}))} "
+                                f"patterns={stats.get('autonomous_brain', {}).get('total_patterns')}"
+                            )
+                        else:
+                            snap = self.brain.snapshot()  # type: ignore
+                            brain_summary = (
+                                f"domains={len(snap.get('domains', {}))} events={snap.get('total_events')}"
+                            )
+                    except Exception:
+                        brain_summary = "brain=unavailable"
+                self._log_ia_sync(
+                    "SYNC",
+                    f"progress processed={counter} queue={self.queue.qsize()} {brain_summary}".strip(),
+                )
+        except Exception:
+            pass
 
     def _get_rl_state(self, domain: str) -> dict:
         """
@@ -489,13 +573,44 @@ class ScrapingOrchestrator:
             dynamic_extraction_schema = await self._get_dynamic_schema(domain)
 
             # Perform scraping with retry logic
+            start_time = datetime.now(timezone.utc)
             result = await self._scrape_with_retries(scraper, url, domain, dynamic_extraction_schema)
+            end_time = datetime.now(timezone.utc)
+            if result:
+                # Capture response time (seconds)
+                result.response_time = (end_time - start_time).total_seconds()
 
             await page.close()
 
             # Process results and update metrics
             if result:
                 await self._process_scraping_result(result, current_user_agent)
+                # Record experience in Brain if enabled
+                if self.brain:
+                    try:
+                        if hasattr(self.brain, 'record_scraping_result'):
+                            # HybridBrain style interface
+                            context = {
+                                'response_time': result.response_time,
+                                'error_type': ("network" if result.retryable else None) if result.status in ("FAILED", "RETRY") else None,
+                            }
+                            getattr(self.brain, 'record_scraping_result')(result, context)  # type: ignore
+                        else:
+                            # Simple Brain
+                            self.brain.record_event(
+                                ExperienceEvent(
+                                    url=result.url,
+                                    status="SUCCESS" if result.status == "SUCCESS" else ("ERROR" if result.status in ("FAILED",) else result.status),
+                                    response_time=result.response_time,
+                                    content_length=len(result.content_text or ""),
+                                    new_links=len(result.links or []),
+                                    domain=urlparse(result.url).netloc,
+                                    extracted_fields=(len(result.extracted_data or {}) if result.extracted_data else None),
+                                    error_type=("network" if result.retryable else None) if result.status in ("FAILED", "RETRY") else None,
+                                )
+                            )
+                    except Exception as e:  # pragma: no cover
+                        self.logger.debug(f"Brain recording failed: {e}")
 
             self.queue.task_done()
 
@@ -645,6 +760,19 @@ class ScrapingOrchestrator:
         self.db_manager.save_result(result)
         self._update_domain_metrics(result)
 
+        # 🧠 Autonomous Learning: Feed result to intelligence system
+        try:
+            context = {
+                "response_time": getattr(result, 'response_time', 0.0),
+                "retry_count": getattr(result, 'retry_count', 0),
+                "user_agent": current_user_agent,
+                "delay_used": getattr(result, 'delay_used', 1.0)
+            }
+            self.intelligence.learn_from_scrape_result(result, context)
+            self.logger.debug(f"🧠 Intelligence learned from {result.url}")
+        except Exception as e:
+            self.logger.error(f"Intelligence learning error: {e}")
+
         # Apply appropriate learning/anomaly detection
         if not self.use_rl:
             self._check_for_anomalies(domain)
@@ -696,14 +824,35 @@ class ScrapingOrchestrator:
             metrics["failed"] += 1
 
         if self.stats_callback:
+            brain_snapshot = None
+            if self.brain:
+                try:
+                    if hasattr(self.brain, 'get_comprehensive_stats'):
+                        brain_snapshot = getattr(self.brain, 'get_comprehensive_stats')()  # type: ignore
+                    else:
+                        brain_snapshot = self.brain.snapshot()  # type: ignore
+                except Exception:
+                    brain_snapshot = None
+
+            # 🧠 Obtener métricas de inteligencia
+            intelligence_metrics = None
+            try:
+                intelligence_metrics = self.intelligence.get_intelligence_metrics()
+            except Exception as e:
+                self.logger.error(f"Error getting intelligence metrics: {e}")
+
             self.stats_callback(
                 {
                     "processed": 1,
                     "queue_size": self.queue.qsize(),
                     "status": result.status,
                     "domain_metrics": self.domain_metrics,
+                    "brain": brain_snapshot,
+                    "intelligence_metrics": intelligence_metrics,
                 }
             )
+        # Periodic IA sync snapshot attempt
+        self._maybe_periodic_sync()
 
     def _check_for_anomalies(self, domain: str):
         """
@@ -870,6 +1019,9 @@ class ScrapingOrchestrator:
         Args:
             browser: Playwright browser instance
         """
+        # Log run start
+        self._log_ia_sync("START", f"run started urls={len(self.start_urls)} concurrency={self.concurrency}")
+
         if not self.start_urls:
             self.logger.error("No se proporcionaron URLs iniciales.")
             if self.alert_callback:
@@ -888,6 +1040,18 @@ class ScrapingOrchestrator:
             self.logger.warning(disabled_msg)
             if self.alert_callback:
                 self.alert_callback(disabled_msg, level="warning")
+
+        # 🧠 Autonomous Intelligence: Optimize configuration based on past performance
+        try:
+            domain = urlparse(self.start_urls[0]).netloc if self.start_urls else ""
+            optimized_config = self.intelligence.enhance_configuration(domain)
+            if optimized_config:
+                self.logger.info(f"🧠 Intelligence optimized config for {domain}")
+                # Apply suggested delays, user agents, etc.
+                if hasattr(self, 'delay_manager') and 'delay' in optimized_config:
+                    self.delay_manager.base_delay = optimized_config['delay']
+        except Exception as e:
+            self.logger.error(f"Intelligence configuration error: {e}")
 
         # Add start URLs to queue
         for url in self.start_urls:
@@ -914,9 +1078,19 @@ class ScrapingOrchestrator:
         if self.use_rl and self.rl_agent:
             self.rl_agent.save_model()
 
+        # Flush brain / hybrid brain state
+        if self.brain:
+            try:
+                self.brain.flush()  # both Brain & HybridBrain expose flush
+            except Exception as e:
+                self.logger.debug(f"Brain flush failed: {e}")
+
         self.logger.info("Crawling process completed.")
         if self.alert_callback:
             self.alert_callback("Crawling process completed.", level="info")
+
+        # Log run end
+        self._log_ia_sync("END", "run completed")
 
     async def _fetch_robot_rules(self):
         """

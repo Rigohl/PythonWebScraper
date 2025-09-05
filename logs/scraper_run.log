@@ -1,0 +1,248 @@
+{"timestamp": "2025-09-04 19:56:13,226", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:56734/index.html']"}
+{"timestamp": "2025-09-04 19:57:18,981", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:56816/index.html']"}
+{"timestamp": "2025-09-04 19:57:19,063", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-04 19:57:19,063", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-04 19:57:28,640", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://localhost:56816/robots.txt \"HTTP/1.0 404 Not Found\""}
+{"timestamp": "2025-09-04 19:57:28,644", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://localhost:56816/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-04 19:57:28,655", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:56816/index.html (Priority: 0)"}
+{"timestamp": "2025-09-04 19:57:32,493", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 19:57:42,056", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:56816/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 19:57:42,059", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:56816/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-04 19:57:42,376", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:56816/index.html: ['http://localhost:56816/page1.html', 'http://localhost:56816/page2.html']"}
+{"timestamp": "2025-09-04 19:57:42,380", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:56816/page1.html"}
+{"timestamp": "2025-09-04 19:57:42,383", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-04 19:57:42,384", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:56816/page2.html"}
+{"timestamp": "2025-09-04 19:57:42,384", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-04 19:57:42,384", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:56816/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-04 19:57:42,429", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:56816/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-04 19:57:44,944", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 19:57:44,973", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 19:57:45,223", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:56816/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 19:57:45,223", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:56816/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 19:57:45,233", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:56816/page1.html: []"}
+{"timestamp": "2025-09-04 19:57:45,233", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:56816/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 19:57:45,234", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:56816/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 19:57:45,235", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://localhost:56816/page2.html. Original: http://localhost:56816/page1.html. Marcando como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-04 19:57:45,240", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-04 19:58:32,025", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_o_8rou66\\export.json"}
+{"timestamp": "2025-09-04 19:58:32,138", "level": "INFO", "name": "src.database", "message": "3 registros exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_o_8rou66\\export.json"}
+{"timestamp": "2025-09-04 20:10:03,584", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:63448/index.html']"}
+{"timestamp": "2025-09-04 20:10:03,755", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-04 20:10:03,756", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-04 20:10:16,603", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://localhost:63448/robots.txt \"HTTP/1.0 404 Not Found\""}
+{"timestamp": "2025-09-04 20:10:16,604", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://localhost:63448/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-04 20:10:16,605", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:63448/index.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:10:19,085", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:10:22,800", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:63448/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:10:22,800", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:63448/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-04 20:10:22,890", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:63448/index.html: ['http://localhost:63448/page1.html', 'http://localhost:63448/page2.html']"}
+{"timestamp": "2025-09-04 20:10:22,890", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:63448/page1.html"}
+{"timestamp": "2025-09-04 20:10:22,891", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-04 20:10:22,891", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:63448/page2.html"}
+{"timestamp": "2025-09-04 20:10:22,891", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-04 20:10:22,891", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:63448/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:10:22,913", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:63448/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:10:24,175", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:10:24,194", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:10:24,389", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:63448/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:10:24,389", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:63448/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:10:24,396", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:63448/page1.html: []"}
+{"timestamp": "2025-09-04 20:10:24,397", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:63448/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:10:24,397", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:63448/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:10:24,398", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://localhost:63448/page2.html. Original: http://localhost:63448/page1.html. Marcando como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-04 20:10:24,402", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-04 20:10:35,224", "level": "INFO", "name": "__main__", "message": "Exporting data to CSV: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_9pilf3tf\\export.csv"}
+{"timestamp": "2025-09-04 20:10:35,303", "level": "WARNING", "name": "src.database", "message": "[DEBUG] SUCCESS rows before export attempt: 2"}
+{"timestamp": "2025-09-04 20:10:35,306", "level": "INFO", "name": "src.database", "message": "2 registros con estado 'SUCCESS' exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_9pilf3tf\\export.csv"}
+{"timestamp": "2025-09-04 20:10:54,886", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:63519/index.html']"}
+{"timestamp": "2025-09-04 20:10:54,928", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-04 20:10:54,928", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-04 20:10:56,439", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://localhost:63519/robots.txt \"HTTP/1.0 404 Not Found\""}
+{"timestamp": "2025-09-04 20:10:56,439", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://localhost:63519/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-04 20:10:56,440", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:63519/index.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:10:58,508", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:10:59,240", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:63519/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:10:59,240", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:63519/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-04 20:10:59,305", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:63519/index.html: ['http://localhost:63519/page1.html', 'http://localhost:63519/page2.html']"}
+{"timestamp": "2025-09-04 20:10:59,306", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:63519/page1.html"}
+{"timestamp": "2025-09-04 20:10:59,306", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-04 20:10:59,307", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:63519/page2.html"}
+{"timestamp": "2025-09-04 20:10:59,307", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-04 20:10:59,307", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:63519/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:10:59,327", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:63519/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:11:00,691", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:11:00,707", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:11:00,963", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:63519/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:11:00,963", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:63519/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:11:00,972", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:63519/page2.html: []"}
+{"timestamp": "2025-09-04 20:11:00,972", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:63519/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:11:00,972", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:63519/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:11:00,974", "level": "INFO", "name": "src.database", "message": "Nuevo contenido can\u00f3nico para http://localhost:63519/page1.html. Marcando http://localhost:63519/page2.html como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-04 20:11:00,983", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:63519/page1.html: []"}
+{"timestamp": "2025-09-04 20:11:00,984", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-04 20:11:08,404", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_jv2e2z0j\\export.json"}
+{"timestamp": "2025-09-04 20:11:08,484", "level": "INFO", "name": "src.database", "message": "3 registros exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_jv2e2z0j\\export.json"}
+{"timestamp": "2025-09-04 20:12:05,950", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:58465/index.html']"}
+{"timestamp": "2025-09-04 20:12:05,995", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-04 20:12:05,996", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-04 20:12:07,511", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://localhost:58465/robots.txt \"HTTP/1.0 404 Not Found\""}
+{"timestamp": "2025-09-04 20:12:07,511", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://localhost:58465/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-04 20:12:07,512", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:58465/index.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:12:09,477", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:12:10,168", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58465/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:12:10,168", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58465/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-04 20:12:10,226", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:58465/index.html: ['http://localhost:58465/page1.html', 'http://localhost:58465/page2.html']"}
+{"timestamp": "2025-09-04 20:12:10,227", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:58465/page1.html"}
+{"timestamp": "2025-09-04 20:12:10,227", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-04 20:12:10,227", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:58465/page2.html"}
+{"timestamp": "2025-09-04 20:12:10,228", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-04 20:12:10,228", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:58465/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:12:10,246", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:58465/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:12:11,385", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:12:11,398", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:12:11,591", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58465/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:12:11,592", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58465/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:12:11,599", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:58465/page2.html: []"}
+{"timestamp": "2025-09-04 20:12:11,599", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58465/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:12:11,599", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58465/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:12:11,600", "level": "INFO", "name": "src.database", "message": "Nuevo contenido can\u00f3nico para http://localhost:58465/page1.html. Marcando http://localhost:58465/page2.html como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-04 20:12:11,609", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:58465/page1.html: []"}
+{"timestamp": "2025-09-04 20:12:11,609", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-04 20:12:19,334", "level": "INFO", "name": "__main__", "message": "Exporting data to CSV: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_7bf4rst5\\export.csv"}
+{"timestamp": "2025-09-04 20:12:19,392", "level": "WARNING", "name": "src.database", "message": "[DEBUG] SUCCESS rows before export attempt: 2"}
+{"timestamp": "2025-09-04 20:12:19,394", "level": "INFO", "name": "src.database", "message": "2 registros con estado 'SUCCESS' exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_7bf4rst5\\export.csv"}
+{"timestamp": "2025-09-04 20:14:29,002", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:58557/index.html']"}
+{"timestamp": "2025-09-04 20:14:29,053", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-04 20:14:29,054", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-04 20:14:32,562", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://localhost:58557/robots.txt \"HTTP/1.0 404 Not Found\""}
+{"timestamp": "2025-09-04 20:14:32,563", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://localhost:58557/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-04 20:14:32,563", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:58557/index.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:14:34,664", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:14:35,478", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58557/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:14:35,478", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58557/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-04 20:14:35,537", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:58557/index.html: ['http://localhost:58557/page1.html', 'http://localhost:58557/page2.html']"}
+{"timestamp": "2025-09-04 20:14:35,537", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:58557/page1.html"}
+{"timestamp": "2025-09-04 20:14:35,537", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-04 20:14:35,538", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:58557/page2.html"}
+{"timestamp": "2025-09-04 20:14:35,538", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-04 20:14:35,538", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:58557/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:14:35,555", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:58557/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:14:36,707", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:14:36,721", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:14:36,894", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58557/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:14:36,894", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58557/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:14:36,901", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:58557/page1.html: []"}
+{"timestamp": "2025-09-04 20:14:36,901", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58557/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:14:36,901", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58557/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:14:36,902", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://localhost:58557/page2.html. Original: http://localhost:58557/page1.html. Marcando como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-04 20:14:36,906", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-04 20:14:44,762", "level": "INFO", "name": "__main__", "message": "Exporting data to CSV: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_eppy_qzu\\export.csv"}
+{"timestamp": "2025-09-04 20:14:44,819", "level": "WARNING", "name": "src.database", "message": "[DEBUG] SUCCESS rows before export attempt: 2"}
+{"timestamp": "2025-09-04 20:14:44,821", "level": "INFO", "name": "src.database", "message": "2 registros con estado 'SUCCESS' exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_eppy_qzu\\export.csv"}
+{"timestamp": "2025-09-04 20:14:44,821", "level": "INFO", "name": "__main__", "message": "CSV export completed"}
+{"timestamp": "2025-09-04 20:15:00,926", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:58597/index.html']"}
+{"timestamp": "2025-09-04 20:15:00,955", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-04 20:15:00,955", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-04 20:15:02,399", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://localhost:58597/robots.txt \"HTTP/1.0 404 Not Found\""}
+{"timestamp": "2025-09-04 20:15:02,400", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://localhost:58597/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-04 20:15:02,400", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:58597/index.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:15:04,381", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:15:04,991", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58597/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:15:04,992", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58597/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-04 20:15:05,047", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:58597/index.html: ['http://localhost:58597/page1.html', 'http://localhost:58597/page2.html']"}
+{"timestamp": "2025-09-04 20:15:05,047", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:58597/page1.html"}
+{"timestamp": "2025-09-04 20:15:05,048", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-04 20:15:05,048", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:58597/page2.html"}
+{"timestamp": "2025-09-04 20:15:05,048", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-04 20:15:05,048", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:58597/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:15:05,062", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:58597/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-04 20:15:06,220", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:15:06,232", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-04 20:15:06,382", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58597/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:15:06,382", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58597/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:15:06,390", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:58597/page1.html: []"}
+{"timestamp": "2025-09-04 20:15:06,391", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:58597/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 20:15:06,391", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:58597/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-04 20:15:06,392", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://localhost:58597/page2.html. Original: http://localhost:58597/page1.html. Marcando como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-04 20:15:06,395", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-04 20:15:13,639", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_6y4_ch5r\\export.json"}
+{"timestamp": "2025-09-04 20:15:13,710", "level": "INFO", "name": "src.database", "message": "3 registros exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_6y4_ch5r\\export.json"}
+{"timestamp": "2025-09-04 20:15:13,711", "level": "INFO", "name": "__main__", "message": "JSON export completed"}
+{"timestamp": "2025-09-04 20:46:29,946", "level": "ERROR", "name": "__main__", "message": "Failed to produce brain snapshot: AutonomousLearningBrain.__init__() got an unexpected keyword argument 'data_file'"}
+{"timestamp": "2025-09-04 20:47:45,063", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 0 domains"}
+{"timestamp": "2025-09-04 20:47:45,072", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-04 20:47:45,072", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Hybrid Brain initialized - combining IA-A + IA-B intelligence systems"}
+{"timestamp": "2025-09-04 20:47:45,073", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain overrides loaded: 10 settings"}
+{"timestamp": "2025-09-04 20:47:45,073", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with hybrid brain"}
+{"timestamp": "2025-09-04 20:47:45,074", "level": "ERROR", "name": "__main__", "message": "Failed to produce brain snapshot: 'AutonomousLearningBrain' object has no attribute 'optimized_strategies'"}
+{"timestamp": "2025-09-04 20:48:15,364", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 0 domains"}
+{"timestamp": "2025-09-04 20:48:15,369", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-04 20:48:15,370", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Hybrid Brain initialized - combining IA-A + IA-B intelligence systems"}
+{"timestamp": "2025-09-04 20:48:15,370", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain overrides loaded: 10 settings"}
+{"timestamp": "2025-09-04 20:48:15,370", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with hybrid brain"}
+{"timestamp": "2025-09-04 20:48:15,370", "level": "ERROR", "name": "__main__", "message": "Failed to produce brain snapshot: 'AutonomousLearningBrain' object has no attribute 'optimized_strategies'"}
+{"timestamp": "2025-09-04 20:48:40,387", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 0 domains"}
+{"timestamp": "2025-09-04 20:48:40,389", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-04 20:48:40,390", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Hybrid Brain initialized - combining IA-A + IA-B intelligence systems"}
+{"timestamp": "2025-09-04 20:48:40,390", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain overrides loaded: 10 settings"}
+{"timestamp": "2025-09-04 20:48:40,390", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with hybrid brain"}
+{"timestamp": "2025-09-04 20:50:36,904", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 0 domains"}
+{"timestamp": "2025-09-04 20:50:36,906", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-04 20:50:36,907", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Hybrid Brain initialized - combining IA-A + IA-B intelligence systems"}
+{"timestamp": "2025-09-04 20:50:36,908", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain overrides loaded: 10 settings"}
+{"timestamp": "2025-09-04 20:50:36,908", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with hybrid brain"}
+{"timestamp": "2025-09-04 20:56:49,043", "level": "INFO", "name": "__main__", "message": "Running in demo mode..."}
+{"timestamp": "2025-09-04 20:56:49,050", "level": "INFO", "name": "src.runner", "message": "Discovered scraper: ToscrapeScraper"}
+{"timestamp": "2025-09-04 20:56:49,923", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-04 20:56:49,924", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-04 20:56:49,943", "level": "ERROR", "name": "src.runner", "message": "Scraper failed with exception: 1 validation error for ScrapeResult\nstatus\n  Field required [type=missing, input_value={'url': 'http://books.tos...poetry_23/index.html']}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.11/v/missing"}
+{"timestamp": "2025-09-04 20:56:49,944", "level": "ERROR", "name": "src.runner", "message": "Scraper failed with exception: 1 validation error for ScrapeResult\nstatus\n  Field required [type=missing, input_value={'url': 'http://books.tos...ttic_1000/index.html']}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.11/v/missing"}
+{"timestamp": "2025-09-04 20:57:24,436", "level": "INFO", "name": "__main__", "message": "Running in demo mode..."}
+{"timestamp": "2025-09-04 20:57:24,445", "level": "INFO", "name": "src.runner", "message": "Discovered scraper: ToscrapeScraper"}
+{"timestamp": "2025-09-04 20:57:25,074", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-04 20:57:25,087", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-04 20:57:25,098", "level": "ERROR", "name": "src.runner", "message": "Scraper failed with exception: 1 validation error for ScrapeResult\ncontent\n  Field required [type=missing, input_value={'status': 'SUCCESS', 'ur...ontent_type': 'PRODUCT'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.11/v/missing"}
+{"timestamp": "2025-09-04 20:57:25,099", "level": "ERROR", "name": "src.runner", "message": "Scraper failed with exception: 1 validation error for ScrapeResult\ncontent\n  Field required [type=missing, input_value={'status': 'SUCCESS', 'ur...ontent_type': 'PRODUCT'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.11/v/missing"}
+{"timestamp": "2025-09-04 20:59:07,438", "level": "INFO", "name": "__main__", "message": "Running in demo mode..."}
+{"timestamp": "2025-09-04 20:59:07,444", "level": "INFO", "name": "src.runner", "message": "Discovered scraper: ToscrapeScraper"}
+{"timestamp": "2025-09-04 20:59:08,049", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-04 20:59:08,050", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-04 20:59:08,147", "level": "ERROR", "name": "src.runner", "message": "Scraper failed with exception: 1 validation error for ScrapeResult\ncontent\n  Field required [type=missing, input_value={'status': 'SUCCESS', 'ur...ontent_type': 'PRODUCT'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.11/v/missing"}
+{"timestamp": "2025-09-04 20:59:08,147", "level": "ERROR", "name": "src.runner", "message": "Scraper failed with exception: 1 validation error for ScrapeResult\ncontent\n  Field required [type=missing, input_value={'status': 'SUCCESS', 'ur...ontent_type': 'PRODUCT'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.11/v/missing"}
+{"timestamp": "2025-09-04 21:00:05,257", "level": "INFO", "name": "__main__", "message": "Running in demo mode..."}
+{"timestamp": "2025-09-04 21:00:05,266", "level": "INFO", "name": "src.runner", "message": "Discovered scraper: ToscrapeScraper"}
+{"timestamp": "2025-09-04 21:00:05,802", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-04 21:00:05,812", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-04 21:00:05,816", "level": "INFO", "name": "src.runner", "message": "Scraped http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html successfully."}
+{"timestamp": "2025-09-04 21:00:05,816", "level": "INFO", "name": "src.runner", "message": "Scraped http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html successfully."}
+{"timestamp": "2025-09-04 21:00:51,132", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 0 domains"}
+{"timestamp": "2025-09-04 21:00:51,137", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-04 21:00:51,137", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Hybrid Brain initialized - combining IA-A + IA-B intelligence systems"}
+{"timestamp": "2025-09-04 21:00:51,137", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain overrides loaded: 10 settings"}
+{"timestamp": "2025-09-04 21:00:51,137", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with hybrid brain"}
+{"timestamp": "2025-09-04 21:01:47,595", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: exports\\test_export.json"}
+{"timestamp": "2025-09-04 21:01:48,258", "level": "INFO", "name": "src.database", "message": "234 registros exportados a exports\\test_export.json"}
+{"timestamp": "2025-09-04 21:01:48,261", "level": "INFO", "name": "__main__", "message": "JSON export completed"}
+{"timestamp": "2025-09-04 21:02:13,848", "level": "INFO", "name": "__main__", "message": "Exporting data to CSV: exports\\test_export.csv"}
+{"timestamp": "2025-09-04 21:02:13,941", "level": "INFO", "name": "src.database", "message": "155 registros con estado 'SUCCESS' exportados a exports\\test_export.csv"}
+{"timestamp": "2025-09-04 21:02:13,942", "level": "INFO", "name": "__main__", "message": "CSV export completed"}
+{"timestamp": "2025-09-04 21:02:28,394", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html']"}
+{"timestamp": "2025-09-04 21:02:28,458", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-04 21:02:28,458", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-04 21:02:40,722", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 0 domains"}
+{"timestamp": "2025-09-04 21:02:40,735", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-04 21:02:40,736", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Hybrid Brain initialized - combining IA-A + IA-B intelligence systems"}
+{"timestamp": "2025-09-04 21:02:40,737", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain overrides loaded: 10 settings"}
+{"timestamp": "2025-09-04 21:02:40,738", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with hybrid brain"}
+{"timestamp": "2025-09-04 21:02:40,738", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-04 21:02:41,556", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/robots.txt \"HTTP/1.1 404 Not Found\""}
+{"timestamp": "2025-09-04 21:02:41,558", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://books.toscrape.com/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-04 21:02:41,558", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Intelligence optimized config for books.toscrape.com"}
+{"timestamp": "2025-09-04 21:02:41,565", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html (Priority: 1)"}
+{"timestamp": "2025-09-04 21:03:09,149", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-04 21:03:09,225", "level": "INFO", "name": "alembic.runtime.migration", "message": "Context impl SQLiteImpl."}
+{"timestamp": "2025-09-04 21:03:09,226", "level": "INFO", "name": "alembic.runtime.migration", "message": "Will assume non-transactional DDL."}
+{"timestamp": "2025-09-04 21:03:09,255", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: books.toscrape.com (success: False)"}
+{"timestamp": "2025-09-04 21:03:09,255", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error learning from scrape result: cannot access local variable 'response_time' where it is not associated with a value"}
+{"timestamp": "2025-09-04 21:03:09,258", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html: []"}
+{"timestamp": "2025-09-04 21:03:09,261", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}

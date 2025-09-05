@@ -1,2 +1,1 @@
-2025-09-04 19:32:22 - INFO - [root] - Exporting data to C:\Users\DELL\AppData\Local\Temp\test_cli_hws3kcqc\export.csv...
-2025-09-04 19:32:22 - WARNING - [src.database] - No hay datos con estado 'SUCCESS' para exportar. No se creará ningún archivo.
+2025-09-04 19:46:27 - ERROR - [root] - Unexpected error: cannot import name 'run_crawler' from 'src.runner' (C:\Users\DELL\Desktop\PythonWebScraper\src\runner.py)

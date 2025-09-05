@@ -1,7 +1,17 @@
 # Development and testing dependencies
-pytest
-pytest-asyncio
-pre-commit
-black
-isort
-flake8
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pre-commit>=3.0.0
+black>=24.0.0
+isort>=5.0.0
+flake8>=7.0.0
+mypy>=1.0.0
+
+# Additional tools for quality assurance
+coverage>=7.0.0
+pytest-cov>=4.0.0
+bandit>=1.7.0
+
+# Documentation
+sphinx>=7.0.0
+sphinx-rtd-theme>=2.0.0
