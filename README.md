@@ -361,18 +361,82 @@ Recomendado activarlo siempre en producción (`HYBRID_BRAIN=1`).
 
 ## 16. TUI (Interfaz Textual)
 
-Funciones típicas:
+La interfaz textual (basada en Textual) proporciona observabilidad en tiempo real y control operativo sin abrir múltiples terminales. Está pensada para reflejar la “inteligencia” del scraper de forma clara y accionable.
 
-- Panel de progreso (colas, páginas procesadas)
-- Métricas en vivo por dominio
-- Alertas (redirecciones, fallos persistentes, anomalías)
-- Opciones para detener / inspeccionar
+Características clave:
 
-Lanzo TUI:
+- Banner de Inteligencia (arriba): estado Robots, Ética, Offline, RL, tasa de éxito acumulada; indicadores de anomalía (fallos ≥40%, backoff >2x, PAUSADO).
+- Pestañas de Control / Métricas: vista Crawl (inicio: URL, concurrencia, flags) y vista Estadísticas (global, dominio, Brain, Inteligencia acumulada).
+- Métricas Globales (LiveStats): procesadas, éxitos, fallos, reintentos, cola y % con color (verde/amarillo/rojo).
+- Métricas por Dominio: backoff dinámico, scrapeados, baja calidad, vacíos, fallos (colores según ratios).
+- Brain Adaptativo: visitas, tasas éxito/error, link yield, prioridad derivada, eventos recientes.
+- Inteligencia Autónoma: dominios aprendidos, sesiones, éxito promedio, patrones, estrategias optimizadas, último aprendizaje.
+- Alertas Críticas: mensajes coloreados para incidencias de extracción, saturación y anomalías.
+- Progreso & Etapas: barra de progreso y etapa (Idle / Queueing / Crawling / Finalizing / Completed).
+- Barra de Estado: totales, tasa de éxito, throughput (TPS) y tiempo transcurrido (mm:ss).
+- Notificaciones Toast: feedback de inicio, pausa, export, errores sin bloquear.
+- Exportación Markdown Manual: botón “Exportar MD” o `x` genera `exports/manual_export.md`.
+- Preferencias Persistentes: autoscroll y visibilidad del log guardadas en `config/ui_prefs.json`.
+- Pausa de UI: bufferiza métricas sin perder datos; refresco al reanudar.
+- Ocultar Panel de Log: maximiza espacio para análisis profundo de métricas.
+
+Atajos de teclado (Keybindings):
+
+| Tecla | Acción | Descripción |
+|-------|--------|-------------|
+| s | start | Inicia crawling |
+| t | stop | Detiene crawling (cancela worker) |
+| p | pause_resume | Pausa/Reanuda refresco UI (buffer) |
+| q | quit | Salir de la TUI |
+| r | toggle_robots | Activa/desactiva respeto robots.txt |
+| e | toggle_ethics | Activa/desactiva comprobaciones de ética |
+| o | toggle_offline | Cambia modo Offline (sin LLM remoto) |
+| d | toggle_dark | Tema oscuro (Textual) adicional |
+| l | toggle_log_panel | Oculta/Muestra panel de log |
+| x | export_markdown | Exporta reporte Markdown manual |
+| a | toggle_autoscroll | Autoscroll del log ON/OFF |
+| c | clear_log | Limpia el log principal |
+| / | focus_url | Foco rápido en campo URL |
+| ? | help | Overlay de ayuda |
+| Enter (en URL) | start | Atajo rápido para lanzar |
+| Esc (overlay) | cerrar | Cierra overlays (ayuda) |
+
+Color Semántico:
+
+- Verde: estado saludable / éxito ≥ 80% / backoff bajo.
+- Amarillo: condiciones intermedias / atención recomendada.
+- Rojo: anomalía, alta tasa de fallo, métrica degradada.
+
+Anomalías Detectadas actualmente:
+
+- Tasa de fallo global ≥ 40% → Banner muestra “ALTA Falla”.
+- Backoff máximo de dominio > 2x → Banner muestra indicador ⏳.
+- Estado de pausa activo → “PAUSADO” resaltado.
+
+Exportación Automática vs Manual:
+
+- Automática: controlada por `AUTO_EXPORT_MD=1` (post-run en modo runner tradicional).
+- Manual: desde TUI con botón o atajo `x`. Ideal para snapshots intermedios.
+
+Ejecución:
 
 ```powershell
 python -m src.main --tui
 ```
+
+Sugerencias de Operación:
+
+- Iniciar con un solo dominio para validar extracción y luego ampliar.
+- Observar `Backoff` y `Fallos` por dominio para ajustar límites antes de escalar.
+- Usar pausa (`p`) cuando se desee inspeccionar tablas sin parpadeo constante.
+- Exportar un Markdown intermedio para auditorías o reportes de progreso.
+
+Roadmap UI (futuro potencial):
+
+- Filtros interactivos por dominio / tasa de error.
+- Export JSON directo desde la TUI.
+- Visualización de grafo de enlaces (ASCII o sparkline).
+- Modo “focus” a un dominio.
 
 ---
 

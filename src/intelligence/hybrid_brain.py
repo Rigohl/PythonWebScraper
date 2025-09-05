@@ -1,23 +1,32 @@
 """
-Hybrid Brain System - Fusión de AutonomousLearningBrain (IA-B) + Brain (IA-A)
+Hybrid Brain System - True Neural Architecture with Consciousness Modeling
 
-Este módulo combina lo mejor de ambos sistemas:
-- Brain de IA-A: Eventos ligeros, heurísticas de dominio, persistencia JSON simple
-- AutonomousLearningBrain de IA-B: Aprendizaje de patrones, estrategias adaptativas, inteligencia predictiva
+Este módulo combina todos los sistemas cerebrales en una arquitectura unificada:
+- Neural Brain: Neurons reales con synapses, STDP learning, specialized clusters
+- Advanced Reasoning: Deductive, inductive, abductive, fuzzy logic systems
+- Advanced Memory: Episodic/semantic memory, working memory, consolidation
+- Emotional Brain: Valence-arousal model, emotion regulation, appraisal theory
+- Metacognitive Brain: Self-awareness, self-reflection, strategy monitoring
+- Legacy Systems: Brain de IA-A + AutonomousLearningBrain de IA-B integrados
 
 El HybridBrain actúa como:
-1. Proxy inteligente que envía eventos a ambos sistemas
-2. Orchestrador de decisiones que combina insights de ambos
-3. Coordinador de comunicación inter-IA via IA_SYNC.md
+1. Unified Consciousness: Global workspace theory implementation
+2. Cross-System Communication: Neural-level integration between subsystems
+3. Emergent Intelligence: Properties arising from system interactions
+4. True Brain Architecture: Realistic neural processing with synaptic learning
 """
 
 import json
 import logging
 import os
+import time
+import asyncio
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 from urllib.parse import urlparse
 import statistics
+import threading
+from collections import defaultdict, deque
 
 from .brain import Brain, ExperienceEvent
 from .autonomous_brain import AutonomousLearningBrain, ScrapingSession, DomainIntelligence
@@ -26,44 +35,513 @@ from .self_repair import SelfRepairAdvisor
 from .knowledge_base import KnowledgeBase
 from .rule_engine import RuleEngine
 from .auto_testing import AutoTestingFramework
+from .advanced_ml import AdvancedMLIntelligence
+from .self_improvement import SelfImprovingSystem
+from .continuous_learning import ContinuousLearningOrchestrator
+
+# Import new brain systems
+from .neural_brain import create_neural_brain
+from .advanced_reasoning import create_advanced_reasoning_system
+from .advanced_memory import create_advanced_memory_system
+from .emotional_brain import create_emotional_brain
+from .metacognitive_brain import create_metacognitive_brain
+from .cdp_stealth import StealthCDPBrowser
 import time
 
 logger = logging.getLogger(__name__)
 
+class UnifiedBrainArchitecture:
+    """
+    Arquitectura cerebral unificada que integra todos los sistemas neuronales
+    Implementa Global Workspace Theory para consciencia emergente
+    """
+
+    def __init__(self):
+        # Core brain systems - True neural architecture
+        self.neural_brain = create_neural_brain()
+        self.reasoning_system = create_advanced_reasoning_system()
+        self.memory_system = create_advanced_memory_system()
+        self.emotional_brain = create_emotional_brain()
+        self.metacognitive_brain = create_metacognitive_brain()
+
+        # Global Workspace for consciousness modeling
+        self.global_workspace = {
+            "current_focus": None,
+            "active_coalitions": [],
+            "conscious_contents": deque(maxlen=10),
+            "attention_weights": defaultdict(float),
+            "integration_buffer": []
+        }
+
+        # Cross-system communication channels
+        self.neural_channels = {
+            "memory_emotional": [],      # Memory <-> Emotion connections
+            "reasoning_memory": [],      # Reasoning <-> Memory connections
+            "metacog_all": [],          # Metacognition monitors all
+            "emotion_decision": [],     # Emotion influences decisions
+            "neural_global": []         # Neural <-> Global workspace
+        }
+
+        # Consciousness parameters
+        self.consciousness_threshold = 0.6  # Threshold for conscious access
+        self.integration_window = 100       # ms for neural integration
+        self.attention_decay = 0.95        # Attention decay rate
+
+        # System metrics
+        self.neural_activity_level = 0.5
+        self.consciousness_level = 0.3
+        self.integration_coherence = 0.4
+
+        # Background processing
+        self.background_cycles = 0
+        self.last_consolidation = time.time()
+
+        logger.info("🧠 Unified Brain Architecture initialized with true neural systems")
+
+    def process_sensory_input(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Procesa input sensorial a través de toda la arquitectura neural"""
+
+        processing_start = time.time()
+
+        # 1. NEURAL PROCESSING: Raw input through neural clusters
+        neural_response = self.neural_brain.process_distributed(
+            input_data=input_data,
+            clusters=['sensory', 'pattern', 'memory']
+        )
+
+        # 2. EMOTIONAL APPRAISAL: Process emotional significance
+        event_description = input_data.get('description', 'sensory input')
+        emotional_context = {
+            'familiarity': input_data.get('familiarity', 0.5),
+            'goal_relevance': input_data.get('importance', 0.5),
+            'controllable': input_data.get('controllable', True)
+        }
+
+        emotional_response = self.emotional_brain.process_emotional_event(
+            event_description, emotional_context
+        )
+
+        # 3. MEMORY ENCODING: Store with emotional enhancement
+        memory_content = {
+            'input_data': input_data,
+            'neural_response': neural_response,
+            'timestamp': processing_start
+        }
+
+        # Emotional influence on memory encoding
+        enhanced_memory = self.emotional_brain.influence_memory_encoding(memory_content)
+
+        # Create episode for episodic memory
+        from .advanced_memory import Episode
+        episode = Episode(
+            event_description=event_description,
+            participants=['self'],
+            location=input_data.get('location', 'unknown'),
+            timestamp=processing_start,
+            duration=1.0,
+            outcome=input_data.get('outcome', 'processed'),
+            details=enhanced_memory
+        )
+
+        memory_id = self.memory_system.encode_episode(episode)
+
+        # 4. REASONING INTEGRATION: Apply reasoning to understand input
+        reasoning_context = {
+            'facts': [input_data],
+            'goals': ['understand_input', 'extract_meaning'],
+            'constraints': []
+        }
+
+        reasoning_result = self.reasoning_system.integrated_reasoning(
+            query="analyze_sensory_input",
+            context=reasoning_context,
+            reasoning_types=['deductive', 'inductive']
+        )
+
+        # 5. METACOGNITIVE MONITORING: Monitor the processing
+        task_context = {
+            'type': 'sensory_processing',
+            'complexity': input_data.get('complexity', 0.5),
+            'time_pressure': 0.3,
+            'familiarity': emotional_context['familiarity']
+        }
+
+        metacog_cycle = self.metacognitive_brain.initiate_metacognitive_cycle(task_context)
+
+        # 6. GLOBAL WORKSPACE INTEGRATION: Combine all subsystem outputs
+        integrated_response = self._integrate_in_global_workspace({
+            'neural': neural_response,
+            'emotional': emotional_response.primary_emotion.value,
+            'memory': memory_id,
+            'reasoning': reasoning_result,
+            'metacognitive': metacog_cycle
+        })
+
+        # 7. UPDATE NEURAL CONNECTIONS: Hebbian learning between systems
+        self._update_cross_system_connections(input_data, integrated_response)
+
+        processing_time = time.time() - processing_start
+
+        return {
+            'integrated_response': integrated_response,
+            'neural_activity': neural_response,
+            'emotional_state': self.emotional_brain.get_emotional_state(),
+            'memory_encoding': memory_id,
+            'reasoning_analysis': reasoning_result,
+            'metacognitive_state': self.metacognitive_brain.get_metacognitive_status(),
+            'consciousness_level': self.consciousness_level,
+            'processing_time_ms': processing_time * 1000,
+            'neural_activity_level': self.neural_activity_level
+        }
+
+    def _integrate_in_global_workspace(self, subsystem_outputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Integra outputs de subsistemas en workspace global (consciousness)"""
+
+        # Calculate coalition strengths
+        coalition_strengths = {}
+
+        for subsystem, output in subsystem_outputs.items():
+            strength = 0.5  # Base strength
+
+            # Neural coalition strength
+            if subsystem == 'neural':
+                strength = output.get('overall_activation', 0.5)
+
+            # Emotional coalition strength
+            elif subsystem == 'emotional':
+                emotional_intensity = self.emotional_brain.current_emotion.intensity
+                strength = emotional_intensity
+
+            # Memory coalition strength
+            elif subsystem == 'memory':
+                # Recent memory encoding suggests active memory system
+                strength = 0.7
+
+            # Reasoning coalition strength
+            elif subsystem == 'reasoning':
+                confidence = output.get('overall_confidence', 0.5)
+                strength = confidence
+
+            # Metacognitive coalition strength
+            elif subsystem == 'metacognitive':
+                awareness_level = self.metacognitive_brain.current_metacognitive_state['self_awareness_level']
+                strength = awareness_level
+
+            coalition_strengths[subsystem] = strength
+
+        # Determine winning coalition(s) for conscious access
+        consciousness_threshold = self.consciousness_threshold
+        winning_coalitions = [
+            subsystem for subsystem, strength in coalition_strengths.items()
+            if strength > consciousness_threshold
+        ]
+
+        # Update global workspace
+        self.global_workspace['active_coalitions'] = winning_coalitions
+        self.global_workspace['attention_weights'].update(coalition_strengths)
+
+        # Create integrated conscious content
+        if winning_coalitions:
+            conscious_content = {
+                'timestamp': time.time(),
+                'dominant_coalition': max(coalition_strengths.items(), key=lambda x: x[1])[0],
+                'coalition_strengths': coalition_strengths,
+                'integrated_meaning': self._extract_integrated_meaning(subsystem_outputs),
+                'consciousness_level': max(coalition_strengths.values())
+            }
+
+            self.global_workspace['conscious_contents'].append(conscious_content)
+            self.consciousness_level = conscious_content['consciousness_level']
+
+        # Apply attention decay
+        for subsystem in self.global_workspace['attention_weights']:
+            self.global_workspace['attention_weights'][subsystem] *= self.attention_decay
+
+        return {
+            'conscious_access': len(winning_coalitions) > 0,
+            'dominant_process': max(coalition_strengths.items(), key=lambda x: x[1])[0],
+            'coalition_strengths': coalition_strengths,
+            'consciousness_level': self.consciousness_level,
+            'integrated_meaning': self._extract_integrated_meaning(subsystem_outputs) if winning_coalitions else None
+        }
+
+    def _extract_integrated_meaning(self, subsystem_outputs: Dict[str, Any]) -> str:
+        """Extrae significado integrado de outputs de subsistemas"""
+
+        neural_response = subsystem_outputs.get('neural', {})
+        emotional_state = subsystem_outputs.get('emotional', 'neutral')
+        reasoning_result = subsystem_outputs.get('reasoning', {})
+
+        # Simple integration heuristic
+        neural_interpretation = neural_response.get('interpretation', 'neural_processing')
+        emotional_valence = 'positive' if emotional_state in ['joy', 'surprise'] else 'negative' if emotional_state in ['fear', 'anger', 'sadness'] else 'neutral'
+        reasoning_conclusion = reasoning_result.get('final_conclusion', 'analysis_complete')
+
+        integrated_meaning = f"Neural: {neural_interpretation}, Emotional: {emotional_valence}, Reasoning: {reasoning_conclusion}"
+
+        return integrated_meaning
+
+    def _update_cross_system_connections(self, input_data: Dict[str, Any], response: Dict[str, Any]):
+        """Actualiza conexiones entre sistemas (Hebbian learning)"""
+
+        # Strengthen connections based on co-activation
+        connection_strength = 0.1
+
+        # Memory-Emotion connections
+        if response.get('emotional_state', {}).get('current_emotion', {}).get('intensity', 0) > 0.5:
+            self.neural_channels['memory_emotional'].append({
+                'timestamp': time.time(),
+                'strength': connection_strength,
+                'context': 'emotional_memory_encoding'
+            })
+
+        # Reasoning-Memory connections
+        if response.get('reasoning_analysis', {}).get('overall_confidence', 0) > 0.6:
+            self.neural_channels['reasoning_memory'].append({
+                'timestamp': time.time(),
+                'strength': connection_strength,
+                'context': 'reasoning_memory_retrieval'
+            })
+
+        # Metacognition monitors all systems
+        self.neural_channels['metacog_all'].append({
+            'timestamp': time.time(),
+            'monitored_systems': ['neural', 'emotional', 'memory', 'reasoning'],
+            'monitoring_strength': connection_strength
+        })
+
+        # Trim old connections (maintain recent history only)
+        for channel in self.neural_channels.values():
+            if isinstance(channel, list) and len(channel) > 100:
+                channel[:] = channel[-50:]  # Keep last 50 connections
+
+    def background_consciousness_cycle(self):
+        """Ciclo de background para mantenimiento de consciencia"""
+
+        self.background_cycles += 1
+        current_time = time.time()
+
+        # 1. MEMORY CONSOLIDATION (every 5 minutes)
+        if current_time - self.last_consolidation > 300:  # 5 minutes
+            self.memory_system.consolidation_cycle()
+            self.last_consolidation = current_time
+
+        # 2. EMOTIONAL DECAY (every cycle)
+        self.emotional_brain.decay_emotions(time_elapsed_minutes=1.0)
+
+        # 3. NEURAL HOMEOSTASIS (every 10 cycles)
+        if self.background_cycles % 10 == 0:
+            self.neural_brain.homeostatic_update()
+
+        # 4. METACOGNITIVE UPDATE (every 5 cycles)
+        if self.background_cycles % 5 == 0:
+            self.emotional_brain.update_mood()
+
+            # Self-reflection trigger
+            performance_metrics = {
+                'consciousness_level': self.consciousness_level,
+                'neural_activity': self.neural_activity_level,
+                'integration_coherence': self.integration_coherence
+            }
+
+            reflection_context = {
+                'performance_metrics': performance_metrics,
+                'cognitive_state': {
+                    'cognitive_load': self.metacognitive_brain.monitor.cognitive_load,
+                    'attention_focus': self.metacognitive_brain.monitor.attention_focus
+                }
+            }
+
+            self.metacognitive_brain.trigger_self_reflection(reflection_context)
+
+        # 5. UPDATE SYSTEM METRICS
+        self._update_system_metrics()
+
+    def _update_system_metrics(self):
+        """Actualiza métricas del sistema"""
+
+        # Neural activity level
+        active_neurons = self.neural_brain.get_active_neuron_count()
+        total_neurons = sum(len(cluster.neurons) for cluster in self.neural_brain.clusters.values())
+        self.neural_activity_level = active_neurons / max(1, total_neurons)
+
+        # Integration coherence
+        active_coalitions = len(self.global_workspace['active_coalitions'])
+        total_systems = 5  # neural, emotional, memory, reasoning, metacognitive
+        self.integration_coherence = active_coalitions / total_systems
+
+        # Consciousness level already updated in global workspace integration
+
+    def get_consciousness_state(self) -> Dict[str, Any]:
+        """Obtiene estado completo de consciencia"""
+
+        return {
+            'consciousness_level': self.consciousness_level,
+            'neural_activity_level': self.neural_activity_level,
+            'integration_coherence': self.integration_coherence,
+            'global_workspace': {
+                'active_coalitions': self.global_workspace['active_coalitions'],
+                'current_focus': self.global_workspace['current_focus'],
+                'attention_distribution': dict(self.global_workspace['attention_weights']),
+                'conscious_contents_count': len(self.global_workspace['conscious_contents'])
+            },
+            'subsystem_states': {
+                'neural': self.neural_brain.get_brain_state(),
+                'emotional': self.emotional_brain.get_emotional_state(),
+                'memory': self.memory_system.get_memory_statistics(),
+                'reasoning': {
+                    'available_reasoners': ['deductive', 'inductive', 'abductive', 'fuzzy'],
+                    'active': True
+                },
+                'metacognitive': self.metacognitive_brain.get_metacognitive_status()
+            },
+            'cross_system_connections': {
+                channel: len(connections) if isinstance(connections, list) else 0
+                for channel, connections in self.neural_channels.items()
+            },
+            'background_cycles': self.background_cycles
+        }
+
+
 class HybridBrain:
-    """🧠 Sistema híbrido que combina Brain (IA-A) + AutonomousLearningBrain (IA-B)"""
+    """
+    Sistema cerebral híbrido que integra:
+    - Unified Brain Architecture: Neural verdadero con consciousness
+    - Legacy Systems: Brain + AutonomousLearning integrados
+    """
 
-    def __init__(self, state_file: str = "data/brain_state.json", learning_file: str = "data/autonomous_learning.json"):
-        # IA-A Brain: Eventos ligeros y heurísticas de dominio
+    def __init__(self, data_dir: str = "data"):
+        self.data_dir = data_dir
+
+        # Initialize true neural brain architecture
+        self.unified_brain = UnifiedBrainArchitecture()
+
+        # Initialize legacy systems (preserved for compatibility)
+        state_file = os.path.join(data_dir, "brain_state.json")
+        learning_file = os.path.join(data_dir, "autonomous_learning.json")
+
         self.simple_brain = Brain(state_file=state_file)
-
-        # IA-B AutonomousLearningBrain: Aprendizaje profundo y patrones
-        # Ajuste: AutonomousLearningBrain usa parámetro data_path
         self.autonomous_brain = AutonomousLearningBrain(data_path=learning_file)
 
-        # Comunicación inter-IA
-        self.ia_sync_file = "IA_SYNC.md"
-
-        # Cargar configuración de overrides según sugerencia de IA-A
-        self.overrides = self._load_brain_overrides()
-        # Almacén de enriquecimiento avanzado (no crítico, solo conocimiento incremental)
+        # Additional intelligence systems
+        self.knowledge_base = KnowledgeBase()
+        self.rule_engine = RuleEngine()
         self.enrichment = EnrichmentStore()
-        # Asesor de auto-reparación (solo genera sugerencias, no modifica código)
+
+        # Load overrides
+        self.overrides = self._load_brain_overrides()
+
+        # Self-repair advisor
         self.self_repair_advisor = SelfRepairAdvisor(
             self.simple_brain,
             self.autonomous_brain,
             self.enrichment,
             overrides=self.overrides,
-            knowledge_base=None  # provisional, se asigna tras crear KB
+            knowledge_base=self.knowledge_base
         )
-        # Base de conocimiento estructurada
-        self.knowledge_base = KnowledgeBase()
-        # Inyectar KB ya construida
-        self.self_repair_advisor.knowledge_base = self.knowledge_base
-        # Motor de reglas declarativo
-        self.rule_engine = RuleEngine()
-        # Sistema de testing automático y simulación
+
         self.auto_testing = AutoTestingFramework()
+
+        # Advanced AI systems
+        try:
+            self.ml_intelligence = AdvancedMLIntelligence()
+            self.self_improver = SelfImprovingSystem()
+            self.cdp_browser = StealthCDPBrowser()
+            logger.info("🚀 Advanced AI systems loaded successfully")
+        except Exception as e:
+            logger.warning(f"Some advanced AI systems failed to load: {e}")
+            self.ml_intelligence = None
+            self.self_improver = None
+            self.cdp_browser = None
+
+        # Neural integration state
+        self.integration_mode = "unified"  # "unified", "legacy", "hybrid"
+        self.consciousness_enabled = True
+        self.ia_sync_file = "IA_SYNC.md"
+
+        # Background processing thread
+        self._start_background_processing()
+
+        logger.info("🧠 HybridBrain initialized with Unified Neural Architecture + Legacy Systems")
+
+    def _start_background_processing(self):
+        """Inicia procesamiento de background para consciencia"""
+
+        def background_loop():
+            while True:
+                try:
+                    if self.consciousness_enabled and self.integration_mode in ["unified", "hybrid"]:
+                        self.unified_brain.background_consciousness_cycle()
+                    time.sleep(10)  # 10 second cycles
+                except Exception as e:
+                    logger.error(f"Background processing error: {e}")
+                    time.sleep(30)  # Longer sleep on error
+
+        self.background_thread = threading.Thread(target=background_loop, daemon=True)
+        self.background_thread.start()
+
+    def process_scraping_event(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Procesa evento de scraping a través de toda la arquitectura neural
+        """
+
+        if self.integration_mode == "unified":
+            return self._process_with_unified_brain(event_data)
+        elif self.integration_mode == "legacy":
+            return self._process_with_legacy_systems(event_data)
+        else:  # hybrid
+            return self._process_with_hybrid_approach(event_data)
+
+    def _process_with_unified_brain(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Procesa con arquitectura neural unificada"""
+
+        # Enhance event data for neural processing
+        enhanced_event = {
+            'description': f"Scraping event: {event_data.get('event_type', 'unknown')}",
+            'url': event_data.get('url', ''),
+            'status_code': event_data.get('status_code', 200),
+            'success': event_data.get('success', True),
+            'data_extracted': event_data.get('data_extracted', {}),
+            'complexity': self._estimate_complexity(event_data),
+            'familiarity': self._estimate_familiarity(event_data),
+            'importance': event_data.get('importance', 0.5),
+            'controllable': True,
+            'location': 'web_scraping_context',
+            'outcome': 'success' if event_data.get('success', True) else 'failure'
+        }
+
+        # Process through unified neural architecture
+        neural_response = self.unified_brain.process_sensory_input(enhanced_event)
+
+        # Generate insights for scraping
+        scraping_insights = self._extract_scraping_insights(neural_response, event_data)
+
+        # Update legacy systems for compatibility
+        self._sync_with_legacy_systems(event_data, neural_response)
+
+        return {
+            **neural_response,
+            'scraping_insights': scraping_insights,
+            'processing_mode': 'unified_neural',
+            'consciousness_engaged': neural_response['integrated_response']['conscious_access']
+        }
+
+            # Orquestador de aprendizaje continuo (coordina todo)
+            self.learning_orchestrator = ContinuousLearningOrchestrator()
+
+            # Vincular componentes al orquestador
+            self.learning_orchestrator.set_ml_intelligence(self.ml_intelligence)
+            self.learning_orchestrator.set_self_improver(self.self_improver)
+            self.learning_orchestrator.set_knowledge_base(self.knowledge_base)
+
+            logger.info("🚀 Advanced AI modules loaded: ML Intelligence, Self-Improvement, CDP Stealth, Continuous Learning")
+
+        except Exception as e:
+            logger.warning(f"Some advanced AI modules failed to load: {e}")
+            self.ml_intelligence = None
+            self.self_improver = None
+            self.cdp_browser = None
+            self.learning_orchestrator = None
 
         # Persistir knowledge base inicial
         try:
@@ -98,6 +576,39 @@ class HybridBrain:
         except Exception as e:
             logger.warning(f"Error loading brain overrides: {e}, using defaults")
             return defaults
+
+    def _build_domain_context(self, domain: str) -> Dict[str, Any]:
+        """Construye un contexto unificado con toda la inteligencia disponible para un dominio."""
+        if not domain:
+            return {}
+
+        context = {"domain": domain}
+
+        # 1. Datos del SimpleBrain
+        context['simple'] = {
+            'visits': self.simple_brain.domain_stats.get(domain, {}).get('visits', 0),
+            'success_rate': self.simple_brain.domain_success_rate(domain),
+            'error_rate': self.simple_brain.domain_error_rate(domain),
+            'link_yield': self.simple_brain.link_yield(domain),
+            'avg_response_time': self.simple_brain.avg_response_time(domain)
+        }
+
+        # 2. Datos del AutonomousLearningBrain
+        auto_intel = self.autonomous_brain.domain_intelligence.get(domain)
+        context['autonomous'] = auto_intel.to_dict() if auto_intel else {}
+
+        # 3. Datos del EnrichmentStore
+        context['enrichment'] = self.enrichment.domain_insight(domain)
+
+        # 4. Evaluar con RuleEngine
+        flat_data_for_rules = {
+            'domain': domain,
+            **context['simple'],
+            **context['enrichment']
+        }
+        context['rule_engine_results'] = self.rule_engine.evaluate_all(flat_data_for_rules)
+
+        return context
 
     def record_scraping_result(self, result, context: Dict[str, Any] = None):
         """Registra un resultado de scraping en ambos sistemas"""
@@ -192,7 +703,7 @@ class HybridBrain:
         # 1. Obtener la tasa de error actual del cerebro simple
         error_rate = self.simple_brain.domain_error_rate(domain)
         min_visits = self.overrides.get('min_visits_for_backoff', 5)
-        
+
         # 2. Solo actuar si hay suficientes datos
         if self.simple_brain.domain_stats.get(domain, {}).get('visits', 0) < min_visits:
             return
@@ -202,7 +713,7 @@ class HybridBrain:
             # Usar el Rule Engine para obtener la sugerencia específica
             domain_data = {'domain': domain, 'error_rate': error_rate}
             rule_results = self.rule_engine.evaluate_all(domain_data)
-            
+
             # Buscar la regla de backoff
             backoff_suggestion = next((r for r in rule_results if r.get('rule_id') == 'high_error_rate_backoff'), None)
 
@@ -235,7 +746,7 @@ class HybridBrain:
         # 1. Obtener la tasa de error actual del cerebro simple
         error_rate = self.simple_brain.domain_error_rate(domain)
         min_visits = self.overrides.get('min_visits_for_backoff', 5)
-        
+
         # 2. Solo actuar si hay suficientes datos
         if self.simple_brain.domain_stats.get(domain, {}).get('visits', 0) < min_visits:
             return
@@ -245,7 +756,7 @@ class HybridBrain:
             # Usar el Rule Engine para obtener la sugerencia específica
             domain_data = {'domain': domain, 'error_rate': error_rate}
             rule_results = self.rule_engine.evaluate_all(domain_data)
-            
+
             # Buscar la regla de backoff
             backoff_suggestion = next((r for r in rule_results if r.get('rule_id') == 'high_error_rate_backoff'), None)
 
@@ -991,6 +1502,281 @@ class HybridBrain:
 
         except Exception:
             pass
+
+    # 🧠 Métodos de integración para sistemas avanzados de IA
+
+    def start_continuous_learning(self):
+        """Inicia el aprendizaje continuo en segundo plano"""
+        if self.learning_orchestrator:
+            try:
+                self.learning_orchestrator.start_background_learning()
+                logger.info("🔄 Continuous learning started successfully")
+            except Exception as e:
+                logger.warning(f"Failed to start continuous learning: {e}")
+
+    def get_ml_suggestions(self, url: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Obtiene sugerencias del sistema ML avanzado"""
+        if not self.ml_intelligence:
+            return {}
+
+        try:
+            return self.ml_intelligence.analyze_scraping_context(url, context or {})
+        except Exception as e:
+            logger.warning(f"ML suggestions failed: {e}")
+            return {}
+
+    def trigger_self_improvement(self, target_metrics: Dict[str, float] = None):
+        """Dispara el proceso de auto-mejora del código"""
+        if not self.self_improver:
+            return
+
+        try:
+            self.self_improver.improve_system(target_metrics or {})
+            logger.info("🔧 Self-improvement process triggered")
+        except Exception as e:
+            logger.warning(f"Self-improvement failed: {e}")
+
+    def get_cdp_browser(self):
+        """Obtiene instancia del navegador CDP sigiloso"""
+        return self.cdp_browser
+
+    def record_learning_session(self, url: str, success: bool, patterns: List[str],
+                               improvements: Dict[str, Any] = None):
+        """Registra una sesión de aprendizaje en el orquestador"""
+        if not self.learning_orchestrator:
+            return
+
+        try:
+            self.learning_orchestrator.record_session(url, success, patterns, improvements or {})
+        except Exception as e:
+            logger.warning(f"Failed to record learning session: {e}")
+
+    # 🧠 Neural Brain Integration Methods
+
+    def _process_with_legacy_systems(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Procesa con sistemas legacy (Brain A + B)"""
+
+        # Process with Simple Brain (IA-A)
+        if 'url' in event_data:
+            from urllib.parse import urlparse
+            domain = urlparse(event_data['url']).netloc
+        else:
+            domain = 'unknown'
+
+        # Create experience event for Simple Brain
+        from .brain import ExperienceEvent
+        from datetime import datetime, timezone
+
+        exp_event = ExperienceEvent(
+            event_type=event_data.get('event_type', 'scraping'),
+            url=event_data.get('url', ''),
+            success=event_data.get('success', True),
+            data_extracted=len(str(event_data.get('data_extracted', {}))),
+            processing_time=event_data.get('processing_time', 0.0),
+            error_message=event_data.get('error_message'),
+            timestamp=datetime.now(timezone.utc)
+        )
+
+        brain_a_response = self.simple_brain.record_experience(exp_event)
+
+        # Process with Autonomous Brain (IA-B)
+        from .autonomous_learning import ScrapingSession
+
+        session = ScrapingSession(
+            start_time=datetime.now(),
+            domain=domain,
+            pages_scraped=1,
+            success_rate=1.0 if event_data.get('success', True) else 0.0,
+            avg_response_time=event_data.get('processing_time', 0.0),
+            errors_encountered=0 if event_data.get('success', True) else 1,
+            data_extracted=event_data.get('data_extracted', {})
+        )
+
+        brain_b_response = self.autonomous_brain.record_session(session)
+
+        return {
+            'brain_a_response': brain_a_response,
+            'brain_b_response': brain_b_response,
+            'processing_mode': 'legacy_systems',
+            'consciousness_engaged': False
+        }
+
+    def _process_with_hybrid_approach(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Procesa con enfoque híbrido (Neural + Legacy)"""
+
+        # Process with unified brain
+        neural_response = self._process_with_unified_brain(event_data)
+
+        # Process with legacy systems
+        legacy_response = self._process_with_legacy_systems(event_data)
+
+        # Integrate both approaches
+        integrated_response = {
+            **neural_response,
+            'legacy_insights': legacy_response,
+            'processing_mode': 'hybrid_neural_legacy',
+            'integration_coherence': self._calculate_integration_coherence(neural_response, legacy_response)
+        }
+
+        return integrated_response
+
+    def _estimate_complexity(self, event_data: Dict[str, Any]) -> float:
+        """Estima complejidad del evento de scraping"""
+
+        complexity = 0.3  # Base complexity
+
+        # URL complexity
+        if 'url' in event_data:
+            url_parts = len(event_data['url'].split('/'))
+            complexity += min(0.3, url_parts * 0.05)
+
+        # Data complexity
+        if 'data_extracted' in event_data:
+            data_size = len(str(event_data['data_extracted']))
+            complexity += min(0.2, data_size / 1000)
+
+        # Error complexity
+        if not event_data.get('success', True):
+            complexity += 0.3
+
+        return min(1.0, complexity)
+
+    def _estimate_familiarity(self, event_data: Dict[str, Any]) -> float:
+        """Estima familiaridad con el tipo de evento"""
+
+        # Check domain familiarity in legacy systems
+        if 'url' in event_data:
+            from urllib.parse import urlparse
+            domain = urlparse(event_data['url']).netloc
+            domain_experience = self.simple_brain.get_domain_experience(domain)
+            return min(1.0, domain_experience.get('total_requests', 0) / 100)
+
+        return 0.5
+
+    def _extract_scraping_insights(self, neural_response: Dict[str, Any], event_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Extrae insights específicos para scraping del response neural"""
+
+        insights = {}
+
+        # Emotional insights
+        emotional_state = neural_response.get('emotional_state', {})
+        current_emotion = emotional_state.get('current_emotion', {})
+
+        if current_emotion.get('emotion') == 'fear':
+            insights['recommendation'] = "Detected fear response - possible anti-bot detection"
+        elif current_emotion.get('emotion') == 'joy':
+            insights['recommendation'] = "Positive emotional response - scraping going well"
+
+        # Memory insights
+        if neural_response.get('memory_encoding'):
+            insights['memory_note'] = "Event stored in episodic memory for future reference"
+
+        # Reasoning insights
+        reasoning_analysis = neural_response.get('reasoning_analysis', {})
+        if reasoning_analysis.get('overall_confidence', 0) > 0.8:
+            insights['confidence'] = "High confidence in scraping strategy"
+        elif reasoning_analysis.get('overall_confidence', 0) < 0.4:
+            insights['confidence'] = "Low confidence - consider strategy adjustment"
+
+        # Metacognitive insights
+        metacog_state = neural_response.get('metacognitive_state', {})
+        if metacog_state.get('cognitive_load', 0) > 0.8:
+            insights['workload'] = "High cognitive load - consider simplifying approach"
+
+        return insights
+
+    def _sync_with_legacy_systems(self, event_data: Dict[str, Any], neural_response: Dict[str, Any]):
+        """Sincroniza insights neurales con sistemas legacy"""
+
+        # Update Simple Brain with neural insights
+        if hasattr(self.simple_brain, 'update_neural_insights'):
+            self.simple_brain.update_neural_insights(event_data, neural_response)
+
+        # Update Autonomous Brain with consciousness state
+        if hasattr(self.autonomous_brain, 'update_consciousness_state'):
+            consciousness_state = self.unified_brain.get_consciousness_state()
+            self.autonomous_brain.update_consciousness_state(consciousness_state)
+
+    def _calculate_integration_coherence(self, neural_response: Dict[str, Any], legacy_response: Dict[str, Any]) -> float:
+        """Calcula coherencia entre respuestas neural y legacy"""
+
+        # Simple coherence measure
+        neural_success = neural_response.get('integrated_response', {}).get('conscious_access', False)
+        legacy_success = legacy_response.get('brain_a_response', {}).get('success', False)
+
+        if neural_success == legacy_success:
+            return 0.8
+        else:
+            return 0.4
+
+    def get_brain_state(self) -> Dict[str, Any]:
+        """Obtiene estado completo del cerebro híbrido"""
+
+        state = {
+            'integration_mode': self.integration_mode,
+            'consciousness_enabled': self.consciousness_enabled,
+            'unified_brain_state': self.unified_brain.get_consciousness_state() if hasattr(self, 'unified_brain') else {},
+            'legacy_simple_brain_state': self.simple_brain.get_state() if hasattr(self.simple_brain, 'get_state') else {},
+            'legacy_autonomous_brain_state': self.autonomous_brain.get_intelligence_state() if hasattr(self.autonomous_brain, 'get_intelligence_state') else {}
+        }
+
+        return state
+
+    def enable_consciousness(self):
+        """Habilita procesamiento consciente"""
+        self.consciousness_enabled = True
+        logger.info("🧠 Consciousness processing ENABLED")
+
+    def disable_consciousness(self):
+        """Deshabilita procesamiento consciente (modo legacy)"""
+        self.consciousness_enabled = False
+        logger.info("🧠 Consciousness processing DISABLED - using legacy mode")
+
+    def set_integration_mode(self, mode: str):
+        """Establece modo de integración: 'unified', 'legacy', 'hybrid'"""
+        if mode in ['unified', 'legacy', 'hybrid']:
+            self.integration_mode = mode
+            logger.info(f"🧠 Integration mode set to: {mode}")
+        else:
+            logger.warning(f"Invalid integration mode: {mode}")
+
+    # Legacy compatibility methods
+    def record_experience(self, event: Any) -> Dict[str, Any]:
+        """Método de compatibilidad con Brain A"""
+        if hasattr(event, '__dict__'):
+            event_data = event.__dict__
+        else:
+            event_data = event
+
+        return self.process_scraping_event(event_data)
+
+    def record_session(self, session: Any) -> Dict[str, Any]:
+        """Método de compatibilidad con Brain B"""
+        if hasattr(session, '__dict__'):
+            session_data = session.__dict__
+        else:
+            session_data = session
+
+        event_data = {
+            'event_type': 'scraping_session',
+            'domain': session_data.get('domain', 'unknown'),
+            'success': session_data.get('success_rate', 0) > 0.5,
+            'data_extracted': session_data.get('data_extracted', {}),
+            'processing_time': session_data.get('avg_response_time', 0)
+        }
+
+        return self.process_scraping_event(event_data)
+
+    def analyze_cross_session_patterns(self) -> Dict[str, Any]:
+        """Analiza patrones a través de múltiples sesiones"""
+        if not self.learning_orchestrator:
+            return {}
+
+        try:
+            return self.learning_orchestrator.analyze_patterns()
+        except Exception as e:
+            logger.warning(f"Cross-session pattern analysis failed: {e}")
+            return {}
 
 # Singleton para uso global
 _hybrid_brain_instance = None

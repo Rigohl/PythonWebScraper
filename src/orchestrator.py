@@ -99,15 +99,15 @@ class ScrapingOrchestrator:
 
         self.llm_extractor = llm_extractor  # Injected dependency
         self.rl_agent = rl_agent  # Injected dependency
-        # Adaptive learning module (can be simple Brain or HybridBrain)
+        # Adaptive learning module (always accept brain passed from runner)
         self.brain = brain
-        # Auto-upgrade to HybridBrain if not explicitly provided but available
-        if self.brain is None and 'HYBRID_BRAIN' in os.environ and HybridBrain:  # opt-in via env flag
-            try:
-                self.brain = HybridBrain()
-                self.logger.info("🧠 Using HybridBrain (auto-enabled via HYBRID_BRAIN env flag)")
-            except Exception as e:  # pragma: no cover
-                self.logger.warning(f"Failed to initialize HybridBrain: {e}. Falling back to simple Brain if provided.")
+
+        # Log the brain type being used
+        if self.brain:
+            brain_type = type(self.brain).__name__
+            self.logger.info(f"🧠 Using {brain_type} for intelligent orchestration")
+        else:
+            self.logger.warning("🧠 No brain provided - intelligence features disabled")
 
         # Initialize autonomous intelligence integration
         self.intelligence = get_intelligence_integration()

@@ -38,6 +38,7 @@ Button:focus {
     box-sizing: border-box;
 }
 
+
 /* Contenedor para los botones de acción y progreso debajo de las pestañas */
 #actions-pane {
     padding: 0 1;
@@ -70,6 +71,38 @@ TabPane {
 App {
     background: #000000;
     color: #00ff66;
+}
+
+/* Banner de inteligencia */
+#intelligence_banner {
+    height: 1;
+    padding: 0 1;
+    background: linear-gradient(to right, #002200, #003300);
+    color: #00ff88;
+    border: round #00aa44;
+}
+
+/* Overlay de ayuda */
+#help_overlay {
+    width: 60%;
+    height: auto;
+    max-height: 60%;
+    border: heavy #00ff66;
+    background: #000d00 85%;
+    color: #00ff99;
+    padding: 1 2;
+    box-sizing: border-box;
+}
+
+#help_overlay:focus {
+    border: heavy #00ffaa;
+}
+
+/* Micro badges (future) */
+.status-badge {
+    padding: 0 1;
+    border: round #00aa44;
+    height: 1;
 }
 
 Header {
@@ -237,6 +270,27 @@ DataTable>.datatable--cursor {
     color: #00ff88;
 }
 
+/* Acentos por estado en filas futuras */
+.row-success {
+    background: #002a00;
+    color: #00ff88;
+}
+
+.row-failed {
+    background: #2a0000;
+    color: #ff6666;
+}
+
+.row-retry {
+    background: #2a1f00;
+    color: #ffcc33;
+}
+
+.row-duplicate {
+    background: #001a2a;
+    color: #66ccff;
+}
+
 /* Estilos para alertas */
 #alert_log {
     border: round #00aa44;
@@ -246,4 +300,42 @@ DataTable>.datatable--cursor {
     max-height: 10;
     min-height: 5;
     overflow-y: auto;
+}
+
+/* Toast refinements */
+.toast-success {
+    background: #003300;
+    border: round #00ff66;
+}
+
+.toast-warning {
+    background: #332b00;
+    border: round #ffaa00;
+}
+
+.toast-error {
+    background: #330000;
+    border: round #ff4444;
+}
+
+.toast-info {
+    background: #001a33;
+    border: round #3388ff;
+}
+
+/* Ajustes para scroll suave en paneles */
+Log,
+#alert_log,
+DataTable {
+    scrollbar-color: #00aa44 #000000;
+}
+
+/* Barra de estado inferior */
+#status_bar {
+    height: 1;
+    padding: 0 1;
+    background: #001a00;
+    color: #00ff66;
+    border: round #00aa44;
+    text-overflow: ellipsis;
 }

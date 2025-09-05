@@ -130,6 +130,15 @@ class Settings(BaseSettings):
     # Accelerated test mode (skips network HEAD prequalification & long stealth)
     FAST_TEST_MODE: bool = False
 
+    # --- Hybrid Brain / Intelligence Configuration ---
+    # Intelligence is always active - the scraper is always "thinking"
+    HYBRID_BRAIN_ENABLED: bool = True  # HybridBrain always active
+    CONSCIOUSNESS_ENABLED: bool = True  # Neural consciousness always on
+    CONTINUOUS_LEARNING_ENABLED: bool = True  # Auto-learning always active
+    INTELLIGENCE_INTEGRATION_MODE: str = "unified"  # "unified", "legacy", "hybrid"
+    NEURAL_ACTIVITY_THRESHOLD: float = 0.6  # Consciousness activation threshold
+    BACKGROUND_PROCESSING_ENABLED: bool = True  # Background neural cycles
+
     # --- RL Agent configuration ---
     RL_MODEL_PATH: str = "models/rl_agent_model.pkl"
 

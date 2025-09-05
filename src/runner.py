@@ -16,7 +16,7 @@ from .llm_extractor import LLMExtractor
 from .user_agent_manager import UserAgentManager
 from .rl_agent import RLAgent
 from .orchestrator import ScrapingOrchestrator
-from .intelligence.brain import Brain
+from .intelligence.hybrid_brain import get_hybrid_brain
 from .settings import settings
 from playwright.async_api import async_playwright
 
@@ -102,8 +102,22 @@ async def run_crawler(
         domain = urlparse(start_urls[0]).netloc
         rl_agent = RLAgent(domain=domain, training_mode=True)
 
-    # Initialize adaptive Brain
-    brain = Brain()
+    # Initialize HybridBrain - Intelligence is always active
+    hybrid_brain = get_hybrid_brain()
+
+    # Configure brain based on settings
+    if settings.CONSCIOUSNESS_ENABLED:
+        hybrid_brain.enable_consciousness()
+    else:
+        hybrid_brain.disable_consciousness()
+
+    hybrid_brain.set_integration_mode(settings.INTELLIGENCE_INTEGRATION_MODE)
+
+    # Start continuous learning if enabled
+    if settings.CONTINUOUS_LEARNING_ENABLED:
+        hybrid_brain.start_continuous_learning()
+
+    logger.info(f"🧠 HybridBrain initialized - Mode: {settings.INTELLIGENCE_INTEGRATION_MODE}, Consciousness: {settings.CONSCIOUSNESS_ENABLED}")
 
     # Launch browser and run orchestrator
     async with async_playwright() as p:
@@ -115,7 +129,7 @@ async def run_crawler(
                 user_agent_manager=user_agent_manager,
                 llm_extractor=llm_extractor,
                 rl_agent=rl_agent,
-                brain=brain,
+                brain=hybrid_brain,  # Use HybridBrain instead of simple Brain
                 concurrency=concurrency,
                 respect_robots_txt=respect_robots_txt,
                 stats_callback=stats_callback,
@@ -127,9 +141,9 @@ async def run_crawler(
             # Save RL model if used
             if rl_agent:
                 rl_agent.save_model()
-            # Flush brain
+            # Flush hybrid brain (saves all intelligence systems)
             try:
-                brain.flush()
+                hybrid_brain.flush()
             except Exception:
                 pass
             # Auto export Markdown report if enabled and not under tests

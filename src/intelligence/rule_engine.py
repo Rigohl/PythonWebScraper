@@ -14,7 +14,7 @@ Estructura de regla:
   },
   "action": {
     "type": "suggest",
-    "category": "stability", 
+    "category": "stability",
     "severity": "high",
     "template": "Aplicar backoff en {domain}: error_rate {error_rate:.2f}"
   },
@@ -40,19 +40,19 @@ from pathlib import Path
 @dataclass
 class RuleCondition:
     metric: str
-    operator: str  
+    operator: str
     value: Union[str, int, float, List[Any]]
     context: Optional[List[str]] = None
 
     def evaluate(self, data: Dict[str, Any]) -> bool:
         """Evalúa condición contra datos contextuales."""
         actual = self._extract_metric(data, self.metric)
-        
+
         if actual is None:
             return False
-            
+
         return self._apply_operator(actual, self.operator, self.value)
-    
+
     def _extract_metric(self, data: Dict[str, Any], metric: str) -> Any:
         """Extrae valor anidado usando dot notation."""
         keys = metric.split('.')
@@ -63,7 +63,7 @@ class RuleCondition:
             else:
                 return None
         return current
-    
+
     def _apply_operator(self, actual: Any, operator: str, expected: Any) -> bool:
         """Aplica operador de comparación."""
         try:
@@ -126,7 +126,7 @@ class Rule:
         """Evalúa regla completa y retorna acción si aplica."""
         if not self.enabled:
             return None
-            
+
         if self.condition.evaluate(data):
             result = self.action.execute(data)
             result['rule_id'] = self.id
@@ -140,7 +140,7 @@ class Rule:
         condition_data = data['condition']
         action_data = data['action']
         metadata = data.get('metadata', {})
-        
+
         return cls(
             id=data['id'],
             condition=RuleCondition(**condition_data),
@@ -153,7 +153,7 @@ class Rule:
 
 class RuleEngine:
     """Motor de reglas declarativo."""
-    
+
     def __init__(self, rules_path: str = "data/intelligence_rules.json"):
         self.rules_path = Path(rules_path)
         self.rules: Dict[str, Rule] = {}
@@ -167,7 +167,7 @@ class RuleEngine:
                 "id": "high_error_rate_backoff",
                 "condition": {
                     "metric": "error_rate",
-                    "operator": "gte", 
+                    "operator": "gte",
                     "value": 0.5
                 },
                 "action": {
@@ -190,7 +190,7 @@ class RuleEngine:
                     "value": 0.45
                 },
                 "action": {
-                    "type": "suggest", 
+                    "type": "suggest",
                     "category": "extraction",
                     "severity": "high",
                     "template": "Alto drift estructural en {domain}: score {structure_drift_score:.2f}"
@@ -210,7 +210,7 @@ class RuleEngine:
                 },
                 "action": {
                     "type": "suggest",
-                    "category": "performance", 
+                    "category": "performance",
                     "severity": "medium",
                     "template": "Optimizar dominio lento {domain}: {response_time:.2f}s vs global {global_avg:.2f}s"
                 },
@@ -230,7 +230,7 @@ class RuleEngine:
                 "action": {
                     "type": "suggest",
                     "category": "resilience",
-                    "severity": "high", 
+                    "severity": "high",
                     "template": "Reducir dependencia de healing en {domain}: ratio {healing_ratio:.2f}"
                 },
                 "metadata": {
@@ -259,7 +259,7 @@ class RuleEngine:
                 }
             }
         ]
-        
+
         for rule_data in default_rules:
             rule = Rule.from_dict(rule_data)
             self.rules[rule.id] = rule
@@ -268,30 +268,30 @@ class RuleEngine:
         """Carga reglas personalizadas desde archivo."""
         if not self.rules_path.exists():
             return
-            
+
         try:
             with open(self.rules_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                
+
             for rule_data in data.get('rules', []):
                 rule = Rule.from_dict(rule_data)
                 self.rules[rule.id] = rule
-                
+
         except Exception:
             pass
 
     def evaluate_all(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Evalúa todas las reglas activas contra los datos."""
         results = []
-        
+
         for rule in self.rules.values():
             if not rule.enabled:
                 continue
-                
+
             result = rule.evaluate(data)
             if result:
                 results.append(result)
-        
+
         # Ordenar por prioridad
         return sorted(results, key=lambda x: x['priority'], reverse=True)
 
@@ -312,14 +312,14 @@ class RuleEngine:
         """Guarda reglas personalizadas a archivo."""
         try:
             self.rules_path.parent.mkdir(exist_ok=True)
-            
+
             # Solo guardar reglas no-default (las que no están hardcoded)
             default_ids = {
-                "high_error_rate_backoff", "structural_drift_high", 
+                "high_error_rate_backoff", "structural_drift_high",
                 "slow_domain_optimization", "healing_dependency_high",
                 "schedule_optimization_opportunity"
             }
-            
+
             custom_rules = []
             for rule in self.rules.values():
                 if rule.id not in default_ids:
@@ -333,10 +333,10 @@ class RuleEngine:
                             'description': rule.description
                         }
                     })
-            
+
             with open(self.rules_path, 'w', encoding='utf-8') as f:
                 json.dump({'rules': custom_rules}, f, indent=2, ensure_ascii=False)
-                
+
         except Exception:
             pass
 
@@ -344,11 +344,11 @@ class RuleEngine:
         """Retorna resumen de reglas cargadas."""
         enabled_count = sum(1 for r in self.rules.values() if r.enabled)
         categories = {}
-        
+
         for rule in self.rules.values():
             cat = rule.action.category
             categories[cat] = categories.get(cat, 0) + 1
-            
+
         return {
             'total_rules': len(self.rules),
             'enabled_rules': enabled_count,
