@@ -1,0 +1,872 @@
+/* src/tui/professional_styles.css - Estilos profesionales para la TUI */
+
+/* =================================================================== */
+/*                       TEMA PRINCIPAL                               */
+/* =================================================================== */
+
+/* Esquema de colores profesional hacker */
+Screen {
+  background: #0a0a0a;
+  color: #00ff00;
+}
+
+/* =================================================================== */
+/*                       HEADER Y FOOTER                              */
+/* =================================================================== */
+
+Header {
+  background: #001100;
+  color: #00ff00;
+  border: solid #00ff00;
+  text-style: bold;
+}
+
+Footer {
+  background: #001100;
+  color: #00aa00;
+  border: solid #00aa00;
+}
+
+/* =================================================================== */
+/*                       TABS Y NAVEGACIÓN                            */
+/* =================================================================== */
+
+TabbedContent {
+  background: #0a0a0a;
+  border: none;
+}
+
+TabPane {
+  background: #0a0a0a;
+  padding: 1;
+}
+
+Tabs {
+  background: #001100;
+  color: #00ff00;
+}
+
+Tab {
+  background: #002200;
+  color: #00aa00;
+  border: none;
+  padding: 0 2;
+  margin: 0 1;
+}
+
+Tab:hover {
+  background: #003300;
+  color: #00ff00;
+  text-style: bold;
+}
+
+Tab.-active {
+  background: #004400;
+  color: #00ff00;
+  text-style: bold;
+  border-bottom: solid #00ff00;
+}
+
+/* =================================================================== */
+/*                       CONTENEDORES Y GRIDS                         */
+/* =================================================================== */
+
+Container {
+  background: #0a0a0a;
+}
+
+Grid {
+  background: #0a0a0a;
+}
+
+.dashboard-view {
+  background: #0a0a0a;
+  padding: 1;
+}
+
+.dashboard-grid {
+  grid-size: 1 3;
+  grid-gutter: 1 1;
+  margin: 1;
+}
+
+.scraper-view {
+  background: #0a0a0a;
+  padding: 1;
+}
+
+.scraper-grid {
+  grid-size: 3 1;
+  grid-gutter: 1 1;
+  margin: 1;
+}
+
+.intelligence-view {
+  background: #0a0a0a;
+  padding: 1;
+}
+
+.intelligence-grid {
+  grid-size: 3 1;
+  grid-gutter: 1 1;
+  margin: 1;
+}
+
+.monitoring-view {
+  background: #0a0a0a;
+  padding: 1;
+}
+
+.monitoring-grid {
+  grid-size: 2 2;
+  grid-gutter: 1 1;
+  margin: 1;
+}
+
+.export-view {
+  background: #0a0a0a;
+  padding: 1;
+}
+
+.export-grid {
+  grid-size: 3 1;
+  grid-gutter: 1 1;
+  margin: 1;
+}
+
+.config-view {
+  background: #0a0a0a;
+  padding: 1;
+}
+
+.config-grid {
+  grid-size: 3 1;
+  grid-gutter: 1 1;
+  margin: 1;
+}
+
+/* =================================================================== */
+/*                       PANELES PROFESIONALES                        */
+/* =================================================================== */
+
+.panel-title {
+  text-style: bold;
+  color: #00ff00;
+  background: #002200;
+  padding: 0 1;
+  border-bottom: solid #00aa00;
+  margin-bottom: 1;
+}
+
+.section-title {
+  text-style: bold;
+  color: #00cccc;
+  margin: 1 0;
+}
+
+/* Paneles de KPIs */
+.kpis-section {
+  height: 8;
+  border: solid #00aa00;
+  background: #001100;
+  margin-bottom: 1;
+}
+
+.kpis-row {
+  height: 100%;
+}
+
+.kpi-card {
+  border: solid #00aa00;
+  background: #002200;
+  padding: 1;
+  margin: 0 1;
+  text-align: center;
+}
+
+.urls-kpi {
+  border-left: thick #00ff00;
+}
+
+.speed-kpi {
+  border-left: thick #ffff00;
+}
+
+.success-kpi {
+  border-left: thick #00ffff;
+}
+
+.brain-kpi {
+  border-left: thick #ff00ff;
+}
+
+.kpi-title {
+  text-style: bold;
+  color: #00ff00;
+  text-align: center;
+}
+
+.kpi-number {
+  text-style: bold;
+  color: #ffffff;
+  text-align: center;
+}
+
+.kpi-subtitle {
+  color: #888888;
+  text-align: center;
+}
+
+/* Sección de gráficos */
+.charts-section {
+  height: 10;
+  border: solid #00aa00;
+  background: #001100;
+  margin-bottom: 1;
+}
+
+.charts-row {
+  height: 100%;
+}
+
+.progress-panel,
+.intelligence-panel {
+  border: solid #00aa00;
+  background: #002200;
+  padding: 1;
+  margin: 0 1;
+}
+
+/* Acciones rápidas */
+.quick-actions-section {
+  height: 6;
+  border: solid #00aa00;
+  background: #001100;
+}
+
+.quick-buttons-row {
+  height: 3;
+  align: center middle;
+}
+
+.quick-action-btn {
+  margin: 0 1;
+  min-width: 20;
+}
+
+/* =================================================================== */
+/*                       CONTROLES DE SCRAPING                        */
+/* =================================================================== */
+
+.config-panel {
+  border: solid #00aa00;
+  background: #002200;
+  padding: 1;
+}
+
+.config-form {
+  padding: 1;
+}
+
+.field-label {
+  color: #00ff00;
+  text-style: bold;
+  margin: 1 0 0 0;
+}
+
+.url-input,
+.number-input {
+  background: #003300;
+  color: #ffffff;
+  border: solid #00aa00;
+  margin-bottom: 1;
+}
+
+.url-input:focus,
+.number-input:focus {
+  border: solid #00ff00;
+  background: #004400;
+}
+
+.checkboxes-row,
+.ai-checkboxes-row {
+  margin: 1 0;
+}
+
+.controls-panel {
+  border: solid #00aa00;
+  background: #002200;
+  padding: 1;
+  text-align: center;
+}
+
+.control-buttons {
+  align: center middle;
+}
+
+.control-btn {
+  margin: 1 0;
+  min-width: 25;
+  text-style: bold;
+}
+
+.status-panel {
+  border: solid #00aa00;
+  background: #002200;
+  padding: 1;
+}
+
+.realtime-log {
+  height: 100%;
+  background: #000000;
+  color: #00ff00;
+  border: solid #00aa00;
+  scrollbar-background: #002200;
+  scrollbar-color: #00aa00;
+}
+
+/* =================================================================== */
+/*                       INTELIGENCIA IA                              */
+/* =================================================================== */
+
+.ai-control-panel {
+  border: solid #ff00ff;
+  background: #220022;
+  padding: 1;
+}
+
+.ai-controls {
+  padding: 1;
+}
+
+.ai-metrics-panel {
+  border: solid #ff00ff;
+  background: #220022;
+  padding: 1;
+}
+
+.ai-metrics {
+  padding: 1;
+}
+
+.metric-item {
+  color: #ff88ff;
+  margin: 0 0 1 0;
+}
+
+.ai-actions-panel {
+  border: solid #ff00ff;
+  background: #220022;
+  padding: 1;
+}
+
+.ai-action-buttons {
+  padding: 1;
+}
+
+.ai-action-btn {
+  margin: 1 0;
+  min-width: 25;
+  background: #440044;
+  color: #ffffff;
+  border: solid #ff00ff;
+}
+
+.ai-action-btn:hover {
+  background: #660066;
+  text-style: bold;
+}
+
+.ai-switch {
+  margin: 0 1 0 0;
+}
+
+.switch-label {
+  color: #ff88ff;
+}
+
+/* =================================================================== */
+/*                       MONITOREO                                    */
+/* =================================================================== */
+
+.domain-stats-panel {
+  border: solid #0088ff;
+  background: #002244;
+  padding: 1;
+}
+
+.domain-table {
+  background: #001122;
+  color: #00aaff;
+  border: solid #0088ff;
+}
+
+.alerts-panel {
+  border: solid #ff8800;
+  background: #442200;
+  padding: 1;
+}
+
+.alerts-list {
+  background: #221100;
+  color: #ffaa00;
+  border: solid #ff8800;
+}
+
+.performance-panel {
+  border: solid #88ff00;
+  background: #224400;
+  padding: 1;
+}
+
+.performance-metrics {
+  padding: 1;
+}
+
+.perf-metric {
+  color: #aaffaa;
+  margin: 0 0 1 0;
+}
+
+/* =================================================================== */
+/*                       EXPORTACIÓN                                  */
+/* =================================================================== */
+
+.export-formats-panel {
+  border: solid #00ffff;
+  background: #004444;
+  padding: 1;
+}
+
+.format-checkboxes {
+  padding: 1;
+}
+
+.report-options-panel {
+  border: solid #00ffff;
+  background: #004444;
+  padding: 1;
+}
+
+.report-checkboxes {
+  padding: 1;
+}
+
+.export-actions-panel {
+  border: solid #00ffff;
+  background: #004444;
+  padding: 1;
+}
+
+.export-buttons {
+  padding: 1;
+}
+
+.export-btn {
+  margin: 1 0;
+  min-width: 30;
+  background: #006666;
+  color: #ffffff;
+  border: solid #00ffff;
+}
+
+.export-btn:hover {
+  background: #008888;
+  text-style: bold;
+}
+
+/* =================================================================== */
+/*                       CONFIGURACIÓN                                */
+/* =================================================================== */
+
+.system-config-panel {
+  border: solid #ff0000;
+  background: #440000;
+  padding: 1;
+}
+
+.system-settings {
+  padding: 1;
+}
+
+.ai-config-panel {
+  border: solid #ff0000;
+  background: #440000;
+  padding: 1;
+}
+
+.ai-settings {
+  padding: 1;
+}
+
+.config-actions-panel {
+  border: solid #ff0000;
+  background: #440000;
+  padding: 1;
+}
+
+.config-buttons {
+  padding: 1;
+}
+
+.config-btn {
+  margin: 1 0;
+  min-width: 25;
+  background: #660000;
+  color: #ffffff;
+  border: solid #ff0000;
+}
+
+.config-btn:hover {
+  background: #880000;
+  text-style: bold;
+}
+
+/* =================================================================== */
+/*                       BOTONES GENERALES                            */
+/* =================================================================== */
+
+Button {
+  background: #002200;
+  color: #00ff00;
+  border: solid #00aa00;
+  text-style: bold;
+}
+
+Button:hover {
+  background: #003300;
+  color: #ffffff;
+  border: solid #00ff00;
+  text-style: bold;
+}
+
+Button:focus {
+  background: #004400;
+  color: #ffffff;
+  border: thick #00ff00;
+}
+
+Button.-primary {
+  background: #004400;
+  color: #ffffff;
+  border: solid #00ff00;
+}
+
+Button.-primary:hover {
+  background: #006600;
+  border: thick #00ff00;
+}
+
+Button.-success {
+  background: #003300;
+  color: #ffffff;
+  border: solid #00aa00;
+}
+
+Button.-success:hover {
+  background: #005500;
+  border: thick #00aa00;
+}
+
+Button.-warning {
+  background: #443300;
+  color: #ffffff;
+  border: solid #ffaa00;
+}
+
+Button.-warning:hover {
+  background: #665500;
+  border: thick #ffaa00;
+}
+
+Button.-error {
+  background: #440000;
+  color: #ffffff;
+  border: solid #ff0000;
+}
+
+Button.-error:hover {
+  background: #660000;
+  border: thick #ff0000;
+}
+
+Button:disabled {
+  background: #222222;
+  color: #666666;
+  border: solid #444444;
+  text-style: none;
+}
+
+/* =================================================================== */
+/*                       INPUTS Y FORMULARIOS                         */
+/* =================================================================== */
+
+Input {
+  background: #002200;
+  color: #00ff00;
+  border: solid #00aa00;
+}
+
+Input:focus {
+  background: #003300;
+  color: #ffffff;
+  border: thick #00ff00;
+}
+
+Input:invalid {
+  border: solid #ff0000;
+  background: #440000;
+}
+
+Checkbox {
+  background: #002200;
+  color: #00ff00;
+  border: solid #00aa00;
+}
+
+Checkbox:focus {
+  border: thick #00ff00;
+}
+
+RadioSet {
+  background: #002200;
+  border: solid #00aa00;
+  padding: 1;
+}
+
+RadioButton {
+  color: #00ff00;
+  background: #002200;
+}
+
+RadioButton:checked {
+  color: #ffffff;
+  text-style: bold;
+}
+
+Switch {
+  background: #002200;
+  border: solid #00aa00;
+}
+
+Switch.-on {
+  background: #004400;
+  border: solid #00ff00;
+}
+
+/* =================================================================== */
+/*                       WIDGETS ESPECIALES                           */
+/* =================================================================== */
+
+ProgressBar {
+  background: #002200;
+  border: solid #00aa00;
+}
+
+ProgressBar>.bar {
+  background: #006600;
+}
+
+ProgressBar>.bar.-complete {
+  background: #00aa00;
+}
+
+ProgressBar>.bar.-pulse {
+  background: #00ff00;
+}
+
+DataTable {
+  background: #001100;
+  color: #00ff00;
+  border: solid #00aa00;
+}
+
+DataTable>.header {
+  background: #002200;
+  color: #00ff00;
+  text-style: bold;
+}
+
+DataTable>.row-even {
+  background: #001100;
+}
+
+DataTable>.row-odd {
+  background: #002200;
+}
+
+DataTable>.row:hover {
+  background: #003300;
+  color: #ffffff;
+}
+
+ListView {
+  background: #001100;
+  color: #00ff00;
+  border: solid #00aa00;
+}
+
+ListItem {
+  background: #001100;
+  color: #00ff00;
+}
+
+ListItem:hover {
+  background: #003300;
+  color: #ffffff;
+}
+
+Tree {
+  background: #001100;
+  color: #00ff00;
+  border: solid #00aa00;
+}
+
+TreeNode:hover {
+  background: #003300;
+  color: #ffffff;
+}
+
+RichLog {
+  background: #000000;
+  color: #00ff00;
+  border: solid #00aa00;
+  scrollbar-background: #002200;
+  scrollbar-color: #00aa00;
+}
+
+Digits {
+  background: transparent;
+  color: #00ff00;
+  text-style: bold;
+}
+
+LoadingIndicator {
+  color: #00ff00;
+  background: transparent;
+}
+
+/* =================================================================== */
+/*                       SCROLLBARS                                   */
+/* =================================================================== */
+
+ScrollBar {
+  background: #002200;
+  color: #00aa00;
+}
+
+ScrollBar:horizontal {
+  background: #002200;
+  color: #00aa00;
+}
+
+ScrollBar:vertical {
+  background: #002200;
+  color: #00aa00;
+}
+
+/* =================================================================== */
+/*                       ESTADOS ESPECIALES                           */
+/* =================================================================== */
+
+.status-text {
+  color: #00ff00;
+  margin: 0 0 1 0;
+}
+
+.status-indicator {
+  text-style: bold;
+  margin: 0 0 1 0;
+}
+
+.error-text {
+  color: #ff0000;
+  text-style: bold;
+}
+
+.warning-text {
+  color: #ffaa00;
+  text-style: bold;
+}
+
+.success-text {
+  color: #00ff00;
+  text-style: bold;
+}
+
+.info-text {
+  color: #00aaff;
+}
+
+/* =================================================================== */
+/*                       ANIMACIONES Y EFECTOS                        */
+/* =================================================================== */
+
+@keyframes pulse {
+  0% {
+    color: #00ff00;
+  }
+
+  50% {
+    color: #ffffff;
+  }
+
+  100% {
+    color: #00ff00;
+  }
+}
+
+.pulsing {
+  animation: pulse 2s infinite;
+}
+
+.highlighted {
+  background: #004400;
+  color: #ffffff;
+  text-style: bold;
+}
+
+/* =================================================================== */
+/*                       RESPONSIVE DESIGN                            */
+/* =================================================================== */
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 80) {
+  .dashboard-grid {
+    grid-size: 1 6;
+  }
+
+  .scraper-grid {
+    grid-size: 1 3;
+  }
+
+  .monitoring-grid {
+    grid-size: 1 4;
+  }
+
+  .kpis-row {
+    layout: vertical;
+  }
+
+  .quick-buttons-row {
+    layout: vertical;
+  }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 60) {
+  .panel-title {
+    text-align: center;
+  }
+
+  .control-btn,
+  .export-btn,
+  .config-btn,
+  .ai-action-btn {
+    min-width: 15;
+  }
+
+  .quick-action-btn {
+    min-width: 15;
+  }
+}

@@ -1,184 +1,107 @@
-[
-  {
-    "timestamp": "2025-09-02T08:53:55.454924",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\check_drift.py:33",
-      "confidence": 0.9
+{
+  "domains": [
+    {
+      "domain": "localhost:59131",
+      "total_attempts": 3,
+      "success_rate": 0.09262500000000008,
+      "avg_response_time": 0.2226509342500002,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757065324.1976008,
+      "content_types": {},
+      "best_strategies": []
     },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:55.612286",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\check_drift.py:65",
-      "confidence": 0.9
+    {
+      "domain": "localhost:59193",
+      "total_attempts": 3,
+      "success_rate": 0.09262500000000008,
+      "avg_response_time": 0.18067798487500014,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757065357.8517609,
+      "content_types": {},
+      "best_strategies": []
     },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:55.639473",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\check_drift.py:67",
-      "confidence": 0.9
+    {
+      "domain": "localhost:59271",
+      "total_attempts": 3,
+      "success_rate": 0.09262500000000008,
+      "avg_response_time": 0.19045205087500017,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "TestAgent/1.0",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757065392.5289721,
+      "content_types": {},
+      "best_strategies": []
     },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:55.663026",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\check_drift.py:74",
-      "confidence": 0.9
+    {
+      "domain": "localhost:59292",
+      "total_attempts": 3,
+      "success_rate": 0.1426250000000001,
+      "avg_response_time": 0.17751849162500016,
+      "optimal_delay": 1.0,
+      "preferred_user_agent": "TestAgent/1.0",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757065398.6789188,
+      "content_types": {},
+      "best_strategies": []
     },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:55.692626",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\check_drift.py:80",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:55.698294",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\run_setup_and_tests.py:23",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:55.894414",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\run_setup_and_tests.py:33",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:55.944482",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\run_setup_and_tests.py:67",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:55.977689",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\run_setup_and_tests.py:88",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:56.009925",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\run_setup_and_tests.py:97",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:56.051420",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\run_setup_and_tests.py:105",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:56.088217",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\scripts\\run_setup_and_tests.py:113",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:56.096067",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\src\\database.py:124",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:56.203531",
-    "event_type": "fix_applied",
-    "context": {
-      "issue_type": "code_quality",
-      "description": "Logging con f-string encontrado (usar lazy logging)",
-      "location": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\src\\database.py:144",
-      "confidence": 0.9
-    },
-    "outcome": "success",
-    "confidence": 0.9
-  },
-  {
-    "timestamp": "2025-09-02T08:53:56.259043",
-    "event_type": "system_evolution",
-    "context": {
-      "success_rate": 1.0,
-      "learning_entries": 14,
-      "config_changes": [
-        "confidence_threshold",
-        "max_fixes_per_session"
+    {
+      "domain": "test.com",
+      "total_attempts": 7,
+      "success_rate": 0.20903770390625015,
+      "avg_response_time": 0.001384670956250001,
+      "optimal_delay": 1.1890000000000003,
+      "preferred_user_agent": "Test-Agent",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_RETRY",
+        "Connection lost",
+        "status_FAILED",
+        "Unexpected error: Unexpected error"
+      ],
+      "last_updated": 1757065406.895744,
+      "content_types": {},
+      "best_strategies": [
+        "optimal_delay:1.00",
+        "preferred_ua:303"
       ]
-    },
-    "outcome": "evolution_applied",
-    "confidence": 0.95
-  }
-]
+    }
+  ],
+  "patterns": {
+    "localhost:59131": [
+      "localhost:59131//index.html",
+      "localhost:59131//page1.html"
+    ],
+    "localhost:59193": [
+      "localhost:59193//index.html",
+      "localhost:59193//page1.html"
+    ],
+    "localhost:59271": [
+      "localhost:59271//index.html",
+      "localhost:59271//page1.html"
+    ],
+    "localhost:59292": [
+      "localhost:59292//{token}",
+      "localhost:59292//page1_clone.html",
+      "localhost:59292//page1.html"
+    ],
+    "test.com": [
+      "test.com/",
+      "test.com//page"
+    ]
+  },
+  "last_save": 1757065406.895744
+}

@@ -35,6 +35,11 @@ async def main():
         help="Launch Text User Interface (TUI) mode"
     )
     action_group.add_argument(
+        "--tui-pro",
+        action="store_true",
+        help="Launch Professional Dashboard TUI mode (NUEVO)"
+    )
+    action_group.add_argument(
         "--demo",
         action="store_true",
         help="Run in demo mode (without Playwright)"
@@ -101,6 +106,8 @@ async def main():
         await output_brain_snapshot()
     elif args.tui:
         await launch_tui()
+    elif args.tui_pro:
+        await launch_professional_tui()
     elif args.demo:
         await run_demo_mode()
     elif args.crawl:
@@ -138,6 +145,15 @@ async def launch_tui():
         logger.error("TUI dependencies not available. Install textual: pip install textual")
         sys.exit(1)
 
+async def launch_professional_tui():
+    """Launch the Professional Dashboard TUI"""
+    try:
+        from .tui.professional_app import run_professional_app
+        await run_professional_app()
+    except ImportError:
+        logger.error("Professional TUI dependencies not available. Install textual: pip install textual")
+        sys.exit(1)
+
 
 async def output_brain_snapshot():
     """Dump current brain (hybrid if available) snapshot to stdout as JSON."""
@@ -167,7 +183,7 @@ async def query_knowledge_base(query: str):
         from .intelligence.hybrid_brain import HybridBrain
         brain = HybridBrain()
         results = brain.query_knowledge_base(query)
-        
+
         if not results:
             print("\n[INFO] No se encontraron resultados para tu consulta.")
             return

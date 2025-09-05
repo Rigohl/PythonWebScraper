@@ -12,17 +12,17 @@ from src.scrapers.test_example.scraper import TestExampleScraper
 from src.scrapers.test_example.parser import TestExampleParser
 
 class TestTestExampleScraper:
-    
+
     def setup_method(self):
         """Setup para cada test."""
         self.scraper = TestExampleScraper()
-    
+
     def test_initialization(self):
-        """Test inicializacion basica."""
+        """Test inicialización básica."""
         assert self.scraper is not None
         assert self.scraper.domain
         assert self.scraper.parser is not None
-    
+
     @pytest.mark.asyncio
     async def test_scrape_url_success(self):
         """Test scraping exitoso."""
@@ -34,18 +34,18 @@ class TestTestExampleScraper:
             </body>
         </html>
         """
-        
+
         with patch('aiohttp.ClientSession.get') as mock_get:
             mock_response = AsyncMock()
             mock_response.status = 200
             mock_response.text = AsyncMock(return_value=mock_html)
             mock_get.return_value.__aenter__.return_value = mock_response
-            
+
             result = await self.scraper.scrape_url('http://example.com')
-            
+
             assert 'error' not in result
             assert 'url' in result
-    
+
     @pytest.mark.asyncio
     async def test_scrape_url_http_error(self):
         """Test manejo de errores HTTP."""
@@ -53,41 +53,41 @@ class TestTestExampleScraper:
             mock_response = AsyncMock()
             mock_response.status = 404
             mock_get.return_value.__aenter__.return_value = mock_response
-            
+
             result = await self.scraper.scrape_url('http://example.com')
-            
+
             assert 'error' in result
             assert 'HTTP 404' in result['error']
-    
+
     @pytest.mark.asyncio
     async def test_scrape_multiple_urls(self):
-        """Test scraping multiple."""
+        """Test scraping múltiple."""
         urls = ['http://example1.com', 'http://example2.com']
-        
+
         with patch.object(self.scraper, 'scrape_url') as mock_scrape:
             mock_scrape.return_value = {'title': 'Test', 'url': 'test'}
-            
+
             results = await self.scraper.scrape_multiple(urls)
-            
+
             assert len(results) == 2
             assert all('title' in result for result in results)
-    
+
     def test_get_stats(self):
-        """Test estadisticas del scraper."""
+        """Test estadísticas del scraper."""
         stats = self.scraper.get_stats()
-        
+
         assert 'domain' in stats
         assert 'rate_limit' in stats
         assert 'timeout' in stats
 
 class TestTestExampleParser:
-    
+
     def setup_method(self):
         """Setup para cada test."""
         self.parser = TestExampleParser()
-    
+
     def test_parse_basic_html(self):
-        """Test parsing basico."""
+        """Test parsing básico."""
         html = """
         <html>
             <body>
@@ -96,44 +96,44 @@ class TestTestExampleParser:
             </body>
         </html>
         """
-        
+
         soup = BeautifulSoup(html, 'html.parser')
         result = self.parser.parse(soup)
-        
+
         assert isinstance(result, dict)
-    
+
     def test_extract_text(self):
-        """Test extraccion de texto."""
+        """Test extracción de texto."""
         html = '<p>  Test text with spaces  </p>'
         soup = BeautifulSoup(html, 'html.parser')
         element = soup.find('p')
-        
+
         text = self.parser._extract_text(element)
-        
+
         assert text == 'Test text with spaces'
-    
+
     def test_extract_price(self):
-        """Test extraccion de precios."""
+        """Test extracción de precios."""
         html = '<span>$123.45</span>'
         soup = BeautifulSoup(html, 'html.parser')
         element = soup.find('span')
-        
+
         price = self.parser._extract_price(element)
-        
+
         assert price == 123.45
-    
+
     def test_validate_data_success(self):
-        """Test validacion de datos exitosa."""
+        """Test validación de datos exitosa."""
         data = {'title': 'Test Title', 'description': 'Test desc'}
-        
+
         is_valid = self.parser.validate_data(data)
-        
+
         assert is_valid is True
-    
+
     def test_validate_data_missing_required(self):
-        """Test validacion con campos requeridos faltantes."""
+        """Test validación con campos requeridos faltantes."""
         data = {'description': 'Test desc'}  # Falta title
-        
+
         is_valid = self.parser.validate_data(data)
-        
+
         assert is_valid is False

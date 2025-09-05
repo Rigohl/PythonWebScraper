@@ -1,8 +1,6 @@
 {
-  "n_samples": 0,
-  "success_rate": 1.0,
-  "rate_limit_rate": 0.0,
-  "server_error_rate": 0.0,
-  "latency_p50_s": 0.0,
-  "latency_p95_s": 0.0
+  "total_scrapes": 235,
+  "successful_scrapes": 156,
+  "success_rate_percent": 66.38,
+  "average_response_time_seconds": 14.49
 }

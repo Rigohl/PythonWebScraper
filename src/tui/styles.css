@@ -23,7 +23,7 @@
 Input:focus,
 Button:focus {
     border: heavy $accent;
-    background: $success-muted;
+    background: $success;
 }
 
 /* Estilo para el panel de logs (derecha) */
@@ -77,7 +77,7 @@ App {
 #intelligence_banner {
     height: 1;
     padding: 0 1;
-    background: linear-gradient(to right, #002200, #003300);
+    background: #002200;
     color: #00ff88;
     border: round #00aa44;
 }

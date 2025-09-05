@@ -32,23 +32,41 @@ python -m playwright install
 
 ## 2. Lanzamiento Rápido (Windows – Recomendado)
 
-Ejecuta el lanzador unificado, que actúa como un panel de control para la IA:
+### 🚀 Nuevo: Dashboard Profesional
+
+Ejecuta el **nuevo script mejorado** que incluye la interfaz profesional:
+
+```powershell
+WebScraperPRO_Enhanced.bat
+```
+
+El **Dashboard Profesional** ofrece:
+
+- 🎯 **Interfaz moderna tipo dashboard** con métricas en tiempo real
+- 🧠 **Control completo de IA Híbrida** (IA-A + IA-B)
+- 📊 **Monitoreo avanzado** por dominio y rendimiento
+- ⚙️ **Configuración integrada** de todas las funciones
+- 📤 **Exportación múltiple** (CSV, JSON, Markdown, Excel, Word)
+- 🔧 **Auto-reparación** y análisis inteligente
+
+### 📱 Script Original (Compatibilidad)
+
+Para el lanzador clásico:
 
 ```powershell
 WebScraperPRO.bat
 ```
 
-El panel de control te dará acceso a las siguientes operaciones:
+Ambos scripts ofrecen acceso a las siguientes operaciones:
 
-1.  **Iniciar Scraper Táctico (TUI):** Lanza la interfaz interactiva para monitorear al scraper y su cerebro en tiempo real.
-2.  **Lanzar Misión Autónoma (Crawl):** Inicia un scraping profundo a partir de una URL, dejando que el cerebro tome el control.
-3.  **Diagnóstico y Reparación IA:** El cerebro analiza su propio código y genera un informe con sugerencias de mejora.
-4.  **Dialogar con el Cerebro:** Te permite hacerle preguntas directas a la base de conocimiento de la IA.
-5.  **Entrenar Modelos de IA:** Inicia el ciclo de re-entrenamiento para los modelos de IA del scraper.
-6.  **Ver Estado de Conciencia (Snapshot):** Genera un "volcado de conciencia" del cerebro en formato JSON.
-7.  **Exportar Datos (CSV/JSON/MD):** Exporta los datos recopilados en el formato que elijas.
-8.  **Verificar Integridad del Sistema (Tests):** Ejecuta la suite de pruebas para asegurar que todo funciona correctamente.
-9.  **Mantenimiento del Sistema:** Accede a un sub-menú con opciones para instalar dependencias, limpiar caché y ver estadísticas de la BD.
+1. **🚀 Dashboard Profesional (NUEVO):** Interfaz moderna con control total
+2. **📱 Interfaz TUI Clásica:** La interfaz original para usuarios familiarizados
+3. **🕷️ Crawling Directo:** Scraping inmediato desde línea de comandos
+4. **🎮 Modo Demo:** Demostración sin dependencias de navegador
+5. **📊 Brain Snapshot:** Estado completo del sistema de IA
+6. **📤 Exportar Datos:** Múltiples formatos disponibles
+7. **🔧 Configuración:** Ajustes avanzados del sistema
+8. **❓ Ayuda:** Documentación integrada
 10. **Salir:** Cierra el panel de control.
 
 En Linux/macOS usar `./WebScraperPRO.sh` (si existe) o invocar manualmente comandos equivalentes.

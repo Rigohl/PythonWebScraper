@@ -26,7 +26,15 @@ class CodeChange:
     confidence: float = 0.8
 
 @dataclass
-class Code    def _calculate_complexity(self, tree: ast.AST) -> float:
+class CodeAnalysisResult:
+    file_path: str
+    issues: List[str]
+    suggestions: List[str]
+    complexity_score: float
+    quality_score: float
+    dependencies: List[str]
+
+    def _calculate_complexity(self, tree: ast.AST) -> float:
         """Calcula la complejidad ciclomática del código."""
         complexity = 1  # Base complexity
 
@@ -46,13 +54,7 @@ class Code    def _calculate_complexity(self, tree: ast.AST) -> float:
             tree = ast.parse(code)
             return self._calculate_complexity(tree)
         except:
-            return 0.0t:
-    file_path: str
-    issues: List[str]
-    suggestions: List[str]
-    complexity_score: float
-    quality_score: float
-    dependencies: List[str]
+            return 0.0
 
 class CodeAutoModifier:
     """Sistema principal para auto-modificación de código."""

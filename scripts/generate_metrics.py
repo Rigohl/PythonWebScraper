@@ -19,12 +19,12 @@ def generate_metrics():
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        total_records = cursor.execute("SELECT COUNT(*) FROM scrapes").fetchone()[0]
-        successful = cursor.execute("SELECT COUNT(*) FROM scrapes WHERE status = 'SUCCESS'").fetchone()[0]
-        
+        total_records = cursor.execute("SELECT COUNT(*) FROM pages").fetchone()[0]
+        successful = cursor.execute("SELECT COUNT(*) FROM pages WHERE status = 'SUCCESS'").fetchone()[0]
+
         success_rate = (successful / total_records) * 100 if total_records > 0 else 0
 
-        avg_response_time = cursor.execute("SELECT AVG(response_time) FROM scrapes WHERE response_time IS NOT NULL").fetchone()[0]
+        avg_response_time = cursor.execute("SELECT AVG(response_time) FROM pages WHERE response_time IS NOT NULL").fetchone()[0]
 
         metrics = {
             "total_scrapes": total_records,

@@ -28,7 +28,7 @@ try:  # Hybrid brain (IA-B + IA-A fusion) optional
     from .intelligence.hybrid_brain import HybridBrain
 except Exception:  # pragma: no cover
     HybridBrain = None  # type: ignore
-from .intelligence import get_intelligence_integration
+from .intelligence.integration import get_intelligence_integration
 from .managers.user_agent_manager import UserAgentManager
 from .models.results import ScrapeResult
 from .scraper import AdvancedScraper

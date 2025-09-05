@@ -11,18 +11,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 class TestExampleParser:
-    """Parser especifico para extraer datos estructurados."""
-    
+    """Parser específico para extraer datos estructurados."""
+
     def __init__(self):
         self.selectors = 'test-example.com'
         self.fallback_selectors = {
-            # Selectores de respaldo automaticos
+            # Selectores de respaldo automáticos
         }
-    
+
     def parse(self, soup: BeautifulSoup) -> Dict[str, Any]:
         """Parse HTML y extrae datos estructurados."""
         data = {}
-        
+
         for field, selector in self.selectors.items():
             try:
                 value = self._extract_field(soup, field, selector)
@@ -38,20 +38,20 @@ class TestExampleParser:
                             data[field] = value
                     except:
                         pass
-        
+
         # Post-processing
         data = self._post_process_data(data)
-        
+
         return data
-    
+
     def _extract_field(self, soup: BeautifulSoup, field: str, selector: str) -> Optional[str]:
-        """Extrae un campo especifico usando el selector."""
+        """Extrae un campo específico usando el selector."""
         element = soup.select_one(selector)
-        
+
         if not element:
             return None
-        
-        # Estrategias de extraccion especificas por tipo de campo
+
+        # Estrategias de extracción específicas por tipo de campo
         if field in ['price', 'cost', 'amount']:
             return self._extract_price(element)
         elif field in ['title', 'name', 'heading']:
@@ -64,101 +64,101 @@ class TestExampleParser:
             return self._extract_image_url(element)
         else:
             return self._extract_text(element)
-    
+
     def _extract_text(self, element: Tag) -> str:
         """Extrae texto limpio de un elemento."""
         if not element:
             return ""
-        
+
         text = element.get_text(strip=True)
         # Limpiar texto
         text = re.sub(r'\s+', ' ', text)
         text = text.strip()
-        
+
         return text
-    
+
     def _extract_rich_text(self, element: Tag) -> str:
         """Extrae texto preservando algunos elementos de formato."""
         if not element:
             return ""
-        
-        # Preservar saltos de linea
+
+        # Preservar saltos de línea
         for br in element.find_all("br"):
             br.replace_with("\n")
-        
+
         text = element.get_text()
-        # Normalizar espacios pero preservar saltos de linea
+        # Normalizar espacios pero preservar saltos de línea
         lines = [line.strip() for line in text.split('\n')]
         return '\n'.join(line for line in lines if line)
-    
+
     def _extract_price(self, element: Tag) -> Optional[float]:
-        """Extrae precio como numero."""
+        """Extrae precio como número."""
         text = self._extract_text(element)
-        
+
         # Buscar patrones de precio
         price_pattern = r'[\d,]+\.?\d*'
         matches = re.findall(price_pattern, text)
-        
+
         if matches:
             try:
-                # Tomar el primer numero encontrado
+                # Tomar el primer número encontrado
                 price_str = matches[0].replace(',', '')
                 return float(price_str)
             except ValueError:
                 pass
-        
+
         return None
-    
+
     def _extract_url(self, element: Tag) -> Optional[str]:
         """Extrae URL de un elemento."""
         if not element:
             return None
-        
+
         # Buscar en diferentes atributos
         for attr in ['href', 'src', 'data-url', 'data-href']:
             url = element.get(attr)
             if url:
                 return url.strip()
-        
+
         return None
-    
+
     def _extract_image_url(self, element: Tag) -> Optional[str]:
         """Extrae URL de imagen."""
         if not element:
             return None
-        
+
         # Buscar en diferentes atributos de imagen
         for attr in ['src', 'data-src', 'data-original', 'data-lazy']:
             url = element.get(attr)
             if url:
                 return url.strip()
-        
+
         return None
-    
+
     def _post_process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Post-procesa los datos extraidos."""
+        """Post-procesa los datos extraídos."""
         processed = {}
-        
+
         for key, value in data.items():
             if value is None:
                 continue
-            
+
             if isinstance(value, str):
                 # Limpiar strings
                 value = value.strip()
                 if not value:
                     continue
-            
+
             processed[key] = value
-        
+
         return processed
-    
+
     def validate_data(self, data: Dict[str, Any]) -> bool:
-        """Valida que los datos extraidos sean correctos."""
-        required_fields = ['title']  # Campos minimos requeridos
-        
+        """Valida que los datos extraídos sean correctos."""
+        required_fields = ['title']  # Campos mínimos requeridos
+
         for field in required_fields:
             if field not in data or not data[field]:
                 return False
-        
+
         return True

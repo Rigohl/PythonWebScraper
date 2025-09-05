@@ -1639,8 +1639,9 @@ class HybridBrain:
         try:
             # Search by category and tags based on the query
             tags = [tag.strip() for tag in query.split(' ')]
-            results = self.knowledge_base.search(category=query, tags=tags, limit=10)
-            return results
+            results = self.knowledge_base.search(category=query, tags=tags)
+            # Limit results to first 10 if needed
+            return results[:10] if len(results) > 10 else results
         except Exception as e:
             logger.error(f"Error querying knowledge base: {e}")
             return []

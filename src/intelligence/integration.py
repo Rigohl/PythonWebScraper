@@ -17,6 +17,8 @@ try:
     HYBRID_AVAILABLE = True
 except ImportError:
     HYBRID_AVAILABLE = False
+    # Define a placeholder for type hints
+    HybridBrain = Any
 
 from .autonomous_brain import get_learning_brain, create_session_from_result
 
@@ -33,7 +35,7 @@ class IntelligenceIntegration:
     Now supports HybridBrain (IA-A + IA-B combined) for enhanced intelligence.
     """
 
-    def __init__(self, brain: Optional[Union[HybridBrain, Any]] = None):
+    def __init__(self, brain: Optional[Any] = None):
         # Initialize brain system
         if brain is not None:
             self.brain = brain

@@ -1,0 +1,83 @@
+# Informe de Scraping (Markdown Export)
+
+Generado: 2025-09-05T09:58:22.627682Z
+
+## Resumen de Estados
+- **DUPLICATE**: 72
+- **FAILED**: 4
+- **RETRY**: 3
+- **SUCCESS**: 156
+
+## Top Dominios
+- quotes.toscrape.com: 213 páginas
+- code.visualstudio.com: 20 páginas
+- books.toscrape.com: 1 páginas
+
+## Páginas Recientes (10)
+- 2025-09-05T03:59:34.577307Z | SUCCESS | https://code.visualstudio.com/docs
+- 2025-09-05T03:03:08.851486Z | SUCCESS | http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html
+- 2025-09-04T04:05:48.215870Z | SUCCESS | https://code.visualstudio.com/license
+- 2025-09-04T04:05:41.663455Z | DUPLICATE | https://code.visualstudio.com/License
+- 2025-09-04T04:05:40.350998Z | SUCCESS | https://code.visualstudio.com/insiders
+- 2025-09-04T04:05:36.934165Z | SUCCESS | https://code.visualstudio.com/mcp
+- 2025-09-04T04:05:33.905786Z | SUCCESS | https://code.visualstudio.com/dev-days
+- 2025-09-04T04:05:23.523889Z | FAILED | https://code.visualstudio.com/Search
+- 2025-09-04T04:05:23.476621Z | SUCCESS | https://code.visualstudio.com/Download
+- 2025-09-04T04:05:19.315869Z | SUCCESS | https://code.visualstudio.com/api
+
+## Resultados SUCCESS (Tabla)
+| URL | Title | Extracted Keys | Content (snippet) |
+| --- | ----- | -------------- | ----------------- |
+| C:\Users\DELL\Desktop\PythonWebScraper\toscrape_com_book.html | A Light in the Attic - Books to Scrape |  | It's hard to imagine a world without A Light in the Attic. This now-classic collection                     of poetry ... |
+| https://quotes.toscrape.com/author/Albert-Einstein | Quotes to Scrape |  | ### Albert Einstein  **Born:** March 14, 1879 in Ulm, Germany  **Description:**  In 1879, Albert Einstein was born in... |
+| https://quotes.toscrape.com/author/Andre-Gide | Quotes to Scrape |  | ### André Gide  **Born:** November 22, 1869 in Paris, France  **Description:**  André Paul Guillaume Gide was a Frenc... |
+| https://quotes.toscrape.com/author/Eleanor-Roosevelt | Quotes to Scrape |  | ### Eleanor Roosevelt  **Born:** October 11, 1884 in The United States  **Description:**  Anna Eleanor Roosevelt was ... |
+| https://quotes.toscrape.com/author/J-K-Rowling | Quotes to Scrape |  | ### J.K. Rowling  **Born:** July 31, 1965 in Yate, South Gloucestershire, England, The United Kingdom  **Description:... |
+| https://quotes.toscrape.com/author/Jane-Austen | Quotes to Scrape |  | ### Jane Austen  **Born:** December 16, 1775 in Steventon Rectory, Hampshire, The United Kingdom  **Description:**  J... |
+| https://quotes.toscrape.com/author/Marilyn-Monroe | Quotes to Scrape |  | ### Marilyn Monroe  **Born:** June 01, 1926 in The United States  **Description:**  Marilyn Monroe (born Norma Jeane ... |
+| https://quotes.toscrape.com/author/Steve-Martin | Quotes to Scrape |  | ### Steve Martin  **Born:** August 14, 1945 in Waco, Texas, The United States  **Description:**  Stephen Glenn "Steve... |
+| https://quotes.toscrape.com/author/Thomas-A-Edison | Quotes to Scrape |  | ### Thomas A. Edison  **Born:** February 11, 1847 in Milan, Ohio, The United States  **Description:**  Thomas Alva Ed... |
+| https://quotes.toscrape.com/page/2/ | Quotes to Scrape |  | “This life is what you make it. No matter what, you're going to mess up sometimes, it's a universal truth. But the go... |
+| https://quotes.toscrape.com/author/Allen-Saunders | Quotes to Scrape |  | ### Allen Saunders  **Born:** April 24, 1899 in The United States  **Description:**  Allen Saunders was an American w... |
+| https://quotes.toscrape.com/author/Bob-Marley | Quotes to Scrape |  | ### Bob Marley  **Born:** February 06, 1945 in Nine Mile, Saint Ann, Jamaica  **Description:**  Robert "Bob" Nesta Ma... |
+| https://quotes.toscrape.com/author/Douglas-Adams | Quotes to Scrape |  | ### Douglas Adams  **Born:** March 11, 1952 in Cambridge, England, The United Kingdom  **Description:**  Douglas Noël... |
+| https://quotes.toscrape.com/author/Dr-Seuss | Quotes to Scrape |  | ### Dr. Seuss  **Born:** March 02, 1904 in Springfield, MA, The United States  **Description:**  Theodor Seuss Geisel... |
+| https://quotes.toscrape.com/author/Elie-Wiesel | Quotes to Scrape |  | ### Elie Wiesel  **Born:** September 30, 1928 in Sighet, Romania  **Description:**  Eliezer Wiesel was a Romania-born... |
+| https://quotes.toscrape.com/author/Friedrich-Nietzsche | Quotes to Scrape |  | ### Friedrich Nietzsche  **Born:** October 15, 1844 in Röcken bei Lützen, Prussian Province of Saxony, Germany  **Des... |
+| https://quotes.toscrape.com/author/Mark-Twain | Quotes to Scrape |  | ### Mark Twain  **Born:** November 30, 1835 in Florida, Missouri, The United States  **Description:**  Samuel Langhor... |
+| https://quotes.toscrape.com/page/3/ | Quotes to Scrape |  | “I love you without knowing how, or when, or from where. I love you simply, without problems or pride: I love you in ... |
+| https://quotes.toscrape.com/author/Garrison-Keillor | Quotes to Scrape |  | ### Garrison Keillor  **Born:** August 07, 1942 in Anoka, Minnesota, The United States  **Description:**  Garrison Ke... |
+| https://quotes.toscrape.com/author/Jim-Henson | Quotes to Scrape |  | ### Jim Henson  **Born:** September 24, 1936 in Greenville, Mississippi, The United States  **Description:**  James M... |
+| https://quotes.toscrape.com/author/Mother-Teresa | Quotes to Scrape |  | ### Mother Teresa  **Born:** August 26, 1910 in Skopje, Macedonia, the Former Yugoslav Republic of  **Description:** ... |
+| https://quotes.toscrape.com/author/Pablo-Neruda | Quotes to Scrape |  | ### Pablo Neruda  **Born:** July 12, 1904 in Parral, Chile  **Description:**  Pablo Neruda was the pen name and, late... |
+| https://quotes.toscrape.com/author/Ralph-Waldo-Emerson | Quotes to Scrape |  | ### Ralph Waldo Emerson  **Born:** May 25, 1803 in Boston, Massachusetts, The United States  **Description:**  in 180... |
+| https://quotes.toscrape.com/page/4/ | Quotes to Scrape |  | “The more that you read, the more things you will know. The more that you learn, the more places you'll go.” by Dr. S... |
+| https://quotes.toscrape.com/author/Charles-M-Schulz | Quotes to Scrape |  | ### Charles M. Schulz  **Born:** November 26, 1922 in Minneapolis, MN, The United States  **Description:**  Charles M... |
+| https://quotes.toscrape.com/author/George-Eliot | Quotes to Scrape |  | ### George Eliot  **Born:** November 22, 1819 in South Farm, Arbury Hall, Nuneaton, Warwickshire, The United Kingdom ... |
+| https://quotes.toscrape.com/author/Jorge-Luis-Borges | Quotes to Scrape |  | ### Jorge Luis Borges  **Born:** August 24, 1899 in Buenos Aires, Argentina  **Description:**  Jorge Francisco Isidor... |
+| https://quotes.toscrape.com/author/William-Nicholson | Quotes to Scrape |  | ### William Nicholson  **Born:** January 12, 1948 in Lewes, Sussex, The United Kingdom  **Description:**  Librarian N... |
+| https://quotes.toscrape.com/page/5/ | Quotes to Scrape |  | “A reader lives a thousand lives before he dies, said Jojen. The man who never reads lives only one.” by George R.R. ... |
+| https://quotes.toscrape.com/author/C-S-Lewis | Quotes to Scrape |  | ### C.S. Lewis  **Born:** November 29, 1898 in Belfast, Ireland  **Description:**  CLIVE STAPLES LEWIS (1898–1963) wa... |
+| https://quotes.toscrape.com/author/George-R-R-Martin | Quotes to Scrape |  | ### George R.R. Martin  **Born:** September 20, 1948 in Bayonne, New Jersey, The United States  **Description:**  Geo... |
+| https://quotes.toscrape.com/author/James-Baldwin | Quotes to Scrape |  | ### James Baldwin  **Born:** August 02, 1924 in Harlem, New York, The United States  **Description:**  Librarian Note... |
+| https://quotes.toscrape.com/author/Martin-Luther-King-Jr | Quotes to Scrape |  | ### Martin Luther King Jr.  **Born:** January 15, 1929 in Atlanta, Georgia, The United States  **Description:**  Mart... |
+| https://quotes.toscrape.com/page/6/ | Quotes to Scrape |  | “There is nothing I would not do for those who are really my friends. I have no notion of loving people by halves, it... |
+| https://quotes.toscrape.com/author/Alexandre-Dumas-fils | Quotes to Scrape |  | ### Alexandre Dumas-fils  **Born:** July 27, 1824 in Paris, France  **Description:**  Alexandre Dumas (son) was born ... |
+| https://quotes.toscrape.com/author/Ernest-Hemingway | Quotes to Scrape |  | ### Ernest Hemingway  **Born:** July 21, 1899 in Oak Park, Illinois, The United States  **Description:**  Ernest Mill... |
+| https://quotes.toscrape.com/author/George-Bernard-Shaw | Quotes to Scrape |  | ### George Bernard Shaw  **Born:** July 26, 1856 in Dublin, Ireland  **Description:**  George Bernard Shaw was an Iri... |
+| https://quotes.toscrape.com/author/Haruki-Murakami | Quotes to Scrape |  | ### Haruki Murakami  **Born:** January 12, 1949 in Kyoto, Japan  **Description:**  Haruki Murakami (Japanese: 村上 春樹) ... |
+| https://quotes.toscrape.com/author/Helen-Keller | Quotes to Scrape |  | ### Helen Keller  **Born:** June 27, 1880 in Tuscumbia, Alabama, The United States  **Description:**  Helen Keller wo... |
+| https://quotes.toscrape.com/author/Stephenie-Meyer | Quotes to Scrape |  | ### Stephenie Meyer  **Born:** December 24, 1973 in Connecticut, The United States  **Description:**  I was born in C... |
+| https://quotes.toscrape.com/page/7/ | Quotes to Scrape |  | “That's the problem with drinking, I thought, as I poured myself a drink. If something bad happens you drink in an at... |
+| https://quotes.toscrape.com/author/Charles-Bukowski | Quotes to Scrape |  | ### Charles Bukowski  **Born:** August 16, 1920 in Andernach, Germany  **Description:**  Henry Charles Bukowski (born... |
+| https://quotes.toscrape.com/author/J-R-R-Tolkien | Quotes to Scrape |  | ### J.R.R. Tolkien  **Born:** January 03, 1892 in Bloemfontein, Mangaung, Free State, South Africa  **Description:** ... |
+| https://quotes.toscrape.com/author/Suzanne-Collins | Quotes to Scrape |  | ### Suzanne Collins  **Born:** August 11, 1962 in Hartford, Connecticut, The United States  **Description:**  Librari... |
+| https://quotes.toscrape.com/page/8/ | Quotes to Scrape |  | “If I had a flower for every time I thought of you...I could walk through my garden forever.” by Alfred Tennyson (abo... |
+| https://quotes.toscrape.com/author/Alfred-Tennyson | Quotes to Scrape |  | ### Alfred Tennyson  **Born:** August 06, 1809 in Somersby, Lincolnshire, The United Kingdom  **Description:**  Alfre... |
+| https://quotes.toscrape.com/author/Ayn-Rand | Quotes to Scrape |  | ### Ayn Rand  **Born:** February 02, 1905 in St. Petersburg, Russian Federation  **Description:**  Alisa Rosenbaum wa... |
+| https://quotes.toscrape.com/author/George-Carlin | Quotes to Scrape |  | ### George Carlin  **Born:** May 12, 1937 in New York, New York, The United States  **Description:**  George Denis Pa... |
+| https://quotes.toscrape.com/author/J-D-Salinger | Quotes to Scrape |  | ### J.D. Salinger  **Born:** January 01, 1919 in Manhattan, New York, The United States  **Description:**  Jerome Dav... |
+| https://quotes.toscrape.com/author/John-Lennon | Quotes to Scrape |  | ### John Lennon  **Born:** October 09, 1940 in Liverpool, England, The United Kingdom  **Description:**  John Winston... |
+
+## Brain Snapshot (Resumen)
+Campos: recent_events, domain_stats, error_type_freq

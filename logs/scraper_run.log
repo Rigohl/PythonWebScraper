@@ -2092,3 +2092,696 @@
 {"timestamp": "2025-09-04 22:05:03,655", "level": "ERROR", "name": "ScrapingOrchestrator", "message": "No se proporcionaron URLs iniciales."}
 {"timestamp": "2025-09-04 22:05:05,135", "level": "INFO", "name": "src.database", "message": "Informe Markdown exportado a exports\\reports\\auto_report_2025-09-05_04-05-05.md"}
 {"timestamp": "2025-09-04 22:05:05,136", "level": "INFO", "name": "src.runner", "message": "Auto Markdown report generated: exports\\reports\\auto_report_2025-09-05_04-05-05.md"}
+{"timestamp": "2025-09-05 03:28:09,474", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:28:09,476", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:28:09,476", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:28:09,476", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:28:09,477", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:28:09,477", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:28:09,478", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:28:09,478", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:28:09,478", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:28:09,497", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 27 recent events, 10 domains"}
+{"timestamp": "2025-09-05 03:28:09,516", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 21 domains"}
+{"timestamp": "2025-09-05 03:28:09,516", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 21 domains"}
+{"timestamp": "2025-09-05 03:28:09,564", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:28:14,344", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:28:14,345", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:28:14,347", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:28:14,347", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:28:14,350", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:28:14,352", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:28:14,352", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:28:15,128", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:28:15,177", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:28:15,178", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:28:15,179", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:28:15,179", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Error querying knowledge base: KnowledgeBase.search() got an unexpected keyword argument 'limit'"}
+{"timestamp": "2025-09-05 03:30:13,431", "level": "INFO", "name": "__main__", "message": "Running in demo mode..."}
+{"timestamp": "2025-09-05 03:30:13,436", "level": "INFO", "name": "src.runner", "message": "Discovered scraper: ToscrapeScraper"}
+{"timestamp": "2025-09-05 03:30:14,123", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-05 03:30:14,124", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-05 03:30:14,384", "level": "INFO", "name": "src.runner", "message": "Scraped http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html successfully."}
+{"timestamp": "2025-09-05 03:30:14,384", "level": "INFO", "name": "src.runner", "message": "Scraped http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html successfully."}
+{"timestamp": "2025-09-05 03:32:38,763", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:32:38,765", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:32:38,766", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:32:38,766", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:32:38,767", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:32:38,767", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:32:38,768", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:32:38,768", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:32:38,769", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:32:38,771", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 27 recent events, 10 domains"}
+{"timestamp": "2025-09-05 03:32:38,773", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 21 domains"}
+{"timestamp": "2025-09-05 03:32:38,774", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 21 domains"}
+{"timestamp": "2025-09-05 03:32:38,781", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:32:43,999", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:32:44,008", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:32:44,160", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:32:44,161", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:32:44,175", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:32:44,181", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:32:44,182", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:32:44,825", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:32:44,845", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:32:44,848", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:32:44,851", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:33:13,178", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:33:13,181", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:33:13,182", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:33:13,183", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:33:13,183", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:33:13,184", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:33:13,184", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:33:13,184", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:33:13,186", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:33:13,188", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 27 recent events, 10 domains"}
+{"timestamp": "2025-09-05 03:33:13,191", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 21 domains"}
+{"timestamp": "2025-09-05 03:33:13,192", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 21 domains"}
+{"timestamp": "2025-09-05 03:33:13,205", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:33:17,541", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:33:17,542", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:33:17,543", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:33:17,543", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:33:17,547", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:33:17,549", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:33:17,549", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:33:17,998", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:33:18,014", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:33:18,016", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:33:18,017", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:34:23,409", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:34:23,411", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:34:23,414", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:34:23,414", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:34:23,415", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:34:23,415", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:34:23,415", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:34:23,415", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:34:23,415", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:34:23,416", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 27 recent events, 10 domains"}
+{"timestamp": "2025-09-05 03:34:23,417", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 21 domains"}
+{"timestamp": "2025-09-05 03:34:23,419", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 21 domains"}
+{"timestamp": "2025-09-05 03:34:23,425", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:34:27,794", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:34:27,795", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:34:27,797", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:34:27,797", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:34:27,799", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:34:27,804", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:34:27,805", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:34:28,204", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:34:28,218", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:34:28,220", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:34:28,220", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:34:58,328", "level": "INFO", "name": "__main__", "message": "Exporting data to CSV: exports/test_export.csv"}
+{"timestamp": "2025-09-05 03:34:58,600", "level": "INFO", "name": "src.database", "message": "156 registros con estado 'SUCCESS' exportados a exports/test_export.csv"}
+{"timestamp": "2025-09-05 03:34:58,601", "level": "INFO", "name": "__main__", "message": "CSV export completed"}
+{"timestamp": "2025-09-05 03:35:14,441", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: exports/test_export.json"}
+{"timestamp": "2025-09-05 03:35:14,808", "level": "INFO", "name": "src.database", "message": "235 registros exportados a exports/test_export.json"}
+{"timestamp": "2025-09-05 03:35:14,809", "level": "INFO", "name": "__main__", "message": "JSON export completed"}
+{"timestamp": "2025-09-05 03:35:37,584", "level": "INFO", "name": "__main__", "message": "Exporting data to Markdown: exports/test_export.md"}
+{"timestamp": "2025-09-05 03:35:37,877", "level": "INFO", "name": "src.database", "message": "Informe Markdown exportado a exports/test_export.md"}
+{"timestamp": "2025-09-05 03:35:37,879", "level": "INFO", "name": "__main__", "message": "Markdown export completed"}
+{"timestamp": "2025-09-05 03:41:27,999", "level": "WARNING", "name": "__main__", "message": "Ninguna acci\u00f3n especificada. Usa --help para ver opciones disponibles."}
+{"timestamp": "2025-09-05 03:41:39,807", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:59131/index.html']"}
+{"timestamp": "2025-09-05 03:41:39,845", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-05 03:41:39,846", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-05 03:41:39,998", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:41:39,999", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:41:39,999", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:41:39,999", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:41:39,999", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:41:39,999", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:41:39,999", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:41:39,999", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:41:39,999", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:41:40,000", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 27 recent events, 10 domains"}
+{"timestamp": "2025-09-05 03:41:40,001", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 21 domains"}
+{"timestamp": "2025-09-05 03:41:40,001", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 21 domains"}
+{"timestamp": "2025-09-05 03:41:40,005", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:41:43,093", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:41:43,093", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:41:43,094", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:41:43,094", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:41:43,097", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:41:43,099", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:41:43,099", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:41:43,433", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:41:43,435", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:41:43,436", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:41:43,437", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:41:43,437", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Consciousness processing ENABLED"}
+{"timestamp": "2025-09-05 03:41:43,437", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Integration mode set to: unified"}
+{"timestamp": "2025-09-05 03:41:43,437", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Knowledge seeding failed: 'HybridBrain' object has no attribute 'knowledge_seeder'"}
+{"timestamp": "2025-09-05 03:41:43,437", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 HybridBrain initialized - Mode: unified, Consciousness: True"}
+{"timestamp": "2025-09-05 03:41:43,496", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain initial project observation completed - Health: optimal"}
+{"timestamp": "2025-09-05 03:41:43,496", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain detected 1 potential optimizations"}
+{"timestamp": "2025-09-05 03:41:43,497", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:41:43,497", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:41:43,497", "level": "WARNING", "name": "src.runner", "message": "\ud83e\udde0 Brain monitoring initialization failed: 'HybridBrain' object has no attribute '_start_continuous_monitoring'"}
+{"timestamp": "2025-09-05 03:41:56,643", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using HybridBrain for intelligent orchestration"}
+{"timestamp": "2025-09-05 03:41:56,652", "level": "WARNING", "name": "src.intelligence.autonomous_brain", "message": "Could not load previous intelligence: 'list' object has no attribute 'get'"}
+{"timestamp": "2025-09-05 03:41:56,652", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 0 domains"}
+{"timestamp": "2025-09-05 03:41:56,652", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-05 03:41:56,652", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:41:57,576", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://localhost:59131/robots.txt \"HTTP/1.0 404 Not Found\""}
+{"timestamp": "2025-09-05 03:41:57,580", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://localhost:59131/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-05 03:41:57,580", "level": "ERROR", "name": "src.intelligence.integration", "message": "Intelligence configuration error for localhost:59131: 'dict' object has no attribute 'request_delay'"}
+{"timestamp": "2025-09-05 03:41:57,595", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:59131/index.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:42:01,386", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:42:02,091", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59131/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:02,091", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59131/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-05 03:42:02,307", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59131 (success: True)"}
+{"timestamp": "2025-09-05 03:42:02,310", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59131/index.html: ['http://localhost:59131/page1.html', 'http://localhost:59131/page2.html']"}
+{"timestamp": "2025-09-05 03:42:02,311", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:59131/page1.html"}
+{"timestamp": "2025-09-05 03:42:02,312", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-05 03:42:02,312", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:59131/page2.html"}
+{"timestamp": "2025-09-05 03:42:02,312", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-05 03:42:02,315", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59131 (success: False)"}
+{"timestamp": "2025-09-05 03:42:02,318", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:59131/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:42:02,345", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:59131/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:42:03,765", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:42:03,794", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:42:04,171", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59131/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:04,171", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59131/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-05 03:42:04,181", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59131 (success: True)"}
+{"timestamp": "2025-09-05 03:42:04,183", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59131/page1.html: []"}
+{"timestamp": "2025-09-05 03:42:04,186", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59131 (success: False)"}
+{"timestamp": "2025-09-05 03:42:04,188", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59131/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:04,188", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59131/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-05 03:42:04,191", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://localhost:59131/page2.html. Original: http://localhost:59131/page1.html. Marcando como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-05 03:42:04,199", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59131 (success: False)"}
+{"timestamp": "2025-09-05 03:42:04,201", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59131 (success: False)"}
+{"timestamp": "2025-09-05 03:42:04,223", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 IA_SYNC updated with hybrid brain status"}
+{"timestamp": "2025-09-05 03:42:04,225", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-05 03:42:05,385", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 IA_SYNC updated with hybrid brain status"}
+{"timestamp": "2025-09-05 03:42:19,927", "level": "INFO", "name": "__main__", "message": "Exporting data to CSV: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_an95ino2\\export.csv"}
+{"timestamp": "2025-09-05 03:42:20,132", "level": "WARNING", "name": "src.database", "message": "[DEBUG] SUCCESS rows before export attempt: 2"}
+{"timestamp": "2025-09-05 03:42:20,133", "level": "INFO", "name": "src.database", "message": "2 registros con estado 'SUCCESS' exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_an95ino2\\export.csv"}
+{"timestamp": "2025-09-05 03:42:20,134", "level": "INFO", "name": "__main__", "message": "CSV export completed"}
+{"timestamp": "2025-09-05 03:42:28,807", "level": "INFO", "name": "__main__", "message": "Starting crawl for URLs: ['http://localhost:59193/index.html']"}
+{"timestamp": "2025-09-05 03:42:28,835", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-05 03:42:28,835", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-05 03:42:28,983", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:42:28,983", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:42:28,983", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:42:28,984", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:42:28,984", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:42:28,984", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:42:28,984", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:42:28,984", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:42:28,984", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:42:28,985", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 30 recent events, 11 domains"}
+{"timestamp": "2025-09-05 03:42:28,985", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-05 03:42:28,985", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-05 03:42:28,988", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:42:31,447", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:42:31,447", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:42:31,448", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:42:31,448", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:42:31,449", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:42:31,449", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:42:31,449", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:42:31,784", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:42:31,786", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:42:31,787", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:42:31,788", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:42:31,788", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Consciousness processing ENABLED"}
+{"timestamp": "2025-09-05 03:42:31,788", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Integration mode set to: unified"}
+{"timestamp": "2025-09-05 03:42:31,788", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Knowledge seeding failed: 'HybridBrain' object has no attribute 'knowledge_seeder'"}
+{"timestamp": "2025-09-05 03:42:31,788", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 HybridBrain initialized - Mode: unified, Consciousness: True"}
+{"timestamp": "2025-09-05 03:42:31,829", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain initial project observation completed - Health: optimal"}
+{"timestamp": "2025-09-05 03:42:31,829", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain detected 1 potential optimizations"}
+{"timestamp": "2025-09-05 03:42:31,831", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:42:31,831", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:42:31,831", "level": "WARNING", "name": "src.runner", "message": "\ud83e\udde0 Brain monitoring initialization failed: 'HybridBrain' object has no attribute '_start_continuous_monitoring'"}
+{"timestamp": "2025-09-05 03:42:32,810", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using HybridBrain for intelligent orchestration"}
+{"timestamp": "2025-09-05 03:42:32,811", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 1 domains"}
+{"timestamp": "2025-09-05 03:42:32,811", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 1 domains"}
+{"timestamp": "2025-09-05 03:42:32,811", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-05 03:42:32,811", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:42:33,627", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET http://localhost:59193/robots.txt \"HTTP/1.0 404 Not Found\""}
+{"timestamp": "2025-09-05 03:42:33,629", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not fetch robots.txt from http://localhost:59193/robots.txt. Status code: 404"}
+{"timestamp": "2025-09-05 03:42:33,629", "level": "ERROR", "name": "src.intelligence.integration", "message": "Intelligence configuration error for localhost:59193: 'dict' object has no attribute 'request_delay'"}
+{"timestamp": "2025-09-05 03:42:33,629", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:59193/index.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:42:35,792", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:42:35,998", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59193/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:35,998", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59193/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-05 03:42:36,134", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59193 (success: True)"}
+{"timestamp": "2025-09-05 03:42:36,142", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59193/index.html: ['http://localhost:59193/page1.html', 'http://localhost:59193/page2.html']"}
+{"timestamp": "2025-09-05 03:42:36,142", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:59193/page1.html"}
+{"timestamp": "2025-09-05 03:42:36,143", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-05 03:42:36,143", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:59193/page2.html"}
+{"timestamp": "2025-09-05 03:42:36,143", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-05 03:42:36,146", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59193 (success: False)"}
+{"timestamp": "2025-09-05 03:42:36,147", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:59193/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:42:36,174", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:59193/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:42:37,524", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:42:37,549", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:42:37,833", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59193/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:37,833", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59193/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-05 03:42:37,841", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59193 (success: True)"}
+{"timestamp": "2025-09-05 03:42:37,842", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59193/page1.html: []"}
+{"timestamp": "2025-09-05 03:42:37,844", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59193 (success: False)"}
+{"timestamp": "2025-09-05 03:42:37,845", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59193/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:37,845", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59193/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-05 03:42:37,847", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://localhost:59193/page2.html. Original: http://localhost:59193/page1.html. Marcando como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-05 03:42:37,852", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59193 (success: False)"}
+{"timestamp": "2025-09-05 03:42:37,855", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59193 (success: False)"}
+{"timestamp": "2025-09-05 03:42:37,861", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 IA_SYNC updated with hybrid brain status"}
+{"timestamp": "2025-09-05 03:42:37,864", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-05 03:42:39,028", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 IA_SYNC updated with hybrid brain status"}
+{"timestamp": "2025-09-05 03:42:49,100", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_5u0ahm1_\\export.json"}
+{"timestamp": "2025-09-05 03:42:49,395", "level": "INFO", "name": "src.database", "message": "3 registros exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_5u0ahm1_\\export.json"}
+{"timestamp": "2025-09-05 03:42:49,396", "level": "INFO", "name": "__main__", "message": "JSON export completed"}
+{"timestamp": "2025-09-05 03:42:59,295", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:42:59,305", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:42:59,317", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:42:59,318", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:42:59,319", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:42:59,319", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:42:59,321", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:42:59,321", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:42:59,345", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://example.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,345", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://example.com status=SUCCESS content_len=20"}
+{"timestamp": "2025-09-05 03:42:59,499", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://example.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,499", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://example.com status=SUCCESS content_len=0"}
+{"timestamp": "2025-09-05 03:42:59,508", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://example.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,509", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://example.com status=SUCCESS content_len=0"}
+{"timestamp": "2025-09-05 03:42:59,520", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://a.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,520", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://a.com status=SUCCESS content_len=9"}
+{"timestamp": "2025-09-05 03:42:59,531", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://b.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,532", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://b.com status=SUCCESS content_len=9"}
+{"timestamp": "2025-09-05 03:42:59,534", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://c.com (status=LOW_QUALITY)"}
+{"timestamp": "2025-09-05 03:42:59,535", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://c.com status=LOW_QUALITY content_len=0"}
+{"timestamp": "2025-09-05 03:42:59,541", "level": "WARNING", "name": "src.database", "message": "[DEBUG] SUCCESS rows before export attempt: 2"}
+{"timestamp": "2025-09-05 03:42:59,543", "level": "INFO", "name": "src.database", "message": "2 registros con estado 'SUCCESS' exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\tmpsrfn34gp\\export.csv"}
+{"timestamp": "2025-09-05 03:42:59,573", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://original.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,573", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://original.com status=SUCCESS content_len=15"}
+{"timestamp": "2025-09-05 03:42:59,588", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://duplicate.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,588", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://duplicate.com status=SUCCESS content_len=20"}
+{"timestamp": "2025-09-05 03:42:59,589", "level": "INFO", "name": "src.database", "message": "Contenido duplicado detectado para http://duplicate.com. Guardando fila marcada como DUPLICATE (original http://original.com)."}
+{"timestamp": "2025-09-05 03:42:59,591", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://duplicate.com. Original: http://original.com. Marcando como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-05 03:42:59,593", "level": "INFO", "name": "src.database", "message": "Detectadas 2 filas con hash duplicado tras inserci\u00f3n. Se recomienda limpieza manual, conservando la primera."}
+{"timestamp": "2025-09-05 03:42:59,599", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://site.com/page1 (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,600", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://site.com/page1 status=SUCCESS content_len=44"}
+{"timestamp": "2025-09-05 03:42:59,609", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://site.com/page2 (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,609", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://site.com/page2 status=SUCCESS content_len=42"}
+{"timestamp": "2025-09-05 03:42:59,609", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://site.com/page2. Original: http://site.com/page1. Marcando como DUPLICATE (jaccard=0.75)."}
+{"timestamp": "2025-09-05 03:42:59,610", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://site.com/page3 (status=FAILED)"}
+{"timestamp": "2025-09-05 03:42:59,611", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://site.com/page3 status=FAILED content_len=19"}
+{"timestamp": "2025-09-05 03:42:59,619", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://a.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,620", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://a.com status=SUCCESS content_len=9"}
+{"timestamp": "2025-09-05 03:42:59,630", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://b.com (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,630", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://b.com status=SUCCESS content_len=9"}
+{"timestamp": "2025-09-05 03:42:59,635", "level": "INFO", "name": "src.database", "message": "2 registros exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\tmpu25fnl0l\\export.json"}
+{"timestamp": "2025-09-05 03:42:59,668", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/3 (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,669", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/3 status=SUCCESS content_len=42"}
+{"timestamp": "2025-09-05 03:42:59,681", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/2 (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,681", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/2 status=SUCCESS content_len=62"}
+{"timestamp": "2025-09-05 03:42:59,684", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/1 (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,684", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/1 status=SUCCESS content_len=54"}
+{"timestamp": "2025-09-05 03:42:59,686", "level": "INFO", "name": "src.database", "message": "Contenido duplicado detectado para https://example.com/1. Guardando fila marcada como DUPLICATE (original https://example.com/2)."}
+{"timestamp": "2025-09-05 03:42:59,687", "level": "INFO", "name": "src.database", "message": "Nuevo contenido can\u00f3nico para https://example.com/1. Marcando https://example.com/2 como DUPLICATE (jaccard=0.89)."}
+{"timestamp": "2025-09-05 03:42:59,692", "level": "INFO", "name": "src.database", "message": "Detectadas 2 filas con hash duplicado tras inserci\u00f3n. Se recomienda limpieza manual, conservando la primera."}
+{"timestamp": "2025-09-05 03:42:59,692", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/4 (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,692", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/4 status=SUCCESS content_len=68"}
+{"timestamp": "2025-09-05 03:42:59,693", "level": "INFO", "name": "src.database", "message": "Contenido duplicado detectado para https://example.com/4. Guardando fila marcada como DUPLICATE (original https://example.com/2)."}
+{"timestamp": "2025-09-05 03:42:59,693", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para https://example.com/4. Original: https://example.com/1. Marcando como DUPLICATE (jaccard=0.80)."}
+{"timestamp": "2025-09-05 03:42:59,695", "level": "INFO", "name": "src.database", "message": "Detectadas 3 filas con hash duplicado tras inserci\u00f3n. Se recomienda limpieza manual, conservando la primera."}
+{"timestamp": "2025-09-05 03:42:59,695", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/5 (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:42:59,695", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/5 status=SUCCESS content_len=68"}
+{"timestamp": "2025-09-05 03:42:59,696", "level": "INFO", "name": "src.database", "message": "Contenido duplicado detectado para https://example.com/5. Guardando fila marcada como DUPLICATE (original https://example.com/2)."}
+{"timestamp": "2025-09-05 03:42:59,696", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para https://example.com/5. Original: https://example.com/4. Marcando como DUPLICATE (jaccard=1.00)."}
+{"timestamp": "2025-09-05 03:42:59,699", "level": "INFO", "name": "src.database", "message": "Detectadas 4 filas con hash duplicado tras inserci\u00f3n. Se recomienda limpieza manual, conservando la primera."}
+{"timestamp": "2025-09-05 03:42:59,728", "level": "ERROR", "name": "src.scrapers.example.scraper", "message": "Error scraping http://example.com: 'str' object has no attribute 'items'"}
+{"timestamp": "2025-09-05 03:43:00,511", "level": "INFO", "name": "root", "message": "Dummy training of classifier with dataset: dummy_dataset.csv"}
+{"timestamp": "2025-09-05 03:43:00,531", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET https://example.com/ \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-05 03:43:00,539", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET https://api.example.com/data \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-05 03:43:00,546", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET https://api.example.com/ping \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-09-05 03:43:01,059", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET https://api.example.com/ping \"HTTP/1.1 500 Internal Server Error\""}
+{"timestamp": "2025-09-05 03:43:02,068", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET https://api.example.com/ping \"HTTP/1.1 200 OK\""}
+{"timestamp": "2025-09-05 03:43:02,075", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET https://unstable.example.com/ \"HTTP/1.1 503 Service Unavailable\""}
+{"timestamp": "2025-09-05 03:43:02,578", "level": "INFO", "name": "httpx", "message": "HTTP Request: GET https://unstable.example.com/ \"HTTP/1.1 503 Service Unavailable\""}
+{"timestamp": "2025-09-05 03:43:02,579", "level": "WARNING", "name": "src.adapters.httpx_adapter", "message": "Fallo HTTP tras 2 intentos para https://unstable.example.com/: HTTP 503"}
+{"timestamp": "2025-09-05 03:43:02,579", "level": "WARNING", "name": "src.adapters.httpx_adapter", "message": "Fallo HTTP tras 2 intentos para https://unstable.example.com/: Fallo HTTP tras 2 intentos para https://unstable.example.com/: HTTP 503"}
+{"timestamp": "2025-09-05 03:43:03,134", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-05 03:43:03,135", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-05 03:43:06,805", "level": "INFO", "name": "src.rl_agent", "message": "Nuevo modelo PPO inicializado."}
+{"timestamp": "2025-09-05 03:43:07,662", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:07,664", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 2 domains"}
+{"timestamp": "2025-09-05 03:43:07,664", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 2 domains"}
+{"timestamp": "2025-09-05 03:43:07,664", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-05 03:43:07,665", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:07,666", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "La comprobaci\u00f3n de robots.txt est\u00e1 desactivada."}
+{"timestamp": "2025-09-05 03:43:07,667", "level": "ERROR", "name": "src.intelligence.integration", "message": "Intelligence configuration error for localhost:59271: 'dict' object has no attribute 'request_delay'"}
+{"timestamp": "2025-09-05 03:43:07,667", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:59271/index.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:43:10,430", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:43:10,685", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59271/index.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:43:10,685", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59271/index.html status=SUCCESS content_len=26"}
+{"timestamp": "2025-09-05 03:43:10,698", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59271 (success: True)"}
+{"timestamp": "2025-09-05 03:43:10,701", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59271/index.html: ['http://localhost:59271/page1.html', 'http://localhost:59271/page2.html']"}
+{"timestamp": "2025-09-05 03:43:10,701", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:59271/page1.html"}
+{"timestamp": "2025-09-05 03:43:10,701", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-05 03:43:10,701", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:59271/page2.html"}
+{"timestamp": "2025-09-05 03:43:10,701", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-05 03:43:10,702", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:59271/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:43:10,729", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:59271/page2.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:43:12,130", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:43:12,170", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:43:12,520", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59271/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:43:12,520", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59271/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-05 03:43:12,524", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59271 (success: True)"}
+{"timestamp": "2025-09-05 03:43:12,525", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59271/page1.html: []"}
+{"timestamp": "2025-09-05 03:43:12,526", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59271/page2.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:43:12,526", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59271/page2.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-05 03:43:12,527", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para http://localhost:59271/page2.html. Original: http://localhost:59271/page1.html. Marcando como DUPLICATE (jaccard=0.67)."}
+{"timestamp": "2025-09-05 03:43:12,530", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59271 (success: False)"}
+{"timestamp": "2025-09-05 03:43:12,530", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-05 03:43:14,058", "level": "INFO", "name": "OfflineLLMAdapter", "message": "Adaptador LLM offline inicializado."}
+{"timestamp": "2025-09-05 03:43:14,058", "level": "INFO", "name": "src.llm_extractor", "message": "LLMExtractor: modo offline (sin cliente remoto)."}
+{"timestamp": "2025-09-05 03:43:14,167", "level": "INFO", "name": "src.rl_agent", "message": "Nuevo modelo PPO inicializado."}
+{"timestamp": "2025-09-05 03:43:14,836", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:14,837", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:14,838", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "La comprobaci\u00f3n de robots.txt est\u00e1 desactivada."}
+{"timestamp": "2025-09-05 03:43:14,839", "level": "ERROR", "name": "src.intelligence.integration", "message": "Intelligence configuration error for localhost:59292: 'dict' object has no attribute 'request_delay'"}
+{"timestamp": "2025-09-05 03:43:14,840", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:59292/index_with_clone.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:43:16,776", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:43:16,999", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59292/index_with_clone.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:43:16,999", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59292/index_with_clone.html status=SUCCESS content_len=43"}
+{"timestamp": "2025-09-05 03:43:17,010", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59292 (success: True)"}
+{"timestamp": "2025-09-05 03:43:17,012", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59292/index_with_clone.html: ['http://localhost:59292/page1.html', 'http://localhost:59292/page1_clone.html']"}
+{"timestamp": "2025-09-05 03:43:17,012", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:59292/page1.html"}
+{"timestamp": "2025-09-05 03:43:17,012", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-05 03:43:17,013", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://localhost:59292/page1_clone.html"}
+{"timestamp": "2025-09-05 03:43:17,013", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-05 03:43:17,013", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://localhost:59292/page1.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:43:17,044", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 2 processing: http://localhost:59292/page1_clone.html (Priority: 0)"}
+{"timestamp": "2025-09-05 03:43:18,432", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:43:18,666", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59292/page1_clone.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:43:18,666", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59292/page1_clone.html status=SUCCESS content_len=51"}
+{"timestamp": "2025-09-05 03:43:18,673", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59292 (success: True)"}
+{"timestamp": "2025-09-05 03:43:18,673", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59292/page1_clone.html: []"}
+{"timestamp": "2025-09-05 03:43:18,674", "level": "INFO", "name": "src.database", "message": "Saving result for URL: http://localhost:59292/page1.html (status=SUCCESS)"}
+{"timestamp": "2025-09-05 03:43:18,674", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=http://localhost:59292/page1.html status=SUCCESS content_len=32"}
+{"timestamp": "2025-09-05 03:43:18,674", "level": "INFO", "name": "src.database", "message": "Nuevo contenido can\u00f3nico para http://localhost:59292/page1.html. Marcando http://localhost:59292/page1_clone.html como DUPLICATE (jaccard=0.62)."}
+{"timestamp": "2025-09-05 03:43:18,679", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: localhost:59292 (success: True)"}
+{"timestamp": "2025-09-05 03:43:18,679", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://localhost:59292/page1.html: []"}
+{"timestamp": "2025-09-05 03:43:18,680", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-05 03:43:26,098", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:43:26,098", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:43:26,099", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:26,099", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:43:26,099", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:43:26,099", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:43:26,100", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:26,100", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:43:26,100", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:43:26,101", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 33 recent events, 12 domains"}
+{"timestamp": "2025-09-05 03:43:26,102", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 23 domains"}
+{"timestamp": "2025-09-05 03:43:26,102", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 23 domains"}
+{"timestamp": "2025-09-05 03:43:26,104", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:43:26,106", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:26,107", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:43:26,108", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:43:26,108", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:43:26,109", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:26,110", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,110", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:43:26,420", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:43:26,423", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:43:26,426", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:43:26,426", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:43:26,468", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Integration mode set to: unified"}
+{"timestamp": "2025-09-05 03:43:26,468", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Consciousness processing ENABLED"}
+{"timestamp": "2025-09-05 03:43:26,468", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Integration mode set to: unified"}
+{"timestamp": "2025-09-05 03:43:26,468", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Consciousness processing ENABLED"}
+{"timestamp": "2025-09-05 03:43:26,470", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:43:26,504", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Integration mode set to: unified"}
+{"timestamp": "2025-09-05 03:43:26,505", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Consciousness processing ENABLED"}
+{"timestamp": "2025-09-05 03:43:26,505", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Integration mode set to: unified"}
+{"timestamp": "2025-09-05 03:43:26,505", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Consciousness processing ENABLED"}
+{"timestamp": "2025-09-05 03:43:26,505", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:43:26,597", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,597", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,600", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Performance improved in example.com: 0.05 low quality/empty. Reducing backoff from 3.00 to 2.50"}
+{"timestamp": "2025-09-05 03:43:26,609", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,610", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,620", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,620", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,639", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,640", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,650", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,650", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,652", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Repetitive path detected in URL: http://example.com/a/b/a/b"}
+{"timestamp": "2025-09-05 03:43:26,652", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Repetitive path detected in URL: http://example.com/calendar/2023/01/2023/01"}
+{"timestamp": "2025-09-05 03:43:26,662", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,663", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,677", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,677", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,688", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,689", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,693", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "URL discarded due to excessive redirects (11): <Mock name='mock.url' id='3100142079728'>"}
+{"timestamp": "2025-09-05 03:43:26,702", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,702", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,715", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,716", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,729", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,729", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,739", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,740", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,743", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://example.com/page1"}
+{"timestamp": "2025-09-05 03:43:26,743", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 1"}
+{"timestamp": "2025-09-05 03:43:26,744", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Skipping link due to domain mismatch: http://another-domain.com/page2 (netloc=another-domain.com, allowed=example.com)"}
+{"timestamp": "2025-09-05 03:43:26,744", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Skipping link because already seen: http://example.com/page1"}
+{"timestamp": "2025-09-05 03:43:26,744", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Enqueueing link: http://example.com/page3"}
+{"timestamp": "2025-09-05 03:43:26,744", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Queue size after enqueue: 2"}
+{"timestamp": "2025-09-05 03:43:26,744", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Skipping link due to repetitive path: http://example.com/a/b/a/b"}
+{"timestamp": "2025-09-05 03:43:26,754", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,754", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,757", "level": "ERROR", "name": "ScrapingOrchestrator", "message": "No se proporcionaron URLs iniciales."}
+{"timestamp": "2025-09-05 03:43:26,765", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,765", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,769", "level": "ERROR", "name": "src.intelligence.integration", "message": "Intelligence configuration error for example.com: 'dict' object has no attribute 'request_delay'"}
+{"timestamp": "2025-09-05 03:43:26,770", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://example.com (Priority: -1)"}
+{"timestamp": "2025-09-05 03:43:26,771", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,773", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: test.com (success: True)"}
+{"timestamp": "2025-09-05 03:43:26,773", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://test.com: []"}
+{"timestamp": "2025-09-05 03:43:26,774", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-05 03:43:26,782", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,783", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,786", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "La comprobaci\u00f3n de robots.txt est\u00e1 desactivada."}
+{"timestamp": "2025-09-05 03:43:26,787", "level": "ERROR", "name": "src.intelligence.integration", "message": "Intelligence configuration error for example.com: 'dict' object has no attribute 'request_delay'"}
+{"timestamp": "2025-09-05 03:43:26,787", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://example.com (Priority: -1)"}
+{"timestamp": "2025-09-05 03:43:26,788", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,789", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: test.com (success: True)"}
+{"timestamp": "2025-09-05 03:43:26,789", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://test.com: []"}
+{"timestamp": "2025-09-05 03:43:26,789", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Crawling process completed."}
+{"timestamp": "2025-09-05 03:43:26,797", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,797", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,801", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://test.com/page (Priority: 1)"}
+{"timestamp": "2025-09-05 03:43:26,802", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,803", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: test.com (success: True)"}
+{"timestamp": "2025-09-05 03:43:26,804", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://test.com/page: []"}
+{"timestamp": "2025-09-05 03:43:26,815", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,816", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,819", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://test.com/page (Priority: 1)"}
+{"timestamp": "2025-09-05 03:43:26,819", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "URL http://test.com/page failed due to network error. Retrying... (Attempt 1/3)"}
+{"timestamp": "2025-09-05 03:43:26,820", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,821", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: test.com (success: True)"}
+{"timestamp": "2025-09-05 03:43:26,821", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://test.com/page: []"}
+{"timestamp": "2025-09-05 03:43:26,830", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,830", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,832", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://test.com/page (Priority: 1)"}
+{"timestamp": "2025-09-05 03:43:26,834", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "URL http://test.com/page failed due to network error. Retrying... (Attempt 1/3)"}
+{"timestamp": "2025-09-05 03:43:26,834", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "URL http://test.com/page failed due to network error. Retrying... (Attempt 2/3)"}
+{"timestamp": "2025-09-05 03:43:26,834", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "URL http://test.com/page failed due to network error. Retrying... (Attempt 3/3)"}
+{"timestamp": "2025-09-05 03:43:26,834", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "URL http://test.com/page failed due to network error. Retrying... (Attempt 4/3)"}
+{"timestamp": "2025-09-05 03:43:26,834", "level": "ERROR", "name": "ScrapingOrchestrator", "message": "URL http://test.com/page failed after 3 network retries. Discarding."}
+{"timestamp": "2025-09-05 03:43:26,835", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,836", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: test.com (success: False)"}
+{"timestamp": "2025-09-05 03:43:26,846", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,846", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,849", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://test.com/page (Priority: 1)"}
+{"timestamp": "2025-09-05 03:43:26,850", "level": "ERROR", "name": "ScrapingOrchestrator", "message": "URL http://test.com/page failed with unexpected error: Unexpected error. Discarding.", "exc_info": "Traceback (most recent call last):\n  File \"C:\\Users\\DELL\\Desktop\\PythonWebScraper\\src\\orchestrator.py\", line 696, in _scrape_with_retries\n    result = await scraper.scrape(\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\mock.py\", line 2291, in _execute_mock_call\n    raise effect\nException: Unexpected error"}
+{"timestamp": "2025-09-05 03:43:26,878", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,879", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: test.com (success: False)"}
+{"timestamp": "2025-09-05 03:43:26,888", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,888", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,892", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: http://test.com/page (Priority: 1)"}
+{"timestamp": "2025-09-05 03:43:26,894", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,895", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Learned from session: test.com (success: True)"}
+{"timestamp": "2025-09-05 03:43:26,895", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Discovered links for http://test.com/page: []"}
+{"timestamp": "2025-09-05 03:43:26,904", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,904", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,905", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,905", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,905", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:26,914", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,915", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,917", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Anomal\u00eda detectada en example.com: 0.50 contenido de baja calidad/vac\u00edo. Increasing backoff from 1.0 to 1.50"}
+{"timestamp": "2025-09-05 03:43:26,925", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,927", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,929", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "ALERTA DE REDISE\u00d1O! Cambio visual significativo detectado en http://test.com (hash distance: 6)"}
+{"timestamp": "2025-09-05 03:43:26,939", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,939", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,949", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,951", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,955", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "Could not load or parse robots.txt from http://example.com/robots.txt. Error: Connection refused"}
+{"timestamp": "2025-09-05 03:43:26,962", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,962", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,973", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:26,974", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:26,976", "level": "ERROR", "name": "src.intelligence.integration", "message": "Error getting intelligence metrics: 'AutonomousLearningBrain' object has no attribute 'get_domain_intelligence'"}
+{"timestamp": "2025-09-05 03:43:27,154", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/page1 (status=success)"}
+{"timestamp": "2025-09-05 03:43:27,154", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/page1 status=success content_len=17"}
+{"timestamp": "2025-09-05 03:43:27,166", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/page2 (status=success)"}
+{"timestamp": "2025-09-05 03:43:27,166", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/page2 status=success content_len=17"}
+{"timestamp": "2025-09-05 03:43:27,166", "level": "INFO", "name": "src.database", "message": "Contenido duplicado detectado para https://example.com/page2. Guardando fila marcada como DUPLICATE (original https://example.com/page1)."}
+{"timestamp": "2025-09-05 03:43:27,167", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para https://example.com/page2. Original: https://example.com/page1. Marcando como DUPLICATE (jaccard=1.00)."}
+{"timestamp": "2025-09-05 03:43:27,168", "level": "INFO", "name": "src.database", "message": "Detectadas 2 filas con hash duplicado tras inserci\u00f3n. Se recomienda limpieza manual, conservando la primera."}
+{"timestamp": "2025-09-05 03:43:27,171", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/1 (status=success)"}
+{"timestamp": "2025-09-05 03:43:27,171", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/1 status=success content_len=49"}
+{"timestamp": "2025-09-05 03:43:27,182", "level": "INFO", "name": "src.database", "message": "Saving result for URL: https://example.com/2 (status=success)"}
+{"timestamp": "2025-09-05 03:43:27,182", "level": "WARNING", "name": "src.database", "message": "[DEBUG] save_result url=https://example.com/2 status=success content_len=58"}
+{"timestamp": "2025-09-05 03:43:27,183", "level": "INFO", "name": "src.database", "message": "Contenido similar detectado para https://example.com/2. Original: https://example.com/1. Marcando como DUPLICATE (jaccard=0.89)."}
+{"timestamp": "2025-09-05 03:43:27,190", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:27,190", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:27,191", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "La comprobaci\u00f3n de robots.txt est\u00e1 desactivada."}
+{"timestamp": "2025-09-05 03:43:27,192", "level": "ERROR", "name": "src.intelligence.integration", "message": "Intelligence configuration error for example.com: 'dict' object has no attribute 'request_delay'"}
+{"timestamp": "2025-09-05 03:43:27,192", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: https://example.com (Priority: -1)"}
+{"timestamp": "2025-09-05 03:43:27,304", "level": "ERROR", "name": "asyncio", "message": "Task exception was never retrieved\nfuture: <Task finished name='Task-122' coro=<ScrapingOrchestrator._worker() done, defined at C:\\Users\\DELL\\Desktop\\PythonWebScraper\\src\\orchestrator.py:539> exception=TypeError(\"object Mock can't be used in 'await' expression\")>", "exc_info": "Traceback (most recent call last):\n  File \"C:\\Users\\DELL\\Desktop\\PythonWebScraper\\src\\orchestrator.py\", line 557, in _worker\n    page = await browser.new_page(user_agent=current_user_agent)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: object Mock can't be used in 'await' expression"}
+{"timestamp": "2025-09-05 03:43:27,308", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:27,309", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:27,310", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "La comprobaci\u00f3n de robots.txt est\u00e1 desactivada."}
+{"timestamp": "2025-09-05 03:43:27,311", "level": "ERROR", "name": "src.intelligence.integration", "message": "Intelligence configuration error for slow-site.com: 'dict' object has no attribute 'request_delay'"}
+{"timestamp": "2025-09-05 03:43:27,312", "level": "INFO", "name": "ScrapingOrchestrator", "message": "Worker 1 processing: https://slow-site.com (Priority: -1)"}
+{"timestamp": "2025-09-05 03:43:29,317", "level": "ERROR", "name": "asyncio", "message": "Task exception was never retrieved\nfuture: <Task finished name='Task-124' coro=<ScrapingOrchestrator._worker() done, defined at C:\\Users\\DELL\\Desktop\\PythonWebScraper\\src\\orchestrator.py:539> exception=TypeError(\"object Mock can't be used in 'await' expression\")>", "exc_info": "Traceback (most recent call last):\n  File \"C:\\Users\\DELL\\Desktop\\PythonWebScraper\\src\\orchestrator.py\", line 562, in _worker\n    await page.route(\"**/*\", self._block_unnecessary_requests)\nTypeError: object Mock can't be used in 'await' expression"}
+{"timestamp": "2025-09-05 03:43:29,322", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:29,322", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:29,324", "level": "WARNING", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 No brain provided - intelligence features disabled"}
+{"timestamp": "2025-09-05 03:43:29,324", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-05 03:43:29,337", "level": "INFO", "name": "src.rl_agent", "message": "Nuevo modelo PPO inicializado."}
+{"timestamp": "2025-09-05 03:43:29,340", "level": "INFO", "name": "src.rl_agent", "message": "Modelo RL cargado desde: /tmp/model"}
+{"timestamp": "2025-09-05 03:43:29,346", "level": "INFO", "name": "src.rl_agent", "message": "Nuevo modelo PPO inicializado."}
+{"timestamp": "2025-09-05 03:43:29,356", "level": "INFO", "name": "src.rl_agent", "message": "Nuevo modelo PPO inicializado."}
+{"timestamp": "2025-09-05 03:43:29,363", "level": "INFO", "name": "src.rl_agent", "message": "Nuevo modelo PPO inicializado."}
+{"timestamp": "2025-09-05 03:43:29,371", "level": "INFO", "name": "src.rl_agent", "message": "Nuevo modelo PPO inicializado."}
+{"timestamp": "2025-09-05 03:43:29,371", "level": "INFO", "name": "src.rl_agent", "message": "Modelo RL guardado en: /tmp/model"}
+{"timestamp": "2025-09-05 03:43:29,379", "level": "INFO", "name": "src.rl_agent", "message": "Nuevo modelo PPO inicializado."}
+{"timestamp": "2025-09-05 03:43:29,380", "level": "INFO", "name": "src.rl_agent", "message": "Modelo PPO entrenado con 1 pasos."}
+{"timestamp": "2025-09-05 03:43:29,380", "level": "INFO", "name": "src.rl_agent", "message": "Modelo RL guardado en: /tmp/test_model"}
+{"timestamp": "2025-09-05 03:43:29,431", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Consciousness processing ENABLED"}
+{"timestamp": "2025-09-05 03:43:29,431", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Integration mode set to: unified"}
+{"timestamp": "2025-09-05 03:43:29,431", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Knowledge seeding failed: 'HybridBrain' object has no attribute 'knowledge_seeder'"}
+{"timestamp": "2025-09-05 03:43:29,432", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 HybridBrain initialized - Mode: unified, Consciousness: True"}
+{"timestamp": "2025-09-05 03:43:29,474", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain initial project observation completed - Health: optimal"}
+{"timestamp": "2025-09-05 03:43:29,475", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain detected 1 potential optimizations"}
+{"timestamp": "2025-09-05 03:43:29,477", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:43:29,478", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:43:29,478", "level": "WARNING", "name": "src.runner", "message": "\ud83e\udde0 Brain monitoring initialization failed: 'HybridBrain' object has no attribute '_start_continuous_monitoring'"}
+{"timestamp": "2025-09-05 03:43:29,487", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 IA_SYNC updated with hybrid brain status"}
+{"timestamp": "2025-09-05 03:43:29,497", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Consciousness processing ENABLED"}
+{"timestamp": "2025-09-05 03:43:29,498", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Integration mode set to: unified"}
+{"timestamp": "2025-09-05 03:43:29,498", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Knowledge seeding failed: 'HybridBrain' object has no attribute 'knowledge_seeder'"}
+{"timestamp": "2025-09-05 03:43:29,498", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 HybridBrain initialized - Mode: unified, Consciousness: True"}
+{"timestamp": "2025-09-05 03:43:29,535", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain initial project observation completed - Health: optimal"}
+{"timestamp": "2025-09-05 03:43:29,535", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain detected 1 potential optimizations"}
+{"timestamp": "2025-09-05 03:43:29,537", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:43:29,537", "level": "INFO", "name": "src.runner", "message": "\ud83e\udde0 Brain autonomous decision: observation_and_learning"}
+{"timestamp": "2025-09-05 03:43:29,537", "level": "WARNING", "name": "src.runner", "message": "\ud83e\udde0 Brain monitoring initialization failed: 'HybridBrain' object has no attribute '_start_continuous_monitoring'"}
+{"timestamp": "2025-09-05 03:43:29,546", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 IA_SYNC updated with hybrid brain status"}
+{"timestamp": "2025-09-05 03:43:29,821", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:43:29,827", "level": "WARNING", "name": "AdvancedScraper", "message": "Error de red o timeout en scrape de http://failing.com: Connection failed"}
+{"timestamp": "2025-09-05 03:43:29,831", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies cargadas para test.com"}
+{"timestamp": "2025-09-05 03:43:29,832", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies guardadas para test.com"}
+{"timestamp": "2025-09-05 03:43:29,833", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:43:29,840", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-05 03:43:29,855", "level": "ERROR", "name": "src.scrapers.test_example.scraper", "message": "Error scraping http://example.com: 'str' object has no attribute 'items'"}
+{"timestamp": "2025-09-05 03:43:29,892", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\ud83e\udde0 Testing Unified Brain Architecture"}
+{"timestamp": "2025-09-05 03:43:29,892", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "============================================================"}
+{"timestamp": "2025-09-05 03:43:29,892", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "1. Initializing HybridBrain with Neural Architecture..."}
+{"timestamp": "2025-09-05 03:43:29,893", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:43:29,893", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:43:29,894", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:29,894", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:43:29,895", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:43:29,895", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:43:29,895", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:29,895", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:43:29,895", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:43:29,896", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 33 recent events, 12 domains"}
+{"timestamp": "2025-09-05 03:43:29,915", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 23 domains"}
+{"timestamp": "2025-09-05 03:43:29,916", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 23 domains"}
+{"timestamp": "2025-09-05 03:43:29,940", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:43:29,941", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:29,942", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:43:29,943", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:43:29,943", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:43:29,945", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:29,948", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:43:29,948", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:43:30,366", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:43:30,367", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:43:30,368", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:43:30,368", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:43:32,370", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "2. Testing Neural Processing with Scraping Event..."}
+{"timestamp": "2025-09-05 03:43:32,370", "level": "ERROR", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\u274c Test failed: 'Brain' object has no attribute 'get_domain_experience'"}
+{"timestamp": "2025-09-05 03:43:32,376", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\ud83e\uddea Testing Individual Brain Components"}
+{"timestamp": "2025-09-05 03:43:32,376", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "============================================================"}
+{"timestamp": "2025-09-05 03:43:32,376", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "Testing Neural Brain creation..."}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\u2705 Neural Brain created successfully"}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "Testing Advanced Reasoning System..."}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\u2705 Advanced Reasoning System created successfully"}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "Testing Advanced Memory System..."}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\u2705 Advanced Memory System created successfully"}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "Testing Emotional Brain..."}
+{"timestamp": "2025-09-05 03:43:32,377", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:43:32,378", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:43:32,378", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\u2705 Emotional Brain created successfully"}
+{"timestamp": "2025-09-05 03:43:32,378", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "Testing Metacognitive Brain..."}
+{"timestamp": "2025-09-05 03:43:32,378", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:43:32,378", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:43:32,378", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\u2705 Metacognitive Brain created successfully"}
+{"timestamp": "2025-09-05 03:43:32,378", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "============================================================"}
+{"timestamp": "2025-09-05 03:43:32,378", "level": "INFO", "name": "PythonWebScraper.tests.test_unified_brain", "message": "\ud83c\udf89 All Individual Components Test PASSED!"}
+{"timestamp": "2025-09-05 03:46:59,297", "level": "ERROR", "name": "__main__", "message": "Professional TUI dependencies not available. Install textual: pip install textual"}
+{"timestamp": "2025-09-05 03:57:01,242", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 03:57:01,243", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 03:57:01,244", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 03:57:01,244", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 03:57:01,244", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 03:57:01,245", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 03:57:01,245", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 03:57:01,245", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 03:57:01,245", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 03:57:01,247", "level": "INFO", "name": "src.intelligence.brain", "message": "Brain state loaded: 33 recent events, 12 domains"}
+{"timestamp": "2025-09-05 03:57:01,249", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 23 domains"}
+{"timestamp": "2025-09-05 03:57:01,249", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 23 domains"}
+{"timestamp": "2025-09-05 03:57:01,253", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 03:57:05,153", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:57:05,154", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 03:57:05,156", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 03:57:05,156", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:57:05,158", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 03:57:05,160", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 03:57:05,161", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 03:57:05,676", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 03:57:05,691", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 03:57:05,694", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 03:57:05,696", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 03:57:46,731", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: exports/test_final.json"}
+{"timestamp": "2025-09-05 03:57:46,831", "level": "INFO", "name": "src.database", "message": "235 registros exportados a exports/test_final.json"}
+{"timestamp": "2025-09-05 03:57:46,832", "level": "INFO", "name": "__main__", "message": "JSON export completed"}
+{"timestamp": "2025-09-05 03:58:06,745", "level": "INFO", "name": "__main__", "message": "Exporting data to CSV: exports/test_final.csv"}
+{"timestamp": "2025-09-05 03:58:06,838", "level": "INFO", "name": "src.database", "message": "156 registros con estado 'SUCCESS' exportados a exports/test_final.csv"}
+{"timestamp": "2025-09-05 03:58:06,840", "level": "INFO", "name": "__main__", "message": "CSV export completed"}
+{"timestamp": "2025-09-05 03:58:22,416", "level": "INFO", "name": "__main__", "message": "Exporting data to Markdown: exports/test_final.md"}
+{"timestamp": "2025-09-05 03:58:22,630", "level": "INFO", "name": "src.database", "message": "Informe Markdown exportado a exports/test_final.md"}
+{"timestamp": "2025-09-05 03:58:22,631", "level": "INFO", "name": "__main__", "message": "Markdown export completed"}

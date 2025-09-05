@@ -16,74 +16,74 @@ from .parser import TestExampleParser
 logger = logging.getLogger(__name__)
 
 class TestExampleScraper:
-    """Scraper automatico para test_example"""
-    
+    """Scraper automático para test_example"""
+
     def __init__(self, config: Dict[str, Any] = None):
         self.domain = "test_example"
         self.base_url = "https://test_example"
         self.config = config or {'rate_limit': 1.0, 'timeout': 30, 'headers': {'User-Agent': 'Mozilla/5.0 (compatible; ScraperBot/1.0)'}}
         self.parser = TestExampleParser()
-        
+
         # Rate limiting
         self.rate_limit = self.config.get('rate_limit', 1.0)
         self.last_request_time = 0
-        
+
         # Session configuration
         self.timeout = aiohttp.ClientTimeout(total=self.config.get('timeout', 30))
         self.headers = self.config.get('headers', {})
-    
+
     async def scrape_url(self, url: str, session: aiohttp.ClientSession = None) -> Dict[str, Any]:
         """Scrape a single URL."""
         should_close_session = session is None
-        
+
         if session is None:
             session = aiohttp.ClientSession(
                 timeout=self.timeout,
                 headers=self.headers
             )
-        
+
         try:
             # Rate limiting
             await self._apply_rate_limit()
-            
+
             async with session.get(url) as response:
                 if response.status != 200:
                     return {'error': f'HTTP {response.status}', 'url': url}
-                
+
                 html = await response.text()
                 soup = BeautifulSoup(html, 'html.parser')
-                
+
                 # Parse data
                 data = self.parser.parse(soup)
                 data['url'] = url
                 data['scraped_at'] = time.time()
-                
+
                 logger.info(f"Successfully scraped {url}")
                 return data
-        
+
         except Exception as e:
             logger.error(f"Error scraping {url}: {e}")
             return {'error': str(e), 'url': url}
-        
+
         finally:
             if should_close_session:
                 await session.close()
-    
+
     async def scrape_multiple(self, urls: List[str], max_concurrent: int = 5) -> List[Dict[str, Any]]:
         """Scrape multiple URLs concurrently."""
         semaphore = asyncio.Semaphore(max_concurrent)
-        
+
         async def scrape_with_semaphore(session, url):
             async with semaphore:
                 return await self.scrape_url(url, session)
-        
+
         async with aiohttp.ClientSession(
             timeout=self.timeout,
             headers=self.headers
         ) as session:
             tasks = [scrape_with_semaphore(session, url) for url in urls]
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             # Filter out exceptions and convert to results
             processed_results = []
             for result in results:
@@ -91,20 +91,20 @@ class TestExampleScraper:
                     processed_results.append({'error': str(result)})
                 else:
                     processed_results.append(result)
-            
+
             return processed_results
-    
+
     async def _apply_rate_limit(self):
         """Apply rate limiting between requests."""
         current_time = time.time()
         time_since_last = current_time - self.last_request_time
-        
+
         if time_since_last < self.rate_limit:
             sleep_time = self.rate_limit - time_since_last
             await asyncio.sleep(sleep_time)
-        
+
         self.last_request_time = time.time()
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """Get scraper statistics."""
         return {

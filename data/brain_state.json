@@ -296,6 +296,72 @@
       "domain": "code.visualstudio.com",
       "extracted_fields": null,
       "error_type": null
+    },
+    {
+      "url": "http://localhost:59131/index.html",
+      "status": "RETRY",
+      "response_time": 2.058014,
+      "content_length": 0,
+      "new_links": 2,
+      "timestamp": "2025-09-05T09:41:37.130246+00:00",
+      "domain": "localhost:59131",
+      "extracted_fields": 0,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:59131/page1.html",
+      "status": "RETRY",
+      "response_time": 1.323179,
+      "content_length": 0,
+      "new_links": 0,
+      "timestamp": "2025-09-05T09:41:37.130246+00:00",
+      "domain": "localhost:59131",
+      "extracted_fields": 0,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:59131/page2.html",
+      "status": "RETRY",
+      "response_time": 1.338641,
+      "content_length": 0,
+      "new_links": 0,
+      "timestamp": "2025-09-05T09:41:37.130246+00:00",
+      "domain": "localhost:59131",
+      "extracted_fields": 0,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:59193/index.html",
+      "status": "RETRY",
+      "response_time": 1.228779,
+      "content_length": 0,
+      "new_links": 2,
+      "timestamp": "2025-09-05T09:42:27.132249+00:00",
+      "domain": "localhost:59193",
+      "extracted_fields": 0,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:59193/page1.html",
+      "status": "RETRY",
+      "response_time": 1.273687,
+      "content_length": 0,
+      "new_links": 0,
+      "timestamp": "2025-09-05T09:42:27.132249+00:00",
+      "domain": "localhost:59193",
+      "extracted_fields": 0,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:59193/page2.html",
+      "status": "RETRY",
+      "response_time": 1.294584,
+      "content_length": 0,
+      "new_links": 0,
+      "timestamp": "2025-09-05T09:42:27.132249+00:00",
+      "domain": "localhost:59193",
+      "extracted_fields": 0,
+      "error_type": null
     }
   ],
   "domain_stats": {
@@ -398,6 +464,26 @@
       "total_content_length": 374,
       "extractions": 0,
       "response_time_sum": 15.176468
+    },
+    "localhost:59131": {
+      "visits": 3,
+      "success": 0,
+      "errors": 0,
+      "duplicates": 0,
+      "total_new_links": 2,
+      "total_content_length": 0,
+      "extractions": 0,
+      "response_time_sum": 4.7198340000000005
+    },
+    "localhost:59193": {
+      "visits": 3,
+      "success": 0,
+      "errors": 0,
+      "duplicates": 0,
+      "total_new_links": 2,
+      "total_content_length": 0,
+      "extractions": 0,
+      "response_time_sum": 3.79705
     }
   },
   "error_type_freq": {}

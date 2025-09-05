@@ -41,7 +41,7 @@ try:
 
     # Knowledge and autonomous learning systems
     from .knowledge_store import KnowledgeStore
-    
+
     from .neural_brain import NeuralBrain
     from .advanced_reasoning import AdvancedReasoningSystem
     from .advanced_memory import AdvancedMemorySystem
@@ -89,6 +89,8 @@ try:
     ]
 
 except ImportError as e:
+    # Print the specific error for debugging
+    print(f"Import error in intelligence module: {e}")
     # Fallback if new components fail to import
     __all__ = ["LLMExtractor", "RLAgent"]
 

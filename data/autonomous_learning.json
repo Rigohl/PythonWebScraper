@@ -272,6 +272,32 @@
       "last_updated": 1757044774.6806455,
       "content_types": {},
       "best_strategies": []
+    },
+    {
+      "domain": "localhost:59131",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.2226509342500002,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757065324.2001054,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:59193",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.18067798487500014,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757065357.8527613,
+      "content_types": {},
+      "best_strategies": []
     }
   ],
   "patterns": {
@@ -295,7 +321,9 @@
     "localhost:49786": [],
     "localhost:49853": [],
     "localhost:51617": [],
-    "code.visualstudio.com": []
+    "code.visualstudio.com": [],
+    "localhost:59131": [],
+    "localhost:59193": []
   },
-  "last_save": 1757044774.6806455
+  "last_save": 1757065409.5402567
 }
