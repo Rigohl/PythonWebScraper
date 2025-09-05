@@ -51,6 +51,7 @@ from .plugin_manager import PluginManager
 import time
 from .code_introspection import CodeIntrospectionEngine
 from .autonomous_learning import KnowledgeSeeder
+from .curiosity import CuriositySystem
 # Self-update engine (to be created) provides analysis & suggestions
 try:
     from .self_update_engine import SelfUpdateEngine
@@ -485,6 +486,9 @@ class HybridBrain:
         except Exception as e:
             logger.warning(f"Some advanced AI modules failed to load: {e}")
             self.learning_orchestrator = None
+
+        # Inicializar sistema de curiosidad
+        self._initialize_curiosity_system()
 
         logger.info("🧠 HybridBrain initialized with Unified Neural Architecture + Legacy Systems")
 
@@ -993,7 +997,6 @@ class HybridBrain:
             if backoff_suggestion:
                 # Obtener conocimiento relacionado
                 kb_ref_id = "scraping:respect-delays"
-                kb_snippet = self.knowledge_base.get(kb_ref_id)
                 kb_snippet = self.knowledge_base.get(kb_ref_id)
                 kb_title = kb_snippet.get('title', 'N/A') if kb_snippet else 'N/A'
 
@@ -1685,9 +1688,6 @@ class HybridBrain:
         }
 
     def reason_declaratively(self, domain_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Razonamiento declarativo usando rule engine.
-
-        domain_data ejemplo:
           {
             'domain': 'example.com',
             'error_rate': 0.7,
@@ -1843,7 +1843,7 @@ class HybridBrain:
         return self.cdp_browser
 
     def record_learning_session(self, url: str, success: bool, patterns: List[str],
-                               improvements: Dict[str, Any] = None):
+                                                              improvements: Dict[str, Any] = None):
         """Registra una sesión de aprendizaje en el orquestador"""
         if not self.learning_orchestrator:
             return

@@ -130,14 +130,21 @@ class Settings(BaseSettings):
     # Accelerated test mode (skips network HEAD prequalification & long stealth)
     FAST_TEST_MODE: bool = False
 
-    # --- Hybrid Brain / Intelligence Configuration ---
-    # Intelligence is always active - the scraper is always "thinking"
-    HYBRID_BRAIN_ENABLED: bool = True  # HybridBrain always active
-    CONSCIOUSNESS_ENABLED: bool = True  # Neural consciousness always on
-    CONTINUOUS_LEARNING_ENABLED: bool = True  # Auto-learning always active
-    INTELLIGENCE_INTEGRATION_MODE: str = "unified"  # "unified", "legacy", "hybrid"
-    NEURAL_ACTIVITY_THRESHOLD: float = 0.6  # Consciousness activation threshold
-    BACKGROUND_PROCESSING_ENABLED: bool = True  # Background neural cycles
+    # --- Curiosity / Proactivity Configuration ---
+    # Curiosity system for making the brain proactive and aware
+    CURIOSITY_ENABLED: bool = False  # Master toggle for curiosity features
+    CURIOSITY_EMBEDDINGS_ENABLED: bool = True  # Use embeddings for novelty detection
+    CURIOSITY_VECTOR_STORE: str = "sqlite"  # "faiss" or "sqlite" for vector storage
+    CURIOSITY_NOVELTY_THRESHOLD: float = 0.7  # Similarity threshold for novelty (0-1)
+    CURIOSITY_RATE_LIMIT_MINUTES: int = 15  # Minimum minutes between curiosity notifications
+    CURIOSITY_MAX_NOTIFICATIONS_PER_HOUR: int = 4  # Max notifications per hour
+    CURIOSITY_UI_PRESENCE_CHECK: bool = True  # Check if TUI is open before notifying
+    CURIOSITY_ADVISORY_ONLY: bool = True  # Never auto-execute actions, only advise
+    CURIOSITY_EMBEDDING_MODEL: str = "text-embedding-3-small"  # OpenAI embedding model
+    CURIOSITY_EMBEDDING_DIMENSIONS: int = 1536  # Dimensions for embeddings
+    CURIOSITY_MEMORY_RETENTION_DAYS: int = 30  # Days to keep curiosity memories
+    CURIOSITY_INTRINSIC_REWARD_WEIGHT: float = 0.3  # Weight for intrinsic motivation
+    CURIOSITY_EXTRINSIC_REWARD_WEIGHT: float = 0.7  # Weight for extrinsic rewards
 
     # --- RL Agent configuration ---
     RL_MODEL_PATH: str = "models/rl_agent_model.pkl"

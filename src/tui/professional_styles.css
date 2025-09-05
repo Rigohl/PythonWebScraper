@@ -586,7 +586,7 @@ Input:focus {
   border: thick #00ff00;
 }
 
-Input:invalid {
+Input.error {
   border: solid #ff0000;
   background: #440000;
 }

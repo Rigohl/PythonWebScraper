@@ -1,8 +1,5 @@
 import logging
 import os
-from typing import List
-
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit,
     QPushButton, QTextEdit, QLabel, QSpinBox, QCheckBox, QStatusBar, QGroupBox,
@@ -50,7 +47,8 @@ class MainWindow(QMainWindow):
         control_layout.addWidget(self._labeled("Concurrency", self.concurrency_spin))
 
         self.respect_robots_cb = QCheckBox("Respect robots.txt")
-        self.respect_robots_cb.setChecked(True)
+        # Default OFF (unchecked) per requirement: user can enable manually
+        self.respect_robots_cb.setChecked(False)
         control_layout.addWidget(self.respect_robots_cb)
 
         self.use_rl_cb = QCheckBox("Use Reinforcement Learning")
