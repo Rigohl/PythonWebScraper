@@ -119,6 +119,35 @@ async def run_crawler(
 
     logger.info(f"🧠 HybridBrain initialized - Mode: {settings.INTELLIGENCE_INTEGRATION_MODE}, Consciousness: {settings.CONSCIOUSNESS_ENABLED}")
 
+    # 🧠 Initialize brain monitoring and omniscient observation
+    try:
+        # Realizar observación inicial del proyecto
+        initial_observations = hybrid_brain.observe_project_state()
+        logger.info(f"🧠 Brain initial project observation completed - Health: {initial_observations.get('raw_observations', {}).get('project_health', {}).get('overall_health', 'unknown')}")
+
+        # Si el cerebro detecta que necesita hacer modificaciones, las evalúa
+        brain_assessment = initial_observations.get('brain_assessment', {})
+        if brain_assessment.get('modifications_needed', False):
+            logger.info(f"🧠 Brain detected {len(brain_assessment.get('recommendations', []))} potential optimizations")
+
+            # El cerebro toma decisión autónoma sobre las modificaciones
+            autonomous_decision = hybrid_brain.make_autonomous_decision({
+                'context': 'crawler_initialization',
+                'observations': initial_observations,
+                'risk_level': 'low',
+                'user_request': 'ensure_optimal_intelligence'
+            })
+
+            logger.info(f"🧠 Brain autonomous decision: {autonomous_decision.get('action_taken', 'no_action')}")
+
+        # Configurar monitoreo continuo
+        hybrid_brain._start_continuous_monitoring()
+        logger.info("🧠 Brain continuous monitoring activated - Brain will observe and protect project autonomously")
+
+    except Exception as e:
+        logger.warning(f"🧠 Brain monitoring initialization failed: {e}")
+        # El sistema continúa funcionando sin monitoreo
+
     # Launch browser and run orchestrator
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)

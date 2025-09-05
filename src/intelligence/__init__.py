@@ -38,6 +38,15 @@ try:
         IntelligenceIntegration,
         intelligent_scraper_decorator
     )
+    
+    # Knowledge and autonomous learning systems
+    from .knowledge_store import KnowledgeStore
+    from .autonomous_learning import KnowledgeSeeder, AutonomousPatchGenerator
+    from .neural_brain import NeuralBrain
+    from .advanced_reasoning import AdvancedReasoningSystem
+    from .advanced_memory import AdvancedMemorySystem
+    from .emotional_brain import EmotionalBrain
+    from .metacognitive_brain import MetacognitiveBrain
 
     # Singleton function for hybrid integration
     def get_intelligence_integration() -> IntelligenceIntegration:
@@ -67,7 +76,16 @@ try:
         # Integration layer
         'IntelligenceIntegration',
         'get_intelligence_integration',
-        'intelligent_scraper_decorator'
+        'intelligent_scraper_decorator',
+        # Knowledge and learning systems
+        'KnowledgeStore',
+        'KnowledgeSeeder',
+        'AutonomousPatchGenerator',
+        'NeuralBrain',
+        'AdvancedReasoningSystem',
+        'AdvancedMemorySystem',
+        'EmotionalBrain',
+        'MetacognitiveBrain'
     ]
 
 except ImportError as e:

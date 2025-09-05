@@ -293,6 +293,54 @@ class NeuralBrain:
                 plasticity=random.uniform(0.005, 0.02)
             )
 
+    # =============================
+    # Stubs de compatibilidad
+    # =============================
+    def process_distributed(self, input_data: Dict[str, Any] = None, clusters: list = None, **kwargs) -> Dict[str, Any]:
+        """Stub de compatibilidad: procesamiento distribuido sincrónico simple."""
+        # Usar input_data si se proporciona, sino usar kwargs por compatibilidad
+        stimulus = input_data or kwargs.get('stimulus', {})
+
+        try:
+            # Simular procesamiento distribuyendo a clusters básicos si existen
+            responses = {}
+            target_clusters = clusters or ['default']
+
+            for cluster_id in target_clusters:
+                try:
+                    # Simular procesamiento en cada cluster
+                    cluster_response = {
+                        'cluster_id': cluster_id,
+                        'processed_stimulus': stimulus,
+                        'activation_level': 0.7,
+                        'timestamp': datetime.now().isoformat()
+                    }
+                    responses[cluster_id] = cluster_response
+                except Exception:
+                    continue
+
+            return {
+                'distributed_responses': responses,
+                'status': 'simulated',
+                'total_clusters': len(target_clusters)
+            }
+        except Exception as e:
+            return {'error': str(e), 'status': 'failed'}
+
+    def get_active_neuron_count(self) -> int:
+        """Stub seguro que cuenta neuronas activas estimando por cluster_activation."""
+        try:
+            count = 0
+            for cluster in getattr(self, 'clusters', {}).values():
+                # cluster_activation aproximada si existe atributo
+                activation = getattr(cluster, 'cluster_activation', 0)
+                # Suponemos número de neuronas * activación
+                if hasattr(cluster, 'neurons'):
+                    count += int(len(cluster.neurons) * activation)
+            return count
+        except Exception:
+            return 0
+
     async def process_thought(self, stimulus: Dict[str, Any]) -> Dict[str, Any]:
         """Procesa un pensamiento completo a través de toda la red neuronal"""
 

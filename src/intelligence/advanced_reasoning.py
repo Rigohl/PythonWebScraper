@@ -39,6 +39,10 @@ class LogicalStatement:
     timestamp: float = field(default_factory=time.time)
     source: str = "inference"
 
+# Fábrica para crear el sistema avanzado de razonamiento
+def create_advanced_reasoning_system(*args, **kwargs):
+    return AdvancedReasoningSystem(*args, **kwargs)
+
 @dataclass
 class Rule:
     """Regla lógica con antecedentes y consecuentes"""
@@ -849,6 +853,40 @@ class AdvancedReasoningSystem:
         ]
 
         return insights
+
+    def integrated_reasoning(self, query: str, context: Dict[str, Any], reasoning_types: List[str] = None) -> Dict[str, Any]:
+        """Razonamiento integrado que acepta query, context y tipos de razonamiento"""
+        # Convertir strings a enum types
+        enum_types = []
+        if reasoning_types:
+            for rt in reasoning_types:
+                try:
+                    enum_types.append(ReasoningType(rt))
+                except ValueError:
+                    logger.warning(f"Unknown reasoning type: {rt}")
+
+        # Crear problema estructurado
+        problem = {
+            'query': query,
+            'context': context,
+            'type': 'integrated_analysis'
+        }
+
+        # Usar el método reason_about existente
+        result = self.reason_about(problem, enum_types or None)
+
+        # Formato de retorno esperado
+        return {
+            'query': query,
+            'integrated_response': {
+                'conclusion': result.get('integrated_conclusion', 'No conclusion reached'),
+                'confidence': result.get('confidence', 0.0),
+                'reasoning_breakdown': result.get('reasoning_results', {}),
+                'conscious_access': result.get('confidence', 0.0) > self.confidence_threshold
+            },
+            'reasoning_types_used': reasoning_types or ['deductive', 'inductive', 'abductive'],
+            'timestamp': result.get('timestamp', time.time())
+        }
 
 # Función de fábrica
 def create_reasoning_system() -> AdvancedReasoningSystem:

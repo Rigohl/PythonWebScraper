@@ -44,6 +44,50 @@ class MLScrapingIntelligence:
 
         self._load_data()
 
+    def _load_data(self):
+        """Carga datos de inteligencia ML desde archivo o inicializa estructura base"""
+        import os
+        import json
+
+        try:
+            if os.path.exists(self.data_path):
+                with open(self.data_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self.site_features = data.get('site_features', {})
+                    self.strategy_performance = data.get('strategy_performance', {})
+                    self.learning_history = data.get('learning_history', [])
+            else:
+                # Crear estructura base si no existe
+                os.makedirs(os.path.dirname(self.data_path), exist_ok=True)
+                self._save_data()
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Error loading ML intelligence data: {e}, using defaults")
+            # Usar valores por defecto en caso de error
+            self.site_features = {}
+            self.strategy_performance = {}
+            self.learning_history = []
+
+    def _save_data(self):
+        """Guarda datos de inteligencia ML a archivo"""
+        import json
+        import os
+
+        try:
+            os.makedirs(os.path.dirname(self.data_path), exist_ok=True)
+            data = {
+                'site_features': self.site_features,
+                'strategy_performance': self.strategy_performance,
+                'learning_history': self.learning_history
+            }
+            with open(self.data_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error saving ML intelligence data: {e}")
+
     def extract_site_features(self, url: str, html: str, response_time: float,
                             status_code: int) -> Dict[str, float]:
         """Extrae features ML de un sitio web"""
