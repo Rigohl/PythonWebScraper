@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-09-05T04:19:30.973372",
+  "total_tests": 6,
+  "passed_tests": 4,
+  "results": {
+    "CLI Autónomo": true,
+    "Controlador Autónomo": true,
+    "Coordinador Autónomo": true,
+    "Integración WebScraperPRO": true,
+    "CLI Help": false,
+    "Importación Componentes": false
+  },
+  "status": "FAILURE"
+}

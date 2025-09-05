@@ -98,6 +98,11 @@ async def main():
         action="store_true",
         help="Use reinforcement learning agent"
     )
+    parser.add_argument(
+        "--hot-reload",
+        action="store_true",
+        help="Enable hot reloading of scraper modules"
+    )
 
     args = parser.parse_args()
 
@@ -117,7 +122,8 @@ async def main():
             db_path=args.db_path,
             concurrency=args.concurrency,
             respect_robots_txt=args.respect_robots,
-            use_rl=args.use_rl
+            use_rl=args.use_rl,
+            hot_reload=args.hot_reload
         )
     elif args.export_csv:
         await export_to_csv(args.export_csv, args.db_path)

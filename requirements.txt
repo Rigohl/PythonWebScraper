@@ -3,6 +3,7 @@ playwright
 pydantic
 pydantic-settings
 textual
+watchdog
 
 # Scraping & Parsing
 beautifulsoup4
@@ -48,3 +49,6 @@ jinja2
 # Intelligent Search & Async Support
 aiohttp
 asyncio
+
+# Hot reloading support
+watchdog

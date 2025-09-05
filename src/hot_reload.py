@@ -22,7 +22,7 @@ class ScraperReloader(FileSystemEventHandler):
     def on_modified(self, event):
         if not isinstance(event, FileModifiedEvent):
             return
-            
+
         if not event.src_path.endswith('.py'):
             return
 
@@ -73,25 +73,27 @@ def reload_module(module_path: str) -> bool:
     try:
         # Convert file path to module name
         module_path = os.path.abspath(module_path)
-        module_dir = os.path.dirname(module_path)
-        if module_dir not in sys.path:
-            sys.path.insert(0, module_dir)
+        src_index = module_path.find('src')
+        if src_index == -1:
+            logger.warning(f"Not a src module: {module_path}")
+            return False
 
-        module_name = os.path.splitext(os.path.basename(module_path))[0]
-        
-        # Find loaded module
-        loaded_module = None
-        for name, module in sys.modules.items():
-            if name.endswith(module_name):
-                loaded_module = module
-                break
+        # Convert to proper module path
+        module_name = module_path[src_index:].replace(os.sep, '.').replace('.py', '')
 
-        if loaded_module:
-            importlib.reload(loaded_module)
+        # Force reload all related modules
+        for name in list(sys.modules.keys()):
+            if name.startswith(module_name):
+                del sys.modules[name]
+
+        # Import and reload
+        try:
+            module = importlib.import_module(module_name)
+            importlib.reload(module)
             logger.info(f"Successfully reloaded module: {module_name}")
             return True
-        else:
-            logger.warning(f"Module not found in sys.modules: {module_name}")
+        except ImportError:
+            logger.warning(f"Could not import module: {module_name}")
             return False
 
     except Exception as e:

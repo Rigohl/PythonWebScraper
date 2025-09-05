@@ -26,6 +26,7 @@ import json
 from typing import Dict, Any, List, Optional
 
 from ..intelligence import language_utils
+from ..intelligence.hybrid_brain import HybridBrain
 
 class ChatOverlay(Static):
     """Overlay flotante de chat persistente (bilingüe)."""
@@ -82,7 +83,7 @@ class ChatOverlay(Static):
             return
         self.post_message(self.ChatMessage(text))
         input_box.value = ""
-    
+
     def add_response(self, user_text: str, es: str, en: str):
         log = self.query_one("#chat_log", TextLog)
         log.write(f"[cyan][Tú][/]: {user_text}")
@@ -150,6 +151,7 @@ class WebScraperProfessionalApp(App):
         self.metrics_data = {}
         self.start_time = None
         self.console = Console()
+        self._brain: Optional[HybridBrain] = None
 
     def compose(self) -> ComposeResult:
         """Compone la interfaz principal"""
@@ -162,27 +164,27 @@ class WebScraperProfessionalApp(App):
 
             # Tab 1: Dashboard Principal
             with TabPane("🏠 Dashboard", id="dashboard-tab"):
-                yield self._create_dashboard_view()
+                self._create_dashboard_view()
 
             # Tab 2: Control de Scraping
             with TabPane("🕷️ Scraper Control", id="scraper-tab"):
-                yield self._create_scraper_control_view()
+                self._create_scraper_control_view()
 
             # Tab 3: Inteligencia IA
             with TabPane("🧠 AI Intelligence", id="intelligence-tab"):
-                yield self._create_intelligence_view()
+                self._create_intelligence_view()
 
             # Tab 4: Monitoreo en Tiempo Real
             with TabPane("📊 Real-Time Monitor", id="monitor-tab"):
-                yield self._create_monitoring_view()
+                self._create_monitoring_view()
 
             # Tab 5: Exportación y Reportes
             with TabPane("📤 Export & Reports", id="export-tab"):
-                yield self._create_export_view()
+                self._create_export_view()
 
             # Tab 6: Configuración Avanzada
             with TabPane("⚙️ Advanced Config", id="config-tab"):
-                yield self._create_config_view()
+                self._create_config_view()
 
         # Footer con información del sistema
         yield Footer()
@@ -484,6 +486,10 @@ class WebScraperProfessionalApp(App):
                 overlay = ChatOverlay(id="chat_overlay")
                 await self.mount(overlay)
                 self._chat_visible = True
+                # Inicio de inicialización temprana del cerebro
+                log = overlay.query_one("#chat_log", TextLog)
+                log.write("[dim]Inicializando HybridBrain…[/]")
+                await self._ensure_brain_initialized(log)
         except Exception as e:
             logger.error(f"No se pudo montar ChatOverlay: {e}")
 
@@ -491,12 +497,43 @@ class WebScraperProfessionalApp(App):
         """Procesa mensajes del chat."""
         user_text = message.user_text
         try:
+            overlay: ChatOverlay = self.query_one("ChatOverlay")  # type: ignore
+            log = overlay.query_one("#chat_log", TextLog)
+
+            # Comandos (prefijo /)
+            if user_text.startswith('/'):
+                await self._process_chat_command(user_text[1:], overlay, log)
+                return
+
             lang, enriched_es, enriched_en = language_utils.enrich_text_bilingual(user_text)
-            # Placeholder cerebro: aquí se podría consultar knowledge base
-            # Para ahora, devolvemos enriquecido + eco contextual
-            response_es = f"{enriched_es} | Procesado por IA híbrida"
-            response_en = f"{enriched_en} | Processed by hybrid AI"
-            self.query_one("ChatOverlay").add_response(user_text, response_es, response_en)  # type: ignore
+            await self._ensure_brain_initialized(log)
+
+            kb_summary_es = kb_summary_en = ""
+            numbered_lines_es: List[str] = []
+            numbered_lines_en: List[str] = []
+            if self._brain:
+                try:
+                    kb_results = self._brain.query_knowledge_base(user_text)
+                    if kb_results:
+                        for idx, r in enumerate(kb_results[:5], start=1):
+                            title = r.get('title') or r.get('id','') or 'sin_titulo'
+                            numbered_lines_es.append(f"{idx}. {title}")
+                            numbered_lines_en.append(f"{idx}. {title}")
+                        kb_summary_es = "\n[KB] Coincidencias:\n" + "\n".join(numbered_lines_es)
+                        kb_summary_en = "\n[KB] Matches:\n" + "\n".join(numbered_lines_en)
+                    else:
+                        kb_summary_es = "\n[KB] Sin resultados relevantes"
+                        kb_summary_en = "\n[KB] No relevant results"
+                except Exception as kb_e:
+                    kb_summary_es = f"\n[KB] Error: {kb_e}"
+                    kb_summary_en = f"\n[KB] Error: {kb_e}"
+            else:
+                kb_summary_es = "\n[KB] Cerebro no disponible"
+                kb_summary_en = "\n[KB] Brain unavailable"
+
+            response_es = f"{enriched_es}{kb_summary_es}"
+            response_en = f"{enriched_en}{kb_summary_en}"
+            overlay.add_response(user_text, response_es, response_en)
         except Exception as e:
             try:
                 self.query_one("#chat_log", TextLog).write(f"[red]Error IA: {e}[/]")
@@ -513,6 +550,75 @@ class WebScraperProfessionalApp(App):
                 overlay.add_class("chat-hidden")
         except Exception as e:
             logger.error(f"toggle_chat error: {e}")
+
+    async def _ensure_brain_initialized(self, log: Optional[TextLog] = None):
+        if self._brain is not None:
+            return
+        try:
+            self._brain = HybridBrain()
+            if log:
+                log.write("[green]HybridBrain listo.[/]")
+        except Exception as e:
+            if log:
+                log.write(f"[red]Fallo iniciando HybridBrain: {e}[/]")
+            logger.error(f"Error inicializando HybridBrain: {e}")
+
+    async def _process_chat_command(self, command_text: str, overlay: ChatOverlay, log: TextLog):
+        """Procesa comandos del chat (/crawl, /kb, /snapshot, /help)."""
+        parts = command_text.strip().split(maxsplit=1)
+        cmd = parts[0].lower()
+        arg = parts[1].strip() if len(parts) > 1 else ""
+
+        if cmd in ("help", "ayuda"):
+            log.write("[yellow]/help[/] comandos disponibles:\n/crawl URL - inicia scraping\n/kb QUERY - consulta base de conocimiento\n/snapshot - genera snapshot del cerebro\n/stop - detiene scraping\n/status - estado actual scraping\n/help - esta ayuda")
+            return
+        if cmd == "crawl":
+            if not arg:
+                log.write("[red]Uso: /crawl URL[/]")
+                return
+            self.query_one("#start_url_input", Input).value = arg
+            self.action_start_scraping()
+            log.write(f"[green]Orden recibida: iniciar scraping en {arg}[/]")
+            return
+        if cmd == "stop":
+            self.action_stop_scraping()
+            log.write("[red]Scraping detenido por comando usuario[/]")
+            return
+        if cmd == "status":
+            active = "ACTIVO" if self.scraping_active else "INACTIVO"
+            log.write(f"[cyan]Estado scraping: {active} - URLs: {self.total_urls_processed}[/]")
+            return
+        if cmd == "kb":
+            if not arg:
+                log.write("[red]Uso: /kb consulta[/]")
+                return
+            await self._ensure_brain_initialized(log)
+            if self._brain:
+                try:
+                    results = self._brain.query_knowledge_base(arg) or []
+                    if results:
+                        lines = []
+                        for i, r in enumerate(results[:5], 1):
+                            title = r.get('title') or r.get('id','') or 'sin_titulo'
+                            lines.append(f"{i}. {title}")
+                        log.write("[magenta]KB Results:\n" + "\n".join(lines) + "[/]")
+                    else:
+                        log.write("[magenta]KB: sin resultados[/]")
+                except Exception as ke:
+                    log.write(f"[red]KB error: {ke}[/]")
+            return
+        if cmd == "snapshot":
+            await self._ensure_brain_initialized(log)
+            if self._brain:
+                try:
+                    snapshot = self._brain.get_snapshot() if hasattr(self._brain, 'get_snapshot') else {}
+                    summary = snapshot.get('meta', {}).get('summary', 'snapshot listo') if isinstance(snapshot, dict) else 'snapshot generado'
+                    log.write(f"[green]Snapshot generado: {summary}[/]")
+                except Exception as se:
+                    log.write(f"[red]Error snapshot: {se}[/]")
+            return
+        # Comando no reconocido
+        log.write(f"[red]Comando no reconocido: /{cmd} (usa /help) [/]")
 
     async def _initialize_domain_table(self):
         """Inicializa la tabla de estadísticas por dominio"""
