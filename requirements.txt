@@ -1,17 +1,25 @@
-dataset
-html2text
+# Core
 playwright
-readability-lxml
 pydantic
-httpx
-imagehash
-robotexclusionrulesparser
-playwright-stealth
 pydantic-settings
-pydantic-settings
+textual
 
-# Development dependencies
-pre-commit==3.7.0
-black==24.4.2
-isort==5.13.2
-flake8==7.0.0
+# Scraping & Parsing
+beautifulsoup4
+readability-lxml
+html2text
+httpx
+robotexclusionrulesparser
+
+# Evasion, AI & ML
+playwright-stealth
+imagehash
+Pillow
+numpy
+instructor
+openai
+stable-baselines3[extra]
+gymnasium
+
+# Database
+dataset

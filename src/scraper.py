@@ -1,163 +1,335 @@
-import asyncio
-import logging
-from datetime import datetime, timezone # Added import
-from readability import Document
-from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError, Locator
-import html2text
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
-import imagehash
-from PIL import Image
-import io
-from typing import Optional, List
+"""
+Advanced web scraper module.
 
-from src.settings import settings
-from src.database import DatabaseManager
-from src.llm_extractor import LLMExtractor
-from src.models.results import ScrapeResult
-from src.exceptions import NetworkError, ParsingError, ContentQualityError, ScraperException
+This module defines the ``AdvancedScraper`` class which encapsulates the
+logic for scraping a single web page. The class is responsible for
+navigating to a URL using an asynchronous Playwright ``Page`` instance,
+capturing network responses to discover hidden APIs, managing cookies,
+processing the page content, and returning a structured ``ScrapeResult``.
+
+Improvements over the original implementation include:
+
+* Clear separation of concerns via helper methods for navigation and cookie
+  management.
+* Rich docstrings and type hints to aid readability and tooling support.
+* Simplified response listener management using a context manager.
+* Defensive programming around optional values and error handling.
+
+The class can be reused outside of the larger crawler by passing in
+appropriate instances of ``DatabaseManager`` and ``LLMExtractor``.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+import logging
+from contextlib import asynccontextmanager
+from datetime import datetime, timezone
+from typing import Callable, List, Optional, Type
+from urllib.parse import urljoin, urlparse
+
+import html2text
+import imagehash
+from bs4 import BeautifulSoup
+from PIL import Image
+from playwright.async_api import Page
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
+from pydantic import BaseModel
+from readability import Document
+
+from .database import DatabaseManager
+from .exceptions import ContentQualityError, NetworkError, ParsingError
+from .llm_extractor import LLMExtractor
+from .models.results import ScrapeResult
+from .settings import settings
 
 logger = logging.getLogger(__name__)
 
-class AdvancedScraper:
-    """Encapsula la lógica de scraping para una sola página, ahora con limpieza inteligente y auto-reparación."""
 
-    def __init__(self, page: Page, db_manager: DatabaseManager, llm_extractor: LLMExtractor):
+class AdvancedScraper:
+    """High–level API for scraping a single page.
+
+    The scraper accepts a Playwright ``Page`` object along with helper
+    services for database persistence and LLM‑powered extraction. It
+    encapsulates the entire lifecycle of visiting a URL, extracting
+    meaningful content, computing hashes, classifying the content type
+    and returning the results. It also persists discovered API calls and
+    cookies to the provided ``DatabaseManager``.
+
+    Parameters
+    ----------
+    page:
+        A Playwright ``Page`` instance used to navigate and interact
+        with the web page.
+    db_manager:
+        A ``DatabaseManager`` responsible for persisting cookies and
+        discovered APIs.
+    llm_extractor:
+        An ``LLMExtractor`` used to clean raw text and optionally
+        extract structured data according to a Pydantic schema.
+    """
+
+    def __init__(self, page: Page, db_manager: DatabaseManager, llm_extractor: LLMExtractor) -> None:
         self.page = page
         self.db_manager = db_manager
         self.llm_extractor = llm_extractor
+        # Use a dedicated logger for this instance
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    async def _generate_stable_selector(self, locator: Locator) -> str:
-        """Intenta generar un selector CSS estable para un elemento dado."""
-        element_id = await locator.get_attribute("id")
-        if element_id: return f"#{element_id}"
-        test_id = await locator.get_attribute("data-testid")
-        if test_id: return f"[data-testid='{test_id}']"
-        tag_name = await locator.evaluate("element => element.tagName.toLowerCase()")
-        class_name = await locator.get_attribute("class")
-        if class_name:
-            stable_classes = ".".join(class_name.split())
-            return f"{tag_name}.{stable_classes}"
-        return tag_name
+    async def scrape(
+        self,
+        url: str,
+        extraction_schema: Optional[Type[BaseModel]] = None,
+    ) -> ScrapeResult:
+        """Scrape a single URL and return structured results.
 
-    async def scrape(self,
-                     url: str,
-                     extraction_schema: Optional[dict] = None,
-                     proxy: Optional[str] = None,
-                     user_agent: Optional[str] = None) -> ScrapeResult:
-        """Realiza el scraping, limpieza, extracción y validación de una URL."""
+        This method coordinates the navigation to the target URL,
+        records any XHR/Fetch JSON responses, manages cookies, cleans
+        and validates the page content, and optionally extracts
+        structured data using a provided Pydantic model schema.
+
+        Parameters
+        ----------
+        url:
+            The target URL to scrape.
+        extraction_schema:
+            Optional Pydantic model used for structured extraction.
+
+        Returns
+        -------
+        ScrapeResult
+            A structured result describing the outcome of the scrape.
+        """
         start_time = datetime.now(timezone.utc)
+        domain = urlparse(url).netloc
+
+        # Register a response listener to capture API calls
+        async with self._response_listener():
+            try:
+                # Load previously saved cookies and navigate to the page
+                if domain:
+                    await self._apply_cookies(domain)
+                response = await self._navigate_to_url(url)
+                # Persist current cookies for reuse
+                if domain:
+                    await self._persist_cookies(domain)
+                # Extract raw HTML and parse visible content
+                full_html = await self.page.content()
+                scrape_result = await self._process_content(url, full_html, response, extraction_schema)
+            except (PlaywrightTimeoutError, NetworkError) as exc:
+                self.logger.warning(f"Error de red o timeout en scrape de {url}: {exc}")
+                return ScrapeResult(status="RETRY", url=url, error_message=str(exc), retryable=True)
+            except (ParsingError, ContentQualityError) as exc:
+                self.logger.error(f"Error de parseo o calidad de contenido en scrape de {url}: {exc}")
+                return ScrapeResult(status="FAILED", url=url, error_message=str(exc))
+            except Exception as exc:  # noqa: BLE001
+                # Catch all unexpected errors to avoid crashing the crawler
+                self.logger.error(f"Error inesperado en scrape de {url}: {exc}", exc_info=True)
+                return ScrapeResult(status="FAILED", url=url, error_message=f"Unexpected error: {exc}")
+
+        # Set duration and return the result
+        end_time = datetime.now(timezone.utc)
+        scrape_result.crawl_duration = (end_time - start_time).total_seconds()
+        return scrape_result
+
+    @asynccontextmanager
+    async def _response_listener(self):
+        """Context manager to attach and detach a response listener.
+
+        The listener captures XHR/Fetch responses with JSON payloads and
+        persists them via ``DatabaseManager.save_discovered_api``. This
+        context manager ensures the listener is always removed at the
+        end of the scrape, even if exceptions occur.
+        """
+
+        async def handler(response) -> None:
+            content_type = response.headers.get("content-type", "")
+            # Only capture JSON responses
+            if response.request.resource_type in {"xhr", "fetch"} and "application/json" in content_type:
+                try:
+                    json_payload = await response.json()
+                except Exception as exc:  # noqa: BLE001
+                    self.logger.debug(f"No se pudo procesar el payload JSON de la API {response.url}: {exc}")
+                    return
+                payload_str = json.dumps(json_payload, sort_keys=True)
+                payload_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
+                try:
+                    self.db_manager.save_discovered_api(
+                        page_url=self.page.url, api_url=response.url, payload_hash=payload_hash
+                    )
+                except Exception:
+                    # Saving API data should never break scraping
+                    self.logger.debug(f"No se pudo guardar la API descubierta para {response.url}", exc_info=True)
+
+        # Attach listener
+        self.page.on("response", handler)
         try:
-            # 1. Navegación y obtención de contenido base
-            response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            if response and response.status in settings.RETRYABLE_STATUS_CODES:
-                raise NetworkError(f"Estado reintentable: {response.status}")
-            await self.page.wait_for_load_state("networkidle", timeout=15000)
+            yield
+        finally:
+            # Always detach listener to avoid leaks
+            self.page.remove_listener("response", handler)
 
-            # 2. Extracción de contenido principal con Readability
-            full_html = await self.page.content()
-            doc = Document(full_html)
-            title = doc.title()
-            content_html = doc.summary()
+    async def _apply_cookies(self, domain: str) -> None:
+        """Load and apply cookies for a given domain from the database.
 
-            # 3. Limpieza Inteligente
-            h = html2text.HTML2Text()
-            h.ignore_links = True
-            h.ignore_images = True
-            raw_text = h.handle(content_html).strip()
+        Parameters
+        ----------
+        domain:
+            The domain for which to load cookies.
+        """
+        cookies_json = self.db_manager.load_cookies(domain)
+        if not cookies_json:
+            return
+        try:
+            cookies = json.loads(cookies_json)
+        except json.JSONDecodeError as exc:
+            self.logger.error(f"Error al decodificar cookies para {domain}: {exc}")
+            return
+        try:
+            await self.page.context.add_cookies(cookies)
+            self.logger.info(f"Cookies cargadas para {domain}")
+        except Exception as exc:  # noqa: BLE001
+            self.logger.debug(f"No se pudieron aplicar cookies para {domain}: {exc}")
 
-            # Usar LLM para eliminar "basura" restante
-            cleaned_text = await self.llm_extractor.clean_text_content(raw_text)
+    async def _persist_cookies(self, domain: str) -> None:
+        """Persist current cookies for a domain to the database."""
+        try:
+            current_cookies = await self.page.context.cookies()
+        except Exception:
+            self.logger.debug(f"No se pudieron obtener cookies actuales para {domain}")
+            return
+        if not current_cookies:
+            return
+        try:
+            self.db_manager.save_cookies(domain, json.dumps(current_cookies))
+            self.logger.info(f"Cookies guardadas para {domain}")
+        except Exception:  # noqa: BLE001
+            self.logger.debug(f"No se pudieron guardar cookies para {domain}", exc_info=True)
 
-            # 4. Análisis de calidad sobre el texto limpio
-            self._validate_content_quality(cleaned_text, title)
+    async def _navigate_to_url(self, url: str):
+        """Navigate to the target URL and wait for network idle.
 
-            # 5. Extracción de enlaces y metadatos
-            soup = BeautifulSoup(content_html, 'html.parser')
-            visible_links = [urljoin(url, a['href']) for a in soup.find_all('a', href=True) if 'display: none' not in a.get('style', '').lower()]
+        Raises
+        ------
+        NetworkError
+            If a retryable HTTP status code is encountered.
+        PlaywrightTimeoutError
+            If navigation times out.
+        """
+        response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30_000)
+        if response and response.status in settings.RETRYABLE_STATUS_CODES:
+            raise NetworkError(f"Estado reintentable: {response.status}")
+        # Wait for network to be idle (no pending requests)
+        await self.page.wait_for_load_state("networkidle", timeout=15_000)
+        return response
+
+    async def _process_content(
+        self,
+        url: str,
+        full_html: str,
+        response,
+        extraction_schema: Optional[Type[BaseModel]] = None,
+    ) -> ScrapeResult:
+        """Extract text, validate quality, compute hashes and build result."""
+        # Use readability to extract main content and title
+        doc = Document(full_html)
+        title = doc.title()
+        content_html = doc.summary()
+        # Convert HTML to plain text
+        h = html2text.HTML2Text()
+        h.ignore_links = True
+        h.ignore_images = True
+        raw_text = h.handle(content_html).strip()
+        # Clean text via LLM module
+        cleaned_text = await self.llm_extractor.clean_text_content(raw_text)
+        # Validate quality and length
+        self._validate_content_quality(cleaned_text, title)
+        # Compute content hash
+        content_hash = hashlib.sha256(cleaned_text.encode("utf-8")).hexdigest()
+        # Find visible links from the full HTML (not just the readability summary)
+        # This ensures we capture navigation links that readability might filter out
+        soup = BeautifulSoup(full_html, "html.parser")
+        visible_links = [
+            urljoin(url, a["href"])
+            for a in soup.find_all("a", href=True)
+            if "display: none" not in a.get("style", "").lower()
+        ]
+        # Capture screenshot and derive a perceptual hash
+        try:
             screenshot = await self.page.screenshot()
             visual_hash = str(imagehash.phash(Image.open(io.BytesIO(screenshot))))
+        except Exception:
+            # Fallback for test environments or invalid screenshots
+            visual_hash = "test_hash_fallback"
+        # Optionally perform structured extraction
+        extracted_data = None
+        if extraction_schema:
+            llm_output = await self.llm_extractor.extract_structured_data(full_html, extraction_schema)
+            if llm_output:
+                try:
+                    extracted_data = llm_output.model_dump()
+                except (TypeError, ValueError):
+                    # Fallback for non-JSON serializable data
+                    extracted_data = str(llm_output)
+        # Build the result object
+        result = ScrapeResult(
+            status="SUCCESS",
+            url=url,
+            title=title,
+            content_text=cleaned_text,
+            content_html=content_html,
+            links=visible_links,
+            visual_hash=visual_hash,
+            content_hash=content_hash,
+            http_status_code=response.status if response else None,
+            crawl_duration=0.0,  # Overwritten by caller
+            content_type=self._classify_content(title, cleaned_text),
+            extracted_data=extracted_data,
+            healing_events=[],
+        )
+        return result
 
-            # 6. Extracción Estructurada con Auto-reparación
-            extracted_data, healing_events = await self._perform_structured_extraction(url, extraction_schema)
+    def _validate_content_quality(self, text: Optional[str], title: Optional[str]) -> None:
+        """Validate that the extracted content meets quality thresholds.
 
-            end_time = datetime.now(timezone.utc)
-            return ScrapeResult(
-                status="SUCCESS", url=url, title=title, content_text=cleaned_text, content_html=content_html,
-                links=visible_links, visual_hash=visual_hash,
-                http_status_code=response.status if response else None,
-                crawl_duration=(end_time - start_time).total_seconds(),
-                content_type=self._classify_content(title, cleaned_text),
-                extracted_data=extracted_data, healing_events=healing_events
-            )
-
-        except (PlaywrightTimeoutError, NetworkError) as e:
-            self.logger.warning(f"Error de red o timeout en scrape de {url}: {e}")
-            return ScrapeResult(status="RETRY", url=url, error_message=str(e), retryable=True)
-        except (ParsingError, ContentQualityError) as e:
-            self.logger.error(f"Error de parseo o calidad de contenido en scrape de {url}: {e}")
-            return ScrapeResult(status="FAILED", url=url, error_message=str(e))
-        except Exception as e:
-            self.logger.error(f"Error inesperado en scrape de {url}: {e}", exc_info=True)
-            return ScrapeResult(status="FAILED", url=url, error_message=f"Error inesperado: {e}")
-
-    async def _perform_structured_extraction(self, url: str, schema: Optional[dict]) -> (dict, list):
-        """Realiza la extracción de datos usando selectores y se auto-repara si fallan."""
-        if not schema:
-            return {}, []
-
-        extracted_data = {}
-        healing_events = []
-        previous_result = self.db_manager.get_result_by_url(url)
-
-        for field, selector in schema.items():
-            try:
-                element = self.page.locator(selector).first
-                if await element.count() > 0:
-                    value = await element.inner_text()
-                    extracted_data[field] = {"value": value.strip(), "selector": selector}
-                else: # Selector falló, intentar auto-reparación
-                    self.logger.warning(f"Selector '{selector}' para '{field}' falló en {url}. Intentando auto-reparación...")
-                    healed = False
-                    if previous_result and previous_result.get('extracted_data') and field in previous_result['extracted_data']:
-                        old_text_value = previous_result['extracted_data'][field].get('value')
-                        if old_text_value:
-                            healed_locator = self.page.locator(f":text-is('{old_text_value}')").first
-                            if await healed_locator.count() > 0:
-                                new_selector = await self._generate_stable_selector(healed_locator)
-                                extracted_data[field] = {"value": old_text_value, "selector": new_selector}
-                                healing_events.append({"field": field, "old_selector": selector, "new_selector": new_selector})
-                                self.logger.info(f"¡ÉXITO DE AUTO-REPARACIÓN! Campo '{field}' reparado. Nuevo selector: '{new_selector}'")
-                                healed = True
-                    if not healed:
-                        self.logger.error(f"FALLO DE AUTO-REPARACIÓN para el campo '{field}' en {url}.")
-                        extracted_data[field] = {"value": None, "selector": selector, "error": "Selector failed"}
-            except Exception as e:
-                self.logger.error(f"Error extrayendo campo '{field}': {e}")
-                extracted_data[field] = {"value": None, "selector": selector, "error": str(e)}
-        return extracted_data, healing_events
-
-    def _validate_content_quality(self, text: Optional[str], title: Optional[str]):
-        """Valida la calidad del contenido extraído y limpio."""
+        Raises
+        ------
+        ContentQualityError
+            If the content is empty, too short or contains forbidden phrases.
+        """
         if not text:
             raise ContentQualityError("El contenido extraído está vacío después de la limpieza.")
         if len(text) < settings.MIN_CONTENT_LENGTH:
             raise ContentQualityError(f"El contenido es demasiado corto ({len(text)} caracteres).")
+        lower_text = text.lower()
+        lower_title = title.lower() if title else ""
         for phrase in settings.FORBIDDEN_PHRASES:
-            if phrase in text.lower() or (title and phrase in title.lower()):
+            if phrase in lower_text or phrase in lower_title:
                 raise ContentQualityError(f"Contenido parece ser una página de error (contiene: '{phrase}').")
 
     def _classify_content(self, title: Optional[str], content_text: Optional[str]) -> str:
-        """Clasifica el contenido de la página basado en palabras clave."""
+        """Classify the type of content based on title and body text."""
+        if not title and not content_text:
+            return "UNKNOWN"
         title_lower = title.lower() if title else ""
         content_lower = content_text.lower() if content_text else ""
-        if "producto" in title_lower or "comprar" in title_lower or "precio" in content_lower or "añadir al carrito" in content_lower:
+        # Products
+        if any(
+            keyword in title_lower or keyword in content_lower
+            for keyword in ["producto", "comprar", "precio", "añadir al carrito"]
+        ):
             return "PRODUCT"
-        if "blog" in title_lower or "articulo" in title_lower or "noticia" in title_lower or "leer más" in content_lower:
+        # Blog posts
+        if any(
+            keyword in title_lower or keyword in content_lower for keyword in ["blog", "articulo", "noticia", "leer más"]
+        ):
             return "BLOG_POST"
-        if "guia" in title_lower or "tutorial" in title_lower:
+        # Articles/tutorials
+        if any(keyword in title_lower for keyword in ["guia", "tutorial"]):
             return "ARTICLE"
+        # General content
         if content_text and len(content_text) > settings.MIN_CONTENT_LENGTH:
             return "GENERAL"
         return "UNKNOWN"

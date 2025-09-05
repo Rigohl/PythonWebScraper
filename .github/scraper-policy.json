@@ -1,0 +1,5 @@
+{
+  "default": { "concurrency": 4, "request_delay_ms": 300, "timeout_s": 30, "max_retries": 3, "respect_robots": false },
+  "per_host": {},
+  "thresholds": { "success_min": 0.90, "rate_limit_max": 0.05, "server_error_max": 0.03 }
+}

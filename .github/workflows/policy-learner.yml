@@ -1,0 +1,28 @@
+name: Policy Learner
+on:
+  schedule: [{ cron: "30 3 * * 1" }]
+  workflow_dispatch:
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Download smoke test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nightly-artifacts
+          path: artifacts
+      - name: Update policy from last metrics
+        run: |
+          python scripts/update_policy.py
+      - name: Create PR with updated policy
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "chore(policy): actualizar scraper-policy.json (aprendizaje semanal)"
+          commit-message: "chore(policy): actualizar scraper-policy.json (aprendizaje semanal)"
+          body: "Propuesta basada en métricas del smoke. Revisa concurrencia/delay/thresholds."
+          branch: "bot/policy-update"
+          add-paths: ".github/scraper-policy.json"
+          base: "main"

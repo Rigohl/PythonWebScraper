@@ -1,0 +1,16 @@
+name: ✨ Feature request
+description: Proponer una mejora/funcionalidad
+title: "[FEATURE] "
+labels: [ "type/feature", "status/needs-triage" ]
+body:
+  - type: textarea
+    id: proposal
+    attributes: { label: Propuesta, description: ¿Qué quieres y para qué?, placeholder: "Como… quiero… para…" }
+    validations: { required: true }
+  - type: textarea
+    id: value
+    attributes: { label: Valor/Impacto, description: Métricas esperadas, riesgos, trade-offs }
+    validations: { required: true }
+  - type: textarea
+    id: alternatives
+    attributes: { label: Alternativas consideradas }

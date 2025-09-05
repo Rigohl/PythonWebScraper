@@ -83,3 +83,56 @@ Button {
     margin-top: 1;
     color: $text-muted;
 }
+
+/* Chat Widget Styles */
+#chat_container {
+    height: 100%;
+    layout: vertical;
+}
+
+.chat-title {
+    text-align: center;
+    background: $primary;
+    color: $text;
+    padding: 0 1;
+    margin-bottom: 1;
+}
+
+.chat-log {
+    height: 1fr;
+    border: round $secondary;
+    margin-bottom: 1;
+    padding: 1;
+    scrollbar-background: $surface;
+    scrollbar-color: $primary;
+}
+
+.chat-input {
+    layout: horizontal;
+    height: 3;
+    margin-bottom: 1;
+}
+
+.chat-input-field {
+    width: 1fr;
+    margin-right: 1;
+}
+
+.send-button {
+    width: 15;
+}
+
+.chat-actions {
+    layout: horizontal;
+    height: 3;
+    dock: bottom;
+}
+
+.action-button {
+    width: 1fr;
+    margin-right: 1;
+}
+
+.action-button:last-child {
+    margin-right: 0;
+}

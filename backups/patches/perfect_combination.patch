@@ -1,0 +1,67 @@
+--- a/src/database.py
++++ b/src/database.py
+@@ -30,6 +30,15 @@
+         Guarda un ScrapeResult en la base de datos.
+         Usa la URL como clave única para insertar o actualizar.
+         """
++        # C.3: Gestión de Duplicados por Contenido
++        # Si el resultado tiene un hash de contenido, comprobar si ya existe.
++        if result.content_hash:
++            existing = self.table.find_one(content_hash=result.content_hash)
++            # Si existe y no es la misma URL (para evitar marcar como duplicado en un re-scrapeo de la misma página)
++            if existing and existing['url'] != result.url:
++                logger.info(f"Contenido duplicado detectado para {result.url}. Original: {existing['url']}. Marcando como DUPLICATE.")
++                result.status = "DUPLICATE"
++
+         data = result.model_dump(mode='json')
+
+         # Serializa la lista de enlaces a un string JSON
+--- a/src/models/results.py
++++ b/src/models/results.py
+@@ -19,6 +19,7 @@
+     healing_events: Optional[List[dict]] = None
+
+     # Metadata and metrics
++    content_hash: Optional[str] = None
+     visual_hash: Optional[str] = None
+     error_message: Optional[str] = None
+     retryable: bool = False
+--- a/src/orchestrator.py
++++ b/src/orchestrator.py
+@@ -348,6 +348,34 @@
+         except Exception as e:
+             self.logger.error(f"No se pudo comparar el hash visual para {new_result.url}: {e}")
+
++    async def _prequalify_url(self, url: str) -> tuple[bool, str]:
++        """
++        B.2: Realiza una petición HEAD para pre-calificar una URL antes de encolarla.
++        Devuelve (True, "") si es válida, o (False, "razón") si se descarta.
++        NOTA: Requiere añadir PREQUALIFICATION_ENABLED, ALLOWED_CONTENT_TYPES,
++        y MAX_CONTENT_LENGTH_BYTES a src/settings.py
++        """
++        if not getattr(settings, 'PREQUALIFICATION_ENABLED', False):
++            return True, "Prequalification disabled"
++
++        try:
++            async with httpx.AsyncClient(timeout=10) as client:
++                head_response = await client.head(url, follow_redirects=True)
++
++            content_type = head_response.headers.get('content-type', '').split(';')[0].lower()
++            allowed_types = getattr(settings, 'ALLOWED_CONTENT_TYPES', ['text/html', 'application/xhtml+xml'])
++            if content_type and content_type not in allowed_types:
++                return False, f"Content-Type no permitido: {content_type}"
++
++            content_length = head_response.headers.get('content-length')
++            max_length = getattr(settings, 'MAX_CONTENT_LENGTH_BYTES', 10_000_000) # 10MB por defecto
++            if content_length and int(content_length) > max_length:
++                return False, f"Content-Length excede el límite: {content_length} bytes"
++
++            return True, ""
++        except (httpx.RequestError, asyncio.TimeoutError) as e:
++            self.logger.warning(f"Fallo en la pre-calificación HEAD para {url}: {e}. Se permitirá por precaución.")
++            return True, f"HEAD request failed: {e}"
++
+     async def _add_links_to_queue(self, links: list[str], parent_content_type: str = "UNKNOWN"):
+         """
+         Filtra, limpia y añade nuevos enlaces a la cola de prioridad.
+*** End Patch
