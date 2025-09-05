@@ -41,7 +41,7 @@ try:
 
     # Knowledge and autonomous learning systems
     from .knowledge_store import KnowledgeStore
-    from .autonomous_learning import KnowledgeSeeder, AutonomousPatchGenerator
+    
     from .neural_brain import NeuralBrain
     from .advanced_reasoning import AdvancedReasoningSystem
     from .advanced_memory import AdvancedMemorySystem
