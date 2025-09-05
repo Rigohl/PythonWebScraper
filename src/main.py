@@ -80,7 +80,7 @@ async def main():
     parser.add_argument(
         "--db-path",
         default="data/scraper_database.db",
-        help="Database file path (default: data/scraper_database.db")
+        help="Database file path (default: data/scraper_database.db)"
     )
     parser.add_argument(
         "--respect-robots",

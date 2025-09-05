@@ -139,6 +139,26 @@ python -m src.main --help
                           AdvancedScraper
 ```
 
+### Estructura del Proyecto
+
+```text
+PythonWebScraper/
+├── src/                    # Código fuente principal
+├── tests/                  # Suite de pruebas
+├── docs/                   # Documentación técnica y desarrollo
+├── scripts/                # Scripts de utilidad y herramientas
+├── data/                   # Datos, bases de datos y archivos de ejemplo
+├── exports/                # Archivos exportados (CSV, JSON, MD)
+├── logs/                   # Archivos de log y sincronización
+├── config/                 # Configuraciones del proyecto
+├── backups/                # Respaldos y parches
+├── tools/                  # Herramientas de mantenimiento
+├── WebScraperPRO.bat      # Punto de entrada principal (Windows)
+├── WebScraperPRO.sh       # Punto de entrada principal (Linux/macOS)
+├── README.md              # Esta documentación
+└── requirements.txt       # Dependencias de producción
+```
+
 Componentes Clave:
 
 - `Orchestrator`: Concurre, prioriza, reintenta, coordina IA y RL.

@@ -1,4 +1,3 @@
-````markdown
 # Gemini Code Assist - PRO Configuration
 
 ## 1. Project Overview
