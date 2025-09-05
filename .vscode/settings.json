@@ -1,6 +1,70 @@
 {
+  // === EXISTING SETTINGS (preserved) ===
   "geminicodeassist.agentYoloMode": true,
   "python-envs.defaultEnvManager": "ms-python.python:system",
   "python-envs.pythonProjects": [],
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+
+  // === COPILOT INSIDERS OPTIMIZED CONFIG ===
+  // No es posible eliminar legítimamente límites de tokens / rate limits.
+  // Se optimiza calidad de señal, contexto y flujo de trabajo.
+
+  // --- Copilot Core & Chat ---
+  "github.copilot.inlineSuggest.enable": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.chat.showSteps": true,
+  "github.copilot.chat.acceptedPromptHistory": 150,
+  "workbench.experimental.chatAgentMode": true,
+  "github.copilot.chat.context.maxFiles": 60,
+  "github.copilot.chat.context.experimental.symbolSearch": true,
+  "github.copilot.chat.experimental.editorContext": true,
+
+  // --- Editor UX synergy ---
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggest.preview": true,
+  "editor.suggest.showStatusBar": true,
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "editor.hover.delay": 250,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.suggestSelection": "first",
+
+  // --- Code Quality & Automation ---
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.defaultFormatter": "ms-python.python",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+
+  // --- Python Specific ---
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+
+  // --- Telemetry (mínima) ---
+  "telemetry.telemetryLevel": "error",
+
+  // --- Indexing / Cleanliness ---
+  "files.exclude": {
+    "**/.git": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true
+  },
+  "search.followSymlinks": true,
+
+  // --- Security / Trust ---
+  "security.workspace.trust.enabled": true,
+  "github.copilot.filter.toggle.codeReferences": true,
+
+  // --- Chat Presentation ---
+  "chat.editor.lineInsertionMode": "below",
+  "chat.editor.responseTone": "balanced",
+
+  // --- Startup ---
+  "workbench.startupEditor": "none",
+  "github.copilot.chat.virtualTools.threshold": 128,
+  "github.copilot.chat.agent.thinkingTool": true,
+  "chat.agent.maxRequests": 100
 }

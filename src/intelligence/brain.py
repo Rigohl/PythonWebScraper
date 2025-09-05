@@ -36,27 +36,36 @@ Derived signals:
 - should_backoff(domain): if error ratio exceeds threshold in short window
 
 Persistence:
-- JSON state file at data/brain_state.json (configurable)
+- SQLite database at data/brain.db for structured data
+- JSON config at data/brain_config.json for settings
+- Thread-safe with automatic migrations
 
 Thread Safety:
-- Orchestrator interactions are async; Brain methods kept sync & cheap.
-  If future contention arises, a simple asyncio.Lock can be added.
+- Uses BrainPersistence layer for safe concurrent access
 """
 from __future__ import annotations
 
-import json
-import os
-import time
-from collections import defaultdict, deque
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
-from typing import Any, Deque, Dict, Iterable, List, Optional
-
 import logging
+import os
+from collections import defaultdict, deque
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from typing import Any, Deque, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-BRAIN_STATE_FILE = "data/brain_state.json"
+# Import the new persistence layer
+from .brain_persistence import BrainPersistence
+
+# Default file paths for persistence
+BRAIN_DB_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "brain.db")
+BRAIN_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "brain_config.json")
+BRAIN_STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "brain_state.json")
+# Ensure BRAIN_STATE_FILE is always available
+try:
+    BRAIN_STATE_FILE
+except NameError:
+    BRAIN_STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "brain_state.json")
 
 @dataclass
 class ExperienceEvent:
@@ -71,8 +80,17 @@ class ExperienceEvent:
     error_type: Optional[str] = None
 
 class Brain:
-    def __init__(self, state_file: str = BRAIN_STATE_FILE, max_recent: int = 500) -> None:
-        self.state_file = state_file
+    def __init__(
+        self,
+        db_path: str = BRAIN_DB_FILE,
+        config_path: str = BRAIN_CONFIG_FILE,
+        state_file: Optional[str] = None,
+        max_recent: int = 500,
+        **kwargs,
+    ) -> None:
+        # Backwards compatibility: allow callers to pass `state_file` keyword (used by HybridBrain/tests)
+        self.state_file = state_file or BRAIN_STATE_FILE
+        self.persistence = BrainPersistence(db_path, config_path)
         self.max_recent = max_recent
         self.recent_events: Deque[ExperienceEvent] = deque(maxlen=max_recent)
         self.domain_stats: Dict[str, Dict[str, Any]] = defaultdict(lambda: {
@@ -93,30 +111,40 @@ class Brain:
     # Persistence
     # ------------------------------------------------------------------
     def _load_state(self) -> None:
-        if not os.path.exists(self.state_file):
-            return
+        """Load brain state from persistence layer."""
         try:
-            with open(self.state_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            for ev in data.get("recent_events", [])[-self.max_recent:]:
-                self.recent_events.append(ExperienceEvent(**ev))
-            self.domain_stats.update(data.get("domain_stats", {}))
-            self.error_type_freq.update(data.get("error_type_freq", {}))
+            # Load recent events from SQLite
+            recent_events_data = self.persistence.load_recent_events(self.max_recent)
+            for event_data in recent_events_data:
+                self.recent_events.append(ExperienceEvent(**event_data))
+
+            # Load domain stats from SQLite
+            self.domain_stats.update(self.persistence.load_domain_stats())
+
+            # Load error frequencies from SQLite
+            self.error_type_freq.update(self.persistence.load_error_frequencies())
+
             logger.info("Brain state loaded: %d recent events, %d domains", len(self.recent_events), len(self.domain_stats))
         except Exception as e:
             logger.warning(f"Could not load brain state: {e}")
 
     def _persist_state(self) -> None:
+        """Persist brain state using the persistence layer."""
         if not self._dirty:
             return
         try:
-            os.makedirs(os.path.dirname(self.state_file) or ".", exist_ok=True)
-            with open(self.state_file, "w", encoding="utf-8") as f:
-                json.dump({
-                    "recent_events": [asdict(e) for e in self.recent_events],
-                    "domain_stats": self.domain_stats,
-                    "error_type_freq": self.error_type_freq,
-                }, f, indent=2, ensure_ascii=False)
+            # Persist recent events
+            for event in self.recent_events:
+                self.persistence.save_event(asdict(event))
+
+            # Persist domain stats
+            for domain, stats in self.domain_stats.items():
+                self.persistence.update_domain_stats(domain, stats)
+
+            # Persist error frequencies
+            for error_type, freq in self.error_type_freq.items():
+                self.persistence.update_error_frequency(error_type, freq)
+
             self._dirty = False
         except Exception as e:
             logger.warning(f"Failed persisting brain state: {e}")
@@ -148,6 +176,7 @@ class Brain:
         self._dirty = True
 
     def flush(self) -> None:
+        """Flush pending changes to persistence layer."""
         self._persist_state()
 
     # ------------------------------------------------------------------

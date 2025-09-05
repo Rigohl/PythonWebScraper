@@ -1008,77 +1008,64 @@ class WebScraperProfessionalApp(App):
         Args:
             file_path: Ruta del archivo a editar
             old_content: Contenido actual que se reemplazará
-            new_content: Nuevo contenido
-            log: RichLog para mostrar información
-        """
-        import os
-        import re
-        from pathlib import Path
 
-        if not file_path:
-            log.write("[red]⛔ No se especificó un archivo para editar[/]")
-            return
+            import os
+            from src.intents.recognizers import extract_edit_intent
+            from src.intents.utils import normalize_path, path_exists
 
-        # Verificar si es una ruta relativa (sin / o \)
-        if not any(c in file_path for c in ['/', '\\']):
-            # Verificar en directorios comunes
-            common_dirs = ['src', 'docs', 'config', 'data', '.']
-            found_path = None
+            if not file_path:
+                log.write("[red]⛔ No se especificó un archivo para editar[/]")
+                return
 
-            for directory in common_dirs:
-                if os.path.exists(os.path.join(directory, file_path)):
-                    found_path = os.path.join(directory, file_path)
-                    break
+            # Intent extraction and normalization
+            intent = extract_edit_intent(file_path)
+            normalized_path = normalize_path(intent.get("path") or file_path)
+            if not path_exists(normalized_path):
+                log.write(f"[red]⛔ No se encontró el archivo: {normalized_path}[/]")
+                return
 
-            if found_path:
-                file_path = found_path
+            # Por seguridad, verificar extensión
+            safe_extensions = ['.py', '.md', '.txt', '.html', '.css', '.json', '.csv', '.log']
+            if not any(normalized_path.lower().endswith(ext) for ext in safe_extensions):
+                log.write(f"[red]⛔ Por seguridad, solo se permiten editar archivos con extensiones: {', '.join(safe_extensions)}[/]")
+                return
 
-        # Verificar que el archivo existe
-        if not os.path.exists(file_path):
-            log.write(f"[red]⛔ No se encontró el archivo: {file_path}[/]")
-            return
+            try:
+                with open(normalized_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
 
-        # Por seguridad, verificar extensión
-        safe_extensions = ['.py', '.md', '.txt', '.html', '.css', '.json', '.csv', '.log']
-        if not any(file_path.lower().endswith(ext) for ext in safe_extensions):
-            log.write(f"[red]⛔ Por seguridad, solo se permiten editar archivos con extensiones: {', '.join(safe_extensions)}[/]")
-            return
-
-        try:
-            # Leer el archivo
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-
-            if old_content and new_content:
-                # Reemplazar contenido específico
-                if old_content not in content:
-                    log.write(f"[red]⛔ No se encontró el contenido a reemplazar en {file_path}[/]")
-                    return
-
-                new_file_content = content.replace(old_content, new_content)
-
-                # Verificar que se hizo un cambio
-                if new_file_content == content:
-                    log.write("[yellow]⚠️ No se realizaron cambios en el archivo[/]")
-                    return
-
-                # Escribir el nuevo contenido
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(new_file_content)
-
-                log.write(f"[green]✅ Se reemplazó texto en {file_path}[/]")
-
-            elif new_content:
-                # Agregar contenido al final del archivo
-                with open(file_path, 'a', encoding='utf-8') as f:
-                    f.write('\n' + new_content)
-
-                log.write(f"[green]✅ Se agregó contenido al final de {file_path}[/]")
-
-            else:
-                # Mostrar contenido del archivo
-                preview = content[:500] + "..." if len(content) > 500 else content
-                log.write(f"[bold cyan]📄 Contenido de {file_path}:[/]\n{preview}")
+                # Replace
+                if intent["action"] == "replace" and intent["from"] and intent["to"]:
+                    if intent["from"] not in content:
+                        log.write(f"[red]⛔ No se encontró el contenido a reemplazar en {normalized_path}[/]")
+                        return
+                    new_file_content = content.replace(intent["from"], intent["to"])
+                    if new_file_content == content:
+                        log.write("[yellow]⚠️ No se realizaron cambios en el archivo[/]")
+                        return
+                    with open(normalized_path, 'w', encoding='utf-8') as f:
+                        f.write(new_file_content)
+                    log.write(f"[green]✅ Se reemplazó texto en {normalized_path}[/]")
+                # Append
+                elif intent["action"] == "append" and intent["content"]:
+                    with open(normalized_path, 'a', encoding='utf-8') as f:
+                        f.write('\n' + intent["content"])
+                    log.write(f"[green]✅ Se agregó contenido al final de {normalized_path}[/]")
+                # Remove
+                elif intent["action"] == "remove" and intent["content"]:
+                    if intent["content"] not in content:
+                        log.write(f"[yellow]⚠️ No se encontró el contenido a eliminar en {normalized_path}[/]")
+                        return
+                    new_file_content = content.replace(intent["content"], "")
+                    with open(normalized_path, 'w', encoding='utf-8') as f:
+                        f.write(new_file_content)
+                    log.write(f"[green]✅ Se eliminó contenido en {normalized_path}[/]")
+                # Show
+                else:
+                    preview = content[:500] + "..." if len(content) > 500 else content
+                    log.write(f"[bold cyan]📄 Contenido de {normalized_path}:[/]\n{preview}")
+            except Exception as e:
+                log.write(f"[red]⛔ Error al editar el archivo: {e}[/]")
 
         except Exception as e:
             log.write(f"[red]⛔ Error al editar el archivo: {e}[/]")
@@ -1092,26 +1079,25 @@ class WebScraperProfessionalApp(App):
         """
         import subprocess
         import sys
-        import re
+        from src.intents.recognizers import extract_terminal_intent, is_blocked
+        from src.intents.utils import normalize_cmd_alias
 
         if not command:
             log.write("[red]⛔ No se especificó un comando para ejecutar[/]")
             return
 
-        # Lista de comandos peligrosos a bloquear
-        dangerous_commands = [
-            'rm -rf', 'deltree', 'format', '> /dev/null', 'del /s', 'del /q',
-            'shutdown', 'reboot', ':(){:|:&};:', 'dd', 'chmod -R 777', 'wipe',
-            'mkfs', 'fdisk', 'dd if=/dev/zero', 'overwrite', 'fork bomb'
-        ]
+        # Intent extraction and normalization
+        intent = extract_terminal_intent(command)
+        normalized_cmd = normalize_cmd_alias(command)
 
-        # Verificar comandos peligrosos
-        is_dangerous = any(re.search(re.escape(cmd), command, re.IGNORECASE) for cmd in dangerous_commands)
-        if is_dangerous:
+        # Blocked/dangerous command detection
+        if intent["is_destructive"] or is_blocked(command):
             log.write("[red]⛔ Comando potencialmente peligroso detectado. Ejecución bloqueada.[/]")
+            log.write("[dim]Por seguridad, solo se permiten comandos informativos y de lectura.[/]")
+            log.write(f"[dim]Motivo: {', '.join(intent['reason'])} | Tokens: {', '.join(intent['danger_tokens'])}[/]")
             return
 
-        # Verificar que solo se ejecuten comandos seguros o informativos
+        # Only allow safe/informative commands
         safe_command_prefixes = [
             'echo', 'dir', 'ls', 'pwd', 'cd', 'type', 'cat', 'more', 'less',
             'find', 'where', 'whoami', 'hostname', 'ipconfig', 'ifconfig',
@@ -1121,8 +1107,7 @@ class WebScraperProfessionalApp(App):
             'python --version', 'pip --version', 'npm list', 'npm --version',
             'node --version', 'help'
         ]
-
-        if not any(command.lower().startswith(prefix.lower()) for prefix in safe_command_prefixes):
+        if not any(normalized_cmd.startswith(prefix.lower()) for prefix in safe_command_prefixes):
             log.write(f"[yellow]⚠️ Por seguridad, solo se permiten comandos informativos o de lectura.[/]")
             log.write(f"[yellow]Comandos permitidos: {', '.join(safe_command_prefixes)}[/]")
             return
