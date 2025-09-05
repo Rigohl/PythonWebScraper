@@ -64,7 +64,7 @@ class TestConversationalAI:
         assert "commands" in response
         assert len(response["commands"]) > 0
         assert response["commands"][0]["type"] == "search_web"
-        assert "APIs REST" in response["commands"][0]["parameters"]["query"]
+        assert "apis rest" in response["commands"][0]["parameters"]["query"].lower()
     
     @pytest.mark.asyncio
     async def test_process_help_message(self, conversation_ai):

@@ -1,0 +1,44 @@
+{
+  "bots": [
+    {
+      "id": "9beeb8b0-41e3-4fb9-a7be-680d1eaeff4b",
+      "config": {
+        "name": "Bot_monitor_20250905_124330",
+        "description": "un bot para monitorear noticias de tecnología",
+        "bot_type": "monitor",
+        "target_urls": [],
+        "keywords": [
+          "tecnología"
+        ],
+        "concurrency": 1,
+        "delay_between_requests": 1.0,
+        "respect_robots_txt": true,
+        "max_pages": 10,
+        "max_depth": 3,
+        "include_patterns": [],
+        "exclude_patterns": [],
+        "extract_images": false,
+        "extract_links": true,
+        "extract_text": true,
+        "use_llm_extraction": true,
+        "schedule_enabled": true,
+        "schedule_interval": 3600,
+        "notify_on_completion": true,
+        "notify_on_error": true,
+        "extraction_schema": null
+      },
+      "status": "created",
+      "created_at": "2025-09-05 12:43:30.335840",
+      "started_at": null,
+      "completed_at": null,
+      "pages_processed": 0,
+      "pages_successful": 0,
+      "pages_failed": 0,
+      "total_runtime": 0.0,
+      "results_count": 0,
+      "last_error": null,
+      "output_files": []
+    }
+  ],
+  "last_updated": "2025-09-05T12:43:30.335861"
+}

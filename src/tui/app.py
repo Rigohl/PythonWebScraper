@@ -112,7 +112,9 @@ class ScraperTUIApp(App):
         self.domain_metrics = {}
         
         # Initialize command processor for chat functionality
-        self.command_processor = CommandProcessor()
+        from ..database import DatabaseManager
+        db_manager = DatabaseManager(db_path=settings.DB_PATH)
+        self.command_processor = CommandProcessor(db_manager=db_manager)
         self.chat_session_id = f"tui_session_{hash(self)}"
 
     def compose(self) -> ComposeResult:

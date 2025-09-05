@@ -44,7 +44,9 @@ class CommandProcessor:
         else:
             self.bot_manager = bot_manager
             
-        self.user_agent_manager = UserAgentManager()
+        self.user_agent_manager = UserAgentManager([
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        ])
         self.llm_extractor = LLMExtractor() if settings.LLM_API_KEY else None
         
         # Track active operations
