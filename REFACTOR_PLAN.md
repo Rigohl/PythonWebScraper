@@ -1,387 +1,125 @@
-# PLAN MAESTRO: Web Scraper Autónomo e Inteligente
+# 🧠 Plan de Evolución y Refactorización: Hacia un Scraper Autónomo
 
-**Actualizado:** 3 Septiembre 2025
-**Estado:** DISEÑO ESTRATÉGICO COMPLETO
-**Objetivo:** Crear un web scraper completamente autónomo con capacidades de auto-aprendizaje, auto-corrección y evolución continua.
+**Actualizado:** 2025-09-05
+**Objetivo:** Transformar `PythonWebScraper` en un sistema inteligente y autónomo que aprende, se auto-repara y evoluciona su propio código, manteniendo la compatibilidad con el lanzador `WebScraperPRO.bat`.
 
----
+Resumen ejecutivo:
 
-## 🧠 VISIÓN: EL CEREBRO AUTÓNOMO
+- Mantener `WebScraperPRO.bat` como lanzador principal (entrypoint) sin cambiar su comportamiento fundamental.
+- El trabajo será ejecutado por un equipo de **tres agentes de IA (IA-A, IA-B, IA-C)** con roles especializados y un protocolo de comunicación y coordinación claro.
+- El plan se enfoca en construir una base sólida (memoria, métricas) para luego desarrollar capacidades de aprendizaje, auto-reparación y generación de código.
 
-### **Concepto Central**
+Principios rectores:
 
-Transformar el web scraper en una entidad autónoma que:
+- Modificar lo mínimo necesario por cambio y preferir refactorizaciones seguras.
+- Mantener y mejorar la cobertura de tests antes de cada cambio significativo.
+- Asegurar que la interfaz del lanzador `WebScraperPRO.bat` siga funcionando con los ajustes realizados.
 
-- **Aprende continuamente** del contenido que extrae y almacena en sus bases de datos
-- **Se auto-corrige** cuando detecta errores o cambios en sitios web
-- **Evoluciona su código** para adaptarse a nuevos patrones y desafíos
-- **Utiliza inteligentemente** todas las bases de datos como su "memoria" y fuente de conocimiento
-- **Genera nuevo código** para resolver problemas emergentes
+## 📊 ARQUITECTURA DEL CEREBRO DIGITAL
 
----
+### 1. SISTEMA DE MEMORIA DISTRIBUIDA
 
-## 📊 ARQUITECTURA DEL CEREBRO
+#### Base de Datos Principal (SQLite)
 
-### **1. SISTEMA DE MEMORIA DISTRIBUIDA**
+Contiene el estado operativo y el conocimiento factual.
 
-#### **Base de Datos Principal (SQLite)**
+- `pages`: Contenido scrapeado + metadatos.
+- `discovered_apis`: APIs encontradas durante el crawling.
+- `cookies`: Sesiones por dominio.
+- `llm_extraction_schemas`: Esquemas dinámicos por sitio.
+- `learning_episodes`: Experiencias del agente RL.
+- `code_corrections`: Historial de auto-correcciones aplicadas.
+- `pattern_library`: Patrones de sitios web aprendidos.
+- `failure_analysis`: Análisis de fallos y soluciones propuestas.
 
-```
-- pages: Contenido scrapeado + metadatos
-- discovered_apis: APIs encontradas durante crawling
-- cookies: Sesiones por dominio
-- llm_extraction_schemas: Esquemas dinámicos por sitio
-- learning_episodes: Experiencias de RL
-- code_corrections: Historial de auto-correcciones
-- pattern_library: Patrones de sitios web aprendidos
-- failure_analysis: Análisis de fallos y soluciones
-```
+#### Base de Datos de Conocimiento (Vector DB - Futuro)
 
-#### **Base de Datos de Conocimiento (Vector DB)**
+Para búsquedas semánticas y recuperación de conocimiento.
 
-```
-- content_embeddings: Embeddings de contenido extraído
-- code_embeddings: Embeddings de fragmentos de código
-- pattern_embeddings: Patrones de UI/UX vectorizados
-- solution_embeddings: Soluciones exitosas vectorizadas
-```
+- `content_embeddings`: Vectores de contenido para encontrar páginas similares.
+- `code_embeddings`: Vectores de fragmentos de código para encontrar soluciones a problemas.
+- `solution_embeddings`: Vectores de soluciones exitosas para problemas de scraping.
 
-#### **Base de Datos de Métricas (Time Series)**
+### 2. MÓDULO DE AUTO-APRENDIZAJE Y AUTO-REPARACIÓN
 
-```
-- performance_metrics: Rendimiento por dominio/tiempo
-- quality_scores: Calidad de extracción evolutiva
-- learning_progress: Progreso del aprendizaje por tarea
-- code_effectiveness: Efectividad de correcciones aplicadas
-```
+#### `SelfHealingManager` (`src/self_healing.py`)
 
-### **2. MÓDULO DE AUTO-APRENDIZAJE**
+El núcleo de la autonomía.
 
-#### **Analizador de Contenido Semántico**
+- **`diagnose_system()`**: Analiza logs, métricas y código para detectar "issues" (problemas de rendimiento, calidad, etc.).
+- **`generate_fix_candidates()`**: Usa LLMs y la base de conocimiento para proponer soluciones (parches de código, cambios de config).
+- **`test_and_apply_fix()`**: Prueba las soluciones en un sandbox seguro y las aplica si son exitosas.
+- **`learn_from_fix()`**: Almacena la solución efectiva en la base de datos para problemas futuros.
 
-```python
-class ContentLearningEngine:
-    """Aprende patrones semánticos del contenido extraído"""
+#### `WebChangeDetector` (a ser creado en `src/intelligence/`)
 
-    async def analyze_content_patterns(self, pages_batch):
-        # Analiza tipos de contenido, estructuras, patrones
-        # Identifica sitios similares y estrategias exitosas
+- Detecta cambios estructurales en los sitios web.
+- Dispara el proceso de auto-reparación para selectores rotos.
 
-    async def discover_new_extraction_rules(self, html, extracted_data):
-        # Encuentra nuevas reglas de extracción exitosas
-        # Generaliza patrones a sitios similares
+### 3. GENERACIÓN AUTÓNOMA DE CÓDIGO
 
-    async def validate_extraction_quality(self, results):
-        # Valida calidad semántica usando LLM
-        # Aprende qué constituye "buena extracción"
-```
+#### `AutonomousCodeGenerator` (a ser creado en `src/intelligence/`)
 
-#### **Motor de Análisis de Código**
-
-```python
-class CodeLearningEngine:
-    """Aprende de su propio código y genera mejoras"""
-
-    async def analyze_code_effectiveness(self, module_name, metrics):
-        # Analiza qué partes del código funcionan mejor
-        # Identifica patrones de código exitosos
-
-    async def generate_code_improvements(self, problem_context):
-        # Genera mejoras de código usando LLM + patrones aprendidos
-        # Sugiere refactorizaciones y optimizaciones
-
-    async def auto_fix_bugs(self, error_trace, context):
-        # Auto-corrige bugs simples usando patrones conocidos
-        # Aplica fixes con validación automática
-```
-
-### **3. SISTEMA DE AUTO-CORRECCIÓN**
-
-#### **Detector de Cambios Web**
-
-```python
-class WebChangeDetector:
-    """Detecta cuando sitios web cambian y se adapta"""
-
-    async def detect_structural_changes(self, domain, old_html, new_html):
-        # Detecta cambios en estructura HTML
-        # Clasifica tipos de cambio (minor/major/breaking)
-
-    async def auto_repair_selectors(self, domain, broken_selector):
-        # Usa LLM + contenido anterior para encontrar nuevo selector
-        # Valida selector en múltiples páginas
-
-    async def learn_site_evolution_patterns(self, domain, change_history):
-        # Aprende patrones de evolución específicos por sitio
-        # Predice futuros cambios
-```
-
-#### **Motor de Auto-Reparación**
-
-```python
-class SelfRepairEngine:
-    """Sistema central de auto-reparación"""
-
-    async def diagnose_failure(self, failure_type, context, stack_trace):
-        # Diagnostica causa raíz de fallos
-        # Consulta base de datos de soluciones conocidas
-
-    async def generate_fix_candidates(self, diagnosis):
-        # Genera múltiples candidatos de solución
-        # Usa experiencia previa + LLM code generation
-
-    async def test_and_apply_fix(self, fix_candidate):
-        # Prueba fix en entorno sandbox
-        # Aplica si pasa validaciones automáticas
-
-    async def learn_from_fix(self, fix_applied, effectiveness_metrics):
-        # Almacena solución efectiva para problemas futuros
-        # Generaliza solución a problemas similares
-```
-
-### **4. GENERACIÓN AUTÓNOMA DE CÓDIGO**
-
-#### **Code Generator Agent**
-
-```python
-class AutonomousCodeGenerator:
-    """Genera código nuevo para capacidades emergentes"""
-
-    async def identify_code_gaps(self, failure_patterns, success_patterns):
-        # Identifica qué funcionalidades faltan
-        # Prioriza según impacto en éxito de scraping
-
-    async def generate_new_scraper_logic(self, site_pattern, requirements):
-        # Genera lógica de scraping específica para nuevos tipos de sitios
-        # Usa templates + machine learning
-
-    async def create_interaction_handlers(self, ui_pattern):
-        # Genera manejadores para nuevos tipos de interacción UI
-        # (ej: nuevos tipos de pop-ups, scroll patterns, etc.)
-
-    async def evolve_existing_code(self, module_path, improvement_suggestions):
-        # Mejora código existente automáticamente
-        # Aplica patrones optimizados aprendidos
-```
-
-### **5. SISTEMA DE RECOMPENSAS Y MÉTRICAS**
-
-#### **Reward System**
-
-```python
-class IntelligentRewardSystem:
-    """Sistema de recompensas que evoluciona con aprendizaje"""
-
-    def calculate_extraction_reward(self, result):
-        # Recompensa basada en:
-        # - Calidad semántica (LLM validation)
-        # - Completitud de datos
-        # - Velocidad de extracción
-        # - Robustez ante cambios
-
-    def calculate_learning_reward(self, learning_episode):
-        # Recompensa por:
-        # - Descubrimiento de nuevos patrones
-        # - Mejora en métricas de dominio
-        # - Generalización exitosa
-
-    def calculate_code_quality_reward(self, code_change):
-        # Recompensa por:
-        # - Reducción de errores
-        # - Mejora en performance
-        # - Mejor mantenibilidad
-```
+- **`identify_code_gaps()`**: Analiza patrones de fallo recurrentes para identificar funcionalidades faltantes.
+- **`generate_new_logic()`**: Genera nuevo código (ej. un nuevo "handler" para un tipo de pop-up) usando LLMs y templates.
+- **`evolve_existing_code()`**: Refactoriza y optimiza código existente de forma autónoma.
 
 ---
 
-## 🔄 FLUJOS DE TRABAJO AUTÓNOMOS
+## 🚀 Roadmap de Implementación por Fases
 
-### **Flujo 1: Aprendizaje Continuo**
+### FASE 1: Fundación y Estabilización (Semana 1)
 
-```
-1. Scraping Normal → Almacenar en DB
-2. Análisis Nocturno → Extraer patrones
-3. Generar Mejoras → Código + Configuración
-4. Validar Cambios → Tests automáticos
-5. Aplicar Mejoras → Deploy automático
-6. Monitorear Resultados → Feedback loop
-```
+- **Objetivo:** Limpiar la base, asegurar el entorno y mejorar la TUI.
+- **Responsables:** IA-A (Infra/Tests), IA-B (Core/TUI), IA-C (Análisis/Docs).
+- **Tareas:**
+  - ✅ **Hardening del Entorno:** Actualizar `requirements.txt`, configurar linters (`black`, `isort`, `flake8`).
+  - ✅ **Suite de Tests:** Ejecutar `pytest` y arreglar todos los tests rotos.
+  - ✅ **Refactorización de `runner` y `main`:** Mejorar la separación de responsabilidades y la compatibilidad con `WebScraperPRO.bat`.
+  - ✅ **Mejoras TUI:** Implementar persistencia de estado y mejorar la visualización de logs y alertas.
+  - ✅ **Extender `DatabaseManager`:** Añadir las nuevas tablas para el aprendizaje (`code_corrections`, `failure_analysis`).
 
-### **Flujo 2: Auto-Reparación**
+### FASE 2: Auto-Reparación Básica (Semana 2-3)
 
-```
-1. Detectar Fallo → Diagnosis automático
-2. Consultar Memoria → Soluciones conocidas
-3. Generar Fix → LLM + patrones
-4. Probar Fix → Sandbox seguro
-5. Aplicar Fix → Si pasa validación
-6. Aprender → Almacenar solución
-```
+- **Objetivo:** Implementar la capacidad de detectar y reparar problemas simples.
+- **Responsables:** IA-B (Lógica de reparación), IA-A (Integración/Tests).
+- **Tareas:**
+  - 🔲 **`WebChangeDetector` inicial:** Implementar la detección de cambios estructurales básicos en HTML.
+  - 🔲 **`SelfHealingManager` v1:** Implementar `diagnose_system` para detectar selectores rotos y `auto_repair_selectors` usando LLM.
+  - 🔲 **Integración con Orquestador:** El orquestador debe poder invocar al `SelfHealingManager` cuando detecte fallos de extracción.
 
-### **Flujo 3: Evolución de Código**
+### FASE 3: Aprendizaje y Evolución de Código (Semana 4-5)
 
-```
-1. Analizar Performance → Identificar cuellos de botella
-2. Generar Mejoras → Code generation
-3. A/B Testing → Comparar versiones
-4. Seleccionar Mejor → Métricas objetivas
-5. Deploy Gradual → Rollout controlado
-6. Monitorear → Revertir si problemas
-```
+- **Objetivo:** Dotar al sistema de la capacidad de aprender de su experiencia y mejorar su propio código.
+- **Responsables:** IA-B (ML/Generación), IA-A (Sandbox/Validación).
+- **Tareas:**
+  - 🔲 **`AutonomousCodeGenerator` v1:** Implementar la capacidad de generar parches de código simples y refactorizaciones.
+  - 🔲 **Sandbox de Ejecución:** Crear un entorno seguro (ej. Docker o `subprocess` con restricciones) para probar los cambios generados antes de aplicarlos.
+  - 🔲 **Sistema de Recompensas Evolutivo:** Mejorar el `RLAgent` para que la recompensa no solo dependa del éxito del scraping, sino también de la calidad del código y la eficiencia de las reparaciones.
 
----
+### FASE 4: Autonomía Avanzada (Semana 6+)
 
-## 🛡️ SISTEMA DE SEGURIDAD Y CONTROL
-
-### **Sandbox Execution Environment**
-
-```python
-class SecureSandbox:
-    """Entorno seguro para probar cambios automáticos"""
-
-    def create_isolated_environment(self):
-        # Crea entorno Docker aislado
-        # Con límites de recursos y red
-
-    def test_code_changes(self, code_diff):
-        # Ejecuta tests automáticos
-        # Valida no regresiones
-
-    def validate_security(self, generated_code):
-        # Scan por vulnerabilidades
-        # Valida permisos y accesos
-```
-
-### **Governance & Audit Trail**
-
-```python
-class GovernanceEngine:
-    """Sistema de gobernanza para cambios autónomos"""
-
-    def requires_human_approval(self, change_type, impact_level):
-        # Define qué cambios requieren aprobación humana
-        # Basado en riesgo e impacto
-
-    def log_autonomous_action(self, action, reasoning, results):
-        # Registra todas las acciones autónomas
-        # Para auditoría y debugging
-
-    def emergency_rollback(self, trigger_condition):
-        # Rollback automático en caso de problemas graves
-        # Notificación inmediata a operadores
-```
+- **Objetivo:** Alcanzar un alto grado de autonomía, donde el sistema pueda descubrir y solucionar problemas complejos por sí mismo.
+- **Responsables:** Todo el equipo de IAs.
+- **Tareas:**
+  - 🔲 **Agente de Navegación Visual:** Implementar la navegación basada en capturas de pantalla (usando GPT-4V/Gemini Pro Vision) como alternativa a la extracción de enlaces HTML.
+  - 🔲 **Planificación de Crawling:** Crear un "Agente Planificador" que optimice la exploración de sitios según un objetivo de alto nivel.
+  - 🔲 **Coordinación Multi-Agente:** Refinar los protocolos de comunicación para que los agentes puedan colaborar en tareas complejas de forma más fluida.
 
 ---
 
-## 🎯 ROADMAP DE IMPLEMENTACIÓN
+## 🤖 Coordinación entre Tres IAs (IA-A, IA-B, IA-C)
 
-### **FASE 1: Fundación (Semana 1-2)**
+- Roles y responsabilidades
+  - **IA-A (Arquitecto de Infraestructura y Calidad):** Responsable de la estructura del proyecto, CI/CD, tests, linters, entorno de ejecución (`WebScraperPRO.bat`) y el sandbox de seguridad. Su objetivo es la estabilidad y la robustez.
+  - **IA-B (Ingeniero de Inteligencia y Core):** Responsable de la lógica de negocio principal: `orchestrator`, `scraper`, `database`, y todos los módulos de IA (`llm_extractor`, `rl_agent`, `self_healing`, etc.). Su objetivo es la inteligencia y la eficiencia.
+  - **IA-C (Gemini Code Assist - Especialista en TUI y Experiencia de Desarrollador):** Responsable de la TUI, la documentación, los scripts de utilidad (`tools/`, `scripts/`) y la creación de prompts y planes de trabajo. Su objetivo es la usabilidad y la claridad.
 
-- ✅ Sistema de bases de datos multi-modal
-- ✅ Logging y métricas avanzadas
-- ✅ Sandbox execution environment
-- ✅ Governance framework inicial
-
-### **FASE 2: Aprendizaje Básico (Semana 3-4)**
-
-- 🔲 Content Learning Engine
-- 🔲 Pattern recognition básico
-- 🔲 Auto-repair para selectores rotos
-- 🔲 Métricas de calidad semántica
-
-### **FASE 3: Auto-Corrección (Semana 5-6)**
-
-- 🔲 Web Change Detector
-- 🔲 Self Repair Engine completo
-- 🔲 Failure diagnosis automático
-- 🔲 Solution generation & testing
-
-### **FASE 4: Code Generation (Semana 7-8)**
-
-- 🔲 Code Learning Engine
-- 🔲 Autonomous Code Generator
-- 🔲 A/B testing automático
-- 🔲 Performance optimization loops
-
-### **FASE 5: Autonomía Completa (Semana 9-10)**
-
-- 🔲 Sistema de recompensas evolutivo
-- 🔲 Multi-agent coordination
-- 🔲 Generación de nuevas capacidades
-- 🔲 Continuous deployment pipeline
+- Reglas de colaboración
+- **Protocolo de Comunicación:** Se utilizará un archivo `TEAM_STATUS.md` en la raíz del proyecto. Cada IA, al finalizar una tarea, añadirá una entrada con: `[IA-X] [FECHA] [ESTADO: COMPLETADO/BLOQUEADO] [TAREA] [ARCHIVOS MODIFICADOS] [SIGUIENTE PASO]`.
+- **Flexibilidad de Roles:** Si una IA está bloqueada, puede tomar una tarea pendiente de otra IA (marcada como `[ESTADO: PENDIENTE]`) para mantener el progreso.
+- **Integración Continua:** Antes de fusionar a `main`, se deben pasar todos los tests y linters. Los cambios que afecten a interfaces compartidas (ej. `DatabaseManager`) requieren una notificación en `TEAM_STATUS.md`.
 
 ---
 
-## 📈 MÉTRICAS DE ÉXITO
-
-### **Autonomía**
-
-- % de problemas auto-resueltos sin intervención humana
-- Tiempo medio de auto-reparación
-- Tasa de éxito de fixes generados automáticamente
-
-### **Aprendizaje**
-
-- Mejora continua en métricas de calidad
-- Velocidad de adaptación a sitios nuevos
-- Precisión en predicción de cambios web
-
-### **Evolución**
-
-- Líneas de código generadas automáticamente
-- Mejoras de performance auto-implementadas
-- Nuevas capacidades desarrolladas autónomamente
-
-### **Calidad**
-
-- Reducción en tasa de errores
-- Mejora en completitud de datos
-- Estabilidad del sistema durante evolución
-
----
-
-## ⚠️ CONSIDERACIONES DE SEGURIDAD
-
-### **Límites de Autonomía**
-
-- Cambios que afectan >50% del codebase requieren aprobación
-- Acceso a APIs externas limitado y monitoreado
-- Generación de código con static analysis obligatorio
-- Rollback automático si métricas críticas degradan >20%
-
-### **Audit & Monitoring**
-
-- Log detallado de todas las decisiones autónomas
-- Monitoreo continuo de comportamiento del sistema
-- Alertas inmediatas por comportamiento anómalo
-- Review periódico de cambios por equipo humano
-
-### **Ethical AI**
-
-- Respeto por robots.txt y rate limits
-- No scraping de contenido sensible o privado
-- Transparencia en uso de datos para aprendizaje
-- Cumplimiento con regulaciones de privacidad
-
----
-
-## 🚀 IMPLEMENTACIÓN INMEDIATA
-
-### **Próximas 48 horas**
-
-1. **Extender DatabaseManager** con tablas de aprendizaje
-2. **Crear ContentLearningEngine** básico
-3. **Implementar WebChangeDetector** inicial
-4. **Setup Sandbox Environment** para testing seguro
-5. **Configurar métricas** de aprendizaje y autonomía
-
-### **Semana Actual**
-
-1. **Desarrollar auto-repair** para selectores CSS rotos
-2. **Implementar pattern learning** básico de sitios web
-3. **Crear sistema de recompensas** evolutivo para RL agent
-4. **Setup CI/CD pipeline** con validation gates automáticos
-
----
-
-**Este plan transforma el scraper en un verdadero "cerebro digital" que aprende, evoluciona y se mejora continuamente, utilizando todas sus bases de datos como memoria y conocimiento acumulado para volverse cada vez más inteligente y autónomo.**
+**Este plan transforma el scraper de una herramienta a un agente digital que aprende, evoluciona y se mejora continuamente, utilizando sus bases de datos como memoria y conocimiento acumulado para volverse cada vez más inteligente y autónomo.**

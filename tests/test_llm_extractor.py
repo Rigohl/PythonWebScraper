@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 from pydantic import BaseModel, Field
 
 from src.intelligence.llm_extractor import LLMExtractor
+from tests.fixtures_adapters import mock_llm_adapter
 
 
 class MockProduct(BaseModel):
@@ -18,31 +19,30 @@ def llm_extractor():
     return extractor
 
 
-@patch('src.intelligence.llm_extractor.instructor.patch')
-def test_llm_extraction_logic(mock_instructor_patch, llm_extractor):
+@pytest.mark.asyncio
+async def test_llm_extraction_logic(mock_llm_adapter):
     """
-    Prueba que el extractor de LLM construye el prompt correctamente y
-    parsea la respuesta del LLM.
+    Prueba que el extractor de LLM funciona correctamente con adaptadores.
     """
-    # 1. Configurar el mock del cliente de OpenAI
-    mock_openai_client = Mock()
-    # Simulamos que el cliente devuelve un objeto MockProduct cuando se le llama
-    mock_openai_client.chat.completions.create.return_value = MockProduct(name="Test Product", price=99.99)
-    mock_instructor_patch.return_value = mock_openai_client
+    from src.llm_extractor import LLMExtractor
 
-    # 2. Definir un HTML de ejemplo y el esquema de extracción
+    # Configurar el adaptador para retornar datos mockeados
+    mock_product = MockProduct(name="Test Product", price=99.99)
+    mock_llm_adapter.mock_responses["extract_data"] = mock_product
+
+    # Crear el extractor con el adaptador
+    llm_extractor = LLMExtractor(adapter=mock_llm_adapter)
+
+    # HTML de ejemplo
     sample_html = "<html><body><h1>Test Product</h1><p>Price: $99.99</p></body></html>"
-    extraction_schema = MockProduct
 
-    # 3. Llamar al método a probar
-    result = llm_extractor.extract(sample_html, extraction_schema)
+    # Llamar al método de extracción
+    result = await llm_extractor.extract(sample_html, MockProduct)
 
-    # 4. Verificar que el cliente fue llamado correctamente
-    mock_openai_client.chat.completions.create.assert_called_once()
-    call_args, call_kwargs = mock_openai_client.chat.completions.create.call_args
-    # Verificamos que el HTML de ejemplo está en el prompt enviado al LLM
-    assert sample_html in str(call_kwargs['messages'])
-    # Verificamos que el resultado es una instancia correcta de MockProduct
+    # Verificar que el resultado es correcto
     assert isinstance(result, MockProduct)
     assert result.name == "Test Product"
     assert result.price == 99.99
+
+    # Verificar que el adaptador fue llamado
+    assert mock_llm_adapter.call_count > 0

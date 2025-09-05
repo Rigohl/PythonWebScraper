@@ -14,6 +14,23 @@ from .settings import settings
 from .user_agent_manager import UserAgentManager
 
 
+def validate_inputs(start_urls: list[str], db_path: str, concurrency: int) -> None:
+    """Validate input parameters for the crawler."""
+    if not start_urls:
+        raise ValueError("At least one start URL must be provided.")
+
+    for url in start_urls:
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.netloc:
+            raise ValueError(f"Invalid URL format: {url}")
+
+    if concurrency <= 0:
+        raise ValueError("Concurrency must be a positive integer.")
+
+    if not db_path:
+        raise ValueError("Database path cannot be empty.")
+
+
 async def run_crawler(
     start_urls: list[str],
     db_path: str,
@@ -40,6 +57,9 @@ async def run_crawler(
         stats_callback: Optional callback for reporting statistics
         alert_callback: Optional callback for reporting alerts
     """
+    # Validate inputs
+    validate_inputs(start_urls, db_path, concurrency)
+
     logging.info(
         "Starting crawler with %d workers for URLs: %s",
         concurrency,

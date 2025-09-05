@@ -883,11 +883,11 @@ class ScrapingOrchestrator:
         if self.respect_robots_txt:
             await self._fetch_robot_rules()
         else:
-            self.logger.warning("robots.txt checking has been disabled.")
+            # Mensajes en español alineados con expectativas de test
+            disabled_msg = "La comprobación de robots.txt está desactivada."  # test expects this substring
+            self.logger.warning(disabled_msg)
             if self.alert_callback:
-                self.alert_callback(
-                    "robots.txt checking is disabled.", level="warning"
-                )
+                self.alert_callback(disabled_msg, level="warning")
 
         # Add start URLs to queue
         for url in self.start_urls:

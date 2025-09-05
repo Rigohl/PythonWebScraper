@@ -5,7 +5,7 @@ Provides access to `LLMExtractor` and the `settings` object. Also keeps the
 `src.intelligence.llm_extractor.instructor.patch` in tests remain valid.
 """
 
-from ..llm_extractor import LLMExtractor  # noqa: F401
+from ..llm_extractor import LLMExtractor as _BaseLLMExtractor  # noqa: F401
 from ..settings import settings  # noqa: F401
 
 try:  # Expose instructor for patching in tests
@@ -20,6 +20,12 @@ except Exception:  # pragma: no cover
     # unittest.mock.patch in tests.
     instructor = SimpleNamespace(patch=lambda *a, **k: None)  # type: ignore
 
+class LLMExtractor(_BaseLLMExtractor):  # type: ignore
+    async def extract(self, html_content, response_model):  # type: ignore[override]
+        try:
+            # Reuse async structured path if available
+            return await self.adapter.extract_structured_data(html_content, response_model)
+        except Exception:
+            return self.adapter.extract_sync(html_content, response_model)
+
 __all__ = ["LLMExtractor", "settings", "instructor"]
-# Thin wrapper to maintain backward compatibility with old import path
-from ..llm_extractor import *  # noqa: F401,F403

@@ -27,6 +27,7 @@ import argparse
 import asyncio
 import logging
 import os
+import sys
 from typing import Optional
 
 from .database import DatabaseManager
@@ -105,6 +106,16 @@ async def _handle_crawl(args: argparse.Namespace) -> None:
     Note:
         Imports run_crawler lazily to avoid heavy dependencies when not needed.
     """
+    # Validate inputs
+    if not args.crawl:
+        raise ValueError("No URLs provided for crawling.")
+
+    if args.concurrency <= 0:
+        raise ValueError("Concurrency must be a positive integer.")
+
+    if not args.db_path:
+        raise ValueError("Database path cannot be empty.")
+
     # Importing here to avoid heavy imports when not crawling
     from .runner import run_crawler  # type: ignore
 
@@ -214,114 +225,121 @@ async def main() -> None:
     settings.ETHICS_CHECKS_ENABLED = args.enable_ethics
     settings.OFFLINE_MODE = not args.online
 
-    if args.tui:
-        await _handle_tui(args.log_file)
-        return
-
-    # Exports take precedence over crawling
-    if args.export_csv or args.export_json:
-        _handle_export(args)
-        return
-
-    # Launch crawler
-    if args.crawl:
-        await _handle_crawl(args)
-        return
-
-    # Demo mode: run a simple local-html based scraping flow without Playwright
-    if args.demo:
-        # Minimal demo: load local HTML and run a very small extraction path
-        from pathlib import Path
-
-        from .models.results import ScrapeResult
-
-        demo_file = Path(__file__).resolve().parents[1] / "toscrape_com_book.html"
-        if not demo_file.exists():
-            logging.error("Demo file not found: %s", str(demo_file))
+    try:
+        if args.tui:
+            await _handle_tui(args.log_file)
             return
 
-        html = demo_file.read_text(encoding="utf-8")
-
-        # Very small, dependency-free extraction: grab title and first <p>
-        try:
-            from bs4 import BeautifulSoup
-        except ImportError:
-            logging.error(
-                "Demo mode requires 'beautifulsoup4'. Install with: pip install beautifulsoup4"
-            )
+        # Exports take precedence over crawling
+        if args.export_csv or args.export_json:
+            _handle_export(args)
             return
 
-        soup = BeautifulSoup(html, "html.parser")
-        title = soup.title.string if soup.title else "(no title)"
-        first_p = soup.find("p")
-        content = first_p.get_text(strip=True) if first_p else "(no content)"
+        # Launch crawler
+        if args.crawl:
+            await _handle_crawl(args)
+            return
 
-        result = ScrapeResult(
-            status="SUCCESS",
-            url=str(demo_file),
-            title=title,
-            content_text=content,
-            content_html=str(first_p or ""),
-            links=[a.get("href") for a in soup.find_all("a", href=True)],
-            visual_hash="demo",
-            content_hash="demo_hash",
-            http_status_code=200,
-            crawl_duration=0.0,
-            content_type="DEMO",
-            extracted_data=None,
-            healing_events=[],
-        )
-        logging.info(
-            "Demo result:\nTitle: %s\nContent snippet: %s", title, content[:200]
-        )
-        # Persist if DB available; also write JSON to artifacts for visibility
-        wrote_to_db = False
-        try:
-            db = DatabaseManager(db_path=args.db_path)
+        # Demo mode: run a simple local-html based scraping flow without Playwright
+        if args.demo:
+            # Minimal demo: load local HTML and run a very small extraction path
+            from pathlib import Path
+
+            from .models.results import ScrapeResult
+
+            demo_file = Path(__file__).resolve().parents[1] / "toscrape_com_book.html"
+            if not demo_file.exists():
+                logging.error("Demo file not found: %s", str(demo_file))
+                return
+
+            html = demo_file.read_text(encoding="utf-8")
+
+            # Very small, dependency-free extraction: grab title and first <p>
             try:
-                db.save_scrape_result(result)
-                logging.info(
-                    "Demo result saved to database: %s", args.db_path
+                from bs4 import BeautifulSoup
+            except ImportError:
+                logging.error(
+                    "Demo mode requires 'beautifulsoup4'. Install with: pip install beautifulsoup4"
                 )
-                wrote_to_db = True
-            except Exception as exc:  # pragma: no cover - best-effort
-                logging.debug("Could not save demo result to DB: %s", exc)
-        except Exception:
-            logging.debug(
-                "Could not initialize DatabaseManager for demo persistence."
+                return
+
+            soup = BeautifulSoup(html, "html.parser")
+            title = soup.title.string if soup.title else "(no title)"
+            first_p = soup.find("p")
+            content = first_p.get_text(strip=True) if first_p else "(no content)"
+
+            result = ScrapeResult(
+                status="SUCCESS",
+                url=str(demo_file),
+                title=title,
+                content_text=content,
+                content_html=str(first_p or ""),
+                links=[a.get("href") for a in soup.find_all("a", href=True)],
+                visual_hash="demo",
+                content_hash="demo_hash",
+                http_status_code=200,
+                crawl_duration=0.0,
+                content_type="DEMO",
+                extracted_data=None,
+                healing_events=[],
             )
-
-        # Always write a JSON fallback in artifacts so the user can inspect the demo output
-        try:
-            import json
-
-            artifacts_dir = Path(__file__).resolve().parents[1] / "artifacts"
-            artifacts_dir.mkdir(parents=True, exist_ok=True)
-            demo_out = artifacts_dir / "demo_result.json"
-            with demo_out.open("w", encoding="utf-8") as fh:
-                json.dump(
-                    {
-                        "title": title,
-                        "content": content,
-                        "url": str(demo_file),
-                        "links": [a.get("href") for a in soup.find_all("a", href=True)],
-                        "saved_to_db": wrote_to_db,
-                    },
-                    fh,
-                    ensure_ascii=False,
-                    indent=2,
+            logging.info(
+                "Demo result:\nTitle: %s\nContent snippet: %s", title, content[:200]
+            )
+            # Persist if DB available; also write JSON to artifacts for visibility
+            wrote_to_db = False
+            try:
+                db = DatabaseManager(db_path=args.db_path)
+                try:
+                    db.save_scrape_result(result)
+                    logging.info(
+                        "Demo result saved to database: %s", args.db_path
+                    )
+                    wrote_to_db = True
+                except Exception as exc:  # pragma: no cover - best-effort
+                    logging.debug("Could not save demo result to DB: %s", exc)
+            except Exception:
+                logging.debug(
+                    "Could not initialize DatabaseManager for demo persistence."
                 )
-            logging.info("Demo result written to: %s", str(demo_out))
-        except Exception as exc:  # pragma: no cover - best-effort
-            logging.debug("Could not write artifacts/demo_result.json: %s", exc)
-        return
 
-    # If no action is provided, print help and exit
-    parser.print_help()
-    # Mensaje traducido al español para pruebas
-    logging.warning(
-        "Ninguna acción especificada (p. ej., --crawl, --export-csv, --tui). Saliendo."
-    )
+            # Always write a JSON fallback in artifacts so the user can inspect the demo output
+            try:
+                import json
+
+                artifacts_dir = Path(__file__).resolve().parents[1] / "artifacts"
+                artifacts_dir.mkdir(parents=True, exist_ok=True)
+                demo_out = artifacts_dir / "demo_result.json"
+                with demo_out.open("w", encoding="utf-8") as fh:
+                    json.dump(
+                        {
+                            "title": title,
+                            "content": content,
+                            "url": str(demo_file),
+                            "links": [a.get("href") for a in soup.find_all("a", href=True)],
+                            "saved_to_db": wrote_to_db,
+                        },
+                        fh,
+                        ensure_ascii=False,
+                        indent=2,
+                    )
+                logging.info("Demo result written to: %s", str(demo_out))
+            except Exception as exc:  # pragma: no cover - best-effort
+                logging.debug("Could not write artifacts/demo_result.json: %s", exc)
+            return
+
+        # If no action is provided, print help and exit
+        parser.print_help()
+        # Mensaje traducido al español para pruebas
+        logging.warning(
+            "Ninguna acción especificada (p. ej., --crawl, --export-csv, --tui). Saliendo."
+        )
+    except ValueError as e:
+        logging.error("Validation error: %s", e)
+        sys.exit(1)
+    except Exception as e:
+        logging.error("Unexpected error: %s", e)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

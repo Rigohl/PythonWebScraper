@@ -11,9 +11,9 @@ from datetime import datetime, timedelta
 import hashlib
 
 # Añadir src al path para imports - ahora desde scripts/
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.db.database import DatabaseManager
+from src.database import DatabaseManager
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +30,7 @@ def detect_content_drift(db_path: str = 'data/scraper.db', days_threshold: int =
         cutoff_date = datetime.now() - timedelta(days=days_threshold)
         recent_results = list(db.table.find(created_at={'$gt': cutoff_date.isoformat()}))
 
-        logger.info("Analizando %slen(recent_results) resultados recientes")
+        logger.info("Analizando %s resultados recientes", len(recent_results))
 
         drift_detected = []
 
@@ -62,20 +62,20 @@ def detect_content_drift(db_path: str = 'data/scraper.db', days_threshold: int =
                     })
 
         if drift_detected:
-            logger.warning("Drift detectado en %slen(drift_detected) URLs:")
+            logger.warning("Drift detectado en %s URLs:", len(drift_detected))
             for drift in drift_detected[:10]:  # Mostrar primeros 10
-                logger.warning("  - %sdrift['url'] cambió el %sdrift['current_date']")
+                logger.warning("  - %s cambió el %s (previo: %s)", drift['url'], drift['current_date'], drift['previous_date'])
         else:
             logger.info("No se detectó drift significativo.")
 
         return len(drift_detected)
 
     except Exception as e:
-        logger.error("Error detectando drift: %se")
+        logger.error("Error detectando drift: %s", e)
         return -1
 
 if __name__ == "__main__":
     drift_count = detect_content_drift()
     if drift_count > 0:
-        logger.info("Se detectaron %sdrift_count cambios de contenido")
+        logger.info("Se detectaron %s cambios de contenido", drift_count)
     sys.exit(0 if drift_count >= 0 else 1)

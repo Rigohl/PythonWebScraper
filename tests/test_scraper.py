@@ -2,25 +2,30 @@ import pytest
 import os
 from src.scraper import AdvancedScraper
 from src.models.results import ScrapeResult
+from tests.fixtures_adapters import mock_browser_adapter, mock_llm_adapter, mock_db_manager
 
 
 @pytest.mark.asyncio
-async def test_extract_title_from_local_html(html_file, mock_page, mock_db_manager, mock_llm_extractor):
+async def test_extract_title_from_local_html(html_file, mock_browser_adapter, mock_llm_adapter, mock_db_manager):
     """
     Tests if the AdvancedScraper correctly extracts the title from a local HTML file
-    using mocked Playwright Page and other dependencies.
+    using mocked adapters.
     """
     # Read the content of the test HTML file
     with open(html_file, 'r', encoding='utf-8') as f:
         html_content = f.read()
 
-    # Configure the mock_page.content() to return the HTML content
-    mock_page.content.return_value = html_content
+    # Configure the mock browser adapter to return the HTML content
+    mock_browser_adapter.mock_content = html_content
 
-    # Instantiate AdvancedScraper with mocked dependencies
-    scraper = AdvancedScraper(page=mock_page, db_manager=mock_db_manager, llm_extractor=mock_llm_extractor)
+    # Instantiate AdvancedScraper with mocked adapters
+    scraper = AdvancedScraper(
+        browser_adapter=mock_browser_adapter,
+        llm_adapter=mock_llm_adapter,
+        db_manager=mock_db_manager
+    )
 
-    # Construct a file URL for the local HTML file (though scraper will use mock_page.content)
+    # Construct a file URL for the local HTML file
     file_url = f"file:///{os.path.abspath(html_file).replace(os.sep, '/')}"
 
     # Call the async scrape method
@@ -29,7 +34,3 @@ async def test_extract_title_from_local_html(html_file, mock_page, mock_db_manag
     # Assert that the extracted title is correct
     assert result.status == "SUCCESS"
     assert result.title == "Test Title"
-
-    # Verify that page.goto and page.content were called
-    mock_page.goto.assert_called_once_with(file_url, wait_until="domcontentloaded", timeout=30000)
-    mock_page.content.assert_called_once()

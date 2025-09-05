@@ -178,9 +178,18 @@ class RLAgent:
         self.env.set_state(state_dict)
         obs = self.env.current_state
         action, _ = self.model.predict(obs, deterministic=True)
-        action_val = (
-            int(action) if isinstance(action, (np.ndarray, list)) else int(action)
-        )
+
+        # Handle NumPy array conversion safely to avoid deprecation warnings
+        if isinstance(action, np.ndarray):
+            if action.ndim == 0:  # scalar array
+                action_val = int(action.item())
+            else:  # multi-dimensional array
+                action_val = int(action[0])
+        elif isinstance(action, (list, tuple)):
+            action_val = int(action[0]) if action else 1  # default to no change
+        else:
+            action_val = int(action)
+
         if action_val == 0:
             return {"adjust_backoff_factor": 0.8}
         if action_val == 1:
