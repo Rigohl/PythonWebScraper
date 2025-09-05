@@ -34,25 +34,34 @@ class JsonFormatter(logging.Formatter):
             log_record['exc_info'] = self.formatException(record.exc_info)
         return json.dumps(log_record)
 
-def setup_logging():
-    # Remove existing handlers
+def setup_logging(log_file_path: Optional[str] = None, tui_handler: Optional[logging.Handler] = None, level: int = logging.INFO):
+    # Remove existing handlers to ensure idempotent reconfiguration
     root_logger = logging.getLogger()
     if root_logger.hasHandlers():
         root_logger.handlers.clear()
 
-    # Configure file handler with JSON formatter
-    log_file = os.path.join(os.path.dirname(__file__), "..", "logs", "scraper_run.log")
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    file_handler = logging.FileHandler(log_file, mode='a')
+    # Determine log file path (default if none passed)
+    if not log_file_path:
+        log_file_path = os.path.join(os.path.dirname(__file__), "..", "logs", "scraper_run.log")
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+
+    # File handler (JSON)
+    file_handler = logging.FileHandler(log_file_path, mode='a', encoding='utf-8')
     file_handler.setFormatter(JsonFormatter())
 
-    # Configure console handler
+    # Console handler (human readable)
     console_handler = logging.StreamHandler()
-    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    console_console_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    console_handler.setFormatter(logging.Formatter(console_console_fmt))
 
     root_logger.addHandler(file_handler)
     root_logger.addHandler(console_handler)
-    root_logger.setLevel(logging.INFO)
+
+    # Optional TUI in-memory/forward handler
+    if tui_handler is not None:
+        root_logger.addHandler(tui_handler)
+
+    root_logger.setLevel(level)
 
 # Call setup_logging() at the beginning of the file
 setup_logging()
@@ -64,6 +73,8 @@ async def run_crawler(
     concurrency: int = 5,
     respect_robots_txt: bool = True,
     use_rl: bool = False,
+    stats_callback=None,
+    alert_callback=None,
 ) -> None:
     """Run the main scraping orchestrator with the given parameters.
 
@@ -107,6 +118,8 @@ async def run_crawler(
                 brain=brain,
                 concurrency=concurrency,
                 respect_robots_txt=respect_robots_txt,
+                stats_callback=stats_callback,
+                alert_callback=alert_callback,
             )
             await orchestrator.run(browser)
         finally:
@@ -119,6 +132,19 @@ async def run_crawler(
                 brain.flush()
             except Exception:
                 pass
+            # Auto export Markdown report if enabled and not under tests
+            try:
+                if not os.getenv("PYTEST_CURRENT_TEST") and os.getenv("AUTO_EXPORT_MD", "1") != "0":
+                    from .database import DatabaseManager as _DBM
+                    dbm = _DBM(db_path=db_path)
+                    from datetime import datetime as _dt
+                    ts = _dt.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+                    report_path = os.path.join("exports", "reports", f"auto_report_{ts}.md")
+                    os.makedirs(os.path.dirname(report_path), exist_ok=True)
+                    dbm.export_to_markdown(report_path)
+                    logger.info(f"Auto Markdown report generated: {report_path}")
+            except Exception as e:  # pragma: no cover
+                logger.warning(f"Failed auto Markdown export: {e}")
 
 
 async def discover_and_run_scrapers(urls: List[str]):
@@ -160,8 +186,10 @@ async def discover_and_run_scrapers(urls: List[str]):
         for result in results:
             if isinstance(result, ScrapeResult):
                 logger.info(f"Scraped {result.url} successfully.")
-                # Here you could save the result to a database or file
-                print(result.content_text)
+                # Avoid dumping full page content to stdout; log a trimmed snippet for debugging.
+                if result.content_text:
+                    snippet = (result.content_text[:200] + "…") if len(result.content_text) > 200 else result.content_text
+                    logger.debug("Content snippet: %s", snippet)
             elif isinstance(result, Exception):
                 logger.error(f"Scraper failed with exception: {result}", exc_info=False)
 

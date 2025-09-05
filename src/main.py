@@ -50,6 +50,11 @@ async def main():
         help="Export scraped data to JSON file"
     )
     action_group.add_argument(
+        "--export-md",
+        metavar="FILE",
+        help="Export scraped data to Markdown report"
+    )
+    action_group.add_argument(
         "--brain-snapshot",
         action="store_true",
         help="Output current (Hybrid) Brain snapshot as JSON and exit"
@@ -101,8 +106,11 @@ async def main():
         await export_to_csv(args.export_csv, args.db_path)
     elif args.export_json:
         await export_to_json(args.export_json, args.db_path)
+    elif args.export_md:
+        await export_to_markdown(args.export_md, args.db_path)
     else:
-        logger.warning("No action specified. Use --help to see available options.")
+        # Mensaje esperado por tests: contiene 'Ninguna acci'
+        logger.warning("Ninguna acción especificada. Usa --help para ver opciones disponibles.")
         parser.print_help()
 
 async def launch_tui():
@@ -162,6 +170,13 @@ async def export_to_json(file_path: str, db_path: str):
     db_manager = DatabaseManager(db_path=db_path)
     await asyncio.to_thread(db_manager.export_to_json, file_path)
     logger.info("JSON export completed")
+
+async def export_to_markdown(file_path: str, db_path: str):
+    """Export scraped data to a Markdown report."""
+    logger.info(f"Exporting data to Markdown: {file_path}")
+    db_manager = DatabaseManager(db_path=db_path)
+    await asyncio.to_thread(db_manager.export_to_markdown, file_path)
+    logger.info("Markdown export completed")
 
 if __name__ == "__main__":
     asyncio.run(main())

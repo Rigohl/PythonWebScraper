@@ -1,0 +1,206 @@
+{
+  "sessions": [
+    {
+      "t": 1757042508.8422163,
+      "domain": "c.com",
+      "url": "https://c.com/page1",
+      "status": "",
+      "success": false,
+      "response_time": 200,
+      "crawl_duration": null,
+      "links_count": 2,
+      "extracted_fields": 1,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": null,
+      "content_type": null,
+      "content_len": 0,
+      "patterns": [
+        "field_title",
+        "short_text_title",
+        "links_found_2",
+        "small_content"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "",
+      "tag_counts": {},
+      "complexity": "unknown",
+      "hour": 21
+    },
+    {
+      "t": 1757042795.9272864,
+      "domain": "c.com",
+      "url": "https://c.com/page1",
+      "status": "",
+      "success": false,
+      "response_time": 200,
+      "crawl_duration": null,
+      "links_count": 2,
+      "extracted_fields": 1,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": null,
+      "content_type": null,
+      "content_len": 0,
+      "patterns": [
+        "field_title",
+        "short_text_title",
+        "links_found_2",
+        "small_content"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "",
+      "tag_counts": {},
+      "complexity": "unknown",
+      "hour": 21
+    },
+    {
+      "t": 1757042986.9534364,
+      "domain": "c.com",
+      "url": "https://c.com/page1",
+      "status": "",
+      "success": false,
+      "response_time": 200,
+      "crawl_duration": null,
+      "links_count": 2,
+      "extracted_fields": 1,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": null,
+      "content_type": null,
+      "content_len": 0,
+      "patterns": [
+        "field_title",
+        "short_text_title",
+        "links_found_2",
+        "small_content"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "",
+      "tag_counts": {},
+      "complexity": "unknown",
+      "hour": 21
+    },
+    {
+      "t": 1757043184.7794952,
+      "domain": "c.com",
+      "url": "https://c.com/page1",
+      "status": "",
+      "success": false,
+      "response_time": 200,
+      "crawl_duration": null,
+      "links_count": 2,
+      "extracted_fields": 1,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": null,
+      "content_type": null,
+      "content_len": 0,
+      "patterns": [
+        "field_title",
+        "short_text_title",
+        "links_found_2",
+        "small_content"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "",
+      "tag_counts": {},
+      "complexity": "unknown",
+      "hour": 21
+    },
+    {
+      "t": 1757043658.1888971,
+      "domain": "c.com",
+      "url": "https://c.com/page1",
+      "status": "",
+      "success": false,
+      "response_time": 200,
+      "crawl_duration": null,
+      "links_count": 2,
+      "extracted_fields": 1,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": null,
+      "content_type": null,
+      "content_len": 0,
+      "patterns": [
+        "field_title",
+        "short_text_title",
+        "links_found_2",
+        "small_content"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "",
+      "tag_counts": {},
+      "complexity": "unknown",
+      "hour": 21
+    }
+  ],
+  "domain_index": {
+    "c.com": {
+      "attempts": 5,
+      "success": 0,
+      "response_times": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "patterns": {
+        "field_title": 5,
+        "short_text_title": 5,
+        "links_found_2": 5,
+        "small_content": 5
+      },
+      "errors": {},
+      "content_types": {},
+      "complexity": {
+        "unknown": 5
+      },
+      "structure_hashes": {},
+      "hour_profile": {
+        "21": {
+          "a": 1,
+          "s": 0
+        },
+        "21": {
+          "a": 1,
+          "s": 0
+        }
+      }
+    }
+  },
+  "pattern_freq": {
+    "field_title": 5,
+    "short_text_title": 5,
+    "links_found_2": 5,
+    "small_content": 5
+  },
+  "error_signatures": {},
+  "content_type_stats": {},
+  "complexity_distribution": {
+    "unknown": 5
+  },
+  "hour_success": {
+    "21": {
+      "attempts": 1,
+      "success": 0
+    },
+    "21": {
+      "attempts": 1,
+      "success": 0
+    }
+  },
+  "last_saved": 1757043658.1908915
+}

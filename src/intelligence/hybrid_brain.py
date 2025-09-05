@@ -21,6 +21,11 @@ import statistics
 
 from .brain import Brain, ExperienceEvent
 from .autonomous_brain import AutonomousLearningBrain, ScrapingSession, DomainIntelligence
+from .brain_enrichment import EnrichmentStore
+from .self_repair import SelfRepairAdvisor
+from .knowledge_base import KnowledgeBase
+from .rule_engine import RuleEngine
+from .auto_testing import AutoTestingFramework
 import time
 
 logger = logging.getLogger(__name__)
@@ -41,6 +46,30 @@ class HybridBrain:
 
         # Cargar configuración de overrides según sugerencia de IA-A
         self.overrides = self._load_brain_overrides()
+        # Almacén de enriquecimiento avanzado (no crítico, solo conocimiento incremental)
+        self.enrichment = EnrichmentStore()
+        # Asesor de auto-reparación (solo genera sugerencias, no modifica código)
+        self.self_repair_advisor = SelfRepairAdvisor(
+            self.simple_brain,
+            self.autonomous_brain,
+            self.enrichment,
+            overrides=self.overrides,
+            knowledge_base=None  # provisional, se asigna tras crear KB
+        )
+        # Base de conocimiento estructurada
+        self.knowledge_base = KnowledgeBase()
+        # Inyectar KB ya construida
+        self.self_repair_advisor.knowledge_base = self.knowledge_base
+        # Motor de reglas declarativo
+        self.rule_engine = RuleEngine()
+        # Sistema de testing automático y simulación
+        self.auto_testing = AutoTestingFramework()
+
+        # Persistir knowledge base inicial
+        try:
+            self.knowledge_base.persist()
+        except Exception:
+            pass
 
         logger.info("🧠 Hybrid Brain initialized - combining IA-A + IA-B intelligence systems")
         logger.info(f"🧠 Brain overrides loaded: {len(self.overrides)} settings")
@@ -137,8 +166,105 @@ class HybridBrain:
         except Exception as e:
             logger.error(f"Failed to register autonomous learning session: {e}")
 
+        # Registrar enriquecimiento (tolerante a fallos, nunca rompe el flujo)
+        try:
+            self.enrichment.add_session(result, context=context, patterns=patterns_found)
+        except Exception:
+            pass
+
+        # Auto-aprendizaje dinámico de knowledge base
+        try:
+            self._auto_learn_from_session(result, context, patterns_found)
+        except Exception:
+            pass
+
         # Log híbrido
         logger.debug(f"🧠 Hybrid learning: {status} for {domain} - Brain+Autonomous updated")
+
+        # Chequear y reportar avisos de alto impacto
+        try:
+            self._check_and_report_advisories(domain)
+        except Exception as e:
+            logger.error(f"Error checking/reporting advisories: {e}")
+
+    def _check_and_report_advisories(self, domain: str):
+        """Revisa y reporta avisos de alto impacto para un dominio."""
+        # 1. Obtener la tasa de error actual del cerebro simple
+        error_rate = self.simple_brain.domain_error_rate(domain)
+        min_visits = self.overrides.get('min_visits_for_backoff', 5)
+        
+        # 2. Solo actuar si hay suficientes datos
+        if self.simple_brain.domain_stats.get(domain, {}).get('visits', 0) < min_visits:
+            return
+
+        # 3. Si la tasa de error es alta, generar sugerencias
+        if error_rate >= self.overrides.get('backoff_threshold', 0.5):
+            # Usar el Rule Engine para obtener la sugerencia específica
+            domain_data = {'domain': domain, 'error_rate': error_rate}
+            rule_results = self.rule_engine.evaluate_all(domain_data)
+            
+            # Buscar la regla de backoff
+            backoff_suggestion = next((r for r in rule_results if r.get('rule_id') == 'high_error_rate_backoff'), None)
+
+            if backoff_suggestion:
+                # Obtener conocimiento relacionado
+                kb_ref_id = "scraping:respect-delays"
+                kb_snippet = self.knowledge_base.get(kb_ref_id)
+                kb_snippet = self.knowledge_base.get(kb_ref_id)
+                kb_title = kb_snippet.get('title', 'N/A') if kb_snippet else 'N/A'
+
+                # Imprimir el aviso en un formato claro y estructurado
+                print("\n" + "-"*25)
+                print("🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
+                print("-"*25)
+                print(f"Dominio:           {domain}")
+                print(f"Síntoma:           Tasa de Error Elevada ({error_rate:.1%})")
+                print(f"Sugerencia ID:     {backoff_suggestion['rule_id']}")
+                print(f"Recomendación:     {backoff_suggestion['message']}")
+                print(f"Conocimiento Rel.: {kb_ref_id} - {kb_title}")
+                print("-"*25 + "\n")
+
+        # Chequear y reportar avisos de alto impacto
+        try:
+            self._check_and_report_advisories(domain)
+        except Exception as e:
+            logger.error(f"Error checking/reporting advisories: {e}")
+
+    def _check_and_report_advisories(self, domain: str):
+        """Revisa y reporta avisos de alto impacto para un dominio."""
+        # 1. Obtener la tasa de error actual del cerebro simple
+        error_rate = self.simple_brain.domain_error_rate(domain)
+        min_visits = self.overrides.get('min_visits_for_backoff', 5)
+        
+        # 2. Solo actuar si hay suficientes datos
+        if self.simple_brain.domain_stats.get(domain, {}).get('visits', 0) < min_visits:
+            return
+
+        # 3. Si la tasa de error es alta, generar sugerencias
+        if error_rate >= self.overrides.get('backoff_threshold', 0.5):
+            # Usar el Rule Engine para obtener la sugerencia específica
+            domain_data = {'domain': domain, 'error_rate': error_rate}
+            rule_results = self.rule_engine.evaluate_all(domain_data)
+            
+            # Buscar la regla de backoff
+            backoff_suggestion = next((r for r in rule_results if r.get('rule_id') == 'high_error_rate_backoff'), None)
+
+            if backoff_suggestion:
+                # Obtener conocimiento relacionado
+                kb_ref_id = "scraping:respect-delays"
+                kb_snippet = self.knowledge_base.get(kb_ref_id)
+                kb_title = kb_snippet.get('title', 'N/A') if kb_snippet else 'N/A'
+
+                # Imprimir el aviso en un formato claro y estructurado
+                print("\n" + "-"*25)
+                print("🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
+                print("-"*25)
+                print(f"Dominio:           {domain}")
+                print(f"Síntoma:           Tasa de Error Elevada ({error_rate:.1%})")
+                print(f"Sugerencia ID:     {backoff_suggestion['rule_id']}")
+                print(f"Recomendación:     {backoff_suggestion['message']}")
+                print(f"Conocimiento Rel.: {kb_ref_id} - {kb_title}")
+                print("-"*25 + "\n")
 
     def _extract_patterns(self, result) -> List[str]:
         """Extrae patrones avanzados del resultado para el aprendizaje autónomo profundo"""
@@ -535,6 +661,11 @@ class HybridBrain:
             'hybrid_system': True,
             'simple_brain': simple_stats,
             'autonomous_brain': autonomous_stats,
+            'enrichment': self.enrichment.summarize(),
+            'repair_suggestions_preview': self.generate_repair_suggestions(limit=5),
+            'knowledge_base_snippets': len(self.knowledge_base.snippets),
+            'rule_engine_summary': self.rule_engine.get_rule_summary(),
+            'auto_testing_summary': self.auto_testing.get_testing_summary(),
             'top_performing_domains': self._get_top_performing_domains(),
             'learning_insights': self._get_learning_insights(),
             'overrides': self.overrides,
@@ -601,7 +732,10 @@ class HybridBrain:
             insights.append(f"Errores más comunes: {', '.join([f'{err}({count})' for err, count in top_errors])}")
 
         # Insights del sistema autónomo
-        total_patterns = sum(len(di.discovered_patterns) for di in self.autonomous_brain.domain_intelligence.values())
+        try:
+            total_patterns = sum(len(di.common_patterns) for di in self.autonomous_brain.domain_intelligence.values())
+        except Exception:
+            total_patterns = 0
         if total_patterns > 0:
             insights.append(f"Patrones descubiertos: {total_patterns} únicos")
 
@@ -617,10 +751,27 @@ class HybridBrain:
     def flush(self):
         """Persiste el estado de ambos sistemas"""
         self.simple_brain.flush()
-        self.autonomous_brain.save_learning_data()
+        # Persistencia del cerebro autónomo (compatibilidad: usar método privado existente)
+        try:
+            if hasattr(self.autonomous_brain, 'save_learning_data'):
+                self.autonomous_brain.save_learning_data()  # type: ignore[attr-defined]
+            else:
+                self.autonomous_brain._save_intelligence()  # type: ignore[attr-defined]
+        except Exception:
+            logger.debug("No se pudo persistir autonomous_brain", exc_info=True)
+        # Persistir enriquecimiento avanzado
+        try:
+            self.enrichment.save()
+        except Exception:
+            pass
 
         # Actualizar comunicación inter-IA
         self._update_ia_sync()
+        # Actualizar reporte de auto-repair (advisory)
+        try:
+            self.export_repair_report()
+        except Exception:
+            pass
 
     def _update_ia_sync(self):
         """Actualiza el archivo de sincronización inter-IA"""
@@ -643,6 +794,203 @@ class HybridBrain:
 
         except Exception as e:
             logger.error(f"Failed to update IA_SYNC: {e}")
+
+    # ----------------- Motor de sugerencias / Auto-repair (advisory) -----------------
+    def generate_repair_suggestions(self, limit: int = 15) -> List[Dict[str, Any]]:
+        """Genera sugerencias inteligentes priorizadas.
+
+        Solo lectura: no ejecuta cambios. Devuelve lista de dicts.
+        """
+        try:
+            return self.self_repair_advisor.generate(limit=limit)
+        except Exception:
+            return []
+
+    def export_repair_report(self, path: str = "IA_SELF_REPAIR.md", limit: int = 25):
+        """Exporta reporte detallado de sugerencias a un archivo Markdown."""
+        try:
+            suggestions = self.generate_repair_suggestions(limit=limit)
+            lines = [
+                "# IA Self-Repair Advisory Report",
+                "",
+                "> Informe generado automáticamente por HybridBrain (capa advisory, sin auto-modificación)",
+                "",
+                f"Generado: {datetime.utcnow().isoformat()}Z",
+                f"Total sugerencias: {len(suggestions)}",
+                "",
+                "## Sugerencias Prioritarias",
+                ""
+            ]
+            for s in suggestions:
+                lines.extend([
+                    f"### {s['title']} ({s['severity'].upper()})",
+                    f"ID: `{s['id']}` | Categoría: {s['category']} | Confianza: {s.get('confidence', 0):.2f}",
+                    (f"Referencias KB: {', '.join(s.get('kb_refs', []))}" if s.get('kb_refs') else ""),
+                    "",
+                    f"**Rationale:** {s['rationale']}",
+                    "",
+                    f"**Acción Recomendada:** {s['recommended_action']}",
+                    "",
+                    f"**Señales:** `{s['signals']}`",
+                    "",
+                    "---",
+                    ""
+                ])
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(lines))
+        except Exception:
+            pass
+
+    # ----------------- Conocimiento / Razonamiento -----------------
+    def get_knowledge(self, category: str = None, tags: List[str] = None, limit: int = 5) -> List[Dict[str, Any]]:
+        try:
+            results = self.knowledge_base.search(category=category, tags=tags)
+            return results[:limit]
+        except Exception:
+            return []
+
+    def reason_about_issue(self, observation: Dict[str, Any]) -> Dict[str, Any]:
+        """Razonamiento ligero sobre un problema reportado.
+
+        observation ejemplo:
+          {
+            'domain': 'example.com',
+            'symptom': 'high_error_rate',
+            'error_rate': 0.7,
+            'avg_response_time': 3.2
+          }
+        Retorna hipótesis y referencias de conocimiento.
+        """
+        domain = observation.get('domain')
+        symptom = observation.get('symptom')
+        hypotheses = []
+        kb_refs = []
+        try:
+            if symptom == 'high_error_rate':
+                er = observation.get('error_rate', 0)
+                if er >= self.overrides.get('backoff_threshold', 0.5):
+                    hypotheses.append('Posible saturación o bloqueo parcial: aplicar backoff y revisar patrones de petición.')
+                    kb_refs.extend([s['id'] for s in self.get_knowledge(category='scraping', tags=['adaptive'])])
+                    kb_refs.extend([s['id'] for s in self.get_knowledge(category='anti-bot')])
+            if symptom == 'slow_domain':
+                kb_refs.extend([s['id'] for s in self.get_knowledge(category='performance')])
+                hypotheses.append('Latencia elevada sostenida: considerar aumentar delay y habilitar caching selectivo.')
+            if symptom == 'structural_drift':
+                kb_refs.extend([s['id'] for s in self.get_knowledge(category='selectors')])
+                hypotheses.append('Variación estructural: regenerar selectores robustos y añadir fallback XPath.')
+        except Exception:
+            pass
+        return {
+            'domain': domain,
+            'symptom': symptom,
+            'hypotheses': hypotheses,
+            'knowledge_refs': list(dict.fromkeys(kb_refs))
+        }
+
+    def reason_declaratively(self, domain_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Razonamiento declarativo usando rule engine.
+
+        domain_data ejemplo:
+          {
+            'domain': 'example.com',
+            'error_rate': 0.7,
+            'response_time': 3.2,
+            'global_avg': 1.8,
+            'structure_drift_score': 0.5,
+            'healing_ratio': 0.3,
+            'hour_success_gain': 0.4,
+            'best_hour': 14
+          }
+        """
+        try:
+            return self.rule_engine.evaluate_all(domain_data)
+        except Exception:
+            return []
+
+    def _auto_learn_from_session(self, result, context: Dict[str, Any], patterns: List[str]):
+        """Auto-aprendizaje dinámico: extrae conocimiento de sesiones exitosas."""
+        try:
+            if not getattr(result, 'success', False):
+                return
+
+            # Generar snippets dinámicos de patrones exitosos
+            domain = urlparse(getattr(result, 'url', '')).netloc
+            response_time = (context or {}).get('response_time', 0)
+
+            # Aprender de velocidad excepcional
+            if response_time and response_time < 0.3:
+                snippet_id = f"learned:fast_domain:{domain.replace('.', '_')}"
+                if snippet_id not in self.knowledge_base.snippets:
+                    from .knowledge_base import KnowledgeSnippet
+                    snippet = KnowledgeSnippet(
+                        id=snippet_id,
+                        category="performance",
+                        title=f"Optimización observada en {domain}",
+                        content=f"Dominio {domain} responde consistentemente en <0.3s. Mantener configuración actual.",
+                        tags=["learned", "fast", domain],
+                        quality_score=0.7
+                    )
+                    self.knowledge_base.snippets[snippet_id] = snippet
+
+            # Aprender de patrones de extracción exitosos
+            if patterns and len(patterns) >= 3:
+                snippet_id = f"learned:extraction:{domain.replace('.', '_')}"
+                if snippet_id not in self.knowledge_base.snippets:
+                    from .knowledge_base import KnowledgeSnippet
+                    top_patterns = patterns[:5]
+                    snippet = KnowledgeSnippet(
+                        id=snippet_id,
+                        category="selectors",
+                        title=f"Patrones exitosos en {domain}",
+                        content=f"Patrones validados: {', '.join(top_patterns)}. Priorizar estos selectores.",
+                        tags=["learned", "extraction", domain],
+                        quality_score=0.75
+                    )
+                    self.knowledge_base.snippets[snippet_id] = snippet
+
+        except Exception:
+            pass
+
+    def evaluate_suggestion_effectiveness(self, suggestion_id: str, outcome: str, metrics: Dict[str, Any]):
+        """Sistema meta-cognitivo: evalúa efectividad de sugerencias aplicadas.
+
+        Args:
+            suggestion_id: ID de la sugerencia aplicada
+            outcome: 'success', 'failure', 'partial'
+            metrics: métricas antes/después del cambio
+        """
+        try:
+            # Almacenar feedback en knowledge base
+            feedback_id = f"feedback:{suggestion_id}:{time.time()}"
+            from .knowledge_base import KnowledgeSnippet
+
+            effectiveness_score = {
+                'success': 0.9,
+                'partial': 0.6,
+                'failure': 0.2
+            }.get(outcome, 0.5)
+
+            snippet = KnowledgeSnippet(
+                id=feedback_id,
+                category="meta-learning",
+                title=f"Efectividad de {suggestion_id}",
+                content=f"Sugerencia {suggestion_id} resultó en {outcome}. Métricas: {metrics}",
+                tags=["feedback", "effectiveness", outcome],
+                quality_score=effectiveness_score
+            )
+            self.knowledge_base.snippets[feedback_id] = snippet
+
+            # Ajustar reglas dinámicamente según feedback
+            if outcome == 'failure':
+                # Reducir prioridad de reglas similares
+                rule_category = suggestion_id.split('::')[0] if '::' in suggestion_id else None
+                if rule_category:
+                    for rule in self.rule_engine.rules.values():
+                        if rule.action.category == rule_category:
+                            rule.priority = max(10, rule.priority - 10)
+
+        except Exception:
+            pass
 
 # Singleton para uso global
 _hybrid_brain_instance = None

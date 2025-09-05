@@ -502,6 +502,101 @@ class DatabaseManager:
             json.dump(results, f, indent=4, ensure_ascii=False)
         logger.info(f"{len(results)} registros exportados a {file_path}")
 
+    def export_to_markdown(self, file_path: str) -> None:
+        """Generate a rich Markdown report of stored results.
+
+        The report includes:
+        - Summary counts by status
+        - Top domains by pages scraped
+        - Recent pages (last 10)
+        - Table of SUCCESS pages with extracted data (truncated)
+        - Intelligence snapshot placeholders (if brain state files exist)
+        """
+        export_dir = os.path.dirname(file_path)
+        if export_dir:
+            os.makedirs(export_dir, exist_ok=True)
+
+        results = self.list_results()
+        if not results:
+            logger.warning("No hay datos para exportar a Markdown. No se creará ningún archivo.")
+            return
+
+        from collections import Counter
+        status_counter = Counter(r.get("status", "UNKNOWN") for r in results)
+        domain_counter = Counter()
+        for r in results:
+            url = r.get("url") or ""
+            try:
+                from urllib.parse import urlparse as _urlparse
+                net = _urlparse(url).netloc
+                if net:
+                    domain_counter[net] += 1
+            except Exception:
+                pass
+
+        # Recent pages by scraped_at
+        def _parse_dt(row):
+            val = row.get("scraped_at")
+            return val or ""
+        recent = sorted(results, key=_parse_dt, reverse=True)[:10]
+
+        # Build markdown
+        lines: list[str] = []
+        lines.append("# Informe de Scraping (Markdown Export)\n")
+        lines.append(f"Generado: {__import__('datetime').datetime.utcnow().isoformat()}Z\n")
+        lines.append("## Resumen de Estados")
+        for status, count in sorted(status_counter.items()):
+            lines.append(f"- **{status}**: {count}")
+
+        lines.append("\n## Top Dominios")
+        for domain, count in domain_counter.most_common(10):
+            lines.append(f"- {domain}: {count} páginas")
+
+        lines.append("\n## Páginas Recientes (10)")
+        for r in recent:
+            lines.append(f"- {r.get('scraped_at','?')} | {r.get('status')} | {r.get('url')}")
+
+        # SUCCESS table
+        success_rows = [r for r in results if r.get("status") == "SUCCESS"]
+        if success_rows:
+            lines.append("\n## Resultados SUCCESS (Tabla)")
+            lines.append("| URL | Title | Extracted Keys | Content (snippet) |")
+            lines.append("| --- | ----- | -------------- | ----------------- |")
+            for r in success_rows[:50]:  # limit table
+                title = (r.get("title") or "").replace("|", " ")
+                extracted = r.get("extracted_data") or {}
+                if isinstance(extracted, str):
+                    try:
+                        extracted = json.loads(extracted)
+                    except Exception:
+                        extracted = {"raw": extracted[:40]}
+                extracted_keys = ",".join(list(extracted.keys())[:6]) if isinstance(extracted, dict) else "-"
+                content = (r.get("content_text") or "").replace("\n", " ")
+                if len(content) > 120:
+                    content = content[:117] + "..."
+                url = (r.get("url") or "").replace("|", " ")
+                lines.append(f"| {url} | {title[:60]} | {extracted_keys} | {content} |")
+        else:
+            lines.append("\n_No hay resultados SUCCESS para tabular._")
+
+        # Brain / intelligence placeholders
+        brain_state_path = os.path.join("data", "brain_state.json")
+        if os.path.exists(brain_state_path):
+            try:
+                with open(brain_state_path, "r", encoding="utf-8") as bf:
+                    brain_data = json.load(bf)
+                lines.append("\n## Brain Snapshot (Resumen)")
+                # Extraer campos clave si existen
+                if isinstance(brain_data, dict):
+                    keys = list(brain_data.keys())[:15]
+                    lines.append("Campos: " + ", ".join(keys))
+            except Exception as e:
+                lines.append(f"\n_No se pudo leer brain_state.json: {e}_")
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")
+        logger.info(f"Informe Markdown exportado a {file_path}")
+
     # ------------------------------------------------------------------
     # Search operations
     # ------------------------------------------------------------------

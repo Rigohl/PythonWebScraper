@@ -176,10 +176,10 @@ class DomainStats(Container):
         self._update_scheduled = False
 
     def compose(self) -> ComposeResult:
-        yield DataTable(
-            headers=["Dominio", "Backoff", "Scraped", "Baja Calidad", "Vacío", "Fallos"],
-            classes="domain-stats-table",
-        )
+        table = DataTable(classes="domain-stats-table")
+        # Textual < 0.50 no soporta kwarg 'headers'; añadimos columnas manualmente
+        table.add_columns("Dominio", "Backoff", "Scraped", "Baja Calidad", "Vacío", "Fallos")
+        yield table
         self.border_title = "Métricas por Dominio"
 
     def update_stats(self, domain_metrics: dict):
@@ -237,11 +237,9 @@ class BrainStats(Container):
         self._last_snapshot = None
 
     def compose(self) -> ComposeResult:
-        yield DataTable(
-            headers=["Dominio", "Visitas", "Éxito%", "Error%", "LinkYield", "Prioridad"],
-            classes="brain-stats-table",
-            id="brain_stats_table",
-        )
+        table = DataTable(classes="brain-stats-table", id="brain_stats_table")
+        table.add_columns("Dominio", "Visitas", "Éxito%", "Error%", "LinkYield", "Prioridad")
+        yield table
         yield Log(id="brain_recent_events", highlight=False)
         self.border_title = "Brain"
 
@@ -299,10 +297,9 @@ class IntelligenceStats(Container):
 
     def compose(self) -> ComposeResult:
         yield Static("🧠 Sistema de Inteligencia Autónoma", classes="intelligence-title")
-        yield DataTable(
-            headers=["Métrica", "Valor"],
-            classes="intelligence-table",
-        )
+        table = DataTable(classes="intelligence-table")
+        table.add_columns("Métrica", "Valor")
+        yield table
         self.border_title = "🧠 Inteligencia Autónoma"
 
     def update_intelligence_stats(self, intelligence_data: dict):
@@ -577,6 +574,16 @@ class ScraperTUIApp(App):
         elif not self._ui_update_scheduled:
             self._ui_update_scheduled = True
             self.call_after_refresh(self._update_ui_batch)
+
+        # Actualizar barra de progreso basada en processed/(processed+queue)
+        try:
+            total_est = self.live_stats_data["processed"] + self.live_stats_data["queue_size"]
+            if total_est > 0:
+                ratio = self.live_stats_data["processed"] / total_est
+                progress_bar = self.query_one(ProgressBar)
+                progress_bar.update(progress=int(ratio * 100))
+        except Exception:
+            pass
 
     def _update_ui_now(self):
         """Actualiza la UI inmediatamente."""

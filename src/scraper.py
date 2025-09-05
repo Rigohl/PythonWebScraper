@@ -39,6 +39,12 @@ from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 from readability import Document
 
 from .database import DatabaseManager
+try:
+    # Adapter interface (tests inject MockBrowserAdapter via keyword browser_adapter)
+    from .adapters.browser_adapter import BrowserAdapter, PlaywrightAdapter
+except Exception:  # pragma: no cover
+    BrowserAdapter = object  # type: ignore
+    PlaywrightAdapter = object  # type: ignore
 from .exceptions import ContentQualityError, NetworkError, ParsingError
 from .llm_extractor import LLMExtractor
 from .models.results import ScrapeResult
@@ -70,11 +76,36 @@ class AdvancedScraper:
         extract structured data according to a Pydantic schema.
     """
 
-    def __init__(self, page: Page, db_manager: DatabaseManager, llm_extractor: LLMExtractor) -> None:
-        self.page = page
+    def __init__(self, page: Page | None = None, db_manager: DatabaseManager | None = None,
+                 llm_extractor: LLMExtractor | None = None, *, browser_adapter=None, llm_adapter=None):
+        """Create scraper.
+
+        Backwards compatibility:
+        - Original signature was (page, db_manager, llm_extractor)
+        - Tests now pass keyword browser_adapter=MockBrowserAdapter
+        - Production orchestrator still constructs with a Playwright Page
+        """
+        # Allow alias llm_adapter used in tests; wrap in LLMExtractor for uniform API
+        if llm_extractor is None and llm_adapter is not None:
+            try:
+                llm_extractor = LLMExtractor(adapter=llm_adapter)  # type: ignore
+            except Exception:
+                llm_extractor = llm_adapter  # last resort
+
+        if browser_adapter is None and page is not None:
+            # Wrap provided Playwright page with adapter for unified interface
+            try:
+                browser_adapter = PlaywrightAdapter(page)  # type: ignore
+            except Exception:
+                browser_adapter = None
+        if browser_adapter is None:
+            raise ValueError("Se requiere 'browser_adapter' o 'page' válido para inicializar AdvancedScraper")
+        if db_manager is None or llm_extractor is None:
+            raise ValueError("db_manager y llm_extractor son obligatorios")
+        self.adapter = browser_adapter
+        self.page = page  # Puede ser None en tests (MockAdapter no necesita Page real)
         self.db_manager = db_manager
         self.llm_extractor = llm_extractor
-        # Use a dedicated logger for this instance
         self.logger = logging.getLogger(self.__class__.__name__)
 
     async def scrape(
@@ -115,7 +146,7 @@ class AdvancedScraper:
                 if domain:
                     await self._persist_cookies(domain)
                 # Extract raw HTML and parse visible content
-                full_html = await self.page.content()
+                full_html = await self.adapter.get_content() if hasattr(self.adapter, 'get_content') else await self.page.content()  # type: ignore
                 scrape_result = await self._process_content(url, full_html, response, extraction_schema)
             except (PlaywrightTimeoutError, NetworkError) as exc:
                 self.logger.warning(f"Error de red o timeout en scrape de {url}: {exc}")
@@ -163,12 +194,25 @@ class AdvancedScraper:
                     self.logger.debug(f"No se pudo guardar la API descubierta para {response.url}", exc_info=True)
 
         # Attach listener
-        self.page.on("response", handler)
+        # Adapter aware response hook
+        if hasattr(self.adapter, 'add_response_listener'):
+            try:
+                self.adapter.add_response_listener(handler)
+            except Exception:
+                pass
+        elif self.page is not None:
+            self.page.on("response", handler)  # type: ignore
         try:
             yield
         finally:
             # Always detach listener to avoid leaks
-            self.page.remove_listener("response", handler)
+            try:
+                if hasattr(self.adapter, 'remove_response_listener'):
+                    self.adapter.remove_response_listener(handler)
+                elif self.page is not None:
+                    self.page.remove_listener("response", handler)  # type: ignore
+            except Exception:
+                pass
 
     async def _apply_cookies(self, domain: str) -> None:
         """Load and apply cookies for a given domain from the database.
@@ -187,7 +231,10 @@ class AdvancedScraper:
             self.logger.error(f"Error al decodificar cookies para {domain}: {exc}")
             return
         try:
-            await self.page.context.add_cookies(cookies)
+            if hasattr(self.adapter, 'set_cookies'):
+                await self.adapter.set_cookies(cookies)  # type: ignore
+            elif self.page is not None:
+                await self.page.context.add_cookies(cookies)  # type: ignore
             self.logger.info(f"Cookies cargadas para {domain}")
         except Exception as exc:  # noqa: BLE001
             self.logger.debug(f"No se pudieron aplicar cookies para {domain}: {exc}")
@@ -195,7 +242,12 @@ class AdvancedScraper:
     async def _persist_cookies(self, domain: str) -> None:
         """Persist current cookies for a domain to the database."""
         try:
-            current_cookies = await self.page.context.cookies()
+            if hasattr(self.adapter, 'get_cookies'):
+                current_cookies = await self.adapter.get_cookies()  # type: ignore
+            elif self.page is not None:
+                current_cookies = await self.page.context.cookies()  # type: ignore
+            else:
+                current_cookies = []
         except Exception:
             self.logger.debug(f"No se pudieron obtener cookies actuales para {domain}")
             return
@@ -217,11 +269,28 @@ class AdvancedScraper:
         PlaywrightTimeoutError
             If navigation times out.
         """
-        response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30_000)
+        if hasattr(self.adapter, 'navigate_to_url'):
+            response_info = await self.adapter.navigate_to_url(url)
+            # Map adapter response to object-like for downstream minimal needs
+            class _Resp:
+                def __init__(self, info):
+                    self.status = info.get('status') if info else None
+                    self.url = info.get('url') if info else None
+                    self.headers = info.get('headers') if info else {}
+            response_obj = _Resp(response_info) if response_info else None
+            if response_obj and response_obj.status in settings.RETRYABLE_STATUS_CODES:
+                raise NetworkError(f"Estado reintentable: {response_obj.status}")
+            if hasattr(self.adapter, 'wait_for_load_state'):
+                try:
+                    await self.adapter.wait_for_load_state("networkidle")  # type: ignore
+                except Exception:
+                    pass
+            return response_obj
+        # Fallback to direct Playwright page
+        response = await self.page.goto(url, wait_until="domcontentloaded", timeout=30_000)  # type: ignore
         if response and response.status in settings.RETRYABLE_STATUS_CODES:
             raise NetworkError(f"Estado reintentable: {response.status}")
-        # Wait for network to be idle (no pending requests)
-        await self.page.wait_for_load_state("networkidle", timeout=15_000)
+        await self.page.wait_for_load_state("networkidle", timeout=15_000)  # type: ignore
         return response
 
     async def _process_content(
@@ -242,7 +311,13 @@ class AdvancedScraper:
         h.ignore_images = True
         raw_text = h.handle(content_html).strip()
         # Clean text via LLM module
-        cleaned_text = await self.llm_extractor.clean_text_content(raw_text)
+        # Support both LLMExtractor (clean_text_content) and raw adapter (clean_text)
+        if hasattr(self.llm_extractor, 'clean_text_content'):
+            cleaned_text = await self.llm_extractor.clean_text_content(raw_text)  # type: ignore
+        elif hasattr(self.llm_extractor, 'clean_text'):
+            cleaned_text = await self.llm_extractor.clean_text(raw_text)  # type: ignore
+        else:
+            cleaned_text = raw_text
         # Validate quality and length
         self._validate_content_quality(cleaned_text, title)
         # Compute content hash
@@ -255,8 +330,15 @@ class AdvancedScraper:
             if "display: none" not in a.get("style", "").lower()
         ]
         # Capture screenshot and derive a perceptual hash
-        screenshot = await self.page.screenshot()
-        visual_hash = str(imagehash.phash(Image.open(io.BytesIO(screenshot))))
+        visual_hash = None
+        try:
+            if hasattr(self.adapter, 'screenshot'):
+                screenshot = await self.adapter.screenshot()  # type: ignore
+            else:
+                screenshot = await self.page.screenshot()  # type: ignore
+            visual_hash = str(imagehash.phash(Image.open(io.BytesIO(screenshot))))
+        except Exception:
+            visual_hash = "unavailable"
         # Optionally perform structured extraction
         extracted_data = None
         if extraction_schema:

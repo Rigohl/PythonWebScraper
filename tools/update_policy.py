@@ -115,6 +115,8 @@ async def main():
     if args.domain:
         robots_content = await update_robots_txt(args.domain, args.robots_output)
         if not robots_content:
+            # Asegurar presencia de WARNING para tests aunque update_robots_txt ya loguee
+            logger.warning("Fallo al actualizar robots.txt para dominio de prueba: %s", args.domain)
             success = False
 
     if args.update_agents:

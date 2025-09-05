@@ -1,225 +1,562 @@
-# Web Scraper PRO
+<!-- AUTO-GENERATED HIGH DETAIL README (Mantener actualizado) -->
 
-Un crawler y archivador web inteligente, diseñado para ser adaptable, resiliente y fácil de usar.
+# Web Scraper PRO – Plataforma Inteligente de Exploración Web
 
-## Prerrequisitos
+Sistema de crawling, extracción y aprendizaje incremental orientado a resiliencia, adaptabilidad y extensibilidad. Diseñado para:
 
-- Python 3.10 o superior.
-
-## ¿Cómo Empezar? (Método Simple)
-
-### Opción 1: Launcher Unificado (Recomendado)
-
-1. **Ejecutar el launcher principal:**
-
-   **En Windows:**
-
-   ```cmd
-   WebScraperPRO.bat
-   ```
-
-   **En Linux/macOS:**
-
-   ```bash
-   ./WebScraperPRO.sh
-   ```
-
-   El launcher te guiará através de un menú interactivo donde podrás:
-   - Instalar dependencias automáticamente
-   - Ejecutar la interfaz TUI
-   - Hacer crawling de URLs específicas
-   - Exportar datos
-   - Ejecutar tests y más
-
-### Opción 2: Instalación Manual
-
-1. **Instalar Dependencias:**
-
-   ```bash
-   pip install -r requirements.txt
-   python -m playwright install
-   ```
-
-2. **Lanzar la Aplicación:**
-
-   **Interfaz TUI (Recomendado):**
-
-   ```bash
-   python -m src.main --tui
-   ```
-
-   **Modo Demo (sin Playwright):**
-
-   ```bash
-   python -m src.main --demo
-   ```
-
-3. **(Opcional) Ejecución por Línea de Comandos (CLI):**
-    Para automatización, también puedes ejecutarlo directamente (asegúrate de tener el entorno virtual activado).
-
-    ```bash
-    # Ejemplo: Iniciar un crawling desde la CLI (desde la raíz del proyecto)
-    python3 -m src.main --crawl http://toscrape.com/
-    ```
-
-    Para ver todas las opciones, usa `python3 -m src.main --help`.
+- Operar en modo totalmente automatizado (crawler + IA híbrida)
+- Ejecutar sesiones interactivas (TUI)
+- Aplicar extracción estructurada dinámicamente (LLM Zero‑Shot)
+- Aprender patrones de cada dominio y optimizar la estrategia
+- Exportar datos limpios y auditables
 
 ---
 
-## Configuración
+## 1. Requisitos Previos
 
-El proyecto utiliza `pydantic-settings` para gestionar la configuración, lo que permite una gran flexibilidad. La configuración se carga desde las siguientes fuentes, en orden de prioridad:
+| Recurso | Mínimo Recomendado | Notas |
+|---------|--------------------|-------|
+| Python  | 3.10+ (probado 3.12) | Asegura UTF‑8 por defecto |
+| Playwright | Última estable | Necesario salvo modo `--demo` |
+| SO | Windows / Linux / macOS | Batch principal pensado para Windows |
+| RAM | ≥ 2 GB | Más si activas RL + muchas pestañas |
+| Conexión | Estable | Para scraping real (demo funciona offline) |
 
-1. **Variables de entorno del sistema.**
-2. **Un archivo `.env`** en la raíz del proyecto.
-3. **Valores por defecto** definidos en `src/settings.py`.
-
-Para personalizar tu configuración, simplemente copia el archivo `.env.example` a `.env` y modifica los valores.
-
-```bash
-# Ejemplo de contenido para tu archivo .env
-CONCURRENCY=10
-LLM_API_KEY is read from the environment or a `.env` file. Do NOT hardcode
-real API keys in the repository. Create a `.env` file with the key like:
+Instala navegadores de Playwright tras dependencias:
 
 ```powershell
-setx LLM_API_KEY "sk-..."
-```
-
-DB_PATH="data/mi_base_de_datos.db"
-
+python -m playwright install
 ```
 
 ---
 
-## Cómo Funciona (Flujo Detallado)
+## 2. Lanzamiento Rápido (Windows – Recomendado)
 
-El proceso de scraping es gestionado por un orquestador concurrente:
+Ejecuta el lanzador unificado:
 
-1. **Inicio:** El proceso comienza con una o más URLs iniciales.
-2. **Cola de Trabajo:** Estas URLs se añaden a una cola de prioridad (`asyncio.PriorityQueue`), dando preferencia a las URLs que probablemente sean más importantes (ej. con menor profundidad de ruta y según el tipo de contenido de la página padre).
-3. **Pre-calificación y `robots.txt`:** Antes de encolar una URL, el sistema realiza una petición `HEAD` ultrarrápida para verificar que el tipo y tamaño del contenido son adecuados, descartando archivos grandes o no deseados sin necesidad de abrir un navegador. A continuación, respeta las directivas de `robots.txt` por defecto para un comportamiento ético (opción configurable).
-4. **Trabajadores (Workers):** Se lanza un número configurable de "trabajadores" asíncronos. Cada trabajador es una tarea que se ejecuta en un bucle infinito, esperando URLs en la cola.
-5. **Inteligencia y Adaptación:** El orquestador integra módulos para:
-    - **Rotación de User-Agents:** Gestiona un pool de User-Agents para simular diferentes navegadores y reducir la probabilidad de bloqueo.
-    - **Navegación Sigilosa (Stealth):** Gracias a la integración con `playwright-stealth`, cada página se parchea automáticamente para ocultar las huellas típicas de la automatización, superando muchas defensas anti-bot.
-    - **Gestión de Huellas Digitales (Fingerprinting):** Más allá del modo sigiloso, el `FingerprintManager` genera perfiles de navegador completos y consistentes. Para cada página, se aplica no solo un User-Agent, sino también un tamaño de viewport y propiedades de JavaScript (como `navigator.platform`) que se corresponden con ese perfil, frustrando las técnicas de fingerprinting avanzadas.
-    - **Manejo Inteligente de Cookies y Sesiones:** El sistema ahora persiste y reutiliza cookies por dominio, permitiendo mantener sesiones activas y sortear sistemas de autenticación o límites de acceso, mejorando la resistencia a la detección.
-    - **Extracción Dinámica con LLMs (Zero-Shot):** El scraper ahora puede extraer datos estructurados directamente del HTML utilizando un LLM. Los esquemas de extracción se pueden definir dinámicamente por dominio y se almacenan en la base de datos, lo que elimina la necesidad de selectores CSS estáticos y mejora la adaptabilidad del scraper a los cambios en el diseño web.
-    - **Alertas y Notificaciones en TUI:** Se ha implementado un sistema de alertas visuales directamente en la Interfaz de Usuario Textual (TUI), notificando al usuario sobre eventos críticos como fallos persistentes, bucles de redirección, problemas de calidad de contenido o cambios visuales significativos en las páginas.
-    - **Reintentos Adaptativos con Backoff Exponencial:** El orquestador gestiona los reintentos de forma inteligente. En caso de fallos temporales (como errores de red), aplica un tiempo de espera que aumenta exponencialmente con cada intento, permitiendo al scraper recuperarse de interrupciones sin saturar el servidor objetivo.
-    - **Agente de Aprendizaje por Refuerzo (RL) Evolucionado:** Se ha integrado un agente de RL basado en PPO (`stable-baselines3` y `gymnasium`). Este agente, a través del aprendizaje, puede ajustar dinámicamente parámetros de la estrategia de scraping como el factor de backoff, con el objetivo de optimizar el rendimiento y la resistencia a la detección de forma autónoma.
-    - **Protección contra Bucles y Trampas:** El sistema detecta y descarta automáticamente URLs que caen en patrones de ruta repetitivos (como calendarios infinitos) o que exceden un número máximo de redirecciones, evitando el consumo inútil de recursos.
-6. **Ciclo del Trabajador:**
-    - **Extracción de Tarea:** Un trabajador toma una URL de la cola.
-    - **Descarga y Análisis:** Usando una instancia de navegador compartida, el trabajador navega a la URL. Si la página falla por un error temporal, la reintentará varias veces. Una vez cargada, la procesa con el `AdvancedScraper` para extraer contenido y **enlaces visibles** (ignorando honeypots).
-    - **Limpieza y Extracción Inteligente:** El texto extraído se procesa a través de un módulo de LLM para eliminar "información basura" (menús, pies de página, etc.). Si se ha definido un esquema de extracción para el dominio, el LLM también se utiliza para extraer datos estructurados directamente del HTML.
-    - **Validación y Persistencia:** El resultado se valida con `Pydantic`. Antes de guardarlo, se calcula un hash del contenido. Si ya existe una página con el mismo contenido en la base de datos, se marca como `DUPLICATE` para evitar redundancia y procesar enlaces innecesarios. Finalmente, se guarda en la base de datos SQLite.
-    - **Descubrimiento:** Si el scraping fue exitoso y no es un duplicado, los enlaces encontrados se analizan. Aquellos que pertenecen al mismo dominio y no han sido vistos antes, se añaden a la cola de trabajo para continuar el ciclo.
-7. **Finalización:** El proceso continúa hasta que la cola se vacía y todos los trabajadores están inactivos. En ese momento, el orquestador cierra el navegador y finaliza.
+```powershell
+WebScraperPRO.bat
+```
+
+Funciones del menú (según versión actual):
+
+1. Instalar dependencias (runtime y dev)
+2. Ejecutar modo Demo (sin navegador real)
+3. Ejecutar Crawler (solicita URLs)
+4. Iniciar TUI interactiva
+5. Exportar CSV
+6. Exportar JSON
+7. Correr tests
+8. Mostrar estadísticas DB
+9. Snapshot cerebro (IA)
+10. Limpieza / mantenimiento
+
+En Linux/macOS usar `./WebScraperPRO.sh` (si existe) o invocar manualmente comandos equivalentes.
 
 ---
 
-## Estructura del Proyecto (Detallado)
-
-- `src/`: **Carpeta Principal del Código Fuente.** Organizada por funcionalidad.
-  - `main.py`: **Punto de Entrada.** Parsea argumentos de CLI y lanza la TUI o el crawler.
-  - `runner.py`: **Orquestador de Ejecución.** Contiene la lógica para configurar y lanzar una sesión de crawling completa.
-  - `settings.py`: Configuración global del proyecto vía `pydantic-settings`.
-  - `orchestrator.py`: Gestiona la concurrencia, la cola de tareas y el ciclo de vida del crawling.
-  - `scraper.py`: Lógica para descargar y procesar una única página con Playwright.
-  - `db/`: **Persistencia de datos.**
-    - `database.py`: Abstracción sobre la base de datos SQLite para guardar resultados, cookies, etc.
-  - `intelligence/`: **Módulos de IA.**
-    - `llm_extractor.py`: Integra LLMs para limpieza y extracción de datos estructurados.
-    - `rl_agent.py`: Agente de Aprendizaje por Refuerzo para optimización dinámica.
-  - `managers/`: **Gestores de recursos.**
-    - `fingerprint_manager.py`: Genera perfiles de navegador para evasión.
-    - `user_agent_manager.py`: Rota User-Agents para reducir bloqueos.
-  - `models/results.py`: **Modelos de datos Pydantic.** Define la estructura de `ScrapeResult`.
-  - `tui/`: **Interfaz de Usuario en Terminal.**
-    - `app.py`: Define la aplicación Textual y sus componentes.
-    - `styles.css`: Hoja de estilos para la TUI.
-- `tests/`: Pruebas unitarias y de integración.
-  - `tests/regression_fixtures/`: Contiene archivos HTML de sitios reales para realizar **testing de regresión**, asegurando que la lógica de extracción no se rompa con futuros cambios.
-- `requirements.txt`: Lista de todas las dependencias de Python.
-- `requirements-dev.txt`: Dependencias para desarrollo (testing, linting).
-- `MEJORAS.md`: La hoja de ruta estratégica del proyecto.
-- `README.md`: Este mismo archivo.
-
----
-
----
-
-## Tabla de Módulos y Propósito
-
-| Módulo/Carpeta         | Propósito Principal |
-|------------------------|--------------------|
-| src/main.py            | CLI/TUI, entrada principal |
-| src/runner.py          | Orquestador de ejecución |
-| src/settings.py        | Configuración global |
-| src/orchestrator.py    | Lógica de scraping concurrente |
-| src/scraper.py         | Descarga y procesamiento de páginas |
-| src/db/database.py     | Persistencia y exportación de resultados |
-| src/intelligence/      | IA: LLM y RL agent |
-| src/managers/          | Gestión de User-Agents y fingerprint |
-| src/models/results.py  | Modelos de datos Pydantic |
-| src/tui/               | Interfaz de usuario textual |
-| tests/                 | Pruebas unitarias/integración |
-
-## Recomendaciones de Desarrollo
-
-- Mantén los tests actualizados en `tests/`.
-- Usa `.env` para configuración sensible.
-- Documenta nuevas funciones y módulos.
-- Ejecuta `pytest` antes de cada despliegue.
-- Usa `requirements-dev.txt` para dependencias de desarrollo.
-- Revisa `MEJORAS.md` para la hoja de ruta y sugerencias de optimización.
-
-## Funcionalidades Clave
-
-- Scraping concurrente y adaptable.
-- Extracción inteligente con LLM (offline por defecto, configurable).
-- Agente RL para optimización dinámica.
-- Rotación avanzada de User-Agents y evasión de fingerprinting.
-- Exportación de resultados a CSV/JSON.
-- Interfaz TUI moderna y configurable.
-- Sistema de alertas y notificaciones.
-- Persistencia robusta en SQLite.
-- Cumplimiento ético y robots.txt configurable desde la GUI.
-
-## Buenas Prácticas
-
-- Mantén la raíz del proyecto limpia: solo scripts, configs y docs.
-- Los módulos deben estar en `src/` y organizados por funcionalidad.
-- Los tests deben estar en `tests/` y cubrir todos los módulos principales.
-- Elimina archivos temporales, duplicados y backups antiguos.
-- Actualiza el README y la documentación con cada cambio relevante.
-
-## Registro de Cambios
-
-- **2025-08-31**: Auditoría, limpieza y reorganización completa del proyecto. README actualizado.
-- **2025-08-28**: Completada la implementación de Extracción de Datos Zero-Shot con LLMs (Tarea A.2).
-
-### Cambios operativos (2025-08-31)
-
-- Reubiqué backups y scripts legacy a `backups/` para limpiar la raíz del repo.
-- Añadí `backups/RESTORE_GUIDE.md` y `backups/cleanup_backups.ps1`.
-
----
-
-## Quick start (actualizado)
-
-- Instalar dependencias (si necesitas usar los scripts legacy):
-
-  - Windows (legacy): `backups\\files\\backup_1-Install-Dependencies.bat`
-  - Lanzar scraper (legacy): `backups\\files\\backup_2-Launch-Scraper.bat`
-
-Alternatively, install dependencies manually and run the demo mode:
+## 3. Instalación Manual (Alternativa)
 
 ```powershell
 python -m pip install -r requirements.txt
+python -m playwright install
+```
+
+Probar modo demo (no requiere browsers instalados si contenido local):
+
+```powershell
 python -m src.main --demo
 ```
 
-> Nota: Los scripts de instalación y lanzamiento legacy se han movido a `backups/files/` para mantener la raíz del repo más limpia. Revisa `backups/README.md` para más detalles.
+Iniciar TUI:
+
+```powershell
+python -m src.main --tui
+```
+
+Crawler directo (URLs iniciales):
+
+```powershell
+python -m src.main --crawl https://books.toscrape.com/
+```
+
+Exportar resultados:
+
+```powershell
+python -m src.main --export-csv export.csv
+python -m src.main --export-json export.json
+```
+
+Snapshot del cerebro híbrido (si habilitado):
+
+```powershell
+python -m src.main --brain-snapshot
+```
+
+Ver ayuda:
+
+```powershell
+python -m src.main --help
+```
+
+---
+
+## 4. Arquitectura General
+
+```
+┌─────────────┐   CLI/TUI   ┌───────────────┐
+│  Usuario    │────────────▶│   main.py     │
+└─────────────┘             └──────┬────────┘
+                                    │
+                              Orquestación
+                                    │
+                             ┌──────▼────────┐
+                             │ Orchestrator  │
+                             └───┬─────┬─────┘
+         Inteligencia              │     │  Persistencia
+   ┌──────────────┐               │     │
+   │ HybridBrain  │◀──────────┐   │     │   ┌──────────────┐
+   └──────────────┘           │   │     └──▶│  Database     │
+   ┌──────────────┐           │   │         │ (SQLite)      │
+   │ LLM Extractor│──────────▶│   │         └──────────────┘
+   └──────────────┘           │   │
+   ┌──────────────┐   RL      │   │ Workers
+   │ RL Agent     │──────────▶│   │  (Playwright + Scraper)
+   └──────────────┘           │   │
+                              ▼   ▼
+                          AdvancedScraper
+```
+
+Componentes Clave:
+
+- `Orchestrator`: Concurre, prioriza, reintenta, coordina IA y RL.
+- `AdvancedScraper`: Abstracción por página (adaptador navegador + LLM + parsing + hashing + links).
+- `HybridBrain`: Fusión de métricas históricas + aprendizaje autónomo.
+- `LLMExtractor`: Limpieza/normalización y extracción estructurada zero-shot.
+- `RLAgent` (opcional): Ajusta dinámica de backoff / heurísticas.
+- `DatabaseManager`: Persistencia (resultados, cookies, esquemas, APIs descubiertas).
+
+---
+
+## 5. Flujo Operativo Detallado
+
+1. URLs iniciales se insertan en cola de prioridad.
+2. Precalificación opcional vía HEAD (tipo, tamaño, redirecciones).
+3. Workers toman URL → abren página (Playwright) con fingerprint + stealth.
+4. Se gestionan cookies (carga / persistencia por dominio) y user-agent.
+5. Listener de respuestas captura APIs JSON (xhr/fetch) y las hashea para deduplicación.
+6. Se obtiene HTML, se aplica Readability + limpieza LLM.
+7. Validación de calidad (longitud mínima, frases prohibidas, duplicados).
+8. Extracción estructurada (si existe esquema dinámico pydantic por dominio).
+9. Screenshot (si disponible) y perceptual hash (phash) para detectar cambios visuales.
+10. Registro en DB y actualización de métricas de dominio.
+11. Actualización de cerebro / inteligencia (estatísticas multi-dominio + patrones).
+12. Encolado de nuevos enlaces internos visibles filtrados (evita repetitivos / trampas).
+13. RL (si activo) recibe estado → acción → posterior aprendizaje con recompensa.
+14. Sincronizaciones periódicas en `IA_SYNC.md` (controladas por `IA_SYNC_EVERY`).
+
+---
+
+## 6. Inteligencia: Cómo Hacerlo Más “Inteligente”
+
+| Capacidad | Cómo Activar | Mejora que Aporta |
+|-----------|--------------|--------------------|
+| HybridBrain | Variable de entorno `HYBRID_BRAIN=1` al lanzar (batch ya lo puede exportar) | Fusión de estadísticas + aprendizaje incremental |
+| Ajustar Frecuencia Sync | `IA_SYNC_EVERY=50` (ejemplo) | Menos E/S en disco o mayor granularidad histórica |
+| LLM Limpieza avanzada | Proveer `LLM_API_KEY` y `LLM_MODEL` | Texto más puro y extracción robusta |
+| Extracción estructurada | Guardar esquema dinámico en DB (ver sección 11) | Datos tabulares listos sin regex/selectors |
+| RL Agent | Lanzar con `--use-rl` | Optimización adaptativa de estrategias |
+| Filtrado heurístico | Ajustar thresholds en `settings.py` | Menos ruido (páginas vacías/baja calidad) |
+| Prioridad de dominios | Brain aprende tasas de éxito | Mejora cobertura útil primero |
+
+### 6.1 Activar HybridBrain
+
+```powershell
+$env:HYBRID_BRAIN="1"
+WebScraperPRO.bat
+```
+
+o directo:
+
+```powershell
+HYBRID_BRAIN=1 python -m src.main --crawl https://books.toscrape.com/
+```
+
+### 6.2 Alimentar el Cerebro Más Rápido
+
+- Aumenta `CONCURRENCY` si tu máquina lo soporta.
+- Proporciona diversas URLs iniciales para exponer más patrones.
+- Usa `--demo` solo para smoke tests: no entrena realmente.
+
+### 6.3 Métricas de Inteligencia
+
+Llama a `--brain-snapshot` para JSON con:
+
+```jsonc
+{
+  "simple_brain": {...},
+  "autonomous_brain": {
+    "domains_learned": 12,
+    "avg_success_rate": 0.54,
+    "patterns_identified": 5
+  }
+}
+```
+
+---
+
+## 7. Configuración Centralizada
+
+Orden de carga (prioridad alta→baja):
+
+1. Variables de entorno
+2. `.env`
+3. Defaults en `settings.py`
+
+### 7.1 Variables Comunes
+
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `CONCURRENCY` | Workers simultáneos | `8` |
+| `LLM_API_KEY` | Clave proveedor LLM | `sk-...` |
+| `LLM_MODEL` | Modelo remoto | `gpt-4o-mini` |
+| `ROBOTS_ENABLED` | Respetar robots.txt | `true` |
+| `HYBRID_BRAIN` | Habilita cerebro híbrido | `1` |
+| `IA_SYNC_EVERY` | Intervalo sync IA | `25` |
+| `OFFLINE_MODE` | Fuerza modo sin LLM remoto | `1` |
+| `DB_PATH` | Ruta DB sqlite | `data/scraper_database.db` |
+| `MIN_CONTENT_LENGTH` | Longitud mínima texto útil | `400` |
+
+### 7.2 Ejemplo `.env`
+
+```env
+CONCURRENCY=6
+HYBRID_BRAIN=1
+IA_SYNC_EVERY=40
+DB_PATH=data/scraper_database.db
+OFFLINE_MODE=1
+```
+
+---
+
+## 8. Adaptadores y Extensibilidad
+
+### 8.1 BrowserAdapter
+
+Interfaz: `navigate_to_url`, `get_content`, `screenshot`, cookies, listeners de respuesta. Implementaciones:
+
+- `PlaywrightAdapter`
+- `MockBrowserAdapter` (tests / offline)
+
+### 8.2 LLMAdapter
+
+Interfaz: `clean_text`, `extract_structured_data`, `summarize_content`. Implementaciones:
+
+- `OpenAIAdapter`
+- `OfflineLLMAdapter`
+- `MockLLMAdapter`
+
+Puedes añadir proveedores nuevos creando un adaptador que implemente la interfaz y pasando `LLMExtractor(adapter=nuevo)`.
+
+---
+
+## 9. ScrapeResult (Modelo de Datos)
+
+Campos principales (resumen):
+
+- `url`, `title`, `content_text`, `content_html`
+- `links` (internos visibles procesados)
+- `visual_hash` (o `"unavailable"`)
+- `content_hash`
+- `content_type` (heurístico: PRODUCT / BLOG_POST / ARTICLE / GENERAL / UNKNOWN)
+- `extracted_data` (dict estructurado si esquema aplicado)
+- `http_status_code`
+- `crawl_duration`, `response_time` (timings)
+- `llm_summary` (si fue generado)
+
+---
+
+## 10. Base de Datos y Persistencia
+
+SQLite (archivo por defecto: `data/scraper_database.db`). Contiene (nomenclatura aproximada):
+
+- `results` – páginas procesadas
+- `cookies` – cookies por dominio
+- `api_discoveries` – endpoints JSON capturados (hash + URL)
+- `extraction_schemas` – definiciones dinámicas (JSON → modelado pydantic)
+
+Exportaciones:
+
+```powershell
+python -m src.main --export-csv datos.csv
+python -m src.main --export-json datos.json
+```
+
+---
+
+## 11. Esquemas de Extracción Dinámica (LLM Zero‑Shot)
+
+1. Definir diccionario simple de campos: `{ "price": "str", "rating": "float" }`.
+2. Guardarlo vía `DatabaseManager.save_llm_extraction_schema(domain, json.dumps(schema_dict))`.
+3. Próximos scrapes de ese dominio crean un modelo dinámico y el LLM extrae datos.
+
+Ventajas: No dependes de selectores CSS frágiles. Cambios de HTML menores no rompen la extracción.
+
+---
+
+## 12. Reintentos y Backoff
+
+- Reintentos hasta `MAX_RETRIES` (config).
+- Backoff exponencial ajustado por RL (si habilitado) o ajustes heurísticos.
+- Estados posibles: `SUCCESS`, `FAILED`, `RETRY`, `LOW_QUALITY`, `EMPTY`.
+
+---
+
+## 13. RL (Aprendizaje por Refuerzo)
+
+Activar:
+
+```powershell
+python -m src.main --crawl https://books.toscrape.com/ --use-rl
+```
+
+Estado usado: ratios de fallo / baja calidad + factor de backoff actual.
+Recompensas:
+
+- +1 éxito
+- -0.5 baja calidad / vacío
+- -1 fallo
+
+Resultado: Ajuste dinámico de `current_backoff_factor`.
+
+---
+
+## 14. Mecanismos Anti-Trampa y Calidad
+
+- Detección de rutas repetitivas (evita loops).
+- Validación de longitud mínima.
+- Filtros de frases error (404, maintenance, etc.).
+- Hashing de contenido para duplicados.
+- phash para detectar cambios visuales futuro (comparación puede ampliarse).
+
+---
+
+## 15. Inteligencia Híbrida (HybridBrain)
+
+Combina:
+
+- Métricas simples (tasa éxito, dominios, eventos)
+- Patrones de contenido (frecuencia, tipo)
+- Insights incrementalmente derivados
+
+Snapshot obtiene:
+
+```powershell
+python -m src.main --brain-snapshot > brain.json
+```
+
+Recomendado activarlo siempre en producción (`HYBRID_BRAIN=1`).
+
+---
+
+## 16. TUI (Interfaz Textual)
+
+Funciones típicas:
+
+- Panel de progreso (colas, páginas procesadas)
+- Métricas en vivo por dominio
+- Alertas (redirecciones, fallos persistentes, anomalías)
+- Opciones para detener / inspeccionar
+
+Lanzo TUI:
+
+```powershell
+python -m src.main --tui
+```
+
+---
+
+## 17. Scripts de Mantenimiento
+
+`tools/update_policy.py`:
+
+```powershell
+python tools/update_policy.py --domain example.com --robots-output robots_example.txt
+```
+
+Opciones:
+
+- `--update-agents`
+- `--update-policy`
+
+Salida con WARNING controlada si robots no disponible (tests validan esto).
+
+---
+
+## 18. Backups y Restauración
+
+Directorio `backups/` contiene snapshots / parches / guías:
+
+- `RESTORE_GUIDE.md`
+- `cleanup_backups.ps1`
+
+Buenas prácticas:
+
+- Mantener snapshots limpios (el script de cleanup ayuda).
+- No versionar datos voluminosos innecesarios.
+
+---
+
+## 19. Pruebas y Calidad
+
+Ejecutar tests:
+
+```powershell
+pytest -q
+```
+
+Tipos:
+
+- Unitarios: adaptadores, extracción, métricas.
+- Integración: orquestador + scraping simulado.
+- Skips actuales documentan lógica aún por implementar (retry advanced / robots strict).
+
+Antes de commit (sugerido):
+
+```powershell
+pytest -q
+python -m pip install -r requirements-dev.txt
+flake8 src
+```
+
+---
+
+## 20. Estrategias para “Hacerlo Más Inteligente” (Checklist Accionable)
+
+| Objetivo | Acción | Resultado |
+|----------|--------|-----------|
+| Mejor limpieza | Añadir `LLM_API_KEY` | Texto semántico más estable |
+| Más patrones | Aumentar diversidad de dominios | Mejor priorización futura |
+| Menos fallos | Analizar `domain_metrics` y bloquear dominios ruidosos | Ahorro de recursos |
+| Capturar APIs | Revisar tabla APIs y derivar endpoints útiles | Extensión de scraping de datos JSON |
+| Extracción tabular | Definir esquemas dinámicos | CSV listo para BI |
+| Acelerar entrenamiento RL | Lanzar varias sesiones cortas | Ajuste más rápido de backoff |
+| Persistencia histórica | Automatizar snapshots `brain-snapshot` (cron) | Línea de tiempo de aprendizaje |
+| Evolución | Ajustar thresholds en `settings.py` tras observar métricas | Reducción de falsos positivos |
+
+---
+
+## 21. Seguridad, Ética y Cumplimiento
+
+- Respetar términos de uso de los sitios.
+- Evitar scraping de datos personales sensibles.
+- Activar siempre `ROBOTS_ENABLED=true` salvo pruebas internas.
+- Registrar en logs decisiones sensibles (ya soportado parcialmente).
+- Limitar concurrencia contra dominios pequeños para no sobrecargar.
+
+---
+
+## 22. Resolución de Problemas (Troubleshooting)
+
+| Problema | Causa Común | Solución |
+|----------|-------------|----------|
+| `playwright._impl... not found` | No instalaste browsers | `python -m playwright install` |
+| Contenido muy corto | Página dinámica/lazy | Aumenta espera; implementar scroll (futuro) |
+| Muchos `FAILED` | Bloqueo anti-bot | Disminuye velocidad / activa stealth / rota UAs |
+| Duplicados frecuentes | Páginas casi idénticas | Ajusta hashing o filtra parámetros query |
+| LLM no limpia bien | Modo offline | Proveer API key + modelo adecuado |
+| RL no aprende | Sesión corta | Ejecuta más iteraciones / más dominios |
+
+---
+
+## 23. Roadmap (Extracto de `MEJORAS.md`)
+
+Ideas futuras:
+
+- Scroll infinito y carga perezosa.
+- Detección visual diferencial (comparar phash base vs actual).
+- Auto-generación de esquemas a partir de clustering semántico.
+- Persistencia en motor analítico (DuckDB / Parquet) opcional.
+
+---
+
+## 24. Comandos Comunes (Resumen)
+
+```powershell
+# Demo rápida
+python -m src.main --demo
+# Crawler básico
+python -m src.main --crawl https://books.toscrape.com/
+# Crawler con RL + HybridBrain
+HYBRID_BRAIN=1 python -m src.main --crawl https://books.toscrape.com/ --use-rl
+# TUI
+python -m src.main --tui
+# Exportar
+python -m src.main --export-csv out.csv
+python -m src.main --export-json out.json
+# Snapshot inteligencia
+python -m src.main --brain-snapshot
+```
+
+---
+
+## 25. Estándares de Código / Contribución
+
+- Tipado consistente (anotaciones obligatorias en nuevas funciones públicas).
+- Evitar lógica compleja en línea → extraer helpers privados.
+- Manejo de excepciones granular (sin capturas globales salvo en bordes).
+- No introducir dependencias nuevas sin justificar impacto.
+- Mantener adaptadores desacoplados del resto del núcleo.
+
+---
+
+## 26. Integración con CI/CD (Sugerido)
+
+Pasos recomendados pipeline:
+
+1. Instalar deps
+2. Ejecutar tests
+3. Generar export de ejemplo (sanity)
+4. Producir snapshot brain para auditoría
+
+---
+
+## 27. Métricas Clave a Observar
+
+| Métrica | Fuente | Uso |
+|---------|--------|-----|
+| `avg_success_rate` | HybridBrain | Salud global |
+| `low_quality_ratio` | domain_metrics | Ajustar backoff |
+| `patterns_identified` | Autonomous brain | Cobertura semántica |
+| `queue_size` | Orchestrator stats | Saturación / tuning concurrency |
+| `response_time` | ScrapeResult | Límite vs timeouts |
+
+---
+
+## 28. Extensiones Futuras (Puntos de Inyección)
+
+| Área | Estrategia |
+|------|-----------|
+| Normalización HTML | Hook antes de Readability |
+| Detección duplicados | Cambiar hash → simhash / fuzzy |
+| Persistencia | Implementar repositorio alterno (DuckDB) |
+| Prioridad URLs | Sustituir `_calculate_priority` por modelo ML avanzado |
+| Clasificación contenido | Añadir clasificador temático ML |
+
+---
+
+## 29. Licenciamiento y Uso
+
+Revisa políticas internas antes de producción. No almacenar claves sensibles en repositorio. Añadir archivo LICENSE si se libera públicamente.
+
+---
+
+## 30. Resumen Final
+
+Este sistema ya soporta scraping concurrente, limpieza inteligente, extracción dinámica, cerebro híbrido, RL opcional, exportaciones y una arquitectura modular basada en adaptadores. Para “hacerlo más inteligente”: habilita HybridBrain, provee un LLM real, define esquemas dinámicos y ejecuta sesiones amplias y variadas.
+
+---
+
+¿Necesitas un manual operativo separado o guías de escalado? Abre un issue / extensión de documentación.
+
+<!-- FIN README DETALLADO -->

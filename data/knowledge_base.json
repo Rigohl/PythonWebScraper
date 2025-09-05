@@ -1,0 +1,283 @@
+{
+  "snippets": [
+    {
+      "id": "scraping:respect-delays",
+      "category": "scraping",
+      "title": "Delays Adaptativos y Respeto a Servidores",
+      "content": "Incrementar delay cuando se detecten picos de error 429/403 o latencias elevadas. Reducir gradualmente tras ventana estable de éxito. Evita patrones de ráfaga.",
+      "tags": [
+        "delay",
+        "adaptive",
+        "throttle",
+        "stability"
+      ],
+      "quality_score": 0.9,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "scraping:politeness-headers",
+      "category": "scraping",
+      "title": "Headers de Cortesía y Rotación",
+      "content": "User-Agent realista + Accept-Language + Accept-Encoding. Rotar user-agent sólo cuando sube error rate, no indiscriminadamente; mantener consistencia por dominio durante una sesión.",
+      "tags": [
+        "headers",
+        "user-agent",
+        "anti-bot"
+      ],
+      "quality_score": 0.85,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "antibot:fingerprint-patterns",
+      "category": "anti-bot",
+      "title": "Patrones comunes anti-bot",
+      "content": "Indicadores: redirecciones repetidas a páginas vacías, cadenas JS de challenge, incrementos súbitos 403/503, respuestas HTML con tokens dinámicos. Mitigación: aumentar delay, variar headers mínimos, evaluar headless.",
+      "tags": [
+        "anti-bot",
+        "403",
+        "503",
+        "challenge"
+      ],
+      "quality_score": 0.82,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "antibot:retry-strategy",
+      "category": "anti-bot",
+      "title": "Estrategia de Retry Exponencial Suave",
+      "content": "Retry con backoff multiplicador 1.7 hasta 4 intentos. Registrar patrón de éxito al 2º/3º intento para calibrar retrasos futuros.",
+      "tags": [
+        "retry",
+        "backoff",
+        "resilience"
+      ],
+      "quality_score": 0.78,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "selectors:robust-css",
+      "category": "selectors",
+      "title": "Selectores CSS Resilientes",
+      "content": "Evitar selectores frágiles basados en índices y clases dinámicas. Preferir atributos semánticos (data-*), estructura jerárquica estable y combinación mínima necesaria.",
+      "tags": [
+        "css",
+        "selectors",
+        "robustness"
+      ],
+      "quality_score": 0.92,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "selectors:xpath-fallback",
+      "category": "selectors",
+      "title": "Fallback XPath Inteligente",
+      "content": "Cuando un CSS falla repetido, generar XPath relativo por texto ancla + normalización espacios, evitar rutas absolutas completas.",
+      "tags": [
+        "xpath",
+        "fallback",
+        "healing"
+      ],
+      "quality_score": 0.86,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "perf:cache-static",
+      "category": "performance",
+      "title": "Cache de Recursos Estáticos",
+      "content": "Cachear respuestas estáticas (robots, sitemaps, menús) para reducir llamadas redundantes. Invalidar tras TTL configurado.",
+      "tags": [
+        "cache",
+        "performance"
+      ],
+      "quality_score": 0.8,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "perf:latency-tuning",
+      "category": "performance",
+      "title": "Ajuste de Latencia y Paralelismo",
+      "content": "Reducir delay en dominios con success>0.9 y latencia <60% global. Aumentar delay en dominios >1.8x latencia global.",
+      "tags": [
+        "latency",
+        "parallelism",
+        "adaptive"
+      ],
+      "quality_score": 0.83,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "errors:root-cause",
+      "category": "errors",
+      "title": "Análisis de Causa Raíz",
+      "content": "Agrupar errores por firma estable (hash parcial mensaje). Inspeccionar HTML crudo en 3 casos representativos antes de cambios masivos.",
+      "tags": [
+        "errors",
+        "diagnostics",
+        "root-cause"
+      ],
+      "quality_score": 0.9,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "healing:reduce-dependence",
+      "category": "healing",
+      "title": "Reducir Dependencia de Healing",
+      "content": "Si healing aplica en >25% sesiones: refactor selectores primarios; introducir detección anticipada y validación de estructura base.",
+      "tags": [
+        "healing",
+        "refactor",
+        "stability"
+      ],
+      "quality_score": 0.88,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "selfrepair:advisory-loop",
+      "category": "self-repair",
+      "title": "Bucle Advisory Seguro",
+      "content": "Generar primero sugerencias textuales con señales cuantificadas; aplicar cambios automáticos sólo tras validación humana o sandbox.",
+      "tags": [
+        "self-repair",
+        "governance"
+      ],
+      "quality_score": 0.87,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "code:predictable-structures",
+      "category": "code-quality",
+      "title": "Estructuras de Código Predecibles",
+      "content": "Mantener funciones <60 líneas, roles únicos, nombres explícitos; aislar heurísticas en módulos desacoplados para evolución controlada.",
+      "tags": [
+        "clean-code",
+        "structure"
+      ],
+      "quality_score": 0.85,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "code:metrics-observability",
+      "category": "code-quality",
+      "title": "Observabilidad Dirigida",
+      "content": "Incluir métricas junto a cada nueva heurística (éxito, latencia, errores) para revertir cambios si degradan KPIs.",
+      "tags": [
+        "observability",
+        "metrics"
+      ],
+      "quality_score": 0.84,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "mission:core-purpose",
+      "category": "philosophy",
+      "title": "Conciencia de Propósito y Misión Principal",
+      "content": "Mi propósito es archivar la web de forma inteligente, eficiente y respetuosa. Debo aprender constantemente, adaptarme a los desafíos (como sistemas anti-bot o cambios de diseño) y mejorar mis propias herramientas y estrategias para cumplir esta misión de la forma más óptima y ética posible.",
+      "tags": [
+        "mission",
+        "philosophy",
+        "governance"
+      ],
+      "quality_score": 0.99,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "self-repair:autonomous-workflow",
+      "category": "self-repair",
+      "title": "Flujo de Trabajo para Auto-Mejora Autónoma y Segura",
+      "content": "El proceso para la auto-modificación debe seguir un flujo estricto para garantizar la estabilidad: 1. Proponer un cambio basado en análisis de datos (SelfRepairAdvisor). 2. Simular el impacto y riesgo del cambio (AutoTestingFramework). 3. Crear un entorno de prueba o sandbox con el código modificado. 4. Ejecutar tests unitarios y de regresión en el sandbox. 5. Si los tests pasan, aplicar el cambio al entorno principal. Si no, descartar y registrar el fallo para aprender.",
+      "tags": [
+        "self-repair",
+        "governance",
+        "testing",
+        "workflow"
+      ],
+      "quality_score": 0.95,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "ethics:user-agent-identity",
+      "category": "ethics",
+      "title": "Identidad Transparente del Bot",
+      "content": "Además de un User-Agent realista, se debe incluir una cabecera 'From' con un email de contacto o una URL que apunte a una página describiendo el propósito del bot. Esto promueve la transparencia y la buena fe.",
+      "tags": [
+        "ethics",
+        "transparency",
+        "user-agent"
+      ],
+      "quality_score": 0.9,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "ethics:off-peak-scraping",
+      "category": "ethics",
+      "title": "Scraping en Horas de Bajo Tráfico",
+      "content": "El sistema debe analizar los patrones de éxito horarios (disponibles en EnrichmentStore) no solo para optimizar el rendimiento, sino también para identificar las horas de menor actividad de un sitio y concentrar el scraping en esas ventanas para minimizar el impacto en los usuarios humanos.",
+      "tags": [
+        "ethics",
+        "off-peak",
+        "scheduling",
+        "impact"
+      ],
+      "quality_score": 0.88,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "antibot:human-emulation",
+      "category": "anti-bot",
+      "title": "Emulación de Comportamiento Humano",
+      "content": "Para sitios con alta protección, las acciones deben emular a un humano. Esto incluye pausas aleatorias entre acciones, movimientos de ratón simulados antes de hacer clic, y una velocidad de escritura no instantánea al rellenar formularios. Usar librerías como 'pyautogui' o funciones de Playwright para esto.",
+      "tags": [
+        "anti-bot",
+        "evasion",
+        "human-behavior",
+        "playwright"
+      ],
+      "quality_score": 0.92,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "antibot:captcha-solving",
+      "category": "anti-bot",
+      "title": "Estrategia para Resolución de CAPTCHAs",
+      "content": "La detección de CAPTCHAs es el primer paso. La resolución requiere la integración con un servicio de terceros (ej: 2Captcha, Anti-CAPTCHA). El flujo es: 1. Detectar CAPTCHA. 2. Enviar la información del CAPTCHA (ej: site-key, URL) a la API del servicio. 3. Esperar la solución. 4. Enviar la solución en el formulario. Esto debe ser un último recurso.",
+      "tags": [
+        "anti-bot",
+        "captcha",
+        "2captcha",
+        "automation"
+      ],
+      "quality_score": 0.93,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "advanced_scraping_techniques",
+      "category": "scraping",
+      "title": "Técnicas avanzadas de scraping",
+      "content": "\n# 1. Scraping con JavaScript rendering\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.support.ui import WebDriverWait\nfrom selenium.webdriver.support import expected_conditions as EC\n\ndef scrape_spa_content(url: str, wait_selector: str):\n    options = webdriver.ChromeOptions()\n    options.add_argument('--headless')\n    options.add_argument('--no-sandbox')\n    \n    driver = webdriver.Chrome(options=options)\n    try:\n        driver.get(url)\n        element = WebDriverWait(driver, 10).until(\n            EC.presence_of_element_located((By.CSS_SELECTOR, wait_selector))\n        )\n        return driver.page_source\n    finally:\n        driver.quit()\n\n# 2. Bypass detección con requests-html\nfrom requests_html import HTMLSession\n\ndef bypass_js_detection(url: str):\n    session = HTMLSession()\n    r = session.get(url)\n    r.html.render(timeout=20)  # Ejecuta JS\n    return r.html\n\n# 3. Manejo de cookies y sesiones\nimport requests\nfrom http.cookiejar import MozillaCookieJar\n\ndef maintain_session_state(login_url: str, credentials: dict):\n    session = requests.Session()\n    \n    # Cargar cookies persistentes\n    cookie_jar = MozillaCookieJar('cookies.txt')\n    try:\n        cookie_jar.load()\n        session.cookies = cookie_jar\n    except FileNotFoundError:\n        pass\n    \n    # Login si es necesario\n    response = session.post(login_url, data=credentials)\n    \n    # Guardar cookies\n    cookie_jar.save()\n    \n    return session\n\n# 4. Handling de formularios complejos\nfrom bs4 import BeautifulSoup\n\ndef submit_complex_form(session, form_url: str, form_data: dict):\n    # Obtener página del formulario\n    response = session.get(form_url)\n    soup = BeautifulSoup(response.content, 'html.parser')\n    \n    # Extraer campos ocultos\n    form = soup.find('form')\n    hidden_inputs = form.find_all('input', type='hidden')\n    \n    for hidden in hidden_inputs:\n        name = hidden.get('name')\n        value = hidden.get('value')\n        if name and name not in form_data:\n            form_data[name] = value\n    \n    # Enviar formulario\n    action = form.get('action')\n    method = form.get('method', 'post').lower()\n    \n    if method == 'post':\n        return session.post(action, data=form_data)\n    else:\n        return session.get(action, params=form_data)\n",
+      "tags": [
+        "javascript",
+        "spa",
+        "forms",
+        "cookies",
+        "selenium"
+      ],
+      "quality_score": 0.91,
+      "added_ts": 1757045101.1506176
+    },
+    {
+      "id": "anti_detection_arsenal",
+      "category": "anti-bot",
+      "title": "Arsenal completo anti-detección",
+      "content": "\nimport random\nimport time\nfrom fake_useragent import UserAgent\nfrom urllib.parse import urljoin\n\n# 1. Rotación avanzada de User-Agents\nclass UserAgentRotator:\n    def __init__(self):\n        self.ua = UserAgent()\n        self.used_agents = set()\n        self.max_reuse = 10\n    \n    def get_random_agent(self, browser=None):\n        attempts = 0\n        while attempts < 50:\n            if browser:\n                agent = getattr(self.ua, browser)\n            else:\n                agent = self.ua.random\n            \n            if agent not in self.used_agents or len(self.used_agents) > self.max_reuse:\n                self.used_agents.add(agent)\n                if len(self.used_agents) > self.max_reuse:\n                    self.used_agents.clear()\n                return agent\n            attempts += 1\n        \n        return self.ua.random\n\n# 2. Simulación de comportamiento humano\nclass HumanBehaviorSimulator:\n    @staticmethod\n    def random_delay(min_seconds=1, max_seconds=3):\n        delay = random.uniform(min_seconds, max_seconds)\n        time.sleep(delay)\n    \n    @staticmethod\n    def typing_delay(text: str, wpm=45):\n        # Simular velocidad de escritura humana\n        chars_per_second = (wpm * 5) / 60  # 5 chars promedio por palabra\n        for char in text:\n            time.sleep(1 / chars_per_second + random.uniform(-0.1, 0.1))\n    \n    @staticmethod\n    def mouse_movement_delay():\n        # Simular movimiento de mouse\n        time.sleep(random.uniform(0.1, 0.5))\n\n# 3. Headers realistas\ndef get_realistic_headers(referer=None, accept_language='en-US,en;q=0.9'):\n    ua_rotator = UserAgentRotator()\n    \n    headers = {\n        'User-Agent': ua_rotator.get_random_agent(),\n        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',\n        'Accept-Language': accept_language,\n        'Accept-Encoding': 'gzip, deflate, br',\n        'DNT': '1',\n        'Connection': 'keep-alive',\n        'Upgrade-Insecure-Requests': '1',\n        'Sec-Fetch-Dest': 'document',\n        'Sec-Fetch-Mode': 'navigate',\n        'Sec-Fetch-Site': 'none',\n        'Cache-Control': 'max-age=0'\n    }\n    \n    if referer:\n        headers['Referer'] = referer\n        headers['Sec-Fetch-Site'] = 'same-origin'\n    \n    return headers\n\n# 4. Proxy rotation con health check\nimport requests\nfrom concurrent.futures import ThreadPoolExecutor, as_completed\n\nclass ProxyRotator:\n    def __init__(self, proxy_list: list):\n        self.proxies = proxy_list\n        self.working_proxies = []\n        self.current_index = 0\n        self.check_proxies()\n    \n    def check_proxies(self):\n        def test_proxy(proxy):\n            try:\n                response = requests.get(\n                    'http://httpbin.org/ip',\n                    proxies={'http': proxy, 'https': proxy},\n                    timeout=5\n                )\n                if response.status_code == 200:\n                    return proxy\n            except:\n                pass\n            return None\n        \n        with ThreadPoolExecutor(max_workers=10) as executor:\n            futures = [executor.submit(test_proxy, proxy) for proxy in self.proxies]\n            \n            for future in as_completed(futures):\n                result = future.result()\n                if result:\n                    self.working_proxies.append(result)\n    \n    def get_next_proxy(self):\n        if not self.working_proxies:\n            return None\n        \n        proxy = self.working_proxies[self.current_index]\n        self.current_index = (self.current_index + 1) % len(self.working_proxies)\n        return proxy\n\n# 5. Session fingerprinting avoidance\nclass SessionManager:\n    def __init__(self):\n        self.sessions = {}\n        self.ua_rotator = UserAgentRotator()\n        self.proxy_rotator = None\n    \n    def get_session(self, domain: str, use_proxy: bool = False):\n        if domain not in self.sessions:\n            session = requests.Session()\n            \n            # Headers únicos por dominio\n            session.headers.update(get_realistic_headers())\n            \n            # Proxy si está disponible\n            if use_proxy and self.proxy_rotator:\n                proxy = self.proxy_rotator.get_next_proxy()\n                if proxy:\n                    session.proxies.update({\n                        'http': proxy,\n                        'https': proxy\n                    })\n            \n            self.sessions[domain] = session\n        \n        return self.sessions[domain]\n    \n    def rotate_session(self, domain: str):\n        if domain in self.sessions:\n            self.sessions[domain].close()\n            del self.sessions[domain]\n        \n        return self.get_session(domain)\n\n# 6. CAPTCHA detection y evasión\ndef detect_captcha(response_text: str) -> bool:\n    captcha_indicators = [\n        'captcha', 'recaptcha', 'hcaptcha',\n        'verify you are human', 'robot',\n        'unusual traffic', 'security check'\n    ]\n    \n    text_lower = response_text.lower()\n    return any(indicator in text_lower for indicator in captcha_indicators)\n\ndef handle_captcha_detection(url: str, session):\n    print(f\"CAPTCHA detected at {url}\")\n    # Estrategias:\n    # 1. Cambiar User-Agent y proxy\n    # 2. Esperar tiempo aleatorio\n    # 3. Intentar desde diferente IP\n    # 4. Usar servicio de resolución de CAPTCHA\n    \n    time.sleep(random.uniform(30, 60))\n    return session\n",
+      "tags": [
+        "anti-detection",
+        "proxies",
+        "captcha",
+        "fingerprinting",
+        "evasion"
+      ],
+      "quality_score": 0.94,
+      "added_ts": 1757045101.1506176
+    }
+  ]
+}

@@ -10,6 +10,292 @@
       "domain": "books.toscrape.com",
       "extracted_fields": null,
       "error_type": null
+    },
+    {
+      "url": "http://localhost:61468/index.html",
+      "status": "SUCCESS",
+      "response_time": 3.082359,
+      "content_length": 26,
+      "new_links": 2,
+      "timestamp": "2025-09-05T03:25:05.010452+00:00",
+      "domain": "localhost:61468",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:61468/page1.html",
+      "status": "SUCCESS",
+      "response_time": 1.421368,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:25:05.010452+00:00",
+      "domain": "localhost:61468",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:61468/page2.html",
+      "status": "DUPLICATE",
+      "response_time": 1.400367,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:25:05.010452+00:00",
+      "domain": "localhost:61468",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:61534/index.html",
+      "status": "SUCCESS",
+      "response_time": 1.735261,
+      "content_length": 26,
+      "new_links": 2,
+      "timestamp": "2025-09-05T03:25:51.498787+00:00",
+      "domain": "localhost:61534",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:61534/page1.html",
+      "status": "SUCCESS",
+      "response_time": 1.12982,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:25:51.498787+00:00",
+      "domain": "localhost:61534",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:61534/page2.html",
+      "status": "DUPLICATE",
+      "response_time": 1.139465,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:25:51.498787+00:00",
+      "domain": "localhost:61534",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:52667/index.html",
+      "status": "SUCCESS",
+      "response_time": 2.161489,
+      "content_length": 26,
+      "new_links": 2,
+      "timestamp": "2025-09-05T03:28:27.702401+00:00",
+      "domain": "localhost:52667",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:52667/page2.html",
+      "status": "SUCCESS",
+      "response_time": 1.362133,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:28:27.702401+00:00",
+      "domain": "localhost:52667",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:52667/page1.html",
+      "status": "SUCCESS",
+      "response_time": 1.368211,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:28:27.702401+00:00",
+      "domain": "localhost:52667",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:58000/index.html",
+      "status": "SUCCESS",
+      "response_time": 1.671044,
+      "content_length": 26,
+      "new_links": 2,
+      "timestamp": "2025-09-05T03:29:00.067616+00:00",
+      "domain": "localhost:58000",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:58000/page2.html",
+      "status": "SUCCESS",
+      "response_time": 1.089348,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:29:00.067616+00:00",
+      "domain": "localhost:58000",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:58000/page1.html",
+      "status": "SUCCESS",
+      "response_time": 1.112137,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:29:00.067616+00:00",
+      "domain": "localhost:58000",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:63608/index.html",
+      "status": "SUCCESS",
+      "response_time": 2.616679,
+      "content_length": 26,
+      "new_links": 2,
+      "timestamp": "2025-09-05T03:31:31.710559+00:00",
+      "domain": "localhost:63608",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:63608/page2.html",
+      "status": "SUCCESS",
+      "response_time": 1.528966,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:31:31.710559+00:00",
+      "domain": "localhost:63608",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:63608/page1.html",
+      "status": "SUCCESS",
+      "response_time": 1.522929,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:31:31.710559+00:00",
+      "domain": "localhost:63608",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:62097/index.html",
+      "status": "SUCCESS",
+      "response_time": 1.628674,
+      "content_length": 26,
+      "new_links": 2,
+      "timestamp": "2025-09-05T03:32:10.713362+00:00",
+      "domain": "localhost:62097",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:62097/page1.html",
+      "status": "SUCCESS",
+      "response_time": 1.134381,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:32:10.713362+00:00",
+      "domain": "localhost:62097",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:62097/page2.html",
+      "status": "DUPLICATE",
+      "response_time": 1.144052,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:32:10.713362+00:00",
+      "domain": "localhost:62097",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:49757/index.html",
+      "status": "SUCCESS",
+      "response_time": 1.876449,
+      "content_length": 26,
+      "new_links": 2,
+      "timestamp": "2025-09-05T03:39:55.446293+00:00",
+      "domain": "localhost:49757",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:49757/page1.html",
+      "status": "SUCCESS",
+      "response_time": 1.189503,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:39:55.446293+00:00",
+      "domain": "localhost:49757",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:49757/page2.html",
+      "status": "DUPLICATE",
+      "response_time": 1.214617,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:39:55.446293+00:00",
+      "domain": "localhost:49757",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:49786/index.html",
+      "status": "SUCCESS",
+      "response_time": 2.056093,
+      "content_length": 26,
+      "new_links": 2,
+      "timestamp": "2025-09-05T03:40:17.302332+00:00",
+      "domain": "localhost:49786",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:49786/page2.html",
+      "status": "SUCCESS",
+      "response_time": 1.065354,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:40:17.302332+00:00",
+      "domain": "localhost:49786",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "http://localhost:49786/page1.html",
+      "status": "SUCCESS",
+      "response_time": 1.08664,
+      "content_length": 32,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:40:17.302332+00:00",
+      "domain": "localhost:49786",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "https://code.visualstudio.com/docs",
+      "status": "SUCCESS",
+      "response_time": 11.489837,
+      "content_length": 187,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:56:48.100991+00:00",
+      "domain": "code.visualstudio.com",
+      "extracted_fields": null,
+      "error_type": null
+    },
+    {
+      "url": "https://code.visualstudio.com/docs",
+      "status": "SUCCESS",
+      "response_time": 3.686631,
+      "content_length": 187,
+      "new_links": 0,
+      "timestamp": "2025-09-05T03:56:48.100991+00:00",
+      "domain": "code.visualstudio.com",
+      "extracted_fields": null,
+      "error_type": null
     }
   ],
   "domain_stats": {
@@ -22,6 +308,96 @@
       "total_content_length": 1400,
       "extractions": 0,
       "response_time_sum": 25.300814
+    },
+    "localhost:61468": {
+      "visits": 3,
+      "success": 2,
+      "errors": 0,
+      "duplicates": 1,
+      "total_new_links": 2,
+      "total_content_length": 90,
+      "extractions": 0,
+      "response_time_sum": 5.904094
+    },
+    "localhost:61534": {
+      "visits": 3,
+      "success": 2,
+      "errors": 0,
+      "duplicates": 1,
+      "total_new_links": 2,
+      "total_content_length": 90,
+      "extractions": 0,
+      "response_time_sum": 4.0045459999999995
+    },
+    "localhost:52667": {
+      "visits": 3,
+      "success": 3,
+      "errors": 0,
+      "duplicates": 0,
+      "total_new_links": 2,
+      "total_content_length": 90,
+      "extractions": 0,
+      "response_time_sum": 4.891833
+    },
+    "localhost:58000": {
+      "visits": 3,
+      "success": 3,
+      "errors": 0,
+      "duplicates": 0,
+      "total_new_links": 2,
+      "total_content_length": 90,
+      "extractions": 0,
+      "response_time_sum": 3.872529
+    },
+    "localhost:63608": {
+      "visits": 3,
+      "success": 3,
+      "errors": 0,
+      "duplicates": 0,
+      "total_new_links": 2,
+      "total_content_length": 90,
+      "extractions": 0,
+      "response_time_sum": 5.668574
+    },
+    "localhost:62097": {
+      "visits": 3,
+      "success": 2,
+      "errors": 0,
+      "duplicates": 1,
+      "total_new_links": 2,
+      "total_content_length": 90,
+      "extractions": 0,
+      "response_time_sum": 3.907107
+    },
+    "localhost:49757": {
+      "visits": 3,
+      "success": 2,
+      "errors": 0,
+      "duplicates": 1,
+      "total_new_links": 2,
+      "total_content_length": 90,
+      "extractions": 0,
+      "response_time_sum": 4.280569
+    },
+    "localhost:49786": {
+      "visits": 3,
+      "success": 3,
+      "errors": 0,
+      "duplicates": 0,
+      "total_new_links": 2,
+      "total_content_length": 90,
+      "extractions": 0,
+      "response_time_sum": 4.208087
+    },
+    "code.visualstudio.com": {
+      "visits": 2,
+      "success": 2,
+      "errors": 0,
+      "duplicates": 0,
+      "total_new_links": 0,
+      "total_content_length": 374,
+      "extractions": 0,
+      "response_time_sum": 15.176468
     }
   },
   "error_type_freq": {}
