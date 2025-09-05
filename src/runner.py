@@ -3,24 +3,25 @@
 import asyncio
 import importlib
 import inspect
+import json
 import logging
 import os
 from typing import List, Optional
 from urllib.parse import urlparse
 
 import httpx
-from .scrapers.base import BaseScraper
-from .models.results import ScrapeResult
-from .database import DatabaseManager
-from .llm_extractor import LLMExtractor
-from .user_agent_manager import UserAgentManager
-from .rl_agent import RLAgent
-from .orchestrator import ScrapingOrchestrator
-from .intelligence.hybrid_brain import get_hybrid_brain
-from .settings import settings
 from playwright.async_api import async_playwright
 
-import json
+from .database import DatabaseManager
+from .intelligence.hybrid_brain import get_hybrid_brain
+from .llm_extractor import LLMExtractor
+from .models.results import ScrapeResult
+from .orchestrator import ScrapingOrchestrator
+from .rl_agent import RLAgent
+from .scrapers.base import BaseScraper
+from .settings import settings
+from .user_agent_manager import UserAgentManager
+
 
 class JsonFormatter(logging.Formatter):
     def format(self, record):
@@ -31,10 +32,15 @@ class JsonFormatter(logging.Formatter):
             "message": record.getMessage(),
         }
         if record.exc_info:
-            log_record['exc_info'] = self.formatException(record.exc_info)
+            log_record["exc_info"] = self.formatException(record.exc_info)
         return json.dumps(log_record)
 
-def setup_logging(log_file_path: Optional[str] = None, tui_handler: Optional[logging.Handler] = None, level: int = logging.INFO):
+
+def setup_logging(
+    log_file_path: Optional[str] = None,
+    tui_handler: Optional[logging.Handler] = None,
+    level: int = logging.INFO,
+):
     # Remove existing handlers to ensure idempotent reconfiguration
     root_logger = logging.getLogger()
     if root_logger.hasHandlers():
@@ -42,16 +48,18 @@ def setup_logging(log_file_path: Optional[str] = None, tui_handler: Optional[log
 
     # Determine log file path (default if none passed)
     if not log_file_path:
-        log_file_path = os.path.join(os.path.dirname(__file__), "..", "logs", "scraper_run.log")
+        log_file_path = os.path.join(
+            os.path.dirname(__file__), "..", "logs", "scraper_run.log"
+        )
     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
     # File handler (JSON)
-    file_handler = logging.FileHandler(log_file_path, mode='a', encoding='utf-8')
+    file_handler = logging.FileHandler(log_file_path, mode="a", encoding="utf-8")
     file_handler.setFormatter(JsonFormatter())
 
     # Console handler (human readable)
     console_handler = logging.StreamHandler()
-    console_console_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    console_console_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     console_handler.setFormatter(logging.Formatter(console_console_fmt))
 
     root_logger.addHandler(file_handler)
@@ -63,9 +71,11 @@ def setup_logging(log_file_path: Optional[str] = None, tui_handler: Optional[log
 
     root_logger.setLevel(level)
 
+
 # Call setup_logging() at the beginning of the file
 setup_logging()
 logger = logging.getLogger(__name__)
+
 
 async def run_crawler(
     start_urls: List[str],
@@ -74,6 +84,7 @@ async def run_crawler(
     respect_robots_txt: bool = True,
     use_rl: bool = False,
     hot_reload: bool = False,
+    ethics_checks_enabled: bool | None = None,
     stats_callback=None,
     alert_callback=None,
 ) -> None:
@@ -101,9 +112,12 @@ async def run_crawler(
     hot_reloader = None
     if hot_reload:
         from .hot_reload import HotReloader
+
         scrapers_dir = os.path.join(os.path.dirname(__file__), "scrapers")
         hot_reloader = HotReloader(scrapers_dir)
-        hot_reloader.start(lambda path: logger.info(f"Reloading scraper module: {path}"))
+        hot_reloader.start(
+            lambda path: logger.info(f"Reloading scraper module: {path}")
+        )
         logger.info("Hot reloading enabled for scraper modules")
 
     # Optionally initialize RL agent
@@ -127,32 +141,44 @@ async def run_crawler(
     if settings.CONTINUOUS_LEARNING_ENABLED:
         hybrid_brain.start_continuous_learning()
 
-    logger.info(f"🧠 HybridBrain initialized - Mode: {settings.INTELLIGENCE_INTEGRATION_MODE}, Consciousness: {settings.CONSCIOUSNESS_ENABLED}")
+    logger.info(
+        f"🧠 HybridBrain initialized - Mode: {settings.INTELLIGENCE_INTEGRATION_MODE}, Consciousness: {settings.CONSCIOUSNESS_ENABLED}"
+    )
 
     # 🧠 Initialize brain monitoring and omniscient observation
     try:
         # Realizar observación inicial del proyecto
         initial_observations = hybrid_brain.observe_project_state()
-        logger.info(f"🧠 Brain initial project observation completed - Health: {initial_observations.get('raw_observations', {}).get('project_health', {}).get('overall_health', 'unknown')}")
+        logger.info(
+            f"🧠 Brain initial project observation completed - Health: {initial_observations.get('raw_observations', {}).get('project_health', {}).get('overall_health', 'unknown')}"
+        )
 
         # Si el cerebro detecta que necesita hacer modificaciones, las evalúa
-        brain_assessment = initial_observations.get('brain_assessment', {})
-        if brain_assessment.get('modifications_needed', False):
-            logger.info(f"🧠 Brain detected {len(brain_assessment.get('recommendations', []))} potential optimizations")
+        brain_assessment = initial_observations.get("brain_assessment", {})
+        if brain_assessment.get("modifications_needed", False):
+            logger.info(
+                f"🧠 Brain detected {len(brain_assessment.get('recommendations', []))} potential optimizations"
+            )
 
             # El cerebro toma decisión autónoma sobre las modificaciones
-            autonomous_decision = hybrid_brain.make_autonomous_decision({
-                'context': 'crawler_initialization',
-                'observations': initial_observations,
-                'risk_level': 'low',
-                'user_request': 'ensure_optimal_intelligence'
-            })
+            autonomous_decision = hybrid_brain.make_autonomous_decision(
+                {
+                    "context": "crawler_initialization",
+                    "observations": initial_observations,
+                    "risk_level": "low",
+                    "user_request": "ensure_optimal_intelligence",
+                }
+            )
 
-            logger.info(f"🧠 Brain autonomous decision: {autonomous_decision.get('action_taken', 'no_action')}")
+            logger.info(
+                f"🧠 Brain autonomous decision: {autonomous_decision.get('action_taken', 'no_action')}"
+            )
 
         # Configurar monitoreo continuo
         hybrid_brain._start_continuous_monitoring()
-        logger.info("🧠 Brain continuous monitoring activated - Brain will observe and protect project autonomously")
+        logger.info(
+            "🧠 Brain continuous monitoring activated - Brain will observe and protect project autonomously"
+        )
     except Exception as e:
         logger.warning(f"🧠 Brain monitoring initialization failed: {e}")
 
@@ -173,6 +199,7 @@ async def run_crawler(
                 brain=hybrid_brain,  # Use HybridBrain instead of simple Brain
                 concurrency=concurrency,
                 respect_robots_txt=respect_robots_txt,
+                ethics_checks_enabled=ethics_checks_enabled,
                 stats_callback=stats_callback,
                 alert_callback=alert_callback,
             )
@@ -193,12 +220,19 @@ async def run_crawler(
                 pass
             # Auto export Markdown report if enabled and not under tests
             try:
-                if not os.getenv("PYTEST_CURRENT_TEST") and os.getenv("AUTO_EXPORT_MD", "1") != "0":
+                if (
+                    not os.getenv("PYTEST_CURRENT_TEST")
+                    and os.getenv("AUTO_EXPORT_MD", "1") != "0"
+                ):
                     from .database import DatabaseManager as _DBM
+
                     dbm = _DBM(db_path=db_path)
                     from datetime import datetime as _dt
+
                     ts = _dt.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
-                    report_path = os.path.join("exports", "reports", f"auto_report_{ts}.md")
+                    report_path = os.path.join(
+                        "exports", "reports", f"auto_report_{ts}.md"
+                    )
                     os.makedirs(os.path.dirname(report_path), exist_ok=True)
                     dbm.export_to_markdown(report_path)
                     logger.info(f"Auto Markdown report generated: {report_path}")
@@ -224,14 +258,21 @@ async def discover_and_run_scrapers(urls: List[str], hot_reload: bool = False):
     hot_reloader = None
     if hot_reload:
         from .hot_reload import HotReloader
+
         hot_reloader = HotReloader(scrapers_path)
-        hot_reloader.start(lambda path: logger.info(f"Reloading scraper module: {path}"))
+        hot_reloader.start(
+            lambda path: logger.info(f"Reloading scraper module: {path}")
+        )
         logger.info("Hot reloading enabled for scraper modules")
 
     try:
         # Discover scrapers
         for filename in os.listdir(scrapers_path):
-            if filename.endswith(".py") and not filename.startswith("__") and filename != "base.py":
+            if (
+                filename.endswith(".py")
+                and not filename.startswith("__")
+                and filename != "base.py"
+            ):
                 module_name = f"src.scrapers.{filename[:-3]}"
                 try:
                     module = importlib.import_module(module_name)
@@ -256,8 +297,8 @@ async def discover_and_run_scrapers(urls: List[str], hot_reload: bool = False):
             # This is a simple mapping. A more robust solution would match scraper to URL.
             for scraper in scraper_instances:
                 for url in urls:
-                     # A simple logic to match scraper to url
-                    if scraper.name.split('_')[0] in url:
+                    # A simple logic to match scraper to url
+                    if scraper.name.split("_")[0] in url:
                         tasks.append(scraper.scrape(client, url))
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -267,10 +308,16 @@ async def discover_and_run_scrapers(urls: List[str], hot_reload: bool = False):
                     logger.info(f"Scraped {result.url} successfully.")
                     # Avoid dumping full page content to stdout; log a trimmed snippet for debugging.
                     if result.content_text:
-                        snippet = (result.content_text[:200] + "…") if len(result.content_text) > 200 else result.content_text
+                        snippet = (
+                            (result.content_text[:200] + "…")
+                            if len(result.content_text) > 200
+                            else result.content_text
+                        )
                         logger.debug("Content snippet: %s", snippet)
                 elif isinstance(result, Exception):
-                    logger.error(f"Scraper failed with exception: {result}", exc_info=False)
+                    logger.error(
+                        f"Scraper failed with exception: {result}", exc_info=False
+                    )
     finally:
         # Stop hot reloader if it was started
         if hot_reloader:
@@ -291,8 +338,11 @@ async def main(urls: List[str], hot_reload: bool = False):
     """
     await discover_and_run_scrapers(urls, hot_reload=hot_reload)
 
+
 # This is for direct execution and testing of the runner
 if __name__ == "__main__":
     # Example usage:
-    target_urls = ["http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"]
+    target_urls = [
+        "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
+    ]
     asyncio.run(main(target_urls))

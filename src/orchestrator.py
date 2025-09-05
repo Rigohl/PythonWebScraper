@@ -18,12 +18,14 @@ except Exception:  # pragma: no cover
     async def stealth(page):  # type: ignore
         return None
 
+
 from .db.database import DatabaseManager
 from .exceptions import NetworkError
 from .frontier_classifier import FrontierClassifier
+from .intelligence.brain import Brain, ExperienceEvent
 from .intelligence.llm_extractor import LLMExtractor
 from .intelligence.rl_agent import RLAgent
-from .intelligence.brain import Brain, ExperienceEvent
+
 try:  # Hybrid brain (IA-B + IA-A fusion) optional
     from .intelligence.hybrid_brain import HybridBrain
 except Exception:  # pragma: no cover
@@ -67,6 +69,7 @@ class ScrapingOrchestrator:
         frontier_classifier: FrontierClassifier | None = None,
         concurrency: int = settings.CONCURRENCY,
         respect_robots_txt: bool | None = None,
+        ethics_checks_enabled: bool | None = None,
         use_rl: bool = False,
         stats_callback=None,
         alert_callback=None,
@@ -130,7 +133,12 @@ class ScrapingOrchestrator:
             if respect_robots_txt is None
             else respect_robots_txt
         )
-        self.ethics_checks_enabled = settings.ETHICS_CHECKS_ENABLED
+        # Allow explicit override for ethics checks (GUI toggle)
+        self.ethics_checks_enabled = (
+            settings.ETHICS_CHECKS_ENABLED
+            if ethics_checks_enabled is None
+            else ethics_checks_enabled
+        )
         self.allowed_domain = urlparse(start_urls[0]).netloc if start_urls else ""
         self.robot_rules = None
 
@@ -202,8 +210,8 @@ class ScrapingOrchestrator:
             brain_score = 0.0
             try:
                 # HybridBrain exposes get_domain_priority; simple Brain exposes domain_priority
-                if hasattr(self.brain, 'get_domain_priority'):
-                    brain_score = getattr(self.brain, 'get_domain_priority')(domain)  # type: ignore
+                if hasattr(self.brain, "get_domain_priority"):
+                    brain_score = getattr(self.brain, "get_domain_priority")(domain)  # type: ignore
                 else:
                     brain_score = self.brain.domain_priority(domain)  # type: ignore[attr-defined]
             except Exception:
@@ -213,7 +221,9 @@ class ScrapingOrchestrator:
 
             # Backoff gating
             try:
-                if hasattr(self.brain, 'should_backoff') and self.brain.should_backoff(domain):  # type: ignore[attr-defined]
+                if hasattr(self.brain, "should_backoff") and self.brain.should_backoff(
+                    domain
+                ):  # type: ignore[attr-defined]
                     priority += 5
             except Exception:
                 pass
@@ -239,7 +249,7 @@ class ScrapingOrchestrator:
                 brain_summary = ""
                 if self.brain:
                     try:
-                        if hasattr(self.brain, 'get_comprehensive_stats'):
+                        if hasattr(self.brain, "get_comprehensive_stats"):
                             stats = self.brain.get_comprehensive_stats()  # type: ignore
                             brain_summary = (
                                 f"hybrid domains={len(stats.get('simple_brain', {}).get('domains', {}))} "
@@ -247,9 +257,7 @@ class ScrapingOrchestrator:
                             )
                         else:
                             snap = self.brain.snapshot()  # type: ignore
-                            brain_summary = (
-                                f"domains={len(snap.get('domains', {}))} events={snap.get('total_events')}"
-                            )
+                            brain_summary = f"domains={len(snap.get('domains', {}))} events={snap.get('total_events')}"
                     except Exception:
                         brain_summary = "brain=unavailable"
                 self._log_ia_sync(
@@ -322,7 +330,7 @@ class ScrapingOrchestrator:
             self.logger.debug(
                 "RL Agent adjusts backoff for %s to %.2f",
                 domain,
-                self.domain_metrics[domain]["current_backoff_factor"]
+                self.domain_metrics[domain]["current_backoff_factor"],
             )
 
         # Store state and action for later learning
@@ -383,8 +391,7 @@ class ScrapingOrchestrator:
         for i in range(len(segment_tuple) - settings.REPETITIVE_PATH_THRESHOLD):
             sub_sequence = segment_tuple[i : i + settings.REPETITIVE_PATH_THRESHOLD]
             next_sequence = segment_tuple[
-                i
-                + settings.REPETITIVE_PATH_THRESHOLD : i
+                i + settings.REPETITIVE_PATH_THRESHOLD : i
                 + 2 * settings.REPETITIVE_PATH_THRESHOLD
             ]
             if sub_sequence == next_sequence:
@@ -472,7 +479,8 @@ class ScrapingOrchestrator:
             # Allow URL in case of error for safety
             self.logger.warning(
                 "HEAD prequalification failed for %s: %s. Will allow as precaution.",
-                url, e
+                url,
+                e,
             )
             return True, f"HEAD request failed: {e}"
 
@@ -574,7 +582,9 @@ class ScrapingOrchestrator:
 
             # Perform scraping with retry logic
             start_time = datetime.now(timezone.utc)
-            result = await self._scrape_with_retries(scraper, url, domain, dynamic_extraction_schema)
+            result = await self._scrape_with_retries(
+                scraper, url, domain, dynamic_extraction_schema
+            )
             end_time = datetime.now(timezone.utc)
             if result:
                 # Capture response time (seconds)
@@ -588,25 +598,41 @@ class ScrapingOrchestrator:
                 # Record experience in Brain if enabled
                 if self.brain:
                     try:
-                        if hasattr(self.brain, 'record_scraping_result'):
+                        if hasattr(self.brain, "record_scraping_result"):
                             # HybridBrain style interface
                             context = {
-                                'response_time': result.response_time,
-                                'error_type': ("network" if result.retryable else None) if result.status in ("FAILED", "RETRY") else None,
+                                "response_time": result.response_time,
+                                "error_type": ("network" if result.retryable else None)
+                                if result.status in ("FAILED", "RETRY")
+                                else None,
                             }
-                            getattr(self.brain, 'record_scraping_result')(result, context)  # type: ignore
+                            getattr(self.brain, "record_scraping_result")(
+                                result, context
+                            )  # type: ignore
                         else:
                             # Simple Brain
                             self.brain.record_event(
                                 ExperienceEvent(
                                     url=result.url,
-                                    status="SUCCESS" if result.status == "SUCCESS" else ("ERROR" if result.status in ("FAILED",) else result.status),
+                                    status="SUCCESS"
+                                    if result.status == "SUCCESS"
+                                    else (
+                                        "ERROR"
+                                        if result.status in ("FAILED",)
+                                        else result.status
+                                    ),
                                     response_time=result.response_time,
                                     content_length=len(result.content_text or ""),
                                     new_links=len(result.links or []),
                                     domain=urlparse(result.url).netloc,
-                                    extracted_fields=(len(result.extracted_data or {}) if result.extracted_data else None),
-                                    error_type=("network" if result.retryable else None) if result.status in ("FAILED", "RETRY") else None,
+                                    extracted_fields=(
+                                        len(result.extracted_data or {})
+                                        if result.extracted_data
+                                        else None
+                                    ),
+                                    error_type=("network" if result.retryable else None)
+                                    if result.status in ("FAILED", "RETRY")
+                                    else None,
                                 )
                             )
                     except Exception as e:  # pragma: no cover
@@ -678,7 +704,9 @@ class ScrapingOrchestrator:
                     )
         return dynamic_extraction_schema
 
-    async def _scrape_with_retries(self, scraper, url: str, domain: str, dynamic_extraction_schema):
+    async def _scrape_with_retries(
+        self, scraper, url: str, domain: str, dynamic_extraction_schema
+    ):
         """
         Perform scraping with retry logic for network errors.
 
@@ -700,7 +728,9 @@ class ScrapingOrchestrator:
             except NetworkError as e:
                 self.logger.warning(
                     "URL %s failed due to network error. Retrying... (Attempt %d/%d)",
-                    url, attempt + 1, settings.MAX_RETRIES
+                    url,
+                    attempt + 1,
+                    settings.MAX_RETRIES,
                 )
                 if attempt < settings.MAX_RETRIES:
                     # In test environments, reduce or skip backoff to keep tests fast
@@ -714,7 +744,8 @@ class ScrapingOrchestrator:
                 else:
                     self.logger.error(
                         "URL %s failed after %d network retries. Discarding.",
-                        url, settings.MAX_RETRIES
+                        url,
+                        settings.MAX_RETRIES,
                     )
                     if self.alert_callback:
                         self.alert_callback(
@@ -730,7 +761,9 @@ class ScrapingOrchestrator:
             except Exception as e:
                 self.logger.error(
                     "URL %s failed with unexpected error: %s. Discarding.",
-                    url, e, exc_info=True
+                    url,
+                    e,
+                    exc_info=True,
                 )
                 # Alert once with unexpected error message; later handling should not duplicate it
                 if self.alert_callback:
@@ -741,7 +774,9 @@ class ScrapingOrchestrator:
                     status="FAILED", url=url, error_message=f"Unexpected error: {e}"
                 )
 
-    async def _process_scraping_result(self, result: ScrapeResult, current_user_agent: str):
+    async def _process_scraping_result(
+        self, result: ScrapeResult, current_user_agent: str
+    ):
         """
         Process scraping result, update metrics, and handle user agent management.
 
@@ -763,10 +798,10 @@ class ScrapingOrchestrator:
         # 🧠 Autonomous Learning: Feed result to intelligence system
         try:
             context = {
-                "response_time": getattr(result, 'response_time', 0.0),
-                "retry_count": getattr(result, 'retry_count', 0),
+                "response_time": getattr(result, "response_time", 0.0),
+                "retry_count": getattr(result, "retry_count", 0),
                 "user_agent": current_user_agent,
-                "delay_used": getattr(result, 'delay_used', 1.0)
+                "delay_used": getattr(result, "delay_used", 1.0),
             }
             self.intelligence.learn_from_scrape_result(result, context)
             self.logger.debug(f"🧠 Intelligence learned from {result.url}")
@@ -783,9 +818,7 @@ class ScrapingOrchestrator:
         if result.status == "SUCCESS":
             self._check_for_visual_changes(result)
             # Log the discovered links at warning level for test visibility
-            self.logger.warning(
-                "Discovered links for %s: %s", result.url, result.links
-            )
+            self.logger.warning("Discovered links for %s: %s", result.url, result.links)
             await self._add_links_to_queue(result.links, result.content_type)
             self.user_agent_manager.release_user_agent(current_user_agent)
         elif result.status == "FAILED":
@@ -827,8 +860,10 @@ class ScrapingOrchestrator:
             brain_snapshot = None
             if self.brain:
                 try:
-                    if hasattr(self.brain, 'get_comprehensive_stats'):
-                        brain_snapshot = getattr(self.brain, 'get_comprehensive_stats')()  # type: ignore
+                    if hasattr(self.brain, "get_comprehensive_stats"):
+                        brain_snapshot = getattr(
+                            self.brain, "get_comprehensive_stats"
+                        )()  # type: ignore
                     else:
                         brain_snapshot = self.brain.snapshot()  # type: ignore
                 except Exception:
@@ -873,8 +908,8 @@ class ScrapingOrchestrator:
             old_backoff = metrics["current_backoff_factor"]
             metrics["current_backoff_factor"] *= 1.5
             alert_message = (
-                f'Anomalía detectada en {domain}: {low_quality_ratio:.2f} contenido de baja calidad/vacío. '
-                f'Increasing backoff from {old_backoff} to {metrics["current_backoff_factor"]:.2f}'
+                f"Anomalía detectada en {domain}: {low_quality_ratio:.2f} contenido de baja calidad/vacío. "
+                f"Increasing backoff from {old_backoff} to {metrics['current_backoff_factor']:.2f}"
             )
             self.logger.warning(alert_message)
             if self.alert_callback:
@@ -896,7 +931,10 @@ class ScrapingOrchestrator:
             self.logger.info(
                 "Performance improved in %s: %.2f low quality/empty. "
                 "Reducing backoff from %.2f to %.2f",
-                domain, low_quality_ratio, old_backoff, metrics["current_backoff_factor"]
+                domain,
+                low_quality_ratio,
+                old_backoff,
+                metrics["current_backoff_factor"],
             )
 
     def _check_for_visual_changes(self, new_result):
@@ -931,7 +969,8 @@ class ScrapingOrchestrator:
         except (AttributeError, TypeError):
             # Handle mock objects in tests that don't support subtraction
             self.logger.debug(
-                "Could not calculate hash distance for %s (possible mock)", new_result.url
+                "Could not calculate hash distance for %s (possible mock)",
+                new_result.url,
             )
         except Exception as e:
             self.logger.error(
@@ -962,11 +1001,15 @@ class ScrapingOrchestrator:
             if link_netloc != self.allowed_domain:
                 self.logger.warning(
                     "Skipping link due to domain mismatch: %s (netloc=%s, allowed=%s)",
-                    clean_link, link_netloc, self.allowed_domain
+                    clean_link,
+                    link_netloc,
+                    self.allowed_domain,
                 )
                 continue
             if clean_link in self.seen_urls:
-                self.logger.warning("Skipping link because already seen: %s", clean_link)
+                self.logger.warning(
+                    "Skipping link because already seen: %s", clean_link
+                )
                 continue
 
             # Check for repetitive path traps
@@ -1020,7 +1063,10 @@ class ScrapingOrchestrator:
             browser: Playwright browser instance
         """
         # Log run start
-        self._log_ia_sync("START", f"run started urls={len(self.start_urls)} concurrency={self.concurrency}")
+        self._log_ia_sync(
+            "START",
+            f"run started urls={len(self.start_urls)} concurrency={self.concurrency}",
+        )
 
         if not self.start_urls:
             self.logger.error("No se proporcionaron URLs iniciales.")
@@ -1048,8 +1094,8 @@ class ScrapingOrchestrator:
             if optimized_config:
                 self.logger.info(f"🧠 Intelligence optimized config for {domain}")
                 # Apply suggested delays, user agents, etc.
-                if hasattr(self, 'delay_manager') and 'delay' in optimized_config:
-                    self.delay_manager.base_delay = optimized_config['delay']
+                if hasattr(self, "delay_manager") and "delay" in optimized_config:
+                    self.delay_manager.base_delay = optimized_config["delay"]
         except Exception as e:
             self.logger.error(f"Intelligence configuration error: {e}")
 
@@ -1115,7 +1161,8 @@ class ScrapingOrchestrator:
                 else:
                     self.logger.warning(
                         "Could not fetch robots.txt from %s. Status code: %d",
-                        robots_url, response.status_code
+                        robots_url,
+                        response.status_code,
                     )
                     if self.alert_callback:
                         # Mensaje traducido al español para tests
@@ -1125,8 +1172,7 @@ class ScrapingOrchestrator:
                         )
         except Exception as e:
             self.logger.warning(
-                "Could not load or parse robots.txt from %s. Error: %s",
-                robots_url, e
+                "Could not load or parse robots.txt from %s. Error: %s", robots_url, e
             )
             if self.alert_callback:
                 # Mensaje traducido al español para tests

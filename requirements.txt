@@ -5,6 +5,9 @@ pydantic-settings
 textual
 watchdog
 
+# Desktop GUI
+PyQt6
+
 # Scraping & Parsing
 beautifulsoup4
 readability-lxml

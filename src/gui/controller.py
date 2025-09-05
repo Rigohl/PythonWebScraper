@@ -1,0 +1,95 @@
+import asyncio
+import logging
+import threading
+from dataclasses import dataclass, field
+from typing import Callable, Optional, List
+
+from PyQt6.QtCore import QObject, pyqtSignal
+
+from .. import runner
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class ScraperConfig:
+    start_urls: List[str] = field(default_factory=list)
+    db_path: str = "data/scraper_database.db"
+    concurrency: int = 5
+    respect_robots: bool = True
+    use_rl: bool = False
+    hot_reload: bool = False
+
+class ScraperController(QObject):
+    # Signals for GUI updates
+    status_changed = pyqtSignal(str)
+    stats_update = pyqtSignal(dict)
+    brain_activity = pyqtSignal(float)
+
+    def __init__(self):
+        super().__init__()
+        self._loop: Optional[asyncio.AbstractEventLoop] = None
+        self._thread: Optional[threading.Thread] = None
+        self._stop_event = threading.Event()
+        self._running = False
+        self._config = ScraperConfig()
+
+    def is_running(self) -> bool:
+        return self._running
+
+    def start(self, config: ScraperConfig):
+        if self._running:
+            return
+        self._config = config
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._thread_main, daemon=True)
+        self._thread.start()
+        self._running = True
+        self.status_changed.emit("RUNNING")
+
+    def stop(self):
+        if not self._running:
+            return
+        self._stop_event.set()
+        # Cancel tasks gracefully via loop call_soon_threadsafe
+        if self._loop and self._loop.is_running():
+            self._loop.call_soon_threadsafe(self._loop.stop)
+        self._running = False
+        self.status_changed.emit("STOPPED")
+
+    def _thread_main(self):
+        try:
+            self._loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self._loop)
+            self._loop.run_until_complete(self._run())
+        except Exception as e:
+            logger.error(f"Scraper thread crashed: {e}")
+        finally:
+            if self._loop and self._loop.is_running():
+                self._loop.stop()
+            self._loop = None
+            self._running = False
+            self.status_changed.emit("STOPPED")
+
+    async def _run(self):
+        if not self._config.start_urls:
+            logger.warning("No start URLs provided - idle mode")
+            return
+
+        async def stats_callback(stats: dict):
+            self.stats_update.emit(stats)
+            # Derive a numeric brain activity metric if available
+            activity = 0.0
+            if 'brain' in stats:
+                b = stats['brain']
+                activity = float(b.get('events_last_minute', 0)) / 50.0
+            self.brain_activity.emit(min(1.0, activity))
+
+        await runner.run_crawler(
+            start_urls=self._config.start_urls,
+            db_path=self._config.db_path,
+            concurrency=self._config.concurrency,
+            respect_robots_txt=self._config.respect_robots,
+            use_rl=self._config.use_rl,
+            hot_reload=self._config.hot_reload,
+            stats_callback=stats_callback,
+        )

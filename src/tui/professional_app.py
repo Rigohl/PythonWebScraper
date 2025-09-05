@@ -1187,9 +1187,6 @@ class WebScraperProfessionalApp(App):
             self._stop_scraping_process()
 
 
-# Función de entrada para mantener compatibilidad
-
-# Función de entrada para mantener compatibilidad
 async def run_professional_app():
     """Ejecuta la aplicación profesional"""
     app = WebScraperProfessionalApp()

@@ -1,0 +1,62 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+        },
+        "json": {
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
+            "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "standard",
+            "stream": "ext://sys.stdout"
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "INFO",
+            "formatter": "json",
+            "filename": "logs/scraper_run.log",
+            "maxBytes": 10485760,
+            "backupCount": 5,
+            "encoding": "utf8"
+        },
+        "debug_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "DEBUG",
+            "formatter": "json",
+            "filename": "logs/debug.log",
+            "maxBytes": 10485760,
+            "backupCount": 3,
+            "encoding": "utf8"
+        }
+    },
+    "loggers": {
+        "": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": false
+        },
+        "src": {
+            "handlers": ["console", "file", "debug_file"],
+            "level": "DEBUG",
+            "propagate": false
+        },
+        "src.database": {
+            "handlers": ["console", "file", "debug_file"],
+            "level": "DEBUG",
+            "propagate": false
+        },
+        "src.intelligence": {
+            "handlers": ["console", "file", "debug_file"],
+            "level": "DEBUG",
+            "propagate": false
+        }
+    }
+}
