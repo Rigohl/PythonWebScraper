@@ -50,7 +50,7 @@ class KnowledgeBase:
         seed: List[KnowledgeSnippet] = []
 
         # ========================= NEUROCIENCIA Y COGNICIÓN =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="neuroscience_plasticity",
             category="neuroscience",
@@ -59,16 +59,16 @@ class KnowledgeBase:
             tags=["neuroplasticity", "hebbian", "synapses", "learning", "stdp"],
             quality_score=0.95
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="cognitive_working_memory",
-            category="cognitive_psychology", 
+            category="cognitive_psychology",
             title="Límites de Memoria de Trabajo (Miller's Rule)",
             content="La memoria de trabajo humana puede mantener 7±2 elementos simultáneamente. Implementar buffers limitados, chunking de información, y sistemas de atención selectiva. Usar decaimiento temporal y interferencia proactiva/retroactiva para simular limitaciones cognitivas reales.",
             tags=["working_memory", "miller", "attention", "cognitive_limits", "chunking"],
             quality_score=0.92
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="consciousness_global_workspace",
             category="consciousness",
@@ -77,7 +77,7 @@ class KnowledgeBase:
             tags=["consciousness", "global_workspace", "attention", "competition", "awareness"],
             quality_score=0.94
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="metacognition_thinking_about_thinking",
             category="metacognition",
@@ -86,7 +86,7 @@ class KnowledgeBase:
             tags=["metacognition", "self_monitoring", "confidence", "strategy", "error_detection"],
             quality_score=0.91
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="dual_process_theory",
             category="cognitive_psychology",
@@ -95,9 +95,9 @@ class KnowledgeBase:
             tags=["dual_process", "system1", "system2", "heuristics", "reasoning"],
             quality_score=0.93
         ))
-        
+
         # ========================= INTELIGENCIA ARTIFICIAL =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="ai_transformer_attention",
             category="ai_architecture",
@@ -106,7 +106,7 @@ class KnowledgeBase:
             tags=["transformer", "attention", "self_attention", "neural_networks", "nlp"],
             quality_score=0.96
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="ai_reinforcement_learning_exploration",
             category="reinforcement_learning",
@@ -115,7 +115,7 @@ class KnowledgeBase:
             tags=["reinforcement_learning", "exploration", "exploitation", "epsilon_greedy", "curiosity"],
             quality_score=0.94
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="ai_meta_learning",
             category="meta_learning",
@@ -124,7 +124,7 @@ class KnowledgeBase:
             tags=["meta_learning", "maml", "few_shot", "adaptation", "learning_efficiency"],
             quality_score=0.95
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="ai_causal_inference",
             category="causal_reasoning",
@@ -133,9 +133,9 @@ class KnowledgeBase:
             tags=["causality", "pearl", "counterfactuals", "causal_graphs", "intervention"],
             quality_score=0.93
         ))
-        
+
         # ========================= FILOSOFÍA DE LA MENTE =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="philosophy_qualia_problem",
             category="philosophy_mind",
@@ -144,7 +144,7 @@ class KnowledgeBase:
             tags=["consciousness", "qualia", "hard_problem", "chalmers", "subjective_experience"],
             quality_score=0.89
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="philosophy_intentionality",
             category="philosophy_mind",
@@ -153,7 +153,7 @@ class KnowledgeBase:
             tags=["intentionality", "aboutness", "semantics", "grounding", "representation"],
             quality_score=0.87
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="philosophy_free_will",
             category="philosophy_mind",
@@ -162,9 +162,9 @@ class KnowledgeBase:
             tags=["free_will", "determinism", "choice", "agency", "emergence"],
             quality_score=0.85
         ))
-        
+
         # ========================= TÉCNICAS AVANZADAS DE ML =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="ml_continual_learning",
             category="continual_learning",
@@ -173,7 +173,7 @@ class KnowledgeBase:
             tags=["continual_learning", "catastrophic_forgetting", "ewc", "progressive_networks", "replay"],
             quality_score=0.96
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="ml_adversarial_training",
             category="adversarial_ml",
@@ -182,7 +182,7 @@ class KnowledgeBase:
             tags=["adversarial", "robustness", "fgsm", "pgd", "security"],
             quality_score=0.94
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="ml_neural_architecture_search",
             category="architecture_search",
@@ -191,9 +191,9 @@ class KnowledgeBase:
             tags=["nas", "architecture_search", "evolutionary", "darts", "automl"],
             quality_score=0.95
         ))
-        
+
         # ========================= SISTEMAS COMPLEJOS =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="complex_emergence",
             category="complex_systems",
@@ -202,18 +202,18 @@ class KnowledgeBase:
             tags=["emergence", "self_organization", "complexity", "phase_transitions", "swarm"],
             quality_score=0.91
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="complex_criticality",
-            category="complex_systems", 
+            category="complex_systems",
             title="Criticalidad Auto-Organizada (SOC)",
             content="Sistemas complejos tienden hacia edge of chaos donde emergen patterns interesantes. Implementar SOC dynamics, avalanche distributions, y 1/f noise. Usar sandpile models y branching processes para optimal performance.",
             tags=["soc", "criticality", "edge_chaos", "avalanches", "power_laws"],
             quality_score=0.90
         ))
-        
+
         # ========================= INFORMACIÓN Y COMUNICACIÓN =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="information_theory_compression",
             category="information_theory",
@@ -222,7 +222,7 @@ class KnowledgeBase:
             tags=["compression", "mdl", "kolmogorov", "information", "patterns"],
             quality_score=0.93
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="information_integrated_information",
             category="information_theory",
@@ -231,9 +231,9 @@ class KnowledgeBase:
             tags=["iit", "phi", "integrated_information", "consciousness", "causality"],
             quality_score=0.88
         ))
-        
+
         # ========================= LÓGICA Y RAZONAMIENTO =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="logic_fuzzy_reasoning",
             category="fuzzy_logic",
@@ -242,7 +242,7 @@ class KnowledgeBase:
             tags=["fuzzy_logic", "uncertainty", "membership", "linguistic_variables", "approximate"],
             quality_score=0.89
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="logic_probabilistic_reasoning",
             category="probabilistic_logic",
@@ -251,7 +251,7 @@ class KnowledgeBase:
             tags=["bayesian", "probabilistic_logic", "belief_networks", "uncertainty", "priors"],
             quality_score=0.94
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="logic_abductive_reasoning",
             category="abductive_reasoning",
@@ -260,9 +260,9 @@ class KnowledgeBase:
             tags=["abduction", "hypothesis", "explanation", "diagnostics", "causality"],
             quality_score=0.91
         ))
-        
+
         # ========================= PROCESSING ESPECÍFICO PARA SCRAPING =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="scraping_stealth_browser_fingerprinting",
             category="web_scraping",
@@ -271,7 +271,7 @@ class KnowledgeBase:
             tags=["fingerprinting", "stealth", "canvas", "webgl", "cdp", "anti_detection"],
             quality_score=0.97
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="scraping_headless_detection_evasion",
             category="web_scraping",
@@ -280,7 +280,7 @@ class KnowledgeBase:
             tags=["headless", "webdriver", "navigator", "chrome", "detection_evasion"],
             quality_score=0.96
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="scraping_behavioral_humanization",
             category="web_scraping",
@@ -289,7 +289,7 @@ class KnowledgeBase:
             tags=["humanization", "mouse_movement", "typing", "delays", "behavioral_patterns"],
             quality_score=0.95
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="scraping_captcha_solving_strategies",
             category="web_scraping",
@@ -298,7 +298,7 @@ class KnowledgeBase:
             tags=["captcha", "recaptcha", "hcaptcha", "computer_vision", "audio_processing"],
             quality_score=0.93
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="scraping_javascript_rendering_strategies",
             category="web_scraping",
@@ -307,9 +307,9 @@ class KnowledgeBase:
             tags=["javascript", "spa", "lazy_loading", "mutation_observer", "performance"],
             quality_score=0.94
         ))
-        
+
         # ========================= ANTI-DETECCIÓN AVANZADA =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="antidetection_tls_fingerprinting",
             category="anti_detection",
@@ -318,7 +318,7 @@ class KnowledgeBase:
             tags=["tls", "ssl", "ja3", "fingerprinting", "network_detection"],
             quality_score=0.94
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="antidetection_timing_analysis",
             category="anti_detection",
@@ -327,7 +327,7 @@ class KnowledgeBase:
             tags=["timing", "patterns", "circadian", "jitter", "session_duration"],
             quality_score=0.92
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="antidetection_geolocation_spoofing",
             category="anti_detection",
@@ -336,9 +336,9 @@ class KnowledgeBase:
             tags=["geolocation", "proxy", "timezone", "language", "ip_consistency"],
             quality_score=0.90
         ))
-        
+
         # ========================= TÉCNICAS DE MACHINE LEARNING ESPECÍFICAS =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="ml_few_shot_learning",
             category="few_shot_learning",
@@ -347,7 +347,7 @@ class KnowledgeBase:
             tags=["few_shot", "prototypical", "maml", "transfer_learning", "embeddings"],
             quality_score=0.96
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="ml_anomaly_detection_scraping",
             category="anomaly_detection",
@@ -356,7 +356,7 @@ class KnowledgeBase:
             tags=["anomaly_detection", "isolation_forest", "autoencoder", "website_changes"],
             quality_score=0.93
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="ml_sequence_prediction",
             category="sequence_prediction",
@@ -365,9 +365,9 @@ class KnowledgeBase:
             tags=["sequence_prediction", "lstm", "attention", "navigation_paths", "rl"],
             quality_score=0.94
         ))
-        
+
         # ========================= PSICOLOGÍA COGNITIVA APLICADA =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="cognitive_attention_mechanisms",
             category="cognitive_psychology",
@@ -376,7 +376,7 @@ class KnowledgeBase:
             tags=["attention", "selective", "divided", "bottleneck", "inhibition"],
             quality_score=0.91
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="cognitive_memory_consolidation",
             category="cognitive_psychology",
@@ -385,7 +385,7 @@ class KnowledgeBase:
             tags=["memory", "consolidation", "forgetting", "ebbinghaus", "spaced_repetition"],
             quality_score=0.90
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="cognitive_decision_biases",
             category="cognitive_psychology",
@@ -394,9 +394,9 @@ class KnowledgeBase:
             tags=["cognitive_biases", "confirmation_bias", "availability", "anchoring", "heuristics"],
             quality_score=0.89
         ))
-        
+
         # ========================= NEUROCIENCIA COMPUTACIONAL =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="neuro_spike_timing",
             category="computational_neuroscience",
@@ -405,7 +405,7 @@ class KnowledgeBase:
             tags=["stdp", "spike_timing", "plasticity", "temporal_coding", "synaptic_learning"],
             quality_score=0.94
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="neuro_homeostatic_plasticity",
             category="computational_neuroscience",
@@ -414,9 +414,9 @@ class KnowledgeBase:
             tags=["homeostasis", "synaptic_scaling", "metaplasticity", "stability", "neural_dynamics"],
             quality_score=0.92
         ))
-        
+
         # ========================= TEORÍA DE SISTEMAS =========================
-        
+
         seed.append(KnowledgeSnippet(
             id="systems_feedback_loops",
             category="systems_theory",
@@ -425,7 +425,7 @@ class KnowledgeBase:
             tags=["feedback", "control_theory", "pid", "adaptive_control", "system_dynamics"],
             quality_score=0.90
         ))
-        
+
         seed.append(KnowledgeSnippet(
             id="systems_hierarchy_emergence",
             category="systems_theory",
@@ -434,7 +434,7 @@ class KnowledgeBase:
             tags=["hierarchy", "emergence", "multi_level", "downward_causation", "organization"],
             quality_score=0.91
         ))
-        
+
         # ========================= PROCESSING ESPECÍFICO PARA SCRAPING (CONTINUACIÓN) =========================
 
         # Scraping Fundamentals
