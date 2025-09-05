@@ -7,7 +7,7 @@ import sys
 import os
 
 # Añadir el directorio padre al path para las importaciones
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 async def demo_interface():
     """Demostración de la interfaz profesional"""

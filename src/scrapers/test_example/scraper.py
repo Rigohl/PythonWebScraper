@@ -16,7 +16,7 @@ from .parser import TestExampleParser
 logger = logging.getLogger(__name__)
 
 class TestExampleScraper:
-    """Scraper autom·tico para test_example"""
+    """Scraper autom√°tico para test_example"""
 
     def __init__(self, config: Dict[str, Any] = None):
         self.domain = "test_example"

@@ -1,0 +1,24 @@
+2025-09-05 04:37:14,287 - INFO - Initializing autonomous controller...
+2025-09-05 04:37:14,310 - INFO - No persistent memory state found, starting fresh
+2025-09-05 04:37:14,318 - INFO - No emotional state found, starting with neutral state
+2025-09-05 04:37:14,324 - INFO - No metacognitive state found, starting fresh
+2025-09-05 04:37:14,363 - INFO - Brain state loaded: 33 recent events, 12 domains
+2025-09-05 04:37:14,390 - INFO - Loaded intelligence for 23 domains
+2025-09-05 04:37:14,390 - INFO - AutonomousLearningBrain initialized with intelligence on 23 domains
+2025-09-05 04:37:18,498 - INFO - No saved models found, starting fresh
+2025-09-05 04:37:18,504 - ERROR - Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'
+2025-09-05 04:37:18,510 - INFO - No saved models found, starting fresh
+2025-09-05 04:37:18,513 - WARNING - Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'
+2025-09-05 04:37:19,264 - WARNING - Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'
+2025-09-05 04:37:19,304 - INFO - No persistent memory state found, starting fresh
+2025-09-05 04:37:19,315 - INFO - No saved models found, starting fresh
+2025-09-05 04:37:19,348 - INFO - Setting up intelligence integration...
+2025-09-05 04:37:19,382 - ERROR - Error recording system event: 'AdvancedMemorySystem' object has no attribute 'store_episode'
+2025-09-05 04:37:19,396 - ERROR - Error recording system event: 'AdvancedMemorySystem' object has no attribute 'store_episode'
+2025-09-05 04:37:19,430 - ERROR - Error recording system event: 'AdvancedMemorySystem' object has no attribute 'store_episode'
+2025-09-05 04:37:19,448 - ERROR - Error observing system state: object of type 'WorkingMemory' has no len()
+2025-09-05 04:37:19,449 - ERROR - Error analyzing situation: 'HybridBrain' object has no attribute 'analyze_situation'
+2025-09-05 04:37:19,449 - INFO - Generated 0 autonomous decisions
+2025-09-05 04:37:19,449 - ERROR - Error recording system event: 'AdvancedMemorySystem' object has no attribute 'store_episode'
+2025-09-05 04:37:19,449 - ERROR - Error in evolutionary improvement: 'SelfImprovingSystem' object has no attribute 'suggest_improvements'
+2025-09-05 04:37:19,451 - INFO - Control loop cancelled

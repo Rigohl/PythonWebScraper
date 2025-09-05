@@ -1,13 +1,13 @@
 {
-  "timestamp": "2025-09-05T04:19:30.973372",
+  "timestamp": "2025-09-05T04:28:57.535557",
   "total_tests": 6,
-  "passed_tests": 4,
+  "passed_tests": 5,
   "results": {
     "CLI Autónomo": true,
     "Controlador Autónomo": true,
     "Coordinador Autónomo": true,
     "Integración WebScraperPRO": true,
-    "CLI Help": false,
+    "CLI Help": true,
     "Importación Componentes": false
   },
   "status": "FAILURE"

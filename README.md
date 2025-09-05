@@ -7,8 +7,56 @@ Sistema de crawling, extracción y aprendizaje incremental orientado a resilienc
 - Operar en modo totalmente automatizado (crawler + IA híbrida)
 - Ejecutar sesiones interactivas (TUI)
 - Aplicar extracción estructurada dinámicamente (LLM Zero‑Shot)
-- Aprender patrones de cada dominio y optimizar la estrategia
-- Exportar datos limpios y auditables
+- Aprender patrones de cada dominio y optimizar la estrategia- Modo "focus" a un dominio.
+
+---
+
+## 16.1. Chat IA Bilingüe con Procesamiento de Lenguaje Natural
+
+El dashboard profesional incluye un chat inteligente bilingüe (F9 para activar) con capacidades de:
+
+### 🗣️ Procesamiento de Lenguaje Natural
+
+El chat puede entender y procesar peticiones en lenguaje natural tanto en español como en inglés. No necesitas memorizar comandos específicos:
+
+**Ejemplos de uso:**
+
+- "Busca información sobre Python" → Búsqueda automática en base de conocimiento
+- "Inicia un scraping en amazon.com" → Configura y ejecuta scraping
+- "Edita el archivo config.json" → Abre editor de archivos
+- "Ejecuta 'dir' en terminal" → Ejecuta comando en PowerShell
+
+### 🎯 Intenciones Reconocidas
+
+| Intención | Ejemplos en Español | Ejemplos en Inglés |
+|-----------|-------------------|-------------------|
+| **Búsqueda** | "Busca datos sobre X", "Encuentra información de Y" | "Search for X", "Find information about Y" |
+| **Scraping** | "Haz scraping de sitio.com", "Extrae datos de página.html" | "Scrape website.com", "Extract from page.html" |
+| **Conocimiento** | "Qué sabes sobre X?", "Háblame de Y" | "What do you know about X?", "Tell me about Y" |
+| **Edición** | "Edita archivo.py", "Modifica el código" | "Edit file.py", "Modify the script" |
+| **Terminal** | "Ejecuta comando X", "Corre 'dir' en cmd" | "Run command X", "Execute 'ls' in terminal" |
+
+### 🔧 Comandos Directos (Prefijo `/`)
+
+Para usuarios avanzados, también soporta comandos directos:
+
+- `/crawl URL` - Inicia scraping
+- `/kb CONSULTA` - Consulta base de conocimiento
+- `/edit ARCHIVO` - Edita archivos
+- `/terminal COMANDO` - Ejecuta comandos
+- `/help` - Ayuda completa
+
+### 🛡️ Seguridad
+
+El sistema incluye medidas de seguridad para:
+
+- Bloquear comandos peligrosos en terminal
+- Restringir edición a tipos de archivo seguros
+- Validar comandos antes de ejecutar
+
+---
+
+## 17. Scripts de Mantenimientoportar datos limpios y auditables
 
 ---
 
@@ -59,7 +107,7 @@ WebScraperPRO.bat
 
 Ambos scripts ofrecen acceso a las siguientes operaciones:
 
-1. **🚀 Dashboard Profesional (NUEVO):** Interfaz moderna con control total
+1. **🚀 Dashboard Profesional (NUEVO):** Interfaz moderna con control total y chat IA bilingüe
 2. **📱 Interfaz TUI Clásica:** La interfaz original para usuarios familiarizados
 3. **🕷️ Crawling Directo:** Scraping inmediato desde línea de comandos
 4. **🎮 Modo Demo:** Demostración sin dependencias de navegador
@@ -67,7 +115,7 @@ Ambos scripts ofrecen acceso a las siguientes operaciones:
 6. **📤 Exportar Datos:** Múltiples formatos disponibles
 7. **🔧 Configuración:** Ajustes avanzados del sistema
 8. **❓ Ayuda:** Documentación integrada
-10. **Salir:** Cierra el panel de control.
+9. **Salir:** Cierra el panel de control.
 
 En Linux/macOS usar `./WebScraperPRO.sh` (si existe) o invocar manualmente comandos equivalentes.
 
@@ -133,7 +181,7 @@ python -m src.main --help
 
 ## 4. Arquitectura General
 
-```
+```text
 ┌─────────────┐   CLI/TUI   ┌───────────────┐
 │  Usuario    │────────────▶│   main.py     │
 └─────────────┘             └──────┬────────┘
@@ -437,6 +485,7 @@ Atajos de teclado (Keybindings):
 | s | start | Inicia crawling |
 | t | stop | Detiene crawling (cancela worker) |
 | p | pause_resume | Pausa/Reanuda refresco UI (buffer) |
+| **F9** | **toggle_chat** | **🆕 Muestra/oculta chat IA bilingüe** |
 | q | quit | Salir de la TUI |
 | r | toggle_robots | Activa/desactiva respeto robots.txt |
 | e | toggle_ethics | Activa/desactiva comprobaciones de ética |

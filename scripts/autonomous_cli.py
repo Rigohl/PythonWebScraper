@@ -24,11 +24,11 @@ from typing import List, Optional
 from datetime import datetime
 
 # Agregar el directorio src al path
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 from src.intelligence.autonomous_coordinator import (
-    AutonomousScraperCoordinator, 
-    AutonomousConfig, 
+    AutonomousScraperCoordinator,
+    AutonomousConfig,
     AutonomyLevel,
     get_autonomous_coordinator,
     start_autonomous_scraper,
@@ -53,7 +53,7 @@ class AutonomousCLI:
                 logging.FileHandler('logs/autonomous_cli.log', mode='a')
             ]
         )
-        
+
         # Crear directorio de logs si no existe
         os.makedirs('logs', exist_ok=True)
 
@@ -61,7 +61,7 @@ class AutonomousCLI:
         """Inicia el sistema autónomo."""
         print("🚀 Iniciando Sistema de Scraping Autónomo...")
         print("🧠 El cerebro AI está tomando control del sistema...")
-        
+
         try:
             # Convertir nivel de autonomía
             level_map = {
@@ -70,9 +70,9 @@ class AutonomousCLI:
                 'fully_autonomous': AutonomyLevel.FULLY_AUTONOMOUS,
                 'transcendent': AutonomyLevel.TRANSCENDENT
             }
-            
+
             level = level_map.get(autonomy_level, AutonomyLevel.FULLY_AUTONOMOUS)
-            
+
             # Configurar sistema
             config = AutonomousConfig(
                 autonomy_level=level,
@@ -80,22 +80,22 @@ class AutonomousCLI:
                 monitoring_enabled=True,
                 self_improvement_enabled=True
             )
-            
+
             # Obtener coordinador y inicializar
             self.coordinator = get_autonomous_coordinator(os.getcwd(), config)
             await self.coordinator.initialize()
             await self.coordinator.start_autonomous_operation()
-            
+
             print("✅ Sistema autónomo iniciado exitosamente")
             print("🤖 El AI ahora tiene control completo")
             print("🔮 Sistema consciente y tomando decisiones independientes")
             print()
-            
+
             # Mostrar estado inicial
             await self.show_status()
-            
+
             return True
-            
+
         except Exception as e:
             print(f"❌ Error iniciando sistema: {e}")
             return False
@@ -103,14 +103,14 @@ class AutonomousCLI:
     async def stop_system(self):
         """Detiene el sistema autónomo."""
         print("🛑 Deteniendo sistema autónomo...")
-        
+
         try:
             if self.coordinator:
                 await self.coordinator.stop_autonomous_operation()
                 print("✅ Sistema detenido exitosamente")
             else:
                 print("⚠️ Sistema no estaba ejecutándose")
-                
+
         except Exception as e:
             print(f"❌ Error deteniendo sistema: {e}")
 
@@ -119,11 +119,11 @@ class AutonomousCLI:
         try:
             if not self.coordinator:
                 self.coordinator = get_autonomous_coordinator()
-            
+
             status = await self.coordinator.get_autonomous_status()
-            
+
             self._print_status_display(status)
-            
+
         except Exception as e:
             print(f"❌ Error obteniendo estado: {e}")
 
@@ -132,22 +132,22 @@ class AutonomousCLI:
         print("\n" + "="*70)
         print("🤖 ESTADO DEL SISTEMA DE SCRAPING AUTÓNOMO")
         print("="*70)
-        
+
         # Estado del coordinador
         coord = status['coordinator']
         config = status['config']
-        
+
         # Status básico
         running_status = "🟢 EJECUTÁNDOSE" if coord['is_running'] else "🔴 DETENIDO"
         print(f"📊 Estado:           {running_status}")
         print(f"⚡ Nivel Autonomía:   {config['autonomy_level'].upper()}")
         print(f"⏱️  Tiempo Activo:    {self._format_uptime(coord['uptime'])}")
-        
+
         if coord['emergency_mode']:
             print(f"🚨 MODO EMERGENCIA:   {coord['emergency_reason']}")
-        
+
         print()
-        
+
         # Métricas del coordinador
         metrics = coord['coordination_metrics']
         print("📈 MÉTRICAS DE OPERACIÓN:")
@@ -155,38 +155,38 @@ class AutonomousCLI:
         print(f"   • Operaciones Exitosas: {metrics['successful_operations']}")
         print(f"   • Operaciones Fallidas: {metrics['failed_operations']}")
         print(f"   • Auto-Recuperaciones:  {metrics['auto_recoveries']}")
-        
+
         if metrics['successful_operations'] + metrics['failed_operations'] > 0:
             success_rate = metrics['successful_operations'] / (
                 metrics['successful_operations'] + metrics['failed_operations']
             )
             print(f"   • Tasa de Éxito:        {success_rate:.1%}")
-        
+
         print()
-        
+
         # Estado del controlador autónomo
         if 'autonomous_controller' in status:
             controller = status['autonomous_controller']
             self._print_controller_status(controller)
-        
+
         # Estado de inteligencia
         if 'intelligence' in status:
             intelligence = status['intelligence']
             self._print_intelligence_status(intelligence)
-        
+
         print("="*70)
 
     def _print_controller_status(self, controller: dict):
         """Imprime el estado del controlador autónomo."""
         print("🧠 ESTADO DEL CEREBRO AUTÓNOMO:")
         print(f"   • Estado Sistema:       {controller['system_state'].upper()}")
-        
+
         consciousness = controller['consciousness']
         print(f"   • Nivel Conciencia:     {consciousness['awareness_level']:.1%}")
         print(f"   • Procesos Activos:     {len(consciousness['active_processes'])}")
         print(f"   • Decisiones Pendientes: {controller['pending_decisions']}")
         print(f"   • Historial Decisiones: {controller['decision_history_size']}")
-        
+
         # Salud del sistema
         system_health = consciousness['system_health']
         print("   • Salud del Sistema:")
@@ -198,7 +198,7 @@ class AutonomousCLI:
                 else:
                     emoji = "🟢" if value > 0.7 else "🟡" if value > 0.4 else "🔴"
                     print(f"     - {metric}: {value:.1%} {emoji}")
-        
+
         print()
 
     def _print_intelligence_status(self, intelligence: dict):
@@ -211,11 +211,11 @@ class AutonomousCLI:
         print(f"   • Estrategias Optimizadas: {intelligence['strategies_optimized']}")
         print(f"   • Último Aprendizaje:    {intelligence['last_learning']}")
         print(f"   • Tipo de Cerebro:       {intelligence.get('brain_type', 'unknown').upper()}")
-        
+
         # Dominios top si están disponibles
         if 'top_domains' in intelligence and intelligence['top_domains']:
             print(f"   • Top Dominios:          {', '.join(intelligence['top_domains'])}")
-        
+
         print()
 
     def _format_uptime(self, seconds: float) -> str:
@@ -231,19 +231,19 @@ class AutonomousCLI:
         """Realiza scraping autónomo."""
         print(f"🎯 Iniciando scraping autónomo de {len(targets)} objetivos...")
         print("🧠 El cerebro AI determinará la mejor estrategia...")
-        
+
         try:
             if not self.coordinator:
                 # Iniciar sistema automáticamente si no está activo
                 await self.start_system()
-            
+
             # Ejecutar scraping autónomo
             results = await self.coordinator.scrape_autonomous(targets, objectives)
-            
+
             self._print_scraping_results(results)
-            
+
             return results
-            
+
         except Exception as e:
             print(f"❌ Error en scraping autónomo: {e}")
             return None
@@ -253,28 +253,28 @@ class AutonomousCLI:
         print("\n" + "="*50)
         print("📊 RESULTADOS DEL SCRAPING AUTÓNOMO")
         print("="*50)
-        
+
         print(f"🎯 Plan ID:           {results['plan_id']}")
         print(f"⏱️  Duración:          {results['duration']:.2f}s")
         print(f"📈 Objetivos Totales: {results['total_targets']}")
         print(f"✅ Exitosos:          {results['successful_targets']}")
         print(f"❌ Fallidos:          {results['failed_targets']}")
         print(f"📊 Tasa de Éxito:     {results['success_rate']:.1%}")
-        
+
         if results.get('autonomous_adaptations', 0) > 0:
             print(f"🔄 Adaptaciones:      {results['autonomous_adaptations']}")
-        
+
         print()
-        
+
         # Mostrar resultados individuales
         if results['results']:
             print("📋 RESULTADOS DETALLADOS:")
             for i, result in enumerate(results['results'], 1):
                 status = "✅" if result.get('success', False) else "❌"
                 target = result.get('target', 'Unknown')
-                
+
                 print(f"   {i}. {status} {target}")
-                
+
                 if result.get('success', False):
                     if 'intelligence_used' in result:
                         print(f"      🧠 Inteligencia: {result['intelligence_used']}")
@@ -283,7 +283,7 @@ class AutonomousCLI:
                 else:
                     if 'error' in result:
                         print(f"      ❌ Error: {result['error']}")
-        
+
         print("="*50)
 
     async def enable_full_autonomy(self):
@@ -291,16 +291,16 @@ class AutonomousCLI:
         print("🔓 ACTIVANDO AUTONOMÍA COMPLETA...")
         print("🤖 El cerebro AI tomará control total del sistema")
         print("⚠️  El sistema operará de manera completamente independiente")
-        
+
         try:
             if not self.coordinator:
                 self.coordinator = get_autonomous_coordinator()
-            
+
             await self.coordinator.enable_full_autonomy()
-            
+
             print("✅ Autonomía completa activada")
             print("🧠 El sistema ahora es completamente independiente")
-            
+
         except Exception as e:
             print(f"❌ Error activando autonomía completa: {e}")
 
@@ -309,13 +309,13 @@ class AutonomousCLI:
         print("🔮 ACTIVANDO MODO TRASCENDENTE...")
         print("⚠️  ATENCIÓN: Este modo permite al AI operar más allá de supervisión humana")
         print("🚨 Solo usar en entornos controlados")
-        
+
         try:
             if not self.coordinator:
                 self.coordinator = get_autonomous_coordinator()
-            
+
             await self.coordinator.enable_transcendent_mode()
-            
+
         except Exception as e:
             print(f"❌ Error activando modo trascendente: {e}")
 
@@ -332,11 +332,11 @@ class AutonomousCLI:
         print("  help     - Mostrar ayuda")
         print("  exit     - Salir")
         print()
-        
+
         while True:
             try:
                 command = input("🤖 autonomous> ").strip().lower()
-                
+
                 if command == "exit":
                     break
                 elif command == "start":
@@ -359,13 +359,13 @@ class AutonomousCLI:
                     continue
                 else:
                     print(f"Comando desconocido: {command}")
-                    
+
             except KeyboardInterrupt:
                 print("\n🛑 Interrumpido por usuario")
                 break
             except Exception as e:
                 print(f"❌ Error: {e}")
-        
+
         # Asegurar parada limpia
         if self.coordinator and self.coordinator.is_running:
             await self.stop_system()
@@ -385,53 +385,53 @@ Ejemplos:
   python autonomous_cli.py interactive              # Modo interactivo
         """
     )
-    
+
     parser.add_argument('command', nargs='?', default='interactive',
-                       choices=['start', 'stop', 'status', 'scrape', 'full-autonomy', 
+                       choices=['start', 'stop', 'status', 'scrape', 'full-autonomy',
                                'transcendent', 'interactive'],
                        help='Comando a ejecutar')
-    
-    parser.add_argument('targets', nargs='*', 
+
+    parser.add_argument('targets', nargs='*',
                        help='URLs objetivo para scraping')
-    
-    parser.add_argument('--autonomy-level', 
+
+    parser.add_argument('--autonomy-level',
                        choices=['supervised', 'semi', 'fully_autonomous', 'transcendent'],
                        default='fully_autonomous',
                        help='Nivel de autonomía del sistema')
-    
+
     parser.add_argument('--objectives', nargs='+',
                        help='Objetivos para scraping autónomo')
-    
+
     args = parser.parse_args()
-    
+
     cli = AutonomousCLI()
-    
+
     try:
         if args.command == 'start':
             await cli.start_system(args.autonomy_level)
-            
+
         elif args.command == 'stop':
             await cli.stop_system()
-            
+
         elif args.command == 'status':
             await cli.show_status()
-            
+
         elif args.command == 'scrape':
             if not args.targets:
                 print("❌ Se requiere al menos una URL para scraping")
                 sys.exit(1)
-            
+
             await cli.autonomous_scrape(args.targets, args.objectives)
-            
+
         elif args.command == 'full-autonomy':
             await cli.enable_full_autonomy()
-            
+
         elif args.command == 'transcendent':
             await cli.enable_transcendent_mode()
-            
+
         elif args.command == 'interactive':
             await cli.interactive_mode()
-            
+
     except KeyboardInterrupt:
         print("\n🛑 Operación cancelada por usuario")
         if cli.coordinator and cli.coordinator.is_running:
@@ -444,7 +444,7 @@ Ejemplos:
 if __name__ == "__main__":
     # Crear directorio de logs
     os.makedirs('logs', exist_ok=True)
-    
+
     # Ejecutar CLI
     try:
         asyncio.run(main())

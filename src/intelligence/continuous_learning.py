@@ -101,6 +101,54 @@ class LearningSession:
             'performance_metrics': self.performance_metrics
         }
 
+class ContinuousLearningEngine:
+    """Motor de aprendizaje continuo para el sistema autónomo"""
+
+    def __init__(self, data_dir: str = "data/continuous_learning"):
+        self.orchestrator = ContinuousLearningOrchestrator(data_dir)
+        self.is_running = False
+        self.auto_learning_enabled = True
+
+    def start(self):
+        """Inicia el motor de aprendizaje continuo"""
+        self.is_running = True
+        self.orchestrator.start_background_learning()
+        return self.orchestrator.start_learning_session()
+
+    def stop(self):
+        """Detiene el motor de aprendizaje continuo"""
+        self.is_running = False
+        self.orchestrator.stop_background_learning()
+        return self.orchestrator.end_learning_session()
+
+    def learn_from_operation(self, url: str, html: str, response_time: float,
+                           status_code: int, success: bool, strategy_used: str,
+                           errors: int = 0):
+        """Aprende de una operación de scraping"""
+        if not self.auto_learning_enabled:
+            return None
+
+        return self.orchestrator.learn_from_scraping(
+            url, html, response_time, status_code, success, strategy_used, errors
+        )
+
+    def get_status(self) -> Dict[str, Any]:
+        """Obtiene estado del motor de aprendizaje"""
+        summary = self.orchestrator.get_learning_summary()
+        summary.update({
+            'engine_running': self.is_running,
+            'auto_learning_enabled': self.auto_learning_enabled
+        })
+        return summary
+
+    def enable_auto_learning(self):
+        """Habilita aprendizaje automático"""
+        self.auto_learning_enabled = True
+
+    def disable_auto_learning(self):
+        """Deshabilita aprendizaje automático"""
+        self.auto_learning_enabled = False
+
 class ContinuousLearningOrchestrator:
     """Orquestador principal del sistema de aprendizaje continuo"""
 

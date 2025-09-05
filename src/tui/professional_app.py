@@ -6,7 +6,7 @@ from textual.widgets import (
     Header, Footer, TabbedContent, TabPane, Button, Input, Label,
     Checkbox, ProgressBar, Static, DataTable, Switch, RadioSet,
     RadioButton, ListView, ListItem, Tree, Collapsible,
-    LoadingIndicator, Digits, RichLog, TextLog
+    LoadingIndicator, Digits, RichLog
 )
 from textual.reactive import reactive
 from textual.binding import Binding
@@ -27,6 +27,7 @@ from typing import Dict, Any, List, Optional
 
 from ..intelligence import language_utils
 from ..intelligence.hybrid_brain import HybridBrain
+from ..intelligence.intent_recognizer import IntentRecognizer, IntentType
 
 class ChatOverlay(Static):
     """Overlay flotante de chat persistente (bilingüe)."""
@@ -43,16 +44,13 @@ class ChatOverlay(Static):
     ChatOverlay > .chat-title {
         background: #002200;
         color: #00ff00;
-        text-style: bold;
         padding: 0 1;
     }
-    ChatOverlay TextLog {
+    ChatOverlay RichLog {
         height: 1fr;
         background: #000000;
         border: solid #004400;
         color: #00ff00;
-        scrollbar-background: #002200;
-        scrollbar-color: #00aa00;
     }
     ChatOverlay Input {
         border: solid #00aa00;
@@ -70,11 +68,13 @@ class ChatOverlay(Static):
 
     def compose(self) -> ComposeResult:
         yield Label("💬 Chat IA (EN/ES) - F9 toggle", classes="chat-title")
-        yield TextLog(id="chat_log", highlight=True, markup=True, wrap=True)
+        yield RichLog(id="chat_log", highlight=True, markup=True, wrap=True)
         yield Input(placeholder="Escribe aquí / Type here...", id="chat_input")
 
     def on_mount(self):
-        self.query_one("#chat_log", TextLog).write("[bold green]Chat listo. Bilingüe activado.[/]")
+        log = self.query_one("#chat_log", RichLog)
+        log.write("[bold green]Chat listo. Bilingüe activado.[/]")
+        log.write("[dim]Escribe '/help' para ver comandos disponibles[/]")
 
     def key_enter(self):
         input_box = self.query_one("#chat_input", Input)
@@ -84,8 +84,14 @@ class ChatOverlay(Static):
         self.post_message(self.ChatMessage(text))
         input_box.value = ""
 
+    def key_f9(self):
+        # Permitir toggle desde aquí también
+        app = self.app
+        if hasattr(app, "action_toggle_chat"):
+            app.action_toggle_chat()
+
     def add_response(self, user_text: str, es: str, en: str):
-        log = self.query_one("#chat_log", TextLog)
+        log = self.query_one("#chat_log", RichLog)
         log.write(f"[cyan][Tú][/]: {user_text}")
         log.write(f"[green][IA-ES][/]: {es}")
         log.write(f"[yellow][IA-EN][/]: {en}")
@@ -486,10 +492,21 @@ class WebScraperProfessionalApp(App):
                 overlay = ChatOverlay(id="chat_overlay")
                 await self.mount(overlay)
                 self._chat_visible = True
+
                 # Inicio de inicialización temprana del cerebro
-                log = overlay.query_one("#chat_log", TextLog)
-                log.write("[dim]Inicializando HybridBrain…[/]")
-                await self._ensure_brain_initialized(log)
+                log = overlay.query_one("#chat_log", RichLog)
+                log.write("[bold green]💬 Chat listo. Bilingüe activado.[/]")
+                log.write("[dim]Inicializando HybridBrain... (esto puede tardar unos segundos)[/]")
+
+                # Iniciar el cerebro en segundo plano para no bloquear la UI
+                async def init_brain_background():
+                    try:
+                        await self._ensure_brain_initialized(log)
+                    except Exception as e:
+                        logger.error(f"Error en inicialización background: {e}")
+
+                # Programar la inicialización para después de que la UI esté lista
+                self.call_later(init_brain_background)
         except Exception as e:
             logger.error(f"No se pudo montar ChatOverlay: {e}")
 
@@ -498,45 +515,148 @@ class WebScraperProfessionalApp(App):
         user_text = message.user_text
         try:
             overlay: ChatOverlay = self.query_one("ChatOverlay")  # type: ignore
-            log = overlay.query_one("#chat_log", TextLog)
+            log = overlay.query_one("#chat_log", RichLog)
 
             # Comandos (prefijo /)
             if user_text.startswith('/'):
                 await self._process_chat_command(user_text[1:], overlay, log)
                 return
 
-            lang, enriched_es, enriched_en = language_utils.enrich_text_bilingual(user_text)
+            # Inicializar cerebro si es necesario
             await self._ensure_brain_initialized(log)
 
+            # Reconocer intención del mensaje
+            intent = IntentRecognizer.recognize(user_text)
+            intent_prefix_es = ""
+            intent_prefix_en = ""
+
+            # Si la intención es reconocida con confianza, procesarla
+            if intent.confidence > 0.6 and intent.type != IntentType.UNKNOWN:
+                # Preparar mensaje sobre la intención detectada
+                if intent.type == IntentType.SEARCH:
+                    query = intent.parameters.get("query", "")
+                    intent_prefix_es = f"[bold blue]Detectada intención:[/] búsqueda de \"{query}\"\n\n"
+                    intent_prefix_en = f"[bold blue]Intent detected:[/] search for \"{query}\"\n\n"
+                    # Simular comando /kb
+                    if query:
+                        await self._process_chat_command(f"kb {query}", overlay, log, show_cmd=False)
+
+                elif intent.type == IntentType.CRAWL:
+                    url = intent.parameters.get("url", "")
+                    intent_prefix_es = f"[bold green]Detectada intención:[/] iniciar scraping\n\n"
+                    intent_prefix_en = f"[bold green]Intent detected:[/] start crawling\n\n"
+                    # Simular comando /crawl
+                    if url:
+                        await self._process_chat_command(f"crawl {url}", overlay, log, show_cmd=False)
+
+                elif intent.type == IntentType.KNOWLEDGE:
+                    topic = intent.parameters.get("topic", "")
+                    intent_prefix_es = f"[bold yellow]Detectada intención:[/] consulta sobre \"{topic}\"\n\n"
+                    intent_prefix_en = f"[bold yellow]Intent detected:[/] query about \"{topic}\"\n\n"
+                    # Simular comando /kb
+                    if topic:
+                        await self._process_chat_command(f"kb {topic}", overlay, log, show_cmd=False)
+
+                elif intent.type == IntentType.SNAPSHOT:
+                    intent_prefix_es = f"[bold purple]Detectada intención:[/] generar snapshot\n\n"
+                    intent_prefix_en = f"[bold purple]Intent detected:[/] generate snapshot\n\n"
+                    # Simular comando /snapshot
+                    await self._process_chat_command("snapshot", overlay, log, show_cmd=False)
+
+                elif intent.type == IntentType.STATUS:
+                    intent_prefix_es = f"[bold cyan]Detectada intención:[/] consulta de estado\n\n"
+                    intent_prefix_en = f"[bold cyan]Intent detected:[/] status query\n\n"
+                    # Simular comando /status
+                    await self._process_chat_command("status", overlay, log, show_cmd=False)
+
+                elif intent.type == IntentType.EDIT:
+                    file = intent.parameters.get("file", "")
+                    old_content = intent.parameters.get("old_content", "")
+                    new_content = intent.parameters.get("new_content", "")
+
+                    intent_prefix_es = f"[bold orange]Detectada intención:[/] editar archivo"
+                    intent_prefix_en = f"[bold orange]Intent detected:[/] edit file"
+
+                    if file:
+                        intent_prefix_es += f" '{file}'"
+                        intent_prefix_en += f" '{file}'"
+
+                    intent_prefix_es += "\n\n"
+                    intent_prefix_en += "\n\n"
+
+                    # Implementamos el comando edit
+                    await self._process_edit_intent(file, old_content, new_content, log)
+
+                elif intent.type == IntentType.TERMINAL:
+                    command = intent.parameters.get("command", "")
+
+                    intent_prefix_es = f"[bold magenta]Detectada intención:[/] ejecutar comando en terminal"
+                    intent_prefix_en = f"[bold magenta]Intent detected:[/] execute terminal command"
+
+                    if command:
+                        intent_prefix_es += f" '{command}'"
+                        intent_prefix_en += f" '{command}'"
+
+                    intent_prefix_es += "\n\n"
+                    intent_prefix_en += "\n\n"
+
+                    # Implementamos el comando de terminal
+                    await self._process_terminal_intent(command, log)
+
+            # Preprocesar texto y enriquecer
+            lang, enriched_es, enriched_en = language_utils.enrich_text_bilingual(user_text)
+
+            # Añadir prefijo de intención a las respuestas
+            enriched_es = intent_prefix_es + enriched_es
+            enriched_en = intent_prefix_en + enriched_en
+
+            # Consultar la KB
             kb_summary_es = kb_summary_en = ""
             numbered_lines_es: List[str] = []
             numbered_lines_en: List[str] = []
+
+            # Intentar obtener respuesta del cerebro
             if self._brain:
                 try:
+                    # Primero intentamos consulta al cerebro para respuesta semántica
+                    brain_response = None
+                    if hasattr(self._brain, 'get_response') and callable(getattr(self._brain, 'get_response')):
+                        try:
+                            brain_response = self._brain.get_response(user_text)
+                            if brain_response:
+                                # Si el cerebro tiene una respuesta directa, la usamos
+                                enriched_es = brain_response.get('es', enriched_es)
+                                enriched_en = brain_response.get('en', enriched_en)
+                        except Exception:
+                            # Si falla, seguimos con el flujo normal
+                            pass
+
+                    # Consulta a la base de conocimiento
                     kb_results = self._brain.query_knowledge_base(user_text)
                     if kb_results:
                         for idx, r in enumerate(kb_results[:5], start=1):
                             title = r.get('title') or r.get('id','') or 'sin_titulo'
-                            numbered_lines_es.append(f"{idx}. {title}")
-                            numbered_lines_en.append(f"{idx}. {title}")
-                        kb_summary_es = "\n[KB] Coincidencias:\n" + "\n".join(numbered_lines_es)
-                        kb_summary_en = "\n[KB] Matches:\n" + "\n".join(numbered_lines_en)
+                            content = r.get('content', '')[:50] + '...' if r.get('content') else ''
+                            numbered_lines_es.append(f"[bold]{idx}.[/] {title}")
+                            numbered_lines_en.append(f"[bold]{idx}.[/] {title}")
+                        kb_summary_es = "\n\n[bold green]Coincidencias en KB:[/]\n" + "\n".join(numbered_lines_es)
+                        kb_summary_en = "\n\n[bold yellow]KB Matches:[/]\n" + "\n".join(numbered_lines_en)
                     else:
-                        kb_summary_es = "\n[KB] Sin resultados relevantes"
-                        kb_summary_en = "\n[KB] No relevant results"
+                        kb_summary_es = "\n\n[dim]Sin resultados relevantes en la base de conocimiento[/]"
+                        kb_summary_en = "\n\n[dim]No relevant results in knowledge base[/]"
                 except Exception as kb_e:
-                    kb_summary_es = f"\n[KB] Error: {kb_e}"
-                    kb_summary_en = f"\n[KB] Error: {kb_e}"
+                    kb_summary_es = f"\n\n[red]Error consultando KB: {kb_e}[/]"
+                    kb_summary_en = f"\n\n[red]Error querying KB: {kb_e}[/]"
             else:
-                kb_summary_es = "\n[KB] Cerebro no disponible"
-                kb_summary_en = "\n[KB] Brain unavailable"
+                kb_summary_es = "\n\n[red]Cerebro no inicializado[/]"
+                kb_summary_en = "\n\n[red]Brain not initialized[/]"
 
             response_es = f"{enriched_es}{kb_summary_es}"
             response_en = f"{enriched_en}{kb_summary_en}"
             overlay.add_response(user_text, response_es, response_en)
         except Exception as e:
             try:
-                self.query_one("#chat_log", TextLog).write(f"[red]Error IA: {e}[/]")
+                self.query_one("#chat_log", RichLog).write(f"[red]Error IA: {e}[/]")
             except Exception:
                 logger.error(f"Chat error: {e}")
 
@@ -551,74 +671,213 @@ class WebScraperProfessionalApp(App):
         except Exception as e:
             logger.error(f"toggle_chat error: {e}")
 
-    async def _ensure_brain_initialized(self, log: Optional[TextLog] = None):
+    async def _ensure_brain_initialized(self, log: Optional[RichLog] = None):
+        """Inicializa el cerebro de manera asíncrona si no está ya inicializado."""
         if self._brain is not None:
             return
+
+        if log:
+            log.write("[dim]Inicializando HybridBrain... (esto puede tomar un momento)[/]")
+
         try:
-            self._brain = HybridBrain()
+            # Inicializar en segundo plano
+            async def init_brain():
+                try:
+                    return HybridBrain()
+                except Exception as e:
+                    logger.error(f"Error en inicialización cerebro: {e}")
+                    return None
+
+            # Ejecutar inicialización en worker
+            worker = self.run_worker(init_brain(), name="BrainInitWorker")
+            self._brain = await worker.wait()
+
             if log:
-                log.write("[green]HybridBrain listo.[/]")
+                if self._brain:
+                    log.write("[bold green]🧠 HybridBrain listo y conectado.[/]")
+                else:
+                    log.write("[red]⚠️ HybridBrain no pudo inicializarse.[/]")
+
         except Exception as e:
             if log:
-                log.write(f"[red]Fallo iniciando HybridBrain: {e}[/]")
+                log.write(f"[red]⛔ Error inicializando HybridBrain: {e}[/]")
             logger.error(f"Error inicializando HybridBrain: {e}")
+            self._brain = None
 
-    async def _process_chat_command(self, command_text: str, overlay: ChatOverlay, log: TextLog):
-        """Procesa comandos del chat (/crawl, /kb, /snapshot, /help)."""
+    async def _process_chat_command(self, command_text: str, overlay: ChatOverlay, log: RichLog, show_cmd: bool = True):
+        """Procesa comandos del chat con diversos prefijos '/'."""
         parts = command_text.strip().split(maxsplit=1)
         cmd = parts[0].lower()
+
+        # Si show_cmd es True, mostrar el comando en el chat
+        if show_cmd:
+            log.write(f"[bold magenta]/{cmd}[/] {parts[1] if len(parts) > 1 else ''}")
         arg = parts[1].strip() if len(parts) > 1 else ""
 
-        if cmd in ("help", "ayuda"):
-            log.write("[yellow]/help[/] comandos disponibles:\n/crawl URL - inicia scraping\n/kb QUERY - consulta base de conocimiento\n/snapshot - genera snapshot del cerebro\n/stop - detiene scraping\n/status - estado actual scraping\n/help - esta ayuda")
+        # Comandos de ayuda
+        if cmd in ("help", "ayuda", "?"):
+            commands = [
+                "[bold yellow]== COMANDOS DISPONIBLES ==[/]",
+                "[cyan]/crawl URL[/] - Inicia scraping en URL indicada",
+                "[cyan]/kb CONSULTA[/] - Busca en la base de conocimiento",
+                "[cyan]/snapshot[/] - Genera snapshot del cerebro",
+                "[cyan]/stop[/] - Detiene el scraping activo",
+                "[cyan]/status[/] - Muestra estado actual del scraping",
+                "[cyan]/edit ARCHIVO CONTENIDO[/] - Edita o muestra un archivo",
+                "[cyan]/terminal COMANDO[/] - Ejecuta comando en terminal",
+                "[cyan]/buscar TEXTO[/] - Busca en archivos del sistema",
+                "[cyan]/crear TAREA[/] - Crea nueva tarea de scraping",
+                "[cyan]/brain[/] - Estado del cerebro y métricas",
+                "[cyan]/config[/] - Muestra/modifica configuración",
+                "[cyan]/clear[/] - Limpia el chat",
+                "[cyan]/help[/] - Muestra esta ayuda"
+            ]
+            log.write("\n".join(commands))
             return
-        if cmd == "crawl":
+
+        # Comandos de scraping
+        if cmd in ("crawl", "scrapear", "extraer"):
             if not arg:
-                log.write("[red]Uso: /crawl URL[/]")
+                log.write("[red]⛔ Uso: /crawl URL[/]")
                 return
             self.query_one("#start_url_input", Input).value = arg
             self.action_start_scraping()
-            log.write(f"[green]Orden recibida: iniciar scraping en {arg}[/]")
+            log.write(f"[bold green]🚀 Iniciando scraping en: {arg}[/]")
             return
-        if cmd == "stop":
+
+        if cmd in ("stop", "parar", "detener"):
             self.action_stop_scraping()
-            log.write("[red]Scraping detenido por comando usuario[/]")
+            log.write("[bold red]⏹️ Scraping detenido por comando de usuario[/]")
             return
-        if cmd == "status":
-            active = "ACTIVO" if self.scraping_active else "INACTIVO"
-            log.write(f"[cyan]Estado scraping: {active} - URLs: {self.total_urls_processed}[/]")
+
+        if cmd in ("status", "estado"):
+            active = "[bold green]ACTIVO[/]" if self.scraping_active else "[red]INACTIVO[/]"
+            log.write(f"[cyan]📊 Estado scraping: {active}")
+            log.write(f"[cyan]📈 URLs procesadas: {self.total_urls_processed}")
+            if self.scraping_active and hasattr(self, 'start_time'):
+                elapsed = datetime.now() - self.start_time if self.start_time else None
+                if elapsed:
+                    log.write(f"[cyan]⏱️ Tiempo activo: {elapsed.total_seconds():.0f} segundos")
             return
-        if cmd == "kb":
+
+        # Comandos de conocimiento
+        if cmd in ("kb", "conocimiento", "buscar"):
             if not arg:
-                log.write("[red]Uso: /kb consulta[/]")
+                log.write("[red]⛔ Uso: /kb CONSULTA[/]")
                 return
             await self._ensure_brain_initialized(log)
             if self._brain:
                 try:
+                    log.write(f"[dim]Buscando '{arg}' en base de conocimiento...[/]")
                     results = self._brain.query_knowledge_base(arg) or []
                     if results:
-                        lines = []
-                        for i, r in enumerate(results[:5], 1):
+                        lines = ["[bold magenta]📚 Resultados encontrados:[/]"]
+                        for i, r in enumerate(results[:8], 1):
                             title = r.get('title') or r.get('id','') or 'sin_titulo'
-                            lines.append(f"{i}. {title}")
-                        log.write("[magenta]KB Results:\n" + "\n".join(lines) + "[/]")
+                            content_preview = r.get('content', '')[:50] + '...' if r.get('content') else ''
+                            lines.append(f"[bold cyan]{i}.[/] {title}")
+                            if content_preview:
+                                lines.append(f"   [dim]{content_preview}[/]")
+                        log.write("\n".join(lines))
                     else:
-                        log.write("[magenta]KB: sin resultados[/]")
+                        log.write("[yellow]⚠️ Sin resultados en base de conocimiento[/]")
                 except Exception as ke:
-                    log.write(f"[red]KB error: {ke}[/]")
+                    log.write(f"[red]⛔ Error consultando KB: {ke}[/]")
+            else:
+                log.write("[red]⛔ Cerebro no inicializado. Intenta más tarde.[/]")
             return
-        if cmd == "snapshot":
+
+        if cmd in ("snapshot", "cerebro"):
             await self._ensure_brain_initialized(log)
             if self._brain:
                 try:
+                    log.write("[dim]Generando snapshot del cerebro...[/]")
                     snapshot = self._brain.get_snapshot() if hasattr(self._brain, 'get_snapshot') else {}
-                    summary = snapshot.get('meta', {}).get('summary', 'snapshot listo') if isinstance(snapshot, dict) else 'snapshot generado'
-                    log.write(f"[green]Snapshot generado: {summary}[/]")
+                    summary = snapshot.get('meta', {}).get('summary', 'Snapshot listo')
+                    stats = snapshot.get('stats', {})
+
+                    lines = ["[bold green]🧠 BRAIN SNAPSHOT[/]"]
+                    lines.append(f"[cyan]📝 Resumen: {summary}[/]")
+
+                    if stats:
+                        lines.append("[yellow]📊 Estadísticas:[/]")
+                        for key, value in stats.items():
+                            if isinstance(value, (int, float, str)):
+                                lines.append(f"  • {key}: {value}")
+
+                    log.write("\n".join(lines))
                 except Exception as se:
-                    log.write(f"[red]Error snapshot: {se}[/]")
+                    log.write(f"[red]⛔ Error generando snapshot: {se}[/]")
+            else:
+                log.write("[red]⛔ Cerebro no inicializado. Intenta más tarde.[/]")
             return
+
+        # Comandos de edición
+        if cmd in ("edit", "editar"):
+            parts = arg.split(' ', 1)
+            if not parts:
+                log.write("[red]⛔ Uso: /edit <archivo> <contenido>[/]")
+                return
+
+            file = parts[0] if parts else ""
+            content = parts[1] if len(parts) > 1 else ""
+            await self._process_edit_intent(file, "", content, log)
+            return
+
+        # Comandos de terminal
+        if cmd in ("terminal", "cmd", "powershell", "ps", "shell"):
+            if not arg:
+                log.write("[red]⛔ Uso: /terminal <comando>[/]")
+                return
+
+            await self._process_terminal_intent(arg, log)
+            return
+
+        # Comandos de utilidad
+        if cmd in ("clear", "limpiar", "cls"):
+            log.clear()
+            log.write("[green]Chat limpiado.[/]")
+            return
+
+        if cmd in ("crear", "create", "nueva"):
+            log.write(f"[yellow]⚠️ Creación de tareas '{arg}' será implementada próximamente[/]")
+            return
+
+        if cmd == "config":
+            # Mostrar configuración actual
+            config_lines = [
+                "[bold cyan]⚙️ CONFIGURACIÓN ACTUAL[/]",
+                f"• Cerebro: {'[green]Activo[/]' if self._brain else '[red]Inactivo[/]'}",
+                f"• Scraping: {'[green]Activo[/]' if self.scraping_active else '[red]Inactivo[/]'}",
+                f"• Mode: {getattr(self, 'current_mode', 'dashboard')}"
+            ]
+            log.write("\n".join(config_lines))
+            return
+
+        if cmd == "brain":
+            # Estado del cerebro
+            brain_status = "INICIALIZADO" if self._brain else "NO INICIALIZADO"
+            brain_lines = [
+                "[bold magenta]🧠 ESTADO DEL CEREBRO[/]",
+                f"Estado: {brain_status}"
+            ]
+
+            if self._brain:
+                # Intentar obtener métricas del cerebro si están disponibles
+                try:
+                    if hasattr(self._brain, "get_metrics"):
+                        metrics = self._brain.get_metrics() or {}
+                        for key, value in metrics.items():
+                            brain_lines.append(f"• {key}: {value}")
+                except Exception as be:
+                    brain_lines.append(f"[red]Error obteniendo métricas: {be}[/]")
+
+            log.write("\n".join(brain_lines))
+            return
+
         # Comando no reconocido
-        log.write(f"[red]Comando no reconocido: /{cmd} (usa /help) [/]")
+        log.write(f"[red]⛔ Comando no reconocido: /{cmd}[/]")
+        log.write("[dim]Escribe /help para ver comandos disponibles[/]")
 
     async def _initialize_domain_table(self):
         """Inicializa la tabla de estadísticas por dominio"""
@@ -740,6 +999,165 @@ class WebScraperProfessionalApp(App):
             self.query_one("#start_scraping_btn", Button).disabled = False
             self.query_one("#pause_scraping_btn", Button).disabled = True
             self.query_one("#stop_scraping_btn", Button).disabled = True
+        except Exception as e:
+            self.log_error(f"Error al detener scraping: {e}")
+
+    async def _process_edit_intent(self, file_path: str, old_content: str, new_content: str, log: RichLog):
+        """Procesa la intención de editar un archivo.
+
+        Args:
+            file_path: Ruta del archivo a editar
+            old_content: Contenido actual que se reemplazará
+            new_content: Nuevo contenido
+            log: RichLog para mostrar información
+        """
+        import os
+        import re
+        from pathlib import Path
+
+        if not file_path:
+            log.write("[red]⛔ No se especificó un archivo para editar[/]")
+            return
+
+        # Verificar si es una ruta relativa (sin / o \)
+        if not any(c in file_path for c in ['/', '\\']):
+            # Verificar en directorios comunes
+            common_dirs = ['src', 'docs', 'config', 'data', '.']
+            found_path = None
+
+            for directory in common_dirs:
+                if os.path.exists(os.path.join(directory, file_path)):
+                    found_path = os.path.join(directory, file_path)
+                    break
+
+            if found_path:
+                file_path = found_path
+
+        # Verificar que el archivo existe
+        if not os.path.exists(file_path):
+            log.write(f"[red]⛔ No se encontró el archivo: {file_path}[/]")
+            return
+
+        # Por seguridad, verificar extensión
+        safe_extensions = ['.py', '.md', '.txt', '.html', '.css', '.json', '.csv', '.log']
+        if not any(file_path.lower().endswith(ext) for ext in safe_extensions):
+            log.write(f"[red]⛔ Por seguridad, solo se permiten editar archivos con extensiones: {', '.join(safe_extensions)}[/]")
+            return
+
+        try:
+            # Leer el archivo
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            if old_content and new_content:
+                # Reemplazar contenido específico
+                if old_content not in content:
+                    log.write(f"[red]⛔ No se encontró el contenido a reemplazar en {file_path}[/]")
+                    return
+
+                new_file_content = content.replace(old_content, new_content)
+
+                # Verificar que se hizo un cambio
+                if new_file_content == content:
+                    log.write("[yellow]⚠️ No se realizaron cambios en el archivo[/]")
+                    return
+
+                # Escribir el nuevo contenido
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(new_file_content)
+
+                log.write(f"[green]✅ Se reemplazó texto en {file_path}[/]")
+
+            elif new_content:
+                # Agregar contenido al final del archivo
+                with open(file_path, 'a', encoding='utf-8') as f:
+                    f.write('\n' + new_content)
+
+                log.write(f"[green]✅ Se agregó contenido al final de {file_path}[/]")
+
+            else:
+                # Mostrar contenido del archivo
+                preview = content[:500] + "..." if len(content) > 500 else content
+                log.write(f"[bold cyan]📄 Contenido de {file_path}:[/]\n{preview}")
+
+        except Exception as e:
+            log.write(f"[red]⛔ Error al editar el archivo: {e}[/]")
+
+    async def _process_terminal_intent(self, command: str, log: RichLog):
+        """Procesa la intención de ejecutar un comando en terminal.
+
+        Args:
+            command: Comando a ejecutar
+            log: RichLog para mostrar información
+        """
+        import subprocess
+        import sys
+        import re
+
+        if not command:
+            log.write("[red]⛔ No se especificó un comando para ejecutar[/]")
+            return
+
+        # Lista de comandos peligrosos a bloquear
+        dangerous_commands = [
+            'rm -rf', 'deltree', 'format', '> /dev/null', 'del /s', 'del /q',
+            'shutdown', 'reboot', ':(){:|:&};:', 'dd', 'chmod -R 777', 'wipe',
+            'mkfs', 'fdisk', 'dd if=/dev/zero', 'overwrite', 'fork bomb'
+        ]
+
+        # Verificar comandos peligrosos
+        is_dangerous = any(re.search(re.escape(cmd), command, re.IGNORECASE) for cmd in dangerous_commands)
+        if is_dangerous:
+            log.write("[red]⛔ Comando potencialmente peligroso detectado. Ejecución bloqueada.[/]")
+            return
+
+        # Verificar que solo se ejecuten comandos seguros o informativos
+        safe_command_prefixes = [
+            'echo', 'dir', 'ls', 'pwd', 'cd', 'type', 'cat', 'more', 'less',
+            'find', 'where', 'whoami', 'hostname', 'ipconfig', 'ifconfig',
+            'ver', 'python -V', 'pip list', 'pip freeze', 'date', 'time',
+            'systeminfo', 'free', 'df', 'du', 'ps', 'tasklist', 'netstat',
+            'ping', 'tracert', 'traceroute', 'nslookup', 'git status', 'git branch',
+            'python --version', 'pip --version', 'npm list', 'npm --version',
+            'node --version', 'help'
+        ]
+
+        if not any(command.lower().startswith(prefix.lower()) for prefix in safe_command_prefixes):
+            log.write(f"[yellow]⚠️ Por seguridad, solo se permiten comandos informativos o de lectura.[/]")
+            log.write(f"[yellow]Comandos permitidos: {', '.join(safe_command_prefixes)}[/]")
+            return
+
+        try:
+            log.write(f"[cyan]🖥️ Ejecutando: {command}[/]")
+
+            # Determinar el shell a usar
+            is_windows = sys.platform.startswith('win')
+            shell_cmd = 'powershell.exe' if is_windows else '/bin/bash'
+            shell_param = ['-Command'] if is_windows else ['-c']
+
+            # Ejecutar el comando
+            process = subprocess.Popen(
+                [shell_cmd] + shell_param + [command],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+
+            stdout, stderr = process.communicate(timeout=10)
+
+            if stdout:
+                log.write(f"[green]📤 Salida:[/]\n{stdout[:1000]}")
+
+            if stderr:
+                log.write(f"[red]⚠️ Error:[/]\n{stderr[:1000]}")
+
+            if process.returncode != 0:
+                log.write(f"[yellow]⚠️ El comando terminó con código de salida: {process.returncode}[/]")
+
+        except subprocess.TimeoutExpired:
+            log.write("[red]⛔ Tiempo de espera agotado para el comando[/]")
+        except Exception as e:
+            log.write(f"[red]⛔ Error al ejecutar el comando: {e}[/]")
 
             # Log de parada
             log = self.query_one("#realtime_log", RichLog)

@@ -153,6 +153,8 @@ async def run_crawler(
         # Configurar monitoreo continuo
         hybrid_brain._start_continuous_monitoring()
         logger.info("🧠 Brain continuous monitoring activated - Brain will observe and protect project autonomously")
+    except Exception as e:
+        logger.warning(f"🧠 Brain monitoring initialization failed: {e}")
 
     except Exception as e:
         logger.warning(f"🧠 Brain monitoring initialization failed: {e}")
@@ -243,6 +245,9 @@ async def discover_and_run_scrapers(urls: List[str], hot_reload: bool = False):
         if not scraper_instances:
             logger.warning("No scrapers found.")
             return
+    except Exception as e:
+        logger.error(f"Error discovering scrapers: {e}")
+        return
 
     try:
         # Run scrapers
