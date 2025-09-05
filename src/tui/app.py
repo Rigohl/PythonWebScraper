@@ -11,6 +11,8 @@ from textual.worker import Worker, WorkerState
 from ..main import setup_logging
 from ..runner import run_crawler
 from ..settings import settings
+from ..intelligence.command_processor import CommandProcessor
+from .chat_widget import ChatWidget
 
 
 # New widget for displaying alerts
@@ -91,6 +93,7 @@ class ScraperTUIApp(App):
     BINDINGS = [
         ("q", "quit", "Salir"),
         ("d", "toggle_dark", "Modo Oscuro"),
+        ("c", "focus_chat", "Enfocar Chat"),
     ]
 
     def __init__(self, log_file_path: str | None = None):
@@ -107,6 +110,10 @@ class ScraperTUIApp(App):
             "LOW_QUALITY": 0,
         }
         self.domain_metrics = {}
+        
+        # Initialize command processor for chat functionality
+        self.command_processor = CommandProcessor()
+        self.chat_session_id = f"tui_session_{hash(self)}"
 
     def compose(self) -> ComposeResult:
         """Crea los widgets de la aplicación."""
@@ -123,6 +130,12 @@ class ScraperTUIApp(App):
                         yield Checkbox("Activar comprobaciones Ética/Compliance", value=settings.ETHICS_CHECKS_ENABLED, id="ethics_checks")
                         yield Checkbox("Modo Offline (no LLM remoto)", value=settings.OFFLINE_MODE, id="offline_mode")
                         yield Checkbox("Usar Agente RL (WIP)", value=False, id="use_rl")
+                    with TabPane("Chat AI", id="chat-tab"):
+                        yield ChatWidget(
+                            session_id=self.chat_session_id,
+                            command_processor=self.command_processor,
+                            id="chat_widget"
+                        )
                     with TabPane("Estadísticas", id="stats-tab"):
                         yield LiveStats()
                         yield DomainStats()
@@ -198,6 +211,28 @@ class ScraperTUIApp(App):
     def alert_callback(self, message: str, level: str = "warning"):
         """Callback para que el orquestador envíe alertas a la TUI."""
         self.call_later(self.query_one(AlertsDisplay).add_alert, message, level)
+        
+        # Also send notifications to chat if available
+        try:
+            chat_widget = self.query_one("#chat_widget", ChatWidget)
+            chat_widget.add_external_message(f"🔔 {message}", level)
+        except Exception:
+            # Chat widget might not be available or mounted yet
+            pass
+
+    def action_focus_chat(self) -> None:
+        """Focus on the chat interface"""
+        try:
+            # Switch to chat tab
+            tabbed_content = self.query_one(TabbedContent)
+            tabbed_content.active = "chat-tab"
+            
+            # Focus on chat input
+            chat_widget = self.query_one("#chat_widget", ChatWidget)
+            chat_input = chat_widget.query_one("#chat_input", Input)
+            chat_input.focus()
+        except Exception as e:
+            logging.warning(f"Could not focus chat: {e}")
 
     def action_start_crawl(self) -> None:
         """Inicia el proceso de crawling en un worker."""
