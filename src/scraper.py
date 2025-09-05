@@ -151,9 +151,12 @@ class AdvancedScraper:
             except (PlaywrightTimeoutError, NetworkError) as exc:
                 self.logger.warning(f"Error de red o timeout en scrape de {url}: {exc}")
                 return ScrapeResult(status="RETRY", url=url, error_message=str(exc), retryable=True)
-            except (ParsingError, ContentQualityError) as exc:
-                self.logger.error(f"Error de parseo o calidad de contenido en scrape de {url}: {exc}")
+            except ParsingError as exc:
+                self.logger.error(f"Error de parseo en scrape de {url}: {exc}")
                 return ScrapeResult(status="FAILED", url=url, error_message=str(exc))
+            except ContentQualityError as exc:
+                self.logger.warning(f"Contenido de baja calidad en scrape de {url}: {exc}")
+                return ScrapeResult(status="LOW_QUALITY", url=url, error_message=str(exc))
             except Exception as exc:  # noqa: BLE001
                 # Catch all unexpected errors to avoid crashing the crawler
                 self.logger.error(f"Error inesperado en scrape de {url}: {exc}", exc_info=True)

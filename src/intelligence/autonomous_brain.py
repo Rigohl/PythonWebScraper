@@ -78,7 +78,7 @@ class AutonomousLearningBrain:
 
         # Learning parameters
         self.learning_rate = 0.1
-        self.memory_decay = 0.95
+        self.memory_decay = 0.7
         self.min_sessions_for_intelligence = 5
 
         # Load existing knowledge

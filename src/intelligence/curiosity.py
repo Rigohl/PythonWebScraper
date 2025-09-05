@@ -576,5 +576,4 @@ class CuriositySystem:
 # Función de fábrica
 def create_curiosity_system(brain_instance=None, tui_app=None, voice_assistant=None) -> CuriositySystem:
     """Crea una instancia del sistema de curiosidad"""
-    return CuriositySystem(brain_instance, tui_app, voice_assistant)</content>
-<parameter name="filePath">c:\Users\DELL\Desktop\PythonWebScraper\src\intelligence\curiosity.py
+    return CuriositySystem(brain_instance, tui_app, voice_assistant)

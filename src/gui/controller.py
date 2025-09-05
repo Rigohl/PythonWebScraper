@@ -1,12 +1,21 @@
 import asyncio
 import logging
 import threading
+import os
+import sys
 from dataclasses import dataclass, field
 from typing import Callable, Optional, List
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from .. import runner
+# Changed from relative to absolute import for better compatibility with tests
+# Add the src directory to the path if it's not already there
+src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
+
+# Import the runner function with proper absolute import
+from src.runner import run_crawler
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +93,7 @@ class ScraperController(QObject):
                 activity = float(b.get('events_last_minute', 0)) / 50.0
             self.brain_activity.emit(min(1.0, activity))
 
-        await runner.run_crawler(
+        await run_crawler(
             start_urls=self._config.start_urls,
             db_path=self._config.db_path,
             concurrency=self._config.concurrency,

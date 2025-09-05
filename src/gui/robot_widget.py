@@ -29,13 +29,13 @@ class RobotFaceWidget(QWidget):
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         w = self.width()
         h = self.height()
-        cx, cy = w/2, h/2
-        face_r = min(w, h) * 0.4
+        cx, cy = w // 2, h // 2
+        face_r = int(min(w, h) * 0.4)
 
         # Face background
         p.setBrush(QColor(20, 35, 46))
         p.setPen(QPen(QColor(70, 120, 140), 2))
-        p.drawRoundedRect(cx - face_r, cy - face_r, 2*face_r, 2*face_r, 18, 18)
+        p.drawRoundedRect(int(cx - face_r), int(cy - face_r), int(2*face_r), int(2*face_r), 18, 18)
 
         # Eyes
         eye_offset_x = face_r * 0.45

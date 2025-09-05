@@ -52,6 +52,8 @@ jinja2
 # Intelligent Search & Async Support
 aiohttp
 asyncio
+# Task scheduling
+schedule
 
 # Hot reloading support
 watchdog

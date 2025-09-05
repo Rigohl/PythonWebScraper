@@ -477,7 +477,6 @@ class WebScraperProfessionalApp(App):
 
     async def on_mount(self) -> None:
         """Se ejecuta cuando la app se monta"""
-        self.sub(SystemStatusBar.SystemUpdate, self.on_system_update)
 
         # Inicializar tablas
         await self._initialize_domain_table()

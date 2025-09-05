@@ -612,9 +612,7 @@ RadioButton {
   background: #002200;
 }
 
-RadioButton:checked {
-  color: #ffffff;
-}
+
 
 Switch {
   background: #002200;
@@ -705,9 +703,6 @@ RichLog {
 }
 
 /* Chat Overlay refinements */
-ChatOverlay {
-  box-shadow: 0 0 2 1 #003300;
-}
 
 ChatOverlay .chat-title {
   text-align: center;
@@ -736,15 +731,7 @@ ScrollBar {
   color: #00aa00;
 }
 
-ScrollBar:horizontal {
-  background: #002200;
-  color: #00aa00;
-}
 
-ScrollBar:vertical {
-  background: #002200;
-  color: #00aa00;
-}
 
 /* =================================================================== */
 /*                       ESTADOS ESPECIALES                           */
@@ -779,23 +766,7 @@ ScrollBar:vertical {
 /*                       ANIMACIONES Y EFECTOS                        */
 /* =================================================================== */
 
-@keyframes pulse {
-  0% {
-    color: #00ff00;
-  }
 
-  50% {
-    color: #ffffff;
-  }
-
-  100% {
-    color: #00ff00;
-  }
-}
-
-.pulsing {
-  animation: pulse 2s infinite;
-}
 
 .highlighted {
   background: #004400;
@@ -806,25 +777,4 @@ ScrollBar:vertical {
 /*                       RESPONSIVE DESIGN                            */
 /* =================================================================== */
 
-/* Ajustes para pantallas pequeñas */
-@media (max-width: 80) {
-  /* Responsive adjustments placeholder: previously used unsupported properties */
-}
 
-/* Ajustes para pantallas muy pequeñas */
-@media (max-width: 60) {
-  .panel-title {
-    text-align: center;
-  }
-
-  .control-btn,
-  .export-btn,
-  .config-btn,
-  .ai-action-btn {
-    min-width: 15;
-  }
-
-  .quick-action-btn {
-    min-width: 15;
-  }
-}
