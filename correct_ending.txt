@@ -1,0 +1,5 @@
+# Función de entrada para mantener compatibilidad
+async def run_professional_app():
+    """Ejecuta la aplicación profesional"""
+    app = WebScraperProfessionalApp()
+    await app.run_async()

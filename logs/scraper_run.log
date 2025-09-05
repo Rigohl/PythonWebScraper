@@ -2785,3 +2785,30 @@
 {"timestamp": "2025-09-05 03:58:22,416", "level": "INFO", "name": "__main__", "message": "Exporting data to Markdown: exports/test_final.md"}
 {"timestamp": "2025-09-05 03:58:22,630", "level": "INFO", "name": "src.database", "message": "Informe Markdown exportado a exports/test_final.md"}
 {"timestamp": "2025-09-05 03:58:22,631", "level": "INFO", "name": "__main__", "message": "Markdown export completed"}
+{"timestamp": "2025-09-05 08:23:13,303", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-05 08:23:13,305", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-05 08:23:13,305", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-05 08:23:13,305", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-05 08:23:13,306", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-05 08:23:13,306", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-05 08:23:13,306", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-05 08:23:13,306", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-05 08:23:13,306", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-05 08:23:13,370", "level": "WARNING", "name": "src.intelligence.brain", "message": "Could not load brain state: 'BrainPersistence' object has no attribute 'load_error_frequencies'"}
+{"timestamp": "2025-09-05 08:23:13,372", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 23 domains"}
+{"timestamp": "2025-09-05 08:23:13,372", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 23 domains"}
+{"timestamp": "2025-09-05 08:23:13,377", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-05 08:23:17,204", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 08:23:17,205", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-05 08:23:17,206", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-05 08:23:17,206", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 08:23:17,209", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-05 08:23:17,212", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-05 08:23:17,212", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-05 08:23:17,718", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-05 08:23:17,722", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-05 08:23:17,723", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-05 08:23:17,723", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-05 08:23:45,180", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: exports/test_export.json"}
+{"timestamp": "2025-09-05 08:23:45,329", "level": "INFO", "name": "src.database", "message": "235 registros exportados a exports/test_export.json"}
+{"timestamp": "2025-09-05 08:23:45,331", "level": "INFO", "name": "__main__", "message": "JSON export completed"}

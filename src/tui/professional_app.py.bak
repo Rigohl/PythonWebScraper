@@ -1191,6 +1191,8 @@ class WebScraperProfessionalApp(App):
 
 # Función de entrada para mantener compatibilidad
 async def run_professional_app():
-    """Ejecuta la aplicación profesional"""
-    app = WebScraperProfessionalApp()
+    """Ejecuta la aplicación profesional"""\r\n    app = WebScraperProfessionalApp()
     await app.run_async()
+
+
+

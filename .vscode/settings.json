@@ -66,5 +66,11 @@
   "workbench.startupEditor": "none",
   "github.copilot.chat.virtualTools.threshold": 128,
   "github.copilot.chat.agent.thinkingTool": true,
-  "chat.agent.maxRequests": 100
+  "chat.agent.maxRequests": 200,
+  "github.copilot.chat.codesearch.enabled": true,
+  "github.copilot.chat.alternateGptPrompt.enabled": true,
+  "github.copilot.chat.languageContext.inline.typescript.enabled": false,
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  }
 }
