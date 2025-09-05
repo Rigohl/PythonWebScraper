@@ -1,5 +1,4 @@
 import logging
-import time
 
 from textual.app import App, ComposeResult
 from textual.containers import Container, Grid, Vertical
@@ -399,7 +398,31 @@ class ScraperTUIApp(App):
         settings.OFFLINE_MODE = checkbox.value
         logging.info(f"Offline mode: {checkbox.value}")
 
-    
+    async def on_input_submitted(self, event: Input.Submitted) -> None:
+        """Cuando el usuario presiona Enter en un input, iniciar si es el campo URL."""
+        if event.input.id == "start_url":
+            # Simular pulsar iniciar
+            self.action_start_crawl()
+
+    def __init__(self, log_file_path: str | None = None):
+        super().__init__()
+        self.log_file_path = log_file_path
+        self.scraper_worker: Worker | None = None
+        self.live_stats_data = {
+            "queue_size": 0,
+            "processed": 0,
+            "total_urls": 0,
+            "SUCCESS": 0,
+            "FAILED": 0,
+            "RETRY": 0,
+            "LOW_QUALITY": 0,
+        }
+        self.domain_metrics = {}
+        self.toast_container = ToastContainer()
+        # Control para actualizaciones por lotes
+        self._ui_update_scheduled = False
+        self._last_update_time = 0
+        self._ui_update_interval = 0.3  # Actualizar UI cada 0.3 segundos como máximo
 
     def stats_update_callback(self, update: dict):
         """Callback que el orquestador llamará para actualizar las estadísticas."""
