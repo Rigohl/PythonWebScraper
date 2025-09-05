@@ -59,6 +59,16 @@ async def main():
         action="store_true",
         help="Output current (Hybrid) Brain snapshot as JSON and exit"
     )
+    action_group.add_argument(
+        "--query-kb",
+        metavar="QUERY",
+        help="Query the brain's knowledge base"
+    )
+    action_group.add_argument(
+        "--repair-report",
+        action="store_true",
+        help="Generate and export the IA self-repair report"
+    )
 
     # Configuration arguments
     parser.add_argument(
@@ -70,7 +80,7 @@ async def main():
     parser.add_argument(
         "--db-path",
         default="data/scraper_database.db",
-        help="Database file path (default: data/scraper_database.db)"
+        help="Database file path (default: data/scraper_database.db")
     )
     parser.add_argument(
         "--respect-robots",
@@ -108,6 +118,10 @@ async def main():
         await export_to_json(args.export_json, args.db_path)
     elif args.export_md:
         await export_to_markdown(args.export_md, args.db_path)
+    elif args.query_kb:
+        await query_knowledge_base(args.query_kb)
+    elif args.repair_report:
+        await generate_repair_report()
     else:
         # Mensaje esperado por tests: contiene 'Ninguna acci'
         logger.warning("Ninguna acción especificada. Usa --help para ver opciones disponibles.")
@@ -128,15 +142,14 @@ async def launch_tui():
 async def output_brain_snapshot():
     """Dump current brain (hybrid if available) snapshot to stdout as JSON."""
     try:
-        from .intelligence import get_intelligence_integration
-        integration = get_intelligence_integration()
-        brain = getattr(integration, 'brain', None)
+        from .intelligence.hybrid_brain import HybridBrain
+        brain = HybridBrain()
         snapshot = {}
         if brain is not None:
             if hasattr(brain, 'get_comprehensive_stats'):
-                snapshot = brain.get_comprehensive_stats()  # HybridBrain
+                snapshot = brain.get_comprehensive_stats()
             elif hasattr(brain, 'snapshot'):
-                snapshot = brain.snapshot()  # Simple Brain
+                snapshot = brain.snapshot()
             else:
                 snapshot = {"warning": "Brain object does not expose snapshot method"}
         else:
@@ -145,6 +158,43 @@ async def output_brain_snapshot():
         sys.stdout.write("\n")
     except Exception as e:
         logger.error(f"Failed to produce brain snapshot: {e}")
+        print(json.dumps({"error": str(e)}))
+
+async def query_knowledge_base(query: str):
+    """Queries the brain's knowledge base."""
+    print(f"🧠 Consultando la Base de Conocimiento con: '{query}'")
+    try:
+        from .intelligence.hybrid_brain import HybridBrain
+        brain = HybridBrain()
+        results = brain.query_knowledge_base(query)
+        
+        if not results:
+            print("\n[INFO] No se encontraron resultados para tu consulta.")
+            return
+
+        print(f"\n[SUCCESS] Se encontraron {len(results)} resultados:\n")
+        for res in results:
+            print(f"  - ID: {res.get('id', 'N/A')}")
+            print(f"    Titulo: {res.get('title', 'N/A')}")
+            print(f"    Categoria: {res.get('category', 'N/A')}")
+            print(f"    Tags: {', '.join(res.get('tags', []))}")
+            print(f"    Contenido: {res.get('content', 'N/A')[:100]}...")
+            print("-" * 20)
+
+    except Exception as e:
+        logger.error(f"Error al consultar la base de conocimiento: {e}")
+        print(json.dumps({"error": str(e)}))
+
+async def generate_repair_report():
+    """Generates and exports the IA self-repair report."""
+    print("🧠 Generando reporte de auto-reparacion y diagnostico...")
+    try:
+        from .intelligence.hybrid_brain import HybridBrain
+        brain = HybridBrain()
+        brain.export_repair_report()
+        print("\n[SUCCESS] Reporte de auto-reparacion generado en 'IA_SELF_REPAIR.md'")
+    except Exception as e:
+        logger.error(f"Error al generar el reporte de auto-reparacion: {e}")
         print(json.dumps({"error": str(e)}))
 
 async def run_demo_mode():

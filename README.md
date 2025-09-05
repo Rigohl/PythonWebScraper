@@ -32,24 +32,24 @@ python -m playwright install
 
 ## 2. Lanzamiento Rápido (Windows – Recomendado)
 
-Ejecuta el lanzador unificado:
+Ejecuta el lanzador unificado, que actúa como un panel de control para la IA:
 
 ```powershell
 WebScraperPRO.bat
 ```
 
-Funciones del menú (según versión actual):
+El panel de control te dará acceso a las siguientes operaciones:
 
-1. Instalar dependencias (runtime y dev)
-2. Ejecutar modo Demo (sin navegador real)
-3. Ejecutar Crawler (solicita URLs)
-4. Iniciar TUI interactiva
-5. Exportar CSV
-6. Exportar JSON
-7. Correr tests
-8. Mostrar estadísticas DB
-9. Snapshot cerebro (IA)
-10. Limpieza / mantenimiento
+1.  **Iniciar Scraper Táctico (TUI):** Lanza la interfaz interactiva para monitorear al scraper y su cerebro en tiempo real.
+2.  **Lanzar Misión Autónoma (Crawl):** Inicia un scraping profundo a partir de una URL, dejando que el cerebro tome el control.
+3.  **Diagnóstico y Reparación IA:** El cerebro analiza su propio código y genera un informe con sugerencias de mejora.
+4.  **Dialogar con el Cerebro:** Te permite hacerle preguntas directas a la base de conocimiento de la IA.
+5.  **Entrenar Modelos de IA:** Inicia el ciclo de re-entrenamiento para los modelos de IA del scraper.
+6.  **Ver Estado de Conciencia (Snapshot):** Genera un "volcado de conciencia" del cerebro en formato JSON.
+7.  **Exportar Datos (CSV/JSON/MD):** Exporta los datos recopilados en el formato que elijas.
+8.  **Verificar Integridad del Sistema (Tests):** Ejecuta la suite de pruebas para asegurar que todo funciona correctamente.
+9.  **Mantenimiento del Sistema:** Accede a un sub-menú con opciones para instalar dependencias, limpiar caché y ver estadísticas de la BD.
+10. **Salir:** Cierra el panel de control.
 
 En Linux/macOS usar `./WebScraperPRO.sh` (si existe) o invocar manualmente comandos equivalentes.
 
@@ -91,6 +91,18 @@ Snapshot del cerebro híbrido (si habilitado):
 
 ```powershell
 python -m src.main --brain-snapshot
+```
+
+Consultar la base de conocimiento del cerebro:
+
+```powershell
+python -m src.main --query-kb "tu pregunta"
+```
+
+Generar reporte de auto-reparación:
+
+```powershell
+python -m src.main --repair-report
 ```
 
 Ver ayuda:

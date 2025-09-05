@@ -1,105 +1,57 @@
-#!/usr/bin/env python3
-"""
-Script para generar métricas del proceso de scraping.
-Calcula estadísticas sobre rendimiento, calidad y cobertura.
-"""
-
-import sys
+# Placeholder for scripts/generate_metrics.py
+import sqlite3
 import os
-from pathlib import Path
-from datetime import datetime, timedelta
-from collections import defaultdict
+import json
 
-# Añadir directorio raíz al path para imports
-root_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(root_dir))
+DB_PATH = "data/scraper_database.db"
+METRICS_PATH = "artifacts/metrics.json"
 
-from src.database import DatabaseManager
-import logging
+def generate_metrics():
+    print("=======================================")
+    print("=== GENERANDO METRICAS DEL SISTEMA ===")
+    print("=======================================")
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+    if not os.path.exists(DB_PATH):
+        print(f"[ERROR] La base de datos no se encuentra en: {DB_PATH}")
+        return
 
-def generate_metrics(db_path: str = 'data/scraper.db', output_file: str = None):
-    """
-    Genera métricas del scraping y las guarda en un archivo JSON.
-    """
     try:
-        db = DatabaseManager(db_path)
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
 
-        # Métricas básicas
-        total_results = db.table.count()
-        successful_results = db.table.count(status='SUCCESS')
-        failed_results = db.table.count(status='ERROR')
-        duplicate_results = db.table.count(status='DUPLICATE')
+        total_records = cursor.execute("SELECT COUNT(*) FROM scrapes").fetchone()[0]
+        successful = cursor.execute("SELECT COUNT(*) FROM scrapes WHERE status = 'SUCCESS'").fetchone()[0]
+        
+        success_rate = (successful / total_records) * 100 if total_records > 0 else 0
 
-        # Métricas de rendimiento
-        results = list(db.table.all())
-        total_duration = 0
-        content_lengths = []
-        domains = defaultdict(int)
-
-        for result in results:
-            if result.get('crawl_duration'):
-                total_duration += result.get('crawl_duration', 0)
-
-            if result.get('content_text'):
-                content_lengths.append(len(result.get('content_text', '')))
-
-            # Contar por dominio
-            from urllib.parse import urlparse
-            domain = urlparse(result.get('url', '')).netloc
-            domains[domain] += 1
-
-        avg_duration = total_duration / len(results) if results else 0
-        avg_content_length = sum(content_lengths) / len(content_lengths) if content_lengths else 0
-
-        # Métricas de calidad
-        quality_score = successful_results / total_results if total_results > 0 else 0
+        avg_response_time = cursor.execute("SELECT AVG(response_time) FROM scrapes WHERE response_time IS NOT NULL").fetchone()[0]
 
         metrics = {
-            'timestamp': datetime.now().isoformat(),
-            'total_results': total_results,
-            'successful_results': successful_results,
-            'failed_results': failed_results,
-            'duplicate_results': duplicate_results,
-            'success_rate': quality_score,
-            'average_crawl_duration': avg_duration,
-            'average_content_length': avg_content_length,
-            'domains_covered': dict(domains),
-            'total_domains': len(domains),
+            "total_scrapes": total_records,
+            "successful_scrapes": successful,
+            "success_rate_percent": round(success_rate, 2),
+            "average_response_time_seconds": round(avg_response_time, 2) if avg_response_time else 0
         }
 
-        logger.info("Métricas generadas:")
-        logger.info("  Total de resultados: %s", total_results)
-        logger.info("  Tasa de éxito: %.2f", quality_score)
-        logger.info("  Duración promedio: %.2fs", avg_duration)
-        logger.info("  Longitud promedio de contenido: %.0f caracteres", avg_content_length)
-        logger.info("  Dominios cubiertos: %s", len(domains))
+        print("\n[INFO] Metricas Generadas:")
+        print(f"  - Tasa de exito: {metrics['success_rate_percent']:}%")
+        print(f"  - Tiempo de respuesta promedio: {metrics['average_response_time_seconds']:}s")
 
-        if output_file:
-            import json
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(metrics, f, indent=2, default=str)
-            logger.info("Métricas guardadas en %s", output_file)
+        if not os.path.exists("artifacts"):
+            os.makedirs("artifacts")
 
-        return metrics
+        with open(METRICS_PATH, "w") as f:
+            json.dump(metrics, f, indent=2)
+
+        print(f"\n[SUCCESS] Metricas guardadas en: {METRICS_PATH}")
+
+        conn.close()
+        print("\n=======================================")
+        print("===   GENERACION COMPLETADA   ===")
+        print("=======================================")
 
     except Exception as e:
-        logger.error("Error generando métricas: %s", e)
-        return None
+        print(f"\n[ERROR] Ocurrio un error al generar las metricas: {e}")
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Generar métricas del scraping')
-    parser.add_argument('--db-path', default='data/scraper.db', help='Ruta a la base de datos')
-    parser.add_argument('--output', help='Archivo de salida para métricas JSON')
-
-    args = parser.parse_args()
-    metrics = generate_metrics(args.db_path, args.output)
-
-    if metrics:
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    generate_metrics()

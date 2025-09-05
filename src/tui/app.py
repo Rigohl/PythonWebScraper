@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import asyncio
 
 from textual.app import App, ComposeResult
 from textual.containers import Container, Grid, Vertical
@@ -24,6 +25,14 @@ from ..runner import setup_logging
 from ..runner import run_crawler
 from ..settings import settings
 from .ui_prefs import load_prefs, save_prefs
+
+# Importaciones para AI Assistant
+try:
+    from ..ai_assistant_integrator import AIAssistantIntegrator
+    AI_ASSISTANT_AVAILABLE = True
+except ImportError:
+    AI_ASSISTANT_AVAILABLE = False
+    logging.warning("AI Assistant modules not available")
 
 
 # New widget for displaying alerts
@@ -425,6 +434,9 @@ class ScraperTUIApp(App):
         ("/", "focus_url", "Foco URL"),
         ("l", "toggle_log_panel", "Mostrar/Ocultar Log"),
         ("x", "export_markdown", "Export MD"),
+        ("i", "ai_search", "🔍 AI Search"),
+        ("v", "voice_chat", "🎤 Voice Chat"),
+        ("h", "ai_history", "📋 AI History"),
     ]
 
     class IntelligenceBanner(Static):
@@ -442,6 +454,8 @@ class ScraperTUIApp(App):
             "r: Robots  |  e: Ética  |  o: Offline  |  d: Tema oscuro\n"
             "l: Mostrar/Ocultar Log  |  x: Export MD  |  a: Autoscroll\n"
             "c: Limpiar log  |  /: Foco URL | Enter (en URL): iniciar\n"
+            "[bold cyan]🤖 AI Assistant:[/]\n"
+            "i: Búsqueda Inteligente  |  v: Chat por Voz  |  h: Historial AI\n"
             "Persistencia: autoscroll & visibilidad log se recuerdan\n"
             "Navegación tablas: cursores / tab  |  Esc: cerrar overlays\n"
         )
@@ -474,6 +488,11 @@ class ScraperTUIApp(App):
         self._last_update_time = 0
         self._ui_update_interval = 0.3  # Actualizar UI cada 0.3 segundos como máximo
         self._autoscroll_log = True
+        
+        # AI Assistant integration
+        self.ai_assistant: AIAssistantIntegrator | None = None
+        self.ai_worker: Worker | None = None
+        self.ai_initialized = False
 
     def compose(self) -> ComposeResult:
         """Crea los widgets de la aplicación."""
@@ -506,6 +525,19 @@ class ScraperTUIApp(App):
                             id="offline_mode",
                         )
                         yield Checkbox("Usar Agente RL (WIP)", value=False, id="use_rl")
+                    with TabPane("🤖 AI Assistant", id="ai-tab"):
+                        yield Label("🔍 Búsqueda Inteligente:")
+                        yield Input(placeholder="Buscar información sobre...", id="ai_search_topic")
+                        yield Button("Buscar", variant="primary", id="ai_search_button")
+                        yield Label("📄 Generar Documentos:")
+                        with Container(id="doc-format-container"):
+                            yield Checkbox("Markdown", value=True, id="format_md")
+                            yield Checkbox("Word (.docx)", value=False, id="format_docx")
+                            yield Checkbox("Excel (.xlsx)", value=False, id="format_xlsx")
+                            yield Checkbox("PowerPoint (.pptx)", value=False, id="format_pptx")
+                        yield Button("🎤 Iniciar Chat por Voz", variant="success", id="voice_chat_button")
+                        yield Button("📋 Ver Historial", variant="default", id="ai_history_button")
+                        yield Static("Estado AI: No inicializado", id="ai_status")
                     with TabPane("Estadísticas", id="stats-tab"):
                         yield LiveStats()
                         yield DomainStats()
@@ -585,6 +617,12 @@ class ScraperTUIApp(App):
                 pass
         # Mostrar toast de bienvenida
         self.show_toast("¡Bienvenido a Scraper PRO!", "info", 2.0)
+        
+        # Inicializar AI Assistant automáticamente
+        if AI_ASSISTANT_AVAILABLE:
+            self.call_later(self.initialize_ai_assistant)
+        else:
+            self.query_one("#ai_status").update("Estado AI: Dependencias no disponibles")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Maneja los clics de los botones."""
@@ -594,6 +632,12 @@ class ScraperTUIApp(App):
             self.action_stop_crawl()
         elif event.button.id == "quit_button":
             self.action_quit()
+        elif event.button.id == "ai_search_button":
+            self.action_ai_search()
+        elif event.button.id == "voice_chat_button":
+            self.action_voice_chat()
+        elif event.button.id == "ai_history_button":
+            self.action_ai_history()
 
     def action_start(self) -> None:
         """Binding para iniciar crawling vía teclado (s)."""
@@ -1077,6 +1121,237 @@ class ScraperTUIApp(App):
             stats_callback=stats_callback,
             alert_callback=alert_callback,
         )
+
+    async def initialize_ai_assistant(self) -> None:
+        """Inicializa el AI Assistant de forma asíncrona."""
+        if not AI_ASSISTANT_AVAILABLE:
+            self.show_toast("AI Assistant no disponible - dependencias faltantes", "warning", 5.0)
+            self.query_one("#ai_status").update("Estado AI: No disponible")
+            return
+        
+        try:
+            self.query_one("#ai_status").update("Estado AI: Inicializando...")
+            self.ai_assistant = AIAssistantIntegrator()
+            
+            # Ejecutar inicialización en un worker para no bloquear UI
+            self.ai_worker = self.run_worker(
+                self.ai_initialization_worker(),
+                name="ai_initialization",
+                description="Inicializando AI Assistant"
+            )
+            
+        except Exception as e:
+            logging.error(f"Error inicializando AI Assistant: {e}")
+            self.show_toast(f"Error: {e}", "error", 5.0)
+            self.query_one("#ai_status").update("Estado AI: Error")
+
+    async def ai_initialization_worker(self) -> None:
+        """Worker para inicializar el AI Assistant."""
+        try:
+            if self.ai_assistant:
+                init_result = await self.ai_assistant.initialize_system()
+                
+                if init_result['status'] in ['success', 'partial']:
+                    self.ai_initialized = True
+                    active_components = sum(1 for status in init_result['components'].values() 
+                                          if status == 'success')
+                    self.call_from_thread(
+                        self.query_one("#ai_status").update, 
+                        f"Estado AI: Activo ({active_components}/4 componentes)"
+                    )
+                    self.call_from_thread(
+                        self.show_toast, 
+                        f"AI Assistant inicializado: {active_components}/4 componentes activos", 
+                        "success", 4.0
+                    )
+                else:
+                    self.call_from_thread(
+                        self.query_one("#ai_status").update, 
+                        "Estado AI: Error en inicialización"
+                    )
+                    self.call_from_thread(
+                        self.show_toast, 
+                        "Error inicializando AI Assistant", 
+                        "error", 5.0
+                    )
+                        
+        except Exception as e:
+            logging.error(f"Error en worker de inicialización AI: {e}")
+            self.call_from_thread(
+                self.query_one("#ai_status").update, 
+                "Estado AI: Error"
+            )
+
+    def action_ai_search(self) -> None:
+        """Inicia búsqueda inteligente."""
+        if not self.ai_initialized or not self.ai_assistant:
+            self.show_toast("AI Assistant no está inicializado", "warning", 3.0)
+            return
+        
+        search_input = self.query_one("#ai_search_topic", Input)
+        topic = search_input.value.strip()
+        
+        if not topic:
+            self.show_toast("Ingresa un tema para buscar", "warning", 3.0)
+            search_input.focus()
+            return
+        
+        # Obtener formatos seleccionados
+        selected_formats = []
+        if self.query_one("#format_md", Checkbox).value:
+            selected_formats.append('md')
+        if self.query_one("#format_docx", Checkbox).value:
+            selected_formats.append('docx')
+        if self.query_one("#format_xlsx", Checkbox).value:
+            selected_formats.append('xlsx')
+        if self.query_one("#format_pptx", Checkbox).value:
+            selected_formats.append('pptx')
+        
+        if not selected_formats:
+            selected_formats = ['md']  # Por defecto markdown
+        
+        # Ejecutar búsqueda en worker
+        self.ai_worker = self.run_worker(
+            self.ai_search_worker(topic, selected_formats),
+            name="ai_search",
+            description=f"Buscando: {topic}"
+        )
+        
+        self.show_toast(f"Iniciando búsqueda sobre: {topic}", "info", 3.0)
+        logging.info(f"AI: Iniciando búsqueda sobre '{topic}' con formatos {selected_formats}")
+
+    async def ai_search_worker(self, topic: str, formats: list) -> None:
+        """Worker para realizar búsqueda inteligente."""
+        try:
+            if not self.ai_assistant:
+                return
+            
+            # Procesar solicitud con el AI Assistant
+            request = f"Busca información detallada sobre {topic} y genera documentos en formatos {', '.join(formats)}"
+            
+            result = await self.ai_assistant.process_user_request(request, 'text')
+            
+            if result['status'] == 'completed':
+                final_response = result.get('final_response', {})
+                summary = final_response.get('summary', 'Búsqueda completada')
+                artifacts = final_response.get('artifacts_generated', [])
+                
+                # Mostrar resultados en UI
+                self.call_from_thread(
+                    self.show_toast,
+                    f"Búsqueda completada: {len(artifacts)} documentos generados",
+                    "success", 5.0
+                )
+                
+                # Log detallado
+                logging.info(f"AI Search completada para '{topic}':")
+                logging.info(f"Resumen: {summary[:200]}...")
+                
+                for artifact in artifacts:
+                    logging.info(f"Generado: {artifact['format'].upper()} - {artifact['location']}")
+                
+            else:
+                error_msg = result.get('error', 'Error desconocido')
+                self.call_from_thread(
+                    self.show_toast,
+                    f"Error en búsqueda: {error_msg}",
+                    "error", 5.0
+                )
+                logging.error(f"Error en AI Search: {error_msg}")
+                
+        except Exception as e:
+            logging.error(f"Error en worker de búsqueda AI: {e}")
+            self.call_from_thread(
+                self.show_toast,
+                f"Error inesperado: {e}",
+                "error", 5.0
+            )
+
+    def action_voice_chat(self) -> None:
+        """Inicia chat por voz."""
+        if not self.ai_initialized or not self.ai_assistant:
+            self.show_toast("AI Assistant no está inicializado", "warning", 3.0)
+            return
+        
+        # Ejecutar chat por voz en worker
+        self.ai_worker = self.run_worker(
+            self.voice_chat_worker(),
+            name="voice_chat",
+            description="Chat por voz activo"
+        )
+        
+        self.show_toast("Iniciando chat por voz... Habla ahora", "info", 4.0)
+        logging.info("AI: Iniciando conversación por voz")
+
+    async def voice_chat_worker(self) -> None:
+        """Worker para chat por voz."""
+        try:
+            if not self.ai_assistant:
+                return
+            
+            conversation_result = await self.ai_assistant.execute_voice_conversation()
+            
+            if conversation_result['status'] == 'completed':
+                self.call_from_thread(
+                    self.show_toast,
+                    "Conversación por voz completada",
+                    "success", 3.0
+                )
+                logging.info("Conversación por voz completada exitosamente")
+            else:
+                error_msg = conversation_result.get('reason', 'Voz no disponible')
+                self.call_from_thread(
+                    self.show_toast,
+                    f"Chat por voz: {error_msg}",
+                    "warning", 4.0
+                )
+                logging.warning(f"Chat por voz no disponible: {error_msg}")
+                
+        except Exception as e:
+            logging.error(f"Error en chat por voz: {e}")
+            self.call_from_thread(
+                self.show_toast,
+                f"Error en chat por voz: {e}",
+                "error", 5.0
+            )
+
+    def action_ai_history(self) -> None:
+        """Muestra historial del AI Assistant."""
+        if not self.ai_initialized or not self.ai_assistant:
+            self.show_toast("AI Assistant no está inicializado", "warning", 3.0)
+            return
+        
+        try:
+            history = self.ai_assistant.get_session_history(5)
+            
+            if not history:
+                self.show_toast("No hay historial disponible", "info", 3.0)
+                return
+            
+            # Mostrar historial en el log
+            log_widget = self.query_one("#log_view", Log)
+            log_widget.write("\n" + "="*60)
+            log_widget.write("[bold cyan]HISTORIAL AI ASSISTANT[/]")
+            log_widget.write("="*60)
+            
+            for i, session in enumerate(history, 1):
+                timestamp = session.get('timestamp', 'N/A')
+                request = session.get('request', 'N/A')[:100] + "..."
+                status = session.get('status', 'N/A')
+                components = ', '.join(session.get('components_used', []))
+                
+                log_widget.write(f"\n[bold]{i}. {timestamp}[/]")
+                log_widget.write(f"   Solicitud: {request}")
+                log_widget.write(f"   Estado: {status}")
+                log_widget.write(f"   Componentes: {components}")
+            
+            log_widget.write("="*60 + "\n")
+            
+            self.show_toast(f"Historial mostrado: {len(history)} sesiones", "info", 3.0)
+            
+        except Exception as e:
+            logging.error(f"Error mostrando historial AI: {e}")
+            self.show_toast(f"Error: {e}", "error", 3.0)
 
     def action_quit(self) -> None:
         """Sale de la aplicación."""

@@ -1633,6 +1633,18 @@ class HybridBrain:
         except Exception:
             return []
 
+    def query_knowledge_base(self, query: str) -> List[Dict[str, Any]]:
+        """Searches the knowledge base for a given query."""
+        print(f"Searching knowledge base for: {query}")
+        try:
+            # Search by category and tags based on the query
+            tags = [tag.strip() for tag in query.split(' ')]
+            results = self.knowledge_base.search(category=query, tags=tags, limit=10)
+            return results
+        except Exception as e:
+            logger.error(f"Error querying knowledge base: {e}")
+            return []
+
     def reason_about_issue(self, observation: Dict[str, Any]) -> Dict[str, Any]:
         """Razonamiento ligero sobre un problema reportado.
 

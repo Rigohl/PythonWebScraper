@@ -24,3 +24,27 @@ gymnasium
 
 # Database
 dataset
+
+# Voice & AI Assistant
+pyttsx3
+speechrecognition
+pyaudio
+
+# Google Workspace Integration
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+
+# Microsoft Office Integration
+python-docx
+openpyxl
+python-pptx
+
+# Additional document formats
+markdown
+pypdf2
+jinja2
+
+# Intelligent Search & Async Support
+aiohttp
+asyncio

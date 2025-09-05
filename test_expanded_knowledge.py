@@ -19,7 +19,7 @@ def test_expanded_knowledge_base():
         src_path = os.path.join(os.path.dirname(__file__), 'src')
         if src_path not in sys.path:
             sys.path.insert(0, src_path)
-        
+
         from intelligence.knowledge_store import KnowledgeStore
 
         # Create test knowledge store
@@ -299,7 +299,7 @@ def test_knowledge_integration():
         src_path = os.path.join(os.path.dirname(__file__), 'src')
         if src_path not in sys.path:
             sys.path.insert(0, src_path)
-        
+
         from intelligence.knowledge_store import KnowledgeStore
         from intelligence.autonomous_learning import KnowledgeSeeder
 

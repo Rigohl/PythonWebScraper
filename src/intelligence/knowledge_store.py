@@ -70,6 +70,55 @@ SCHEMA = {
         content TEXT,
         confidence REAL,
         source TEXT,
+        created_at REAL,
+        domain TEXT,
+        priority INTEGER,
+        tags TEXT,
+        related_concepts TEXT
+    )''',
+    'knowledge_relationships': '''CREATE TABLE IF NOT EXISTS knowledge_relationships (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        source_knowledge_id INTEGER,
+        target_knowledge_id INTEGER,
+        relationship_type TEXT,
+        strength REAL,
+        created_at REAL,
+        FOREIGN KEY(source_knowledge_id) REFERENCES programming_knowledge(id),
+        FOREIGN KEY(target_knowledge_id) REFERENCES programming_knowledge(id)
+    )''',
+    'data_sources': '''CREATE TABLE IF NOT EXISTS data_sources (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE,
+        url TEXT,
+        source_type TEXT,
+        access_method TEXT,
+        credentials_needed BOOLEAN,
+        last_accessed REAL,
+        success_rate REAL,
+        notes TEXT,
+        created_at REAL
+    )''',
+    'scraping_targets': '''CREATE TABLE IF NOT EXISTS scraping_targets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        domain TEXT,
+        url_pattern TEXT,
+        content_type TEXT,
+        extraction_rules TEXT,
+        anti_detection_level INTEGER,
+        success_rate REAL,
+        last_scraped REAL,
+        metadata TEXT,
+        created_at REAL
+    )''',
+    'learned_patterns': '''CREATE TABLE IF NOT EXISTS learned_patterns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        pattern_type TEXT,
+        pattern_data TEXT,
+        confidence REAL,
+        usage_count INTEGER,
+        success_rate REAL,
+        domain TEXT,
+        context TEXT,
         created_at REAL
     )'''
 }
@@ -379,6 +428,277 @@ class KnowledgeStore:
                     counts[table] = 0
         return counts
 
+    # ------------------------ Advanced SQL Operations ------------------------
+    def add_data_source(self, name: str, url: str, source_type: str, access_method: str = "HTTP",
+                       credentials_needed: bool = False, notes: str = "") -> int:
+        """Add a new data source for scraping."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT OR REPLACE INTO data_sources
+                (name, url, source_type, access_method, credentials_needed, notes, success_rate, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, 0.0, ?)
+            """, (name, url, source_type, access_method, credentials_needed, notes, time.time()))
+            return cur.lastrowid
+
+    def add_scraping_target(self, domain: str, url_pattern: str, content_type: str,
+                           extraction_rules: str, anti_detection_level: int = 1) -> int:
+        """Add a scraping target with extraction rules."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO scraping_targets
+                (domain, url_pattern, content_type, extraction_rules, anti_detection_level,
+                 success_rate, created_at)
+                VALUES (?, ?, ?, ?, ?, 0.0, ?)
+            """, (domain, url_pattern, content_type, extraction_rules, anti_detection_level, time.time()))
+            return cur.lastrowid
+
+    def add_learned_pattern(self, pattern_type: str, pattern_data: str, confidence: float,
+                           domain: str = "", context: str = "") -> int:
+        """Add a learned pattern from successful operations."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO learned_patterns
+                (pattern_type, pattern_data, confidence, usage_count, success_rate,
+                 domain, context, created_at)
+                VALUES (?, ?, ?, 0, 1.0, ?, ?, ?)
+            """, (pattern_type, pattern_data, confidence, domain, context, time.time()))
+            return cur.lastrowid
+
+    def create_knowledge_relationship(self, source_id: int, target_id: int,
+                                    relationship_type: str, strength: float = 0.5):
+        """Create a relationship between two knowledge items."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO knowledge_relationships
+                (source_knowledge_id, target_knowledge_id, relationship_type, strength, created_at)
+                VALUES (?, ?, ?, ?, ?)
+            """, (source_id, target_id, relationship_type, strength, time.time()))
+
+    def get_related_knowledge(self, knowledge_id: int, limit: int = 10) -> List[Dict]:
+        """Get knowledge items related to the given item."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            results = cur.execute("""
+                SELECT pk.*, kr.relationship_type, kr.strength
+                FROM programming_knowledge pk
+                JOIN knowledge_relationships kr ON pk.id = kr.target_knowledge_id
+                WHERE kr.source_knowledge_id = ?
+                ORDER BY kr.strength DESC
+                LIMIT ?
+            """, (knowledge_id, limit)).fetchall()
+
+            return [dict(row) for row in results]
+
+    def get_data_sources_by_type(self, source_type: str) -> List[Dict]:
+        """Get all data sources of a specific type."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+            results = cur.execute("""
+                SELECT * FROM data_sources
+                WHERE source_type = ?
+                ORDER BY success_rate DESC, name
+            """, (source_type,)).fetchall()
+
+            return [dict(row) for row in results]
+
+    def get_successful_patterns(self, pattern_type: str = None, min_success_rate: float = 0.7) -> List[Dict]:
+        """Get learned patterns with high success rates."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            if pattern_type:
+                results = cur.execute("""
+                    SELECT * FROM learned_patterns
+                    WHERE pattern_type = ? AND success_rate >= ?
+                    ORDER BY success_rate DESC, usage_count DESC
+                """, (pattern_type, min_success_rate)).fetchall()
+            else:
+                results = cur.execute("""
+                    SELECT * FROM learned_patterns
+                    WHERE success_rate >= ?
+                    ORDER BY success_rate DESC, usage_count DESC
+                """, (min_success_rate,)).fetchall()
+
+            return [dict(row) for row in results]
+
+    def update_pattern_success(self, pattern_id: int, success: bool):
+        """Update the success rate of a learned pattern."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Get current stats
+            current = cur.execute("""
+                SELECT usage_count, success_rate FROM learned_patterns WHERE id = ?
+            """, (pattern_id,)).fetchone()
+
+            if current:
+                usage_count, success_rate = current
+                new_usage_count = usage_count + 1
+
+                # Update success rate using incremental average
+                if success:
+                    new_success_rate = (success_rate * usage_count + 1.0) / new_usage_count
+                else:
+                    new_success_rate = (success_rate * usage_count) / new_usage_count
+
+                cur.execute("""
+                    UPDATE learned_patterns
+                    SET usage_count = ?, success_rate = ?
+                    WHERE id = ?
+                """, (new_usage_count, new_success_rate, pattern_id))
+
+    def advanced_knowledge_search(self, query: str, domains: List[str] = None,
+                                 min_confidence: float = 0.5) -> List[Dict]:
+        """Advanced search across knowledge base with domain filtering."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            base_query = """
+                SELECT *,
+                       CASE
+                           WHEN content LIKE ? THEN confidence + 0.2
+                           WHEN topic LIKE ? THEN confidence + 0.1
+                           ELSE confidence
+                       END as relevance_score
+                FROM programming_knowledge
+                WHERE (content LIKE ? OR topic LIKE ? OR category LIKE ?)
+                AND confidence >= ?
+            """
+
+            params = [f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%", min_confidence]
+
+            if domains:
+                domain_placeholders = ",".join("?" * len(domains))
+                base_query += f" AND category IN ({domain_placeholders})"
+                params.extend(domains)
+
+            base_query += " ORDER BY relevance_score DESC, confidence DESC"
+
+            results = cur.execute(base_query, params).fetchall()
+            return [dict(row) for row in results]
+
+    def get_knowledge_graph_data(self) -> Dict[str, Any]:
+        """Get data for visualizing the knowledge graph."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Get nodes (knowledge items)
+            nodes = cur.execute("""
+                SELECT id, category, topic, confidence, source
+                FROM programming_knowledge
+            """).fetchall()
+
+            # Get edges (relationships)
+            edges = cur.execute("""
+                SELECT source_knowledge_id, target_knowledge_id, relationship_type, strength
+                FROM knowledge_relationships
+            """).fetchall()
+
+            return {
+                'nodes': [dict(row) for row in nodes],
+                'edges': [dict(row) for row in edges]
+            }
+
+    def get_domain_expertise_score(self, domain: str) -> float:
+        """Calculate expertise score for a specific domain."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            result = cur.execute("""
+                SELECT
+                    COUNT(*) as knowledge_count,
+                    AVG(confidence) as avg_confidence,
+                    COUNT(DISTINCT source) as source_diversity
+                FROM programming_knowledge
+                WHERE category = ?
+            """, (domain,)).fetchone()
+
+            if result and result[0] > 0:
+                knowledge_count, avg_confidence, source_diversity = result
+
+                # Calculate expertise score based on quantity, quality, and diversity
+                quantity_score = min(knowledge_count / 20.0, 1.0)  # Normalize to max 20 items
+                quality_score = avg_confidence
+                diversity_score = min(source_diversity / 5.0, 1.0)  # Normalize to max 5 sources
+
+                expertise_score = (quantity_score * 0.4 + quality_score * 0.4 + diversity_score * 0.2)
+                return expertise_score
+
+            return 0.0
+
+    def backup_knowledge_to_json(self, output_path: str):
+        """Backup entire knowledge base to JSON for portability."""
+        import json
+
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            backup_data = {}
+
+            for table_name in SCHEMA.keys():
+                try:
+                    results = cur.execute(f"SELECT * FROM {table_name}").fetchall()
+                    backup_data[table_name] = [dict(row) for row in results]
+                except Exception:
+                    backup_data[table_name] = []
+
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(backup_data, f, indent=2, ensure_ascii=False)
+
+    def get_comprehensive_summary(self) -> Dict[str, Any]:
+        """Get comprehensive summary of the knowledge base."""
+        with self._connect() as conn:
+            cur = conn.cursor()
+
+            # Knowledge distribution by category
+            categories = cur.execute("""
+                SELECT category, COUNT(*) as count, AVG(confidence) as avg_confidence
+                FROM programming_knowledge
+                GROUP BY category
+                ORDER BY count DESC
+            """).fetchall()
+
+            # Top sources
+            sources = cur.execute("""
+                SELECT source, COUNT(*) as contributions
+                FROM programming_knowledge
+                GROUP BY source
+                ORDER BY contributions DESC
+                LIMIT 10
+            """).fetchall()
+
+            # Recent additions
+            recent = cur.execute("""
+                SELECT category, topic, created_at
+                FROM programming_knowledge
+                ORDER BY created_at DESC
+                LIMIT 10
+            """).fetchall()
+
+            # Overall stats
+            total_knowledge = cur.execute("SELECT COUNT(*) FROM programming_knowledge").fetchone()[0]
+            total_relationships = cur.execute("SELECT COUNT(*) FROM knowledge_relationships").fetchone()[0]
+            total_sources = cur.execute("SELECT COUNT(*) FROM data_sources").fetchone()[0]
+            total_patterns = cur.execute("SELECT COUNT(*) FROM learned_patterns").fetchone()[0]
+
+            return {
+                'total_knowledge_items': total_knowledge,
+                'total_relationships': total_relationships,
+                'total_data_sources': total_sources,
+                'total_learned_patterns': total_patterns,
+                'categories': [dict(row) for row in categories],
+                'top_sources': [dict(row) for row in sources],
+                'recent_additions': [dict(row) for row in recent],
+                'domain_expertise': {
+                    category[0]: self.get_domain_expertise_score(category[0])
+                    for category in categories
+                }
+            }
+
     def get_knowledge_summary(self) -> Dict[str, Any]:
         """Get comprehensive knowledge summary for the brain"""
         stats = self.stats()
@@ -428,3 +748,376 @@ class KnowledgeStore:
             'patch_proposals': stats.get('patch_proposals', 0),
             'domain_performance': domain_performance
         }
+
+
+# ===== MULTI-DATABASE CONNECTOR SYSTEM =====
+
+class DatabaseConnector:
+    """Base class for database connectors."""
+
+    def __init__(self, connection_string: str):
+        self.connection_string = connection_string
+        self.connection = None
+
+    def connect(self):
+        """Establish connection to database."""
+        raise NotImplementedError
+
+    def disconnect(self):
+        """Close database connection."""
+        raise NotImplementedError
+
+    def execute_query(self, query: str, params: Optional[List] = None) -> List[Dict]:
+        """Execute query and return results."""
+        raise NotImplementedError
+
+    def get_schema_info(self) -> Dict[str, Any]:
+        """Get database schema information."""
+        raise NotImplementedError
+
+    def test_connection(self) -> bool:
+        """Test database connectivity."""
+        raise NotImplementedError
+
+
+class MongoDBConnector(DatabaseConnector):
+    """MongoDB database connector."""
+
+    def __init__(self, connection_string: str):
+        super().__init__(connection_string)
+        try:
+            from pymongo import MongoClient
+            self.client_class = MongoClient
+        except ImportError:
+            self.client_class = None
+
+    def connect(self):
+        """Connect to MongoDB."""
+        if not self.client_class:
+            raise ImportError("pymongo not installed. Install with: pip install pymongo")
+
+        self.connection = self.client_class(self.connection_string)
+        return self.connection
+
+    def disconnect(self):
+        """Close MongoDB connection."""
+        if self.connection:
+            self.connection.close()
+
+    def execute_query(self, query: str, params: Optional[List] = None) -> List[Dict]:
+        """Execute MongoDB query."""
+        # MongoDB uses different query format - this is a simplified example
+        db_name, collection_name = query.split('.')[:2]
+        db = self.connection[db_name]
+        collection = db[collection_name]
+
+        if params and 'find' in query:
+            return list(collection.find(params[0] if params else {}))
+        elif 'count' in query:
+            return [{"count": collection.count_documents(params[0] if params else {})}]
+
+        return []
+
+    def get_schema_info(self) -> Dict[str, Any]:
+        """Get MongoDB collection information."""
+        db_names = self.connection.list_database_names()
+        schema = {}
+
+        for db_name in db_names[:5]:  # Limit to first 5 databases
+            db = self.connection[db_name]
+            collections = db.list_collection_names()
+            schema[db_name] = {
+                'collections': collections[:10],  # Limit collections
+                'type': 'document_store'
+            }
+
+        return schema
+
+    def test_connection(self) -> bool:
+        """Test MongoDB connectivity."""
+        try:
+            self.connection.admin.command('ping')
+            return True
+        except Exception:
+            return False
+
+
+class PostgreSQLConnector(DatabaseConnector):
+    """PostgreSQL database connector."""
+
+    def __init__(self, connection_string: str):
+        super().__init__(connection_string)
+        try:
+            import psycopg2
+            self.driver = psycopg2
+        except ImportError:
+            self.driver = None
+
+    def connect(self):
+        """Connect to PostgreSQL."""
+        if not self.driver:
+            raise ImportError("psycopg2 not installed. Install with: pip install psycopg2-binary")
+
+        self.connection = self.driver.connect(self.connection_string)
+        return self.connection
+
+    def disconnect(self):
+        """Close PostgreSQL connection."""
+        if self.connection:
+            self.connection.close()
+
+    def execute_query(self, query: str, params: Optional[List] = None) -> List[Dict]:
+        """Execute PostgreSQL query."""
+        cursor = self.connection.cursor()
+        cursor.execute(query, params or [])
+
+        if cursor.description:
+            columns = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+            return [dict(zip(columns, row)) for row in rows]
+
+        return []
+
+    def get_schema_info(self) -> Dict[str, Any]:
+        """Get PostgreSQL schema information."""
+        query = """
+            SELECT table_schema, table_name, column_name, data_type
+            FROM information_schema.columns
+            WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
+            ORDER BY table_schema, table_name, ordinal_position
+        """
+
+        results = self.execute_query(query)
+        schema = {}
+
+        for row in results:
+            schema_name = row['table_schema']
+            table_name = row['table_name']
+
+            if schema_name not in schema:
+                schema[schema_name] = {'tables': {}, 'type': 'relational'}
+
+            if table_name not in schema[schema_name]['tables']:
+                schema[schema_name]['tables'][table_name] = []
+
+            schema[schema_name]['tables'][table_name].append({
+                'column': row['column_name'],
+                'type': row['data_type']
+            })
+
+        return schema
+
+    def test_connection(self) -> bool:
+        """Test PostgreSQL connectivity."""
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT 1")
+            return True
+        except Exception:
+            return False
+
+
+class RedisConnector(DatabaseConnector):
+    """Redis database connector."""
+
+    def __init__(self, connection_string: str):
+        super().__init__(connection_string)
+        try:
+            import redis
+            self.redis_module = redis
+        except ImportError:
+            self.redis_module = None
+
+    def connect(self):
+        """Connect to Redis."""
+        if not self.redis_module:
+            raise ImportError("redis not installed. Install with: pip install redis")
+
+        self.connection = self.redis_module.from_url(self.connection_string)
+        return self.connection
+
+    def disconnect(self):
+        """Close Redis connection."""
+        if self.connection:
+            self.connection.close()
+
+    def execute_query(self, query: str, params: Optional[List] = None) -> List[Dict]:
+        """Execute Redis commands."""
+        # Redis commands are different - this is a simplified example
+        parts = query.split()
+        command = parts[0].upper()
+
+        if command == 'GET':
+            key = parts[1] if len(parts) > 1 else params[0] if params else ''
+            value = self.connection.get(key)
+            return [{'key': key, 'value': value.decode() if value else None}]
+        elif command == 'KEYS':
+            pattern = parts[1] if len(parts) > 1 else '*'
+            keys = self.connection.keys(pattern)
+            return [{'keys': [k.decode() for k in keys]}]
+        elif command == 'INFO':
+            info = self.connection.info()
+            return [info]
+
+        return []
+
+    def get_schema_info(self) -> Dict[str, Any]:
+        """Get Redis database information."""
+        info = self.connection.info()
+        return {
+            'redis_version': info.get('redis_version'),
+            'db_count': info.get('databases', 16),
+            'memory_usage': info.get('used_memory_human'),
+            'type': 'key_value'
+        }
+
+    def test_connection(self) -> bool:
+        """Test Redis connectivity."""
+        try:
+            return self.connection.ping()
+        except Exception:
+            return False
+
+
+class ElasticsearchConnector(DatabaseConnector):
+    """Elasticsearch connector."""
+
+    def __init__(self, connection_string: str):
+        super().__init__(connection_string)
+        try:
+            from elasticsearch import Elasticsearch
+            self.es_class = Elasticsearch
+        except ImportError:
+            self.es_class = None
+
+    def connect(self):
+        """Connect to Elasticsearch."""
+        if not self.es_class:
+            raise ImportError("elasticsearch not installed. Install with: pip install elasticsearch")
+
+        self.connection = self.es_class([self.connection_string])
+        return self.connection
+
+    def disconnect(self):
+        """Close Elasticsearch connection."""
+        # Elasticsearch client doesn't need explicit close
+        pass
+
+    def execute_query(self, query: str, params: Optional[List] = None) -> List[Dict]:
+        """Execute Elasticsearch query."""
+        try:
+            # Simple search example
+            if 'search' in query.lower():
+                body = params[0] if params else {"query": {"match_all": {}}}
+                result = self.connection.search(body=body)
+                return result.get('hits', {}).get('hits', [])
+            elif 'indices' in query.lower():
+                indices = self.connection.indices.get_alias("*")
+                return [{'indices': list(indices.keys())}]
+        except Exception:
+            pass
+
+        return []
+
+    def get_schema_info(self) -> Dict[str, Any]:
+        """Get Elasticsearch cluster information."""
+        try:
+            health = self.connection.cluster.health()
+            indices = self.connection.indices.get_alias("*")
+
+            return {
+                'cluster_name': health.get('cluster_name'),
+                'status': health.get('status'),
+                'number_of_nodes': health.get('number_of_nodes'),
+                'indices': list(indices.keys())[:10],  # Limit to first 10
+                'type': 'search_engine'
+            }
+        except Exception:
+            return {'type': 'search_engine', 'error': 'Failed to get info'}
+
+    def test_connection(self) -> bool:
+        """Test Elasticsearch connectivity."""
+        try:
+            return self.connection.ping()
+        except Exception:
+            return False
+
+
+class MultiDatabaseManager:
+    """Manager for multiple database connections."""
+
+    def __init__(self):
+        self.connectors = {}
+        self.connector_classes = {
+            'mongodb': MongoDBConnector,
+            'postgresql': PostgreSQLConnector,
+            'mysql': PostgreSQLConnector,  # Can use same connector with different driver
+            'redis': RedisConnector,
+            'elasticsearch': ElasticsearchConnector
+        }
+
+    def add_database(self, name: str, db_type: str, connection_string: str) -> bool:
+        """Add a new database connection."""
+        try:
+            if db_type.lower() not in self.connector_classes:
+                raise ValueError(f"Unsupported database type: {db_type}")
+
+            connector_class = self.connector_classes[db_type.lower()]
+            connector = connector_class(connection_string)
+            connector.connect()
+
+            if connector.test_connection():
+                self.connectors[name] = connector
+                return True
+            else:
+                connector.disconnect()
+                return False
+
+        except Exception as e:
+            print(f"Failed to add database {name}: {e}")
+            return False
+
+    def remove_database(self, name: str) -> bool:
+        """Remove a database connection."""
+        if name in self.connectors:
+            self.connectors[name].disconnect()
+            del self.connectors[name]
+            return True
+        return False
+
+    def execute_query(self, db_name: str, query: str, params: Optional[List] = None) -> List[Dict]:
+        """Execute query on specific database."""
+        if db_name in self.connectors:
+            try:
+                return self.connectors[db_name].execute_query(query, params)
+            except Exception as e:
+                print(f"Query failed on {db_name}: {e}")
+                return []
+        return []
+
+    def get_all_schemas(self) -> Dict[str, Any]:
+        """Get schema information from all connected databases."""
+        schemas = {}
+        for name, connector in self.connectors.items():
+            try:
+                schemas[name] = connector.get_schema_info()
+            except Exception as e:
+                schemas[name] = {'error': str(e)}
+        return schemas
+
+    def test_all_connections(self) -> Dict[str, bool]:
+        """Test all database connections."""
+        results = {}
+        for name, connector in self.connectors.items():
+            results[name] = connector.test_connection()
+        return results
+
+    def get_database_types(self) -> List[str]:
+        """Get list of supported database types."""
+        return list(self.connector_classes.keys())
+
+    def close_all_connections(self):
+        """Close all database connections."""
+        for connector in self.connectors.values():
+            connector.disconnect()
+        self.connectors.clear()

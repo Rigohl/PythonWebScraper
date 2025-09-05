@@ -38,7 +38,7 @@ try:
         IntelligenceIntegration,
         intelligent_scraper_decorator
     )
-    
+
     # Knowledge and autonomous learning systems
     from .knowledge_store import KnowledgeStore
     from .autonomous_learning import KnowledgeSeeder, AutonomousPatchGenerator

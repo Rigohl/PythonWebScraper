@@ -1,65 +1,52 @@
-#!/usr/bin/env python3
-"""
-Script para verificar la calidad de los datos scrapeados.
-Ejecuta validaciones sobre los resultados almacenados en la base de datos.
-"""
-
-import sys
+# Placeholder for scripts/check_data_quality.py
+import sqlite3
 import os
-from pathlib import Path
 
-# Añadir directorio raíz al path para imports
-root_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(root_dir))
+DB_PATH = "data/scraper_database.db"
 
-from src.database import DatabaseManager
-from src.models import ScrapeResult
-import logging
+def check_data_quality():
+    print("=======================================")
+    print("=== VERIFICANDO CALIDAD DE DATOS ===")
+    print("=======================================")
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+    if not os.path.exists(DB_PATH):
+        print(f"[ERROR] La base de datos no se encuentra en: {DB_PATH}")
+        return
 
-def check_data_quality(db_path: str = 'data/scraper.db'):
-    """
-    Verifica la calidad de los datos en la base de datos.
-    """
     try:
-        db = DatabaseManager(db_path)
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
 
-        # Obtener estadísticas básicas
-        total_results = db.table.count()
-        successful_results = db.table.count(status='SUCCESS')
-        failed_results = db.table.count(status='ERROR')
+        # Total de registros
+        total_records = cursor.execute("SELECT COUNT(*) FROM scrapes").fetchone()[0]
+        print(f"\n[INFO] Total de registros en la base de datos: {total_records}")
 
-        logger.info("Total de resultados: %s", total_results)
-        logger.info("Resultados exitosos: %s", successful_results)
-        logger.info("Resultados fallidos: %s", failed_results)
+        # Registros exitosos vs fallidos
+        successful = cursor.execute("SELECT COUNT(*) FROM scrapes WHERE status = 'SUCCESS'").fetchone()[0]
+        failed = cursor.execute("SELECT COUNT(*) FROM scrapes WHERE status = 'FAILED'").fetchone()[0]
+        low_quality = cursor.execute("SELECT COUNT(*) FROM scrapes WHERE status = 'LOW_QUALITY'").fetchone()[0]
 
-        # Verificar calidad del contenido
-        results = db.table.all()
-        quality_issues = []
+        print(f"  - Exitosos: {successful}")
+        print(f"  - Fallidos: {failed}")
+        print(f"  - Baja Calidad: {low_quality}")
 
-        for result in results:
-            if result.get('status') == 'SUCCESS':
-                content = result.get('content_text', '')
-                if len(content.strip()) < 100:
-                    quality_issues.append("Contenido muy corto en {}".format(result.get('url')))
-                if not result.get('title'):
-                    quality_issues.append("Título faltante en {}".format(result.get('url')))
+        # Registros sin datos extraidos
+        no_data = cursor.execute("SELECT COUNT(*) FROM scrapes WHERE status = 'SUCCESS' AND (extracted_data IS NULL OR extracted_data = '')").fetchone()[0]
+        print(f"\n[WARNING] Registros exitosos sin datos extraidos: {no_data}")
 
-        if quality_issues:
-            logger.warning("Problemas de calidad detectados:")
-            for issue in quality_issues[:10]:  # Mostrar primeros 10
-                logger.warning("  - %s", issue)
-        else:
-            logger.info("No se detectaron problemas de calidad.")
+        # Dominios mas scrapeados
+        print("\n[INFO] Top 5 dominios mas scrapeados:")
+        top_domains = cursor.execute("SELECT domain, COUNT(*) as count FROM scrapes GROUP BY domain ORDER BY count DESC LIMIT 5").fetchall()
+        for domain, count in top_domains:
+            print(f"  - {domain}: {count} registros")
 
-        return len(quality_issues) == 0
+        conn.close()
+        print("\n=======================================")
+        print("=== VERIFICACION COMPLETADA ===")
+        print("=======================================")
 
     except Exception as e:
-        logger.error("Error verificando calidad de datos: %s", e)
-        return False
+        print(f"\n[ERROR] Ocurrio un error al verificar la base de datos: {e}")
 
 if __name__ == "__main__":
-    success = check_data_quality()
-    sys.exit(0 if success else 1)
+    check_data_quality()

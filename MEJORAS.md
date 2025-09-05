@@ -1,12 +1,60 @@
 # Mejoras y Próximas Fases del Proyecto
 
 Este documento detalla las mejoras y las próximas fases planificadas para el proyecto de web scraping, estructuradas por áreas funcionales y etapas de desarrollo.
-Fecha de actualización: 2025-08-31
-Nota: Se ha conservado todo el contenido original y se han añadido "Acciones recomendadas" y mejoras operativas sugeridas.
+Fecha de actualización: 2025-09-05
 
 ---
 
-## Fase 1: Core de Navegación y Extracción
+## Mejoras Implementadas Recientemente (Visión IA)
+
+*Fecha de Implementación: 2025-09-05*
+
+Esta sección documenta las mejoras realizadas para evolucionar el proyecto hacia un sistema de IA más interactivo y consciente, centrado en el `HybridBrain`.
+
+### 1. Panel de Control Unificado (`WebScraperPRO.bat`)
+- **Mejora:** Se ha rediseñado y consolidado el script `WebScraperPRO.bat` para actuar como un panel de control centralizado con 10 opciones estratégicas.
+- **Impacto:** Facilita la interacción con el sistema, separando las operaciones diarias de las tareas de mantenimiento y permitiendo un acceso más directo a las capacidades de la IA.
+
+### 2. Diálogo Directo con el Cerebro (`--query-kb`)
+- **Mejora:** Se ha implementado la funcionalidad para "dialogar" con el `HybridBrain`. El usuario puede ahora realizar consultas en lenguaje natural a la base de conocimiento del cerebro.
+- **Impacto:** Transforma al scraper de una herramienta pasiva a un agente inteligente con el que se puede interactuar, consultar su "memoria" y obtener insights de su aprendizaje.
+
+### 3. Sistema de Auto-Diagnóstico (`--repair-report`)
+- **Mejora:** Se ha conectado la capacidad del `HybridBrain` para generar informes de auto-reparación al panel de control.
+- **Impacto:** El sistema ahora puede, bajo demanda, analizar su propio estado y código, y proporcionar un informe de las mejoras o reparaciones que considera necesarias, reforzando su autonomía.
+
+### 4. Funcionalidad de Módulos de Soporte
+- **Mejora:** Se han creado scripts base para el entrenamiento de modelos (`train_frontier_classifier.py`) y para el análisis de métricas y calidad de datos (`check_data_quality.py`, `generate_metrics.py`).
+- **Impacto:** Asegura que todas las opciones del panel de control sean funcionales desde el primer momento, proporcionando un esqueleto robusto para futuras implementaciones de lógica más compleja.
+
+---
+
+## Próximas Mejoras Sugeridas (Visión IA)
+
+Para llevar la "conciencia" y autonomía del scraper al siguiente nivel, se sugieren las siguientes líneas de desarrollo:
+
+### 1. Evolución del Diálogo con el Cerebro
+- **Mejora:** Implementar un procesamiento de lenguaje natural (NLP) más avanzado para el comando `--query-kb`. En lugar de buscar por palabras clave, el cerebro podría interpretar la intención de la pregunta.
+- **Ejemplo:** Una pregunta como "¿Qué dominios son más lentos por la noche?" sería descompuesta por el cerebro para consultar sus métricas de `response_time`, filtrar por dominios y cruzarlo con los timestamps de las peticiones.
+
+### 2. Módulo de Entrenamiento Interactivo
+- **Mejora:** Crear una interfaz dentro de la TUI para gestionar el entrenamiento de los modelos de IA.
+- **Funcionalidades:**
+    - Visualizar el rendimiento actual del `FrontierClassifier` y el `RLAgent`.
+    - Iniciar ciclos de re-entrenamiento con un solo clic.
+    - Comparar el rendimiento de modelos entrenados en diferentes momentos.
+
+### 3. Visualización del Estado Cerebral
+- **Mejora:** Desarrollar una herramienta que genere una representación gráfica del estado del `HybridBrain`.
+- **Impacto:** Permitiría "ver" la actividad neuronal, las emociones del cerebro, y cómo las diferentes partes de su arquitectura interactúan. Esto no solo sería una herramienta de depuración increíblemente potente, sino que también reforzaría la percepción del sistema como una entidad "viva".
+
+### 4. Aprendizaje Proactivo
+- **Mejora:** Dotar al cerebro de la capacidad de iniciar procesos de aprendizaje por su cuenta.
+- **Ejemplo:** Si el cerebro detecta que la tasa de éxito en un dominio ha bajado drásticamente, podría decidir de forma autónoma iniciar un "ciclo de investigación", donde prueba diferentes estrategias de scraping (cambiando User-Agents, delays, etc.) hasta encontrar una nueva configuración óptima, todo ello sin intervención humana.
+
+---
+
+## Fase 1: Core de Navegación y Extracción (Histórico)
 
 - **Integración de Playwright en Docker (RESUELTO)**:
   - **Problema**: Dificultades para ejecutar Playwright dentro de un contenedor Docker debido a dependencias de navegador.
@@ -24,7 +72,7 @@ Nota: Se ha conservado todo el contenido original y se han añadido "Acciones re
 
 ---
 
-## Fase 2: Robustez y Escalabilidad
+## Fase 2: Robustez y Escalabilidad (Histórico)
 
 - **Gestión de Proxies Robusta (EN PROGRESO)**:
   - **Problema**: La dependencia de un único proxy o una lista estática reduce la fiabilidad y escalabilidad.
@@ -42,7 +90,7 @@ Nota: Se ha conservado todo el contenido original y se han añadido "Acciones re
 
 ---
 
-## Fase 3: Detección y Evasión
+## Fase 3: Detección y Evasión (Histórico)
 
 - **Manejo de CAPTCHAs y Detección de Bots (PLANIFICADO)**:
   - **Problema**: Los sitios web utilizan CAPTCHAs y otras técnicas para detectar y bloquear bots.
@@ -54,7 +102,7 @@ Nota: Se ha conservado todo el contenido original y se han añadido "Acciones re
 
 ---
 
-## Fase 4: Inteligencia y Extracción de Datos
+## Fase 4: Inteligencia y Extracción de Datos (Histórico)
 
 - **Esquemas de Extracción LLM Flexibles/Aprendidos (COMPLETADO)**:
   - **Problema**: El esquema de extracción LLM se definía estáticamente.
@@ -68,7 +116,7 @@ Nota: Se ha conservado todo el contenido original y se han añadido "Acciones re
 
 ---
 
-## Fase 5: Experiencia de Usuario y Observabilidad
+## Fase 5: Experiencia de Usuario y Observabilidad (Histórico)
 
 - **Dashboard en Tiempo Real (COMPLETADO)**:
   - **Solución**: Se ha implementado una pestaña de "Estadísticas en Vivo" en la TUI con métricas globales y por dominio.
@@ -84,7 +132,7 @@ Nota: Se ha conservado todo el contenido original y se han añadido "Acciones re
 
 ---
 
-## Fase 6: Autonomía y Auto-Reparación
+## Fase 6: Autonomía y Auto-Reparación (Histórico)
 
 - **Agente de Navegación Basado en Visión (PLANIFICADO)**:
   - **Problema**: La navegación actual se basa en la extracción de enlaces (`<a>`) del HTML. Esto es frágil y falla en sitios modernos que usan JavaScript (p. ej., botones que son `<div>` con eventos) o cuando la estructura del sitio cambia.
@@ -103,7 +151,7 @@ Nota: Se ha conservado todo el contenido original y se han añadido "Acciones re
 
 ---
 
-## Fase 7: Inteligencia Estratégica y Optimización de Recursos
+## Fase 7: Inteligencia Estratégica y Optimización de Recursos (Histórico)
 
 - **Planificación de Crawling Basada en Objetivos (PLANIFICADO)**:
   - **Problema**: El scraper explora todo lo que encuentra dentro de un dominio, lo cual es ineficiente si el objetivo es específico (ej. "extraer solo los productos de la categoría 'electrónica'").
@@ -122,7 +170,7 @@ Nota: Se ha conservado todo el contenido original y se han añadido "Acciones re
 
 ---
 
-## Acciones recomendadas (Alta prioridad, añadidas)
+## Acciones recomendadas (Alta prioridad, añadidas) (Histórico)
 
 Estas recomendaciones se han añadido al documento para que el roadmap tenga acciones concretas y verificables a corto plazo, sin eliminar la información histórica.
 
@@ -175,7 +223,7 @@ Estas recomendaciones se han añadido al documento para que el roadmap tenga acc
 
 ---
 
-## Notas finales y próximos pasos sugeridos (breve)
+## Notas finales y próximos pasos sugeridos (breve) (Histórico)
 
 - Priorizar la implementación de thread-safety y la normalización de datetimes (pasos 1 y 2) antes de desplegar cambios en producción.
 - Ejecutar la suite de tests localmente y en CI (paso 3). Arreglar los tests `TODO` y añadir cobertura para la lógica crítica.
