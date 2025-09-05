@@ -7,8 +7,11 @@ backwards compatibility with existing tests importing e.g.
 
 from ..llm_extractor import LLMExtractor  # noqa: F401
 from ..rl_agent import RLAgent  # noqa: F401
+from .conversation_ai import ConversationalAI  # noqa: F401
+from .bot_manager import BotManager  # noqa: F401
+from .command_processor import CommandProcessor  # noqa: F401
 
-__all__ = ["LLMExtractor", "RLAgent"]
+__all__ = ["LLMExtractor", "RLAgent", "ConversationalAI", "BotManager", "CommandProcessor"]
 from ..llm_extractor import \
     LLMExtractor as _RootLLMExtractor  # backward compat alias
 # Compatibility package for legacy imports (tests rely on src.intelligence.llm_extractor)

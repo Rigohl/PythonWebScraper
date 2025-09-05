@@ -1,7 +1,7 @@
 {
   "title": "A Light in the Attic - Books to Scrape",
   "content": "It's hard to imagine a world without A Light in the Attic. This now-classic collection\n                    of poetry and drawings from Shel Silverstein celebrates its 20th anniversary with this special\n                    edition. Silverstein's humorous and creative verse can amuse the dowdiest of readers. Quotable\n                    quotes and wonderful artwork for all ages make this a book to cherish.",
-  "url": "C:\\Users\\DELL\\Desktop\\PythonWebScraper\\toscrape_com_book.html",
+  "url": "/home/runner/work/PythonWebScraper/PythonWebScraper/toscrape_com_book.html",
   "links": [
     "/catalogue/the-black-maria_991/index.html",
     "/catalogue/shakespeares-sonnets_989/index.html"
