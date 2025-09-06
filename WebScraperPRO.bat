@@ -59,38 +59,40 @@ echo ----------------------------------------------------------
 echo                    MENU PRINCIPAL
 echo ----------------------------------------------------------
 echo  1. Iniciar Panel Profesional (TUI Pro)
-echo  2. Lanzar Mision Autonoma (Crawl)
-echo  3. CONTROL AUTONOMO TOTAL - IA Independiente
-echo  4. Estado del Sistema Autonomo
-echo  5. Scraping Autonomo Inteligente
-echo  6. Diagnostico y Reparacion IA
-echo  7. Dialogar con el Cerebro (Base de Conocimiento)
-echo  8. Entrenar Modelos de IA
-echo  9. Ver Estado de Conciencia (Snapshot)
-echo  10. Exportar Datos (CSV/JSON/MD)
-echo  11. Verificar Integridad del Sistema (Tests)
-echo  12. Mantenimiento del Sistema
-echo  13. Multi-Terminal: Ejecutar comandos en paralelo (NUEVO)
-echo  14. Salir
-echo  15. Ayuda
+echo  2. Iniciar Interfaz Profesional GUI (NUEVO)
+echo  3. Lanzar Mision Autonoma (Crawl)
+echo  4. CONTROL AUTONOMO TOTAL - IA Independiente
+echo  5. Estado del Sistema Autonomo
+echo  6. Scraping Autonomo Inteligente
+echo  7. Diagnostico y Reparacion IA
+echo  8. Dialogar con el Cerebro (Base de Conocimiento)
+echo  9. Entrenar Modelos de IA
+echo  10. Ver Estado de Conciencia (Snapshot)
+echo  11. Exportar Datos (CSV/JSON/MD)
+echo  12. Verificar Integridad del Sistema (Tests)
+echo  13. Mantenimiento del Sistema
+echo  14. Multi-Terminal: Ejecutar comandos en paralelo (NUEVO)
+echo  15. Salir
+echo  16. Ayuda
 echo.
-set /p "choice=Selecciona una opcion (1-15): "
+set /p "choice=Selecciona una opcion (1-16): "
 
 if "%choice%"=="1" goto tui
-if "%choice%"=="2" goto crawl
-if "%choice%"=="3" goto autonomous_control
-if "%choice%"=="4" goto autonomous_status
-if "%choice%"=="5" goto autonomous_scraping
-if "%choice%"=="6" goto repair
-if "%choice%"=="7" goto knowledge
-if "%choice%"=="8" goto train
-if "%choice%"=="9" goto snapshot
-if "%choice%"=="10" goto export
-if "%choice%"=="11" goto test
-if "%choice%"=="12" goto maintenance
-if "%choice%"=="13" goto multi_terminal
-if "%choice%"=="14" goto exit
-if "%choice%"=="15" goto help
+if "%choice%"=="2" goto gui_pro
+if "%choice%"=="3" goto crawl
+if "%choice%"=="4" goto autonomous_control
+if "%choice%"=="5" goto autonomous_status
+if "%choice%"=="6" goto autonomous_scraping
+if "%choice%"=="7" goto repair
+if "%choice%"=="8" goto knowledge
+if "%choice%"=="9" goto train
+if "%choice%"=="10" goto snapshot
+if "%choice%"=="11" goto export
+if "%choice%"=="12" goto test
+if "%choice%"=="13" goto maintenance
+if "%choice%"=="14" goto multi_terminal
+if "%choice%"=="15" goto exit
+if "%choice%"=="16" goto help
 echo [ERROR] Opcion no valida. Intentalo de nuevo.
 goto menu
 
@@ -112,6 +114,26 @@ if %errorlevel% neq 0 (
 )
 echo.
 echo [INFO] Sesion TUI finalizada.
+goto END_PAUSE
+
+:gui_pro
+echo.
+echo [INFO] Iniciando Interfaz Profesional GUI con Robot Face Transformers...
+echo [INFO] Verificando dependencias de PyQt6...
+python -c "import PyQt6; print('PyQt6 disponible')" 2>nul
+if %errorlevel% neq 0 (
+    echo [ADVERTENCIA] PyQt6 no esta instalado. Instalando...
+    pip install PyQt6
+    if %errorlevel% neq 0 (
+        echo [ERROR] No se pudo instalar PyQt6. Abortando...
+        pause
+        goto menu
+    )
+)
+echo [INFO] Iniciando interfaz profesional...
+python -m src.main --gui-pro
+echo.
+echo [INFO] Sesion GUI Profesional finalizada.
 goto END_PAUSE
 
 :crawl
@@ -402,64 +424,71 @@ echo  1. Iniciar Panel Profesional (TUI Pro):
 echo     Inicia la interfaz de usuario basada en texto (TUI) profesional.
 echo     Permite interactuar con el sistema de scraping de forma avanzada.
 echo.
-echo  2. Lanzar Mision Autonoma (Crawl):
+echo  2. Iniciar Interfaz Profesional GUI (NUEVO):
+echo     Inicia la interfaz grafica profesional con robot face Transformers.
+echo     Incluye chat inteligente, multiples menus, robot animado y control avanzado.
+echo     Requiere PyQt6 instalado para funcionar correctamente.
+echo.
+echo  3. Lanzar Mision Autonoma (Crawl):
 echo     Inicia un proceso de rastreo (crawling) de una URL especifica.
 echo     El sistema intentara extraer informacion de la URL proporcionada.
 echo.
-echo  3. CONTROL AUTONOMO TOTAL - IA Independiente:
+echo  4. CONTROL AUTONOMO TOTAL - IA Independiente:
 echo     Activa el modo de control autonomo completo. La IA tomara decisiones
 echo     y ejecutara tareas de scraping de forma independiente.
 echo.
-echo  4. Estado del Sistema Autonomo:
+echo  5. Estado del Sistema Autonomo:
 echo     Muestra el estado actual y las metricas del sistema autonomo de IA.
 echo.
-echo  5. Scraping Autonomo Inteligente:
+echo  6. Scraping Autonomo Inteligente:
 echo     Inicia un proceso de scraping donde la IA decide que, como y cuando
 echo     realizar el scraping, optimizando la extraccion de datos.
 echo.
-echo  6. Diagnostico y Reparacion IA:
+echo  7. Diagnostico y Reparacion IA:
 echo     Genera un reporte de diagnostico y auto-reparacion del sistema de IA.
 echo     Ayuda a identificar y solucionar problemas.
 echo.
-echo  7. Dialogar con el Cerebro (Base de Conocimiento):
+echo  8. Dialogar con el Cerebro (Base de Conocimiento):
 echo     Permite realizar consultas a la base de conocimiento del sistema (el "Cerebro").
 echo     Puedes preguntar sobre datos, configuraciones o el funcionamiento interno.
 echo.
-echo  8. Entrenar Modelos de IA:
+echo  9. Entrenar Modelos de IA:
 echo     Inicia el proceso de entrenamiento para los modelos de inteligencia artificial
 echo     del sistema, mejorando su rendimiento y precision.
 echo.
-echo  9. Ver Estado de Conciencia (Snapshot):
+echo  10. Ver Estado de Conciencia (Snapshot):
 echo     Exporta un "snapshot" (instantanea) del estado actual del cerebro inteligente.
 echo     Esto incluye su configuracion, datos de aprendizaje y estado interno.
 echo.
-echo  10. Exportar Datos (CSV/JSON/MD):
+echo  11. Exportar Datos (CSV/JSON/MD):
 echo      Permite exportar los datos extraidos en diferentes formatos:
 echo      - CSV: Para hojas de calculo y analisis de datos.
 echo      - JSON: Para integracion con otras aplicaciones y APIs.
 echo      - Markdown: Para reportes legibles y documentacion.
 echo.
-echo  11. Verificar Integridad del Sistema (Tests):
+echo  12. Verificar Integridad del Sistema (Tests):
 echo      Ejecuta la suite de pruebas unitarias y de integracion para verificar
 echo      que todos los componentes del sistema funcionan correctamente.
 echo.
-echo  12. Mantenimiento del Sistema:
+echo  13. Mantenimiento del Sistema:
 echo      Accede a un sub-menu con opciones de mantenimiento, como:
 echo      - Instalar/Actualizar dependencias.
 echo      - Limpiar cache y archivos temporales.
 echo      - Ver estadisticas de la base de datos.
 echo.
-echo  13. Multi-Terminal: Ejecutar comandos en paralelo:
-echo      Abre 3 terminales simultáneos para ejecutar diferentes tareas:
+echo  14. Multi-Terminal: Ejecutar comandos en paralelo:
+echo      Abre 5 terminales simultáneos para ejecutar diferentes tareas:
 echo      - Terminal 1: Verificacion del sistema y archivos
 echo      - Terminal 2: Análisis de documentación y configuración
 echo      - Terminal 3: Ejecución demo para validación rápida
+echo      - Terminal 4: Monitoreo de logs en vivo
+echo      - Terminal 5: Tests de rendimiento
 echo      Esta opción acelera el flujo de trabajo al permitir operaciones paralelas.
 echo.
-echo  14. Salir:
+echo  15. Salir:
 echo      Finaliza la ejecucion del script y cierra la conexion con la IA.
 echo.
-echo  15. Ayuda:
+echo  16. Ayuda:
 echo      Muestra esta pantalla de ayuda con la descripcion de cada opcion.
 echo.
 pause

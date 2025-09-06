@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from urllib.parse import urlparse, urlunparse
 
 import httpx
@@ -13,7 +13,7 @@ from robotexclusionrulesparser import RobotExclusionRulesParser
 
 try:
     from playwright_stealth import stealth  # type: ignore
-except Exception:  # pragma: no cover
+except ImportError:  # pragma: no cover
 
     async def stealth(page):  # type: ignore
         return None
@@ -28,7 +28,7 @@ from .intelligence.rl_agent import RLAgent
 
 try:  # Hybrid brain (IA-B + IA-A fusion) optional
     from .intelligence.hybrid_brain import HybridBrain
-except Exception:  # pragma: no cover
+except ImportError:  # pragma: no cover
     HybridBrain = None  # type: ignore
 from .intelligence.integration import get_intelligence_integration
 from .managers.user_agent_manager import UserAgentManager
@@ -38,7 +38,7 @@ from .settings import settings
 
 try:
     import imagehash  # type: ignore
-except Exception:  # pragma: no cover
+except ImportError:  # pragma: no cover
     imagehash = None  # type: ignore
 
 logger = logging.getLogger(__name__)
@@ -189,13 +189,13 @@ class ScrapingOrchestrator:
             try:
                 raw_score = self.frontier_classifier.predict(url)  # type: ignore[attr-defined]
                 promise_score = float(raw_score)
-            except Exception:
+            except (ValueError, TypeError, AttributeError):
                 promise_score = 0.0
         elif hasattr(self.frontier_classifier, "predict_score"):
             try:
                 raw_score = self.frontier_classifier.predict_score(url)  # type: ignore[attr-defined]
                 promise_score = float(raw_score)  # Cast mocks / numpy scalars / etc.
-            except Exception:
+            except (ValueError, TypeError, AttributeError):
                 promise_score = 0.0
         # Base priority starts with path depth.
         priority = float(path_depth)
@@ -211,10 +211,10 @@ class ScrapingOrchestrator:
             try:
                 # HybridBrain exposes get_domain_priority; simple Brain exposes domain_priority
                 if hasattr(self.brain, "get_domain_priority"):
-                    brain_score = getattr(self.brain, "get_domain_priority")(domain)  # type: ignore
+                    brain_score = self.brain.get_domain_priority(domain)  # type: ignore
                 else:
                     brain_score = self.brain.domain_priority(domain)  # type: ignore[attr-defined]
-            except Exception:
+            except (AttributeError, TypeError, ValueError):
                 brain_score = 0.0
 
             priority += -3 * brain_score  # higher score => better (lower number)
@@ -225,7 +225,7 @@ class ScrapingOrchestrator:
                     domain
                 ):  # type: ignore[attr-defined]
                     priority += 5
-            except Exception:
+            except (AttributeError, TypeError, RuntimeError):
                 pass
 
         # Return as an integer for the priority queue
@@ -234,10 +234,10 @@ class ScrapingOrchestrator:
     # ---------------- Inter-AI Sync Helpers ----------------
     def _log_ia_sync(self, code: str, message: str) -> None:
         try:
-            timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+            timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
             with open("IA_SYNC.md", "a", encoding="utf-8") as f:
                 f.write(f"{timestamp} | {code} | IA-A: {message}\n")
-        except Exception:
+        except (OSError, ValueError, TypeError):
             pass
 
     def _maybe_periodic_sync(self):
@@ -258,13 +258,13 @@ class ScrapingOrchestrator:
                         else:
                             snap = self.brain.snapshot()  # type: ignore
                             brain_summary = f"domains={len(snap.get('domains', {}))} events={snap.get('total_events')}"
-                    except Exception:
+                    except (AttributeError, TypeError, KeyError):
                         brain_summary = "brain=unavailable"
                 self._log_ia_sync(
                     "SYNC",
                     f"progress processed={counter} queue={self.queue.qsize()} {brain_summary}".strip(),
                 )
-        except Exception:
+        except (AttributeError, TypeError):
             pass
 
     def _get_rl_state(self, domain: str) -> dict:
@@ -440,7 +440,7 @@ class ScrapingOrchestrator:
                         return self._evaluate_prequal_response(response)
                 except httpx.RequestError as e:
                     return True, f"HEAD request failed: {e}"
-                except Exception as e:
+                except (AttributeError, TypeError, ValueError) as e:
                     # If the test's mocked client raises an unexpected
                     # exception, be permissive and accept the URL so that
                     # integration-style tests can proceed deterministically
@@ -452,14 +452,14 @@ class ScrapingOrchestrator:
             import inspect
 
             if hasattr(httpx.AsyncClient, "head") and inspect.iscoroutinefunction(
-                getattr(httpx.AsyncClient, "head")
+                httpx.AsyncClient.head
             ):
                 try:
                     response = await httpx.AsyncClient.head(url)  # type: ignore
                     return self._evaluate_prequal_response(response)
                 except httpx.RequestError as e:
                     return True, f"HEAD request failed: {e}"
-                except Exception as e:
+                except (AttributeError, TypeError, ValueError) as e:
                     self.logger.debug(
                         "Test fast-path exception calling AsyncClient.head: %s", e
                     )
@@ -476,7 +476,7 @@ class ScrapingOrchestrator:
             async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
                 response = await client.head(url)
                 return self._evaluate_prequal_response(response)
-        except (httpx.RequestError, asyncio.TimeoutError) as e:
+        except (TimeoutError, httpx.RequestError) as e:
             # Allow URL in case of error for safety
             self.logger.warning(
                 "HEAD prequalification failed for %s: %s. Will allow as precaution.",
@@ -582,11 +582,11 @@ class ScrapingOrchestrator:
             dynamic_extraction_schema = await self._get_dynamic_schema(domain)
 
             # Perform scraping with retry logic
-            start_time = datetime.now(timezone.utc)
+            start_time = datetime.now(UTC)
             result = await self._scrape_with_retries(
                 scraper, url, domain, dynamic_extraction_schema
             )
-            end_time = datetime.now(timezone.utc)
+            end_time = datetime.now(UTC)
             if result:
                 # Capture response time (seconds)
                 result.response_time = (end_time - start_time).total_seconds()
@@ -609,7 +609,7 @@ class ScrapingOrchestrator:
                                     else None
                                 ),
                             }
-                            getattr(self.brain, "record_scraping_result")(
+                            self.brain.record_scraping_result(
                                 result, context
                             )  # type: ignore
                         else:
@@ -642,7 +642,12 @@ class ScrapingOrchestrator:
                                     ),
                                 )
                             )
-                    except Exception as e:  # pragma: no cover
+                    except (
+                        AttributeError,
+                        TypeError,
+                        ValueError,
+                        RuntimeError,
+                    ) as e:  # pragma: no cover
                         self.logger.debug(f"Brain recording failed: {e}")
 
             self.queue.task_done()
@@ -662,12 +667,12 @@ class ScrapingOrchestrator:
         if "PYTEST_CURRENT_TEST" in os.environ:
             try:
                 await asyncio.wait_for(stealth(page), timeout=3)
-            except Exception:
+            except (TimeoutError, RuntimeError, AttributeError):
                 pass
         else:
             try:
                 await asyncio.wait_for(stealth(page), timeout=10)
-            except Exception:
+            except (TimeoutError, RuntimeError, AttributeError):
                 self.logger.debug("Stealth timeout or error ignored.")
 
     async def _get_dynamic_schema(self, domain: str):
@@ -765,7 +770,7 @@ class ScrapingOrchestrator:
                         error_message=str(e),
                         retryable=True,
                     )
-            except Exception as e:
+            except (RuntimeError, AttributeError, TypeError, ValueError, OSError) as e:
                 self.logger.error(
                     "URL %s failed with unexpected error: %s. Discarding.",
                     url,
@@ -812,7 +817,7 @@ class ScrapingOrchestrator:
             }
             self.intelligence.learn_from_scrape_result(result, context)
             self.logger.debug(f"🧠 Intelligence learned from {result.url}")
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, RuntimeError) as e:
             self.logger.error(f"Intelligence learning error: {e}")
 
         # Apply appropriate learning/anomaly detection
@@ -868,19 +873,17 @@ class ScrapingOrchestrator:
             if self.brain:
                 try:
                     if hasattr(self.brain, "get_comprehensive_stats"):
-                        brain_snapshot = getattr(
-                            self.brain, "get_comprehensive_stats"
-                        )()  # type: ignore
+                        brain_snapshot = self.brain.get_comprehensive_stats()  # type: ignore
                     else:
                         brain_snapshot = self.brain.snapshot()  # type: ignore
-                except Exception:
+                except (AttributeError, TypeError, RuntimeError):
                     brain_snapshot = None
 
             # 🧠 Obtener métricas de inteligencia
             intelligence_metrics = None
             try:
                 intelligence_metrics = self.intelligence.get_intelligence_metrics()
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError, RuntimeError) as e:
                 self.logger.error(f"Error getting intelligence metrics: {e}")
             payload = {
                 "processed": 1,
@@ -979,7 +982,7 @@ class ScrapingOrchestrator:
                 "Could not calculate hash distance for %s (possible mock)",
                 new_result.url,
             )
-        except Exception as e:
+        except (ValueError, OSError, RuntimeError) as e:
             self.logger.error(
                 "Could not compare visual hash for %s: %s", new_result.url, e
             )
@@ -1103,7 +1106,7 @@ class ScrapingOrchestrator:
                 # Apply suggested delays, user agents, etc.
                 if hasattr(self, "delay_manager") and "delay" in optimized_config:
                     self.delay_manager.base_delay = optimized_config["delay"]
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError, RuntimeError) as e:
             self.logger.error(f"Intelligence configuration error: {e}")
 
         # Add start URLs to queue
@@ -1135,7 +1138,7 @@ class ScrapingOrchestrator:
         if self.brain:
             try:
                 self.brain.flush()  # both Brain & HybridBrain expose flush
-            except Exception as e:
+            except (AttributeError, TypeError, RuntimeError) as e:
                 self.logger.debug(f"Brain flush failed: {e}")
 
         self.logger.info("Crawling process completed.")
@@ -1177,7 +1180,7 @@ class ScrapingOrchestrator:
                             f"No se pudo cargar robots.txt desde {robots_url}. Código: {response.status_code}.",
                             level="warning",
                         )
-        except Exception as e:
+        except (OSError, ValueError, RuntimeError) as e:
             self.logger.warning(
                 "Could not load or parse robots.txt from %s. Error: %s", robots_url, e
             )

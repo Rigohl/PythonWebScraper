@@ -3,11 +3,12 @@
 Demostración de la nueva interfaz profesional
 """
 import asyncio
-import sys
 import os
+import sys
 
 # Añadir el directorio padre al path para las importaciones
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+
 
 async def demo_interface():
     """Demostración de la interfaz profesional"""
@@ -87,6 +88,7 @@ async def demo_interface():
     print("🔥 ¿Listo para probar? Ejecuta:")
     print("   python -m src.main --tui-pro")
     print()
+
 
 if __name__ == "__main__":
     asyncio.run(demo_interface())

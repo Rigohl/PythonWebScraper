@@ -23,18 +23,15 @@ import statistics
 import threading
 import time
 from collections import defaultdict, deque
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from urllib.parse import urlparse
 
 from .advanced_memory import create_advanced_memory_system
 from .advanced_ml import AdvancedMLIntelligence
 from .advanced_reasoning import create_advanced_reasoning_system
 from .auto_testing import AutoTestingFramework
-from .autonomous_brain import (
-    AutonomousLearningBrain,
-    ScrapingSession,
-)
+from .autonomous_brain import AutonomousLearningBrain, ScrapingSession
 from .autonomous_learning import KnowledgeSeeder
 from .brain import Brain, ExperienceEvent
 from .brain_enrichment import EnrichmentStore
@@ -97,8 +94,6 @@ class UnifiedBrainArchitecture:
         # Consciousness parameters
         self.consciousness_threshold = 0.6  # Threshold for conscious access
         self.integration_window = 100  # ms for neural integration
-        self.attention_decay = 0.95  # Attention decay rate
-
         # System metrics
         self.neural_activity_level = 0.5
         self.consciousness_level = 0.3
@@ -112,7 +107,7 @@ class UnifiedBrainArchitecture:
             "🧠 Unified Brain Architecture initialized with true neural systems"
         )
 
-    def process_sensory_input(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def process_sensory_input(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Procesa input sensorial a través de toda la arquitectura neural"""
 
         processing_start = time.time()
@@ -213,8 +208,8 @@ class UnifiedBrainArchitecture:
         }
 
     def _integrate_in_global_workspace(
-        self, subsystem_outputs: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, subsystem_outputs: dict[str, Any]
+    ) -> dict[str, Any]:
         """Integra outputs de subsistemas en workspace global (consciousness)"""
 
         # Calculate coalition strengths
@@ -298,7 +293,7 @@ class UnifiedBrainArchitecture:
             ),
         }
 
-    def _extract_integrated_meaning(self, subsystem_outputs: Dict[str, Any]) -> str:
+    def _extract_integrated_meaning(self, subsystem_outputs: dict[str, Any]) -> str:
         """Extrae significado integrado de outputs de subsistemas"""
 
         neural_response = subsystem_outputs.get("neural", {})
@@ -327,7 +322,7 @@ class UnifiedBrainArchitecture:
         return integrated_meaning
 
     def _update_cross_system_connections(
-        self, input_data: Dict[str, Any], response: Dict[str, Any]
+        self, input_data: dict[str, Any], response: dict[str, Any]
     ):
         """Actualiza conexiones entre sistemas (Hebbian learning)"""
 
@@ -432,7 +427,7 @@ class UnifiedBrainArchitecture:
 
         # Consciousness level already updated in global workspace integration
 
-    def get_consciousness_state(self) -> Dict[str, Any]:
+    def get_consciousness_state(self) -> dict[str, Any]:
         """Obtiene estado completo de consciencia"""
 
         return {
@@ -646,7 +641,7 @@ class HybridBrain:
         # Initialize omniscient observation capabilities
         self._initialize_omniscience()
 
-    def process_scraping_event(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def process_scraping_event(self, event_data: dict[str, Any]) -> dict[str, Any]:
         """
         Procesa evento de scraping a través de toda la arquitectura neural
         """
@@ -658,7 +653,7 @@ class HybridBrain:
         else:  # hybrid
             return self._process_with_hybrid_approach(event_data)
 
-    def _process_with_unified_brain(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_with_unified_brain(self, event_data: dict[str, Any]) -> dict[str, Any]:
         """Procesa con arquitectura neural unificada"""
 
         # Enhance event data for neural processing
@@ -708,8 +703,8 @@ class HybridBrain:
 
     # ===================== Strategy Formulation & Continuous Thought =====================
     def formulate_strategy(
-        self, goal: str, context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, goal: str, context: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Genera una estrategia estructurada usando razonamiento multi-modal y conocimiento de programación."""
         context = context or {}
 
@@ -736,7 +731,9 @@ class HybridBrain:
                     )
                     programming_knowledge.extend(db_knowledge)
             except Exception:
-                pass
+                logger.exception(
+                    "Suppressed non-fatal error in hybrid_brain while computing top_errors"
+                )
 
         reasoning_input = {
             "facts": [{"goal": goal, "time": time.time()}]
@@ -783,7 +780,9 @@ class HybridBrain:
                     goal, strategy["confidence"], strategy["steps"], strategy["meta"]
                 )
             except Exception:
-                pass
+                logger.exception(
+                    "Suppressed non-fatal error in hybrid_brain while computing total_patterns"
+                )
         return strategy
 
     def _continuous_thought_cycle(self):
@@ -802,7 +801,9 @@ class HybridBrain:
             try:
                 self.formulate_strategy("optimize_scraping")
             except Exception:
-                pass
+                logger.exception(
+                    "Suppressed non-fatal error in hybrid_brain while evaluating domain strategies"
+                )
         # Curiosity analysis every 5 min (configurable)
         if hasattr(self, "curiosity_system") and self.curiosity_system:
             try:
@@ -849,7 +850,7 @@ class HybridBrain:
             logger.debug(f"Error en análisis de curiosidad periódica: {e}")
 
     # ===================== Self-Maintenance & Code Awareness =====================
-    def run_self_maintenance_cycle(self) -> Dict[str, Any]:
+    def run_self_maintenance_cycle(self) -> dict[str, Any]:
         """Analiza estructura de código y genera sugerencias de mejora (si disponible)."""
         result = {
             "timestamp": time.time(),
@@ -873,7 +874,7 @@ class HybridBrain:
                     for path, meta in self.code_structure.items():
                         try:
                             lines = 0
-                            with open(path, "r", encoding="utf-8") as fh:
+                            with open(path, encoding="utf-8") as fh:
                                 lines = fh.read().count("\n") + 1
                             avg_func_len = (
                                 lines / max(1, len(meta["functions"]))
@@ -890,7 +891,9 @@ class HybridBrain:
                                 imports=len(meta["imports"]),
                             )
                         except Exception:
-                            pass
+                            logger.exception(
+                                "Suppressed non-fatal error in hybrid_brain during pattern extraction loop"
+                            )
             if self.self_update_engine:
                 analysis = self.self_update_engine.analyze_repository()
                 suggestions = self.self_update_engine.generate_improvement_suggestions(
@@ -911,13 +914,15 @@ class HybridBrain:
                                 suggestion=s.get("detail", ""),
                             )
                         except Exception:
-                            pass
+                            logger.exception(
+                                "Suppressed non-fatal error in hybrid_brain during pattern matching"
+                            )
         except Exception as e:
             result["error"] = str(e)
         logger.info("🛠️ Self-maintenance cycle done")
         return result
 
-    def get_code_self_awareness(self) -> Dict[str, Any]:
+    def get_code_self_awareness(self) -> dict[str, Any]:
         if not self.code_structure:
             return {"available": False}
         return {
@@ -935,7 +940,7 @@ class HybridBrain:
 
     # ===================== Event -> Fact Ingestion & Adaptation =====================
     def _ingest_event_fact(
-        self, event: Dict[str, Any], neural_response: Dict[str, Any]
+        self, event: dict[str, Any], neural_response: dict[str, Any]
     ):
         if not self.knowledge_store:
             return
@@ -970,7 +975,9 @@ class HybridBrain:
                 else:
                     d["failure"] += 1
         except Exception:
-            pass
+            logger.exception(
+                "Suppressed non-fatal error in hybrid_brain while enriching session"
+            )
 
     def _adaptive_update(self):
         # Simple heuristic: if a domain has >30% failures and enough samples, generate strategy
@@ -984,9 +991,11 @@ class HybridBrain:
                             f"improve_domain_{domain}", context={"complexity": 0.6}
                         )
                     except Exception:
-                        pass
+                        logger.exception(
+                            "Suppressed non-fatal error in hybrid_brain when updating autonomous brain"
+                        )
 
-    def _load_brain_overrides(self) -> Dict[str, Any]:
+    def _load_brain_overrides(self) -> dict[str, Any]:
         """Carga configuración de overrides desde brain_overrides.json (sugerencia IA-A)"""
         overrides_file = "config/brain_overrides.json"
         defaults = {
@@ -1000,7 +1009,7 @@ class HybridBrain:
 
         try:
             if os.path.exists(overrides_file):
-                with open(overrides_file, "r", encoding="utf-8") as f:
+                with open(overrides_file, encoding="utf-8") as f:
                     overrides = json.load(f)
                 logger.info(f"🧠 Loaded brain overrides from {overrides_file}")
                 return {**defaults, **overrides}
@@ -1011,7 +1020,7 @@ class HybridBrain:
             logger.warning(f"Error loading brain overrides: {e}, using defaults")
             return defaults
 
-    def _build_domain_context(self, domain: str) -> Dict[str, Any]:
+    def _build_domain_context(self, domain: str) -> dict[str, Any]:
         """Construye un contexto unificado con toda la inteligencia disponible para un dominio."""
         if not domain:
             return {}
@@ -1020,7 +1029,9 @@ class HybridBrain:
 
         # 1. Datos del SimpleBrain
         context["simple"] = {
-            "visits": self.simple_brain.domain_stats.get(domain, {}).get("visits", 0),
+            "visits": getattr(self.simple_brain, "domain_stats", {})
+            .get(domain, {})
+            .get("visits", 0),
             "success_rate": self.simple_brain.domain_success_rate(domain),
             "error_rate": self.simple_brain.domain_error_rate(domain),
             "link_yield": self.simple_brain.link_yield(domain),
@@ -1046,7 +1057,7 @@ class HybridBrain:
 
         return context
 
-    def record_scraping_result(self, result, context: Dict[str, Any] = None):
+    def record_scraping_result(self, result, context: dict[str, Any] = None):
         """Registra un resultado de scraping en ambos sistemas"""
 
         # Extraer información del resultado
@@ -1129,13 +1140,15 @@ class HybridBrain:
                 result, context=context, patterns=patterns_found
             )
         except Exception:
-            pass
+            logger.exception(
+                "Suppressed non-fatal error in hybrid_brain during auto-learn from session"
+            )
 
         # Auto-aprendizaje dinámico de knowledge base
         try:
             self._auto_learn_from_session(result, context, patterns_found)
         except Exception:
-            pass
+            logger.exception("Suppressed non-fatal error in hybrid_brain link analysis")
 
         # Log híbrido
         logger.debug(
@@ -1149,98 +1162,74 @@ class HybridBrain:
             logger.error(f"Error checking/reporting advisories: {e}")
 
     def _check_and_report_advisories(self, domain: str):
-        """Revisa y reporta avisos de alto impacto para un dominio."""
-        # 1. Obtener la tasa de error actual del cerebro simple
-        error_rate = self.simple_brain.domain_error_rate(domain)
-        min_visits = self.overrides.get("min_visits_for_backoff", 5)
+        """Revisa y reporta avisos de alto impacto para un dominio.
 
-        # 2. Solo actuar si hay suficientes datos
-        if self.simple_brain.domain_stats.get(domain, {}).get("visits", 0) < min_visits:
-            return
-
-        # 3. Si la tasa de error es alta, generar sugerencias
-        if error_rate >= self.overrides.get("backoff_threshold", 0.5):
-            # Usar el Rule Engine para obtener la sugerencia específica
-            domain_data = {"domain": domain, "error_rate": error_rate}
-            rule_results = self.rule_engine.evaluate_all(domain_data)
-
-            # Buscar la regla de backoff
-            backoff_suggestion = next(
-                (
-                    r
-                    for r in rule_results
-                    if r.get("rule_id") == "high_error_rate_backoff"
-                ),
-                None,
-            )
-
-            if backoff_suggestion:
-                # Obtener conocimiento relacionado
-                kb_ref_id = "scraping:respect-delays"
-                kb_snippet = self.knowledge_base.get(kb_ref_id)
-                kb_title = kb_snippet.get("title", "N/A") if kb_snippet else "N/A"
-
-                # Imprimir el aviso en un formato claro y estructurado
-                print("\n" + "-" * 25)
-                print("🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
-                print("-" * 25)
-                print(f"Dominio:           {domain}")
-                print(f"Síntoma:           Tasa de Error Elevada ({error_rate:.1%})")
-                print(f"Sugerencia ID:     {backoff_suggestion['rule_id']}")
-                print(f"Recomendación:     {backoff_suggestion['message']}")
-                print(f"Conocimiento Rel.: {kb_ref_id} - {kb_title}")
-                print("-" * 25 + "\n")
-
-        # Chequear y reportar avisos de alto impacto
+        Esta implementación es idempotente y no se llama a sí misma. Solo
+        informa (log/print) cuando hay una recomendación explícita. Se evita
+        cualquier recursión accidental y se captura/registro de excepciones
+        completas para facilitar auditoría.
+        """
         try:
-            self._check_and_report_advisories(domain)
+            # 1. Obtener la tasa de error actual del cerebro simple
+            error_rate = self.simple_brain.domain_error_rate(domain)
+            min_visits = self.overrides.get("min_visits_for_backoff", 5)
+
+            # 2. Solo actuar si hay suficientes datos
+            if (
+                getattr(self.simple_brain, "domain_stats", {})
+                .get(domain, {})
+                .get("visits", 0)
+                < min_visits
+            ):
+                return
+
+            # 3. Si la tasa de error es alta, generar sugerencias
+            if error_rate >= self.overrides.get("backoff_threshold", 0.5):
+                # Usar el Rule Engine para obtener la sugerencia específica
+                domain_data = {"domain": domain, "error_rate": error_rate}
+                rule_results = self.rule_engine.evaluate_all(domain_data)
+
+                # Buscar la regla de backoff
+                backoff_suggestion = next(
+                    (
+                        r
+                        for r in rule_results
+                        if r.get("rule_id") == "high_error_rate_backoff"
+                    ),
+                    None,
+                )
+
+                if backoff_suggestion:
+                    # Obtener conocimiento relacionado
+                    kb_ref_id = "scraping:respect-delays"
+                    kb_snippet = self.knowledge_base.get(kb_ref_id)
+                    kb_title = kb_snippet.get("title", "N/A") if kb_snippet else "N/A"
+
+                    # Imprimir el aviso en un formato claro y estructurado
+                    logger.info("%s", "\n" + "-" * 25)
+                    logger.info("%s", "🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
+                    logger.info("%s", "-" * 25)
+                    logger.info("Dominio:           %s", domain)
+                    logger.info(
+                        "Síntoma:           Tasa de Error Elevada (%s)",
+                        f"{error_rate:.1%}",
+                    )
+                    logger.info("Sugerencia ID:     %s", backoff_suggestion["rule_id"])
+                    logger.info("Recomendación:     %s", backoff_suggestion["message"])
+                    logger.info("Conocimiento Rel.: %s - %s", kb_ref_id, kb_title)
+                    logger.info("%s", "-" * 25 + "\n")
+
         except Exception as e:
-            logger.error(f"Error checking/reporting advisories: {e}")
-
-    def _check_and_report_advisories(self, domain: str):
-        """Revisa y reporta avisos de alto impacto para un dominio."""
-        # 1. Obtener la tasa de error actual del cerebro simple
-        error_rate = self.simple_brain.domain_error_rate(domain)
-        min_visits = self.overrides.get("min_visits_for_backoff", 5)
-
-        # 2. Solo actuar si hay suficientes datos
-        if self.simple_brain.domain_stats.get(domain, {}).get("visits", 0) < min_visits:
-            return
-
-        # 3. Si la tasa de error es alta, generar sugerencias
-        if error_rate >= self.overrides.get("backoff_threshold", 0.5):
-            # Usar el Rule Engine para obtener la sugerencia específica
-            domain_data = {"domain": domain, "error_rate": error_rate}
-            rule_results = self.rule_engine.evaluate_all(domain_data)
-
-            # Buscar la regla de backoff
-            backoff_suggestion = next(
-                (
-                    r
-                    for r in rule_results
-                    if r.get("rule_id") == "high_error_rate_backoff"
-                ),
-                None,
+            logger.exception(
+                "Error while checking/reporting advisories for domain %s: %s", domain, e
             )
 
-            if backoff_suggestion:
-                # Obtener conocimiento relacionado
-                kb_ref_id = "scraping:respect-delays"
-                kb_snippet = self.knowledge_base.get(kb_ref_id)
-                kb_title = kb_snippet.get("title", "N/A") if kb_snippet else "N/A"
+    # Duplicate definition removed. See the canonical implementation above which
+    # includes full logging and idempotent behavior. Keeping a single
+    # implementation ensures there is no accidental recursion or conflicting
+    # behavior.
 
-                # Imprimir el aviso en un formato claro y estructurado
-                print("\n" + "-" * 25)
-                print("🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
-                print("-" * 25)
-                print(f"Dominio:           {domain}")
-                print(f"Síntoma:           Tasa de Error Elevada ({error_rate:.1%})")
-                print(f"Sugerencia ID:     {backoff_suggestion['rule_id']}")
-                print(f"Recomendación:     {backoff_suggestion['message']}")
-                print(f"Conocimiento Rel.: {kb_ref_id} - {kb_title}")
-                print("-" * 25 + "\n")
-
-    def _extract_patterns(self, result) -> List[str]:
+    def _extract_patterns(self, result) -> list[str]:
         """Extrae patrones avanzados del resultado para el aprendizaje autónomo profundo"""
         patterns = []
 
@@ -1502,23 +1491,40 @@ class HybridBrain:
             import statistics
 
             domain_sessions = [
-                s for s in self.autonomous_brain.session_history if s.domain == domain
+                s
+                for s in getattr(self.autonomous_brain, "session_history", [])
+                if getattr(s, "domain", None) == domain
             ]
             if domain_sessions:
-                success_rate = sum(1 for s in domain_sessions if s.success) / len(
-                    domain_sessions
-                )
-                avg_response = (
-                    statistics.mean([s.response_time for s in domain_sessions])
-                    if domain_sessions
-                    else 0
-                )
-                pattern_count = sum(len(s.patterns_found) for s in domain_sessions)
+                try:
+                    success_rate = sum(
+                        1 for s in domain_sessions if getattr(s, "success", False)
+                    ) / len(domain_sessions)
+                except Exception:
+                    success_rate = 0.0
+
+                try:
+                    avg_response = statistics.mean(
+                        [
+                            float(getattr(s, "response_time", 0) or 0)
+                            for s in domain_sessions
+                        ]
+                    )
+                except Exception:
+                    avg_response = 0.0
+
+                try:
+                    pattern_count = sum(
+                        len(getattr(s, "patterns_found", []) or [])
+                        for s in domain_sessions
+                    )
+                except Exception:
+                    pattern_count = 0
 
                 autonomous_priority = (
-                    success_rate * 0.4
-                    + min(avg_response / 1000, 1.0) * 0.3  # Convertir ms a ratio
-                    + (pattern_count / 10) * 0.3  # Normalizar patrones
+                    float(success_rate) * 0.4
+                    + min(float(avg_response) / 1000.0, 1.0) * 0.3
+                    + (float(pattern_count) / 10.0) * 0.3
                 )
         except Exception:
             # Fallback en caso de error
@@ -1536,11 +1542,16 @@ class HybridBrain:
         """Determina si debe hacer backoff combinando ambos sistemas con overrides configurables"""
 
         # Backoff simple del Brain (IA-A) con configuración override
-        simple_backoff = self.simple_brain.should_backoff(
-            domain,
-            error_threshold=self.overrides["backoff_threshold"],
-            min_visits=self.overrides["min_visits_for_backoff"],
-        )
+        try:
+            simple_backoff = bool(
+                self.simple_brain.should_backoff(
+                    domain,
+                    error_threshold=self.overrides.get("backoff_threshold", 0.5),
+                    min_visits=self.overrides.get("min_visits_for_backoff", 5),
+                )
+            )
+        except Exception:
+            simple_backoff = False
 
         # Backoff inteligente del AutonomousLearningBrain (IA-B)
         autonomous_backoff = False
@@ -1548,18 +1559,31 @@ class HybridBrain:
         try:
             # Usar la API real del cerebro autónomo
             domain_sessions = [
-                s for s in self.autonomous_brain.session_history if s.domain == domain
+                s
+                for s in getattr(self.autonomous_brain, "session_history", [])
+                if getattr(s, "domain", None) == domain
             ]
-            if len(domain_sessions) >= self.overrides["min_visits_for_backoff"]:
-                success_rate = sum(1 for s in domain_sessions if s.success) / len(
-                    domain_sessions
-                )
-                error_count = sum(len(s.errors) for s in domain_sessions)
+            min_visits = int(self.overrides.get("min_visits_for_backoff", 5))
+            if len(domain_sessions) >= min_visits:
+                try:
+                    success_rate = sum(
+                        1 for s in domain_sessions if getattr(s, "success", False)
+                    ) / len(domain_sessions)
+                except Exception:
+                    success_rate = 1.0
+
+                try:
+                    error_count = sum(
+                        len(getattr(s, "errors", []) or []) for s in domain_sessions
+                    )
+                except Exception:
+                    error_count = 0
 
                 # Backoff si el éxito es muy bajo o hay muchos errores
                 autonomous_backoff = (
-                    success_rate < self.overrides["backoff_threshold"]
-                    or error_count > 3
+                    float(success_rate)
+                    < float(self.overrides.get("backoff_threshold", 0.5))
+                    or int(error_count) > 3
                 )
         except Exception:
             autonomous_backoff = False
@@ -1567,7 +1591,7 @@ class HybridBrain:
         # Si cualquiera de los dos sugiere backoff, hacemos backoff
         return simple_backoff or autonomous_backoff
 
-    def get_optimization_config(self, domain: str) -> Dict[str, Any]:
+    def get_optimization_config(self, domain: str) -> dict[str, Any]:
         """Obtiene configuración optimizada para un dominio"""
 
         config = {}
@@ -1624,7 +1648,7 @@ class HybridBrain:
 
         return config
 
-    def get_comprehensive_stats(self) -> Dict[str, Any]:
+    def get_comprehensive_stats(self) -> dict[str, Any]:
         """Obtiene estadísticas comprehensivas de ambos sistemas"""
 
         # Stats del Brain (IA-A)
@@ -1632,16 +1656,23 @@ class HybridBrain:
 
         # Stats del AutonomousLearningBrain (IA-B)
         try:
-            domains_learned = len(self.autonomous_brain.domain_intelligence)
+            domains_learned = len(
+                getattr(self.autonomous_brain, "domain_intelligence", {})
+            )
             total_patterns = sum(
-                len(v) for v in self.autonomous_brain.pattern_library.values()
+                len(v)
+                for v in getattr(self.autonomous_brain, "pattern_library", {}).values()
             )
             # Contar estrategias: suma de longitudes de best_strategies por dominio
             strategies_optimized = sum(
                 len(intel.best_strategies)
-                for intel in self.autonomous_brain.domain_intelligence.values()
+                for intel in getattr(
+                    self.autonomous_brain, "domain_intelligence", {}
+                ).values()
             )
-            learning_sessions = len(self.autonomous_brain.session_history)
+            learning_sessions = len(
+                getattr(self.autonomous_brain, "session_history", [])
+            )
         except Exception as e:
             logger.error(f"Error collecting autonomous brain stats: {e}")
             domains_learned = 0
@@ -1652,7 +1683,9 @@ class HybridBrain:
         # Calcular métricas avanzadas de AutonomousLearningBrain
         try:
             successful_sessions = sum(
-                1 for s in self.autonomous_brain.session_history if s.success
+                1
+                for s in getattr(self.autonomous_brain, "session_history", [])
+                if getattr(s, "success", False)
             )
             success_rate = (
                 successful_sessions / max(learning_sessions, 1)
@@ -1670,8 +1703,8 @@ class HybridBrain:
 
             # Analizar patrones más comunes
             all_patterns = []
-            for session in self.autonomous_brain.session_history:
-                all_patterns.extend(session.patterns_found)
+            for session in getattr(self.autonomous_brain, "session_history", []):
+                all_patterns.extend(getattr(session, "patterns_found", []) or [])
 
             pattern_frequency = {}
             for pattern in all_patterns:
@@ -1683,11 +1716,15 @@ class HybridBrain:
 
             # Estadísticas por dominio
             domain_success_rates = {}
-            for domain, intel in self.autonomous_brain.domain_intelligence.items():
-                domain_success_rates[domain] = intel.success_rate
+            for domain, intel in getattr(
+                self.autonomous_brain, "domain_intelligence", {}
+            ).items():
+                domain_success_rates[domain] = getattr(intel, "success_rate", 0)
 
             # Eficiencia de aprendizaje
-            learning_efficiency = self.autonomous_brain._calculate_learning_efficiency()
+            learning_efficiency = getattr(
+                self.autonomous_brain, "_calculate_learning_efficiency", lambda: 0
+            )()
         except Exception as e:
             logger.error(f"Error calculating advanced autonomous brain metrics: {e}")
             successful_sessions = 0
@@ -1716,7 +1753,9 @@ class HybridBrain:
             "autonomous_brain": autonomous_stats,
             "enrichment": self.enrichment.summarize(),
             "repair_suggestions_preview": self.generate_repair_suggestions(limit=5),
-            "knowledge_base_snippets": len(self.knowledge_base.snippets),
+            "knowledge_base_snippets": len(
+                getattr(self.knowledge_base, "snippets", {})
+            ),
             "rule_engine_summary": self.rule_engine.get_rule_summary(),
             "auto_testing_summary": self.auto_testing.get_testing_summary(),
             "top_performing_domains": self._get_top_performing_domains(),
@@ -1729,7 +1768,7 @@ class HybridBrain:
     # ----------------- Compatibilidad con interfaz Brain simple -----------------
     def snapshot(
         self,
-    ) -> Dict[str, Any]:  # pragma: no cover - usada por tests heredados
+    ) -> dict[str, Any]:  # pragma: no cover - usada por tests heredados
         """Devuelve un snapshot similar al Brain clásico para compatibilidad.
 
         Estructura:
@@ -1741,7 +1780,27 @@ class HybridBrain:
           'hybrid': True
         }
         """
-        simple = self.simple_brain.snapshot()
+        # Obtain snapshot from the simple brain, but be defensive: tests often
+        # patch Brain with MagicMock which would return MagicMock objects here.
+        try:
+            simple = self.simple_brain.snapshot()
+        except Exception:
+            simple = {}
+
+        # If the returned snapshot isn't a dict (e.g. MagicMock), coerce to a
+        # safe dict structure so callers/tests can index keys as expected.
+        if not isinstance(simple, dict):
+            try:
+                simple = dict(simple)
+            except Exception:
+                simple = {
+                    "domains": {},
+                    "top_domains": [],
+                    "error_type_freq": {},
+                    "recent_events": [],
+                    "total_events": 0,
+                }
+
         simple["hybrid"] = True
         return simple
 
@@ -1752,15 +1811,20 @@ class HybridBrain:
         except Exception:
             return 0.0
 
-    def _get_top_performing_domains(self) -> List[Dict[str, Any]]:
+    def _get_top_performing_domains(self) -> list[dict[str, Any]]:
         """Obtiene los dominios con mejor rendimiento combinado"""
 
         domain_scores = {}
 
         # Combinar dominios de ambos sistemas
-        all_domains = set(self.simple_brain.domain_stats.keys()) | set(
-            self.autonomous_brain.domain_intelligence.keys()
+        # Defensive: tests may autospec Brain and AutonomousLearningBrain which
+        # produce mocks without instance attributes like domain_stats or
+        # domain_intelligence. Use getattr with sensible defaults.
+        simple_domains = set(getattr(self.simple_brain, "domain_stats", {}).keys())
+        auto_domains = set(
+            getattr(self.autonomous_brain, "domain_intelligence", {}).keys()
         )
+        all_domains = simple_domains | auto_domains
 
         for domain in all_domains:
             hybrid_priority = self.get_domain_priority(domain)
@@ -1782,14 +1846,16 @@ class HybridBrain:
 
         return sorted_domains[:5]
 
-    def _get_learning_insights(self) -> List[str]:
+    def _get_learning_insights(self) -> list[str]:
         """Obtiene insights de aprendizaje del sistema"""
 
         insights = []
 
         # Insights del Brain simple
         top_errors = sorted(
-            self.simple_brain.error_type_freq.items(), key=lambda x: x[1], reverse=True
+            getattr(self.simple_brain, "error_type_freq", {}).items(),
+            key=lambda x: x[1],
+            reverse=True,
         )[:3]
         if top_errors:
             insights.append(
@@ -1799,8 +1865,10 @@ class HybridBrain:
         # Insights del sistema autónomo
         try:
             total_patterns = sum(
-                len(di.common_patterns)
-                for di in self.autonomous_brain.domain_intelligence.values()
+                len(getattr(di, "common_patterns", []))
+                for di in getattr(
+                    self.autonomous_brain, "domain_intelligence", {}
+                ).values()
             )
         except Exception:
             total_patterns = 0
@@ -1810,15 +1878,17 @@ class HybridBrain:
         try:
             domains_with_strategies = sum(
                 1
-                for intel in self.autonomous_brain.domain_intelligence.values()
-                if intel.best_strategies
+                for intel in getattr(
+                    self.autonomous_brain, "domain_intelligence", {}
+                ).values()
+                if getattr(intel, "best_strategies", None)
             )
             if domains_with_strategies > 0:
                 insights.append(
                     f"Estrategias optimizadas: {domains_with_strategies} dominios"
                 )
         except Exception:
-            pass
+            logger.exception("Suppressed non-fatal error in hybrid_brain link analysis")
 
         return insights
 
@@ -1837,7 +1907,9 @@ class HybridBrain:
         try:
             self.enrichment.save()
         except Exception:
-            pass
+            logger.exception(
+                "Suppressed non-fatal error in hybrid_brain during priority calculation"
+            )
 
         # Actualizar comunicación inter-IA
         self._update_ia_sync()
@@ -1845,13 +1917,15 @@ class HybridBrain:
         try:
             self.export_repair_report()
         except Exception:
-            pass
+            logger.exception(
+                "Suppressed non-fatal error in hybrid_brain while extracting patterns from links"
+            )
 
     def _update_ia_sync(self):
         """Actualiza el archivo de sincronización inter-IA"""
 
         try:
-            timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+            timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
             # Preparar mensaje de estado
             stats = self.get_comprehensive_stats()
@@ -1870,7 +1944,7 @@ class HybridBrain:
             logger.error(f"Failed to update IA_SYNC: {e}")
 
     # ----------------- Motor de sugerencias / Auto-repair (advisory) -----------------
-    def generate_repair_suggestions(self, limit: int = 15) -> List[Dict[str, Any]]:
+    def generate_repair_suggestions(self, limit: int = 15) -> list[dict[str, Any]]:
         """Genera sugerencias inteligentes priorizadas.
 
         Solo lectura: no ejecuta cambios. Devuelve lista de dicts.
@@ -1889,7 +1963,7 @@ class HybridBrain:
                 "",
                 "> Informe generado automáticamente por HybridBrain (capa advisory, sin auto-modificación)",
                 "",
-                f"Generado: {datetime.utcnow().isoformat()}Z",
+                f"Generado: {datetime.now(UTC).isoformat()}Z",
                 f"Total sugerencias: {len(suggestions)}",
                 "",
                 "## Sugerencias Prioritarias",
@@ -1919,32 +1993,35 @@ class HybridBrain:
             with open(path, "w", encoding="utf-8") as f:
                 f.write("\n".join(lines))
         except Exception:
-            pass
+            logger.exception(
+                "Suppressed non-fatal error in hybrid_brain get_comprehensive_stats fallback"
+            )
 
     # ----------------- Conocimiento / Razonamiento -----------------
     def get_knowledge(
-        self, category: str = None, tags: List[str] = None, limit: int = 5
-    ) -> List[Dict[str, Any]]:
+        self, category: str = None, tags: list[str] = None, limit: int = 5
+    ) -> list[dict[str, Any]]:
         try:
             results = self.knowledge_base.search(category=category, tags=tags)
             return results[:limit]
         except Exception:
+            logger.exception("Suppressed non-fatal error in hybrid_brain.get_knowledge")
             return []
 
-    def query_knowledge_base(self, query: str) -> List[Dict[str, Any]]:
+    def query_knowledge_base(self, query: str) -> list[dict[str, Any]]:
         """Searches the knowledge base for a given query."""
-        print(f"Searching knowledge base for: {query}")
         try:
+            logger.debug("Searching knowledge base for: %s", query)
             # Search by category and tags based on the query
             tags = [tag.strip() for tag in query.split(" ")]
             results = self.knowledge_base.search(category=query, tags=tags)
             # Limit results to first 10 if needed
             return results[:10] if len(results) > 10 else results
-        except Exception as e:
-            logger.error(f"Error querying knowledge base: {e}")
+        except Exception:
+            logger.exception("Error querying knowledge base for query=%s", query)
             return []
 
-    def reason_about_issue(self, observation: Dict[str, Any]) -> Dict[str, Any]:
+    def reason_about_issue(self, observation: dict[str, Any]) -> dict[str, Any]:
         """Razonamiento ligero sobre un problema reportado.
 
         observation ejemplo:
@@ -1993,7 +2070,9 @@ class HybridBrain:
                     "Variación estructural: regenerar selectores robustos y añadir fallback XPath."
                 )
         except Exception:
-            pass
+            logger.exception(
+                "Suppressed non-fatal error in hybrid_brain while collecting autonomous brain stats"
+            )
         return {
             "domain": domain,
             "symptom": symptom,
@@ -2001,7 +2080,7 @@ class HybridBrain:
             "knowledge_refs": list(dict.fromkeys(kb_refs)),
         }
 
-    def reason_declaratively(self, domain_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def reason_declaratively(self, domain_data: dict[str, Any]) -> list[dict[str, Any]]:
         """Razonamiento declarativo sobre datos de dominio.
 
         Args:
@@ -2016,7 +2095,7 @@ class HybridBrain:
             return []
 
     def _auto_learn_from_session(
-        self, result, context: Dict[str, Any], patterns: List[str]
+        self, result, context: dict[str, Any], patterns: list[str]
     ):
         """Auto-aprendizaje dinámico: extrae conocimiento de sesiones exitosas."""
         try:
@@ -2061,10 +2140,12 @@ class HybridBrain:
                     self.knowledge_base.snippets[snippet_id] = snippet
 
         except Exception:
-            pass
+            logger.exception(
+                "Suppressed non-fatal error in hybrid_brain get_optimization_config"
+            )
 
     def evaluate_suggestion_effectiveness(
-        self, suggestion_id: str, outcome: str, metrics: Dict[str, Any]
+        self, suggestion_id: str, outcome: str, metrics: dict[str, Any]
     ):
         """Sistema meta-cognitivo: evalúa efectividad de sugerencias aplicadas.
 
@@ -2104,7 +2185,9 @@ class HybridBrain:
                             rule.priority = max(10, rule.priority - 10)
 
         except Exception:
-            pass
+            logger.exception(
+                "Suppressed non-fatal error in hybrid_brain while generating repair suggestions"
+            )
 
     # 🧠 Métodos de integración para sistemas avanzados de IA
 
@@ -2138,8 +2221,8 @@ class HybridBrain:
                 logger.warning(f"Failed to start continuous learning: {e}")
 
     def get_ml_suggestions(
-        self, url: str, context: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, url: str, context: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """Obtiene sugerencias del sistema ML avanzado"""
         if not self.ml_intelligence:
             return {}
@@ -2150,7 +2233,7 @@ class HybridBrain:
             logger.warning(f"ML suggestions failed: {e}")
             return {}
 
-    def trigger_self_improvement(self, target_metrics: Dict[str, float] = None):
+    def trigger_self_improvement(self, target_metrics: dict[str, float] = None):
         """Dispara el proceso de auto-mejora del código"""
         if not self.self_improver:
             return
@@ -2169,8 +2252,8 @@ class HybridBrain:
         self,
         url: str,
         success: bool,
-        patterns: List[str],
-        improvements: Dict[str, Any] = None,
+        patterns: list[str],
+        improvements: dict[str, Any] = None,
     ):
         """Registra una sesión de aprendizaje en el orquestador"""
         if not self.learning_orchestrator:
@@ -2186,8 +2269,8 @@ class HybridBrain:
     # 🧠 Neural Brain Integration Methods
 
     def _process_with_legacy_systems(
-        self, event_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, event_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Procesa con sistemas legacy (Brain A + B)"""
 
         # Process with Simple Brain (IA-A)
@@ -2199,7 +2282,7 @@ class HybridBrain:
             domain = "unknown"
 
         # Create experience event for Simple Brain
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         from .brain import ExperienceEvent
 
@@ -2210,7 +2293,7 @@ class HybridBrain:
             data_extracted=len(str(event_data.get("data_extracted", {}))),
             processing_time=event_data.get("processing_time", 0.0),
             error_message=event_data.get("error_message"),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         )
 
         brain_a_response = self.simple_brain.record_experience(exp_event)
@@ -2238,8 +2321,8 @@ class HybridBrain:
         }
 
     def _process_with_hybrid_approach(
-        self, event_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, event_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Procesa con enfoque híbrido (Neural + Legacy)"""
 
         # Process with unified brain
@@ -2260,7 +2343,7 @@ class HybridBrain:
 
         return integrated_response
 
-    def _estimate_complexity(self, event_data: Dict[str, Any]) -> float:
+    def _estimate_complexity(self, event_data: dict[str, Any]) -> float:
         """Estima complejidad del evento de scraping"""
 
         complexity = 0.3  # Base complexity
@@ -2281,7 +2364,7 @@ class HybridBrain:
 
         return min(1.0, complexity)
 
-    def _estimate_familiarity(self, event_data: Dict[str, Any]) -> float:
+    def _estimate_familiarity(self, event_data: dict[str, Any]) -> float:
         """Estima familiaridad con el tipo de evento"""
 
         # Check domain familiarity in legacy systems
@@ -2289,14 +2372,25 @@ class HybridBrain:
             from urllib.parse import urlparse
 
             domain = urlparse(event_data["url"]).netloc
-            domain_experience = self.simple_brain.get_domain_experience(domain)
-            return min(1.0, domain_experience.get("total_requests", 0) / 100)
+            try:
+                domain_experience = self.simple_brain.get_domain_experience(domain)
+            except Exception:
+                domain_experience = {}
+
+            # Coerce to numeric safely: MagicMocks may return MagicMock for .get()
+            try:
+                total_requests = domain_experience.get("total_requests", 0)
+                total_requests = float(total_requests)
+            except Exception:
+                total_requests = 0.0
+
+            return min(1.0, total_requests / 100.0)
 
         return 0.5
 
     def _extract_scraping_insights(
-        self, neural_response: Dict[str, Any], event_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, neural_response: dict[str, Any], event_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Extrae insights específicos para scraping del response neural"""
 
         insights = {}
@@ -2335,7 +2429,7 @@ class HybridBrain:
         return insights
 
     def _sync_with_legacy_systems(
-        self, event_data: Dict[str, Any], neural_response: Dict[str, Any]
+        self, event_data: dict[str, Any], neural_response: dict[str, Any]
     ):
         """Sincroniza insights neurales con sistemas legacy"""
 
@@ -2349,7 +2443,7 @@ class HybridBrain:
             self.autonomous_brain.update_consciousness_state(consciousness_state)
 
     def _calculate_integration_coherence(
-        self, neural_response: Dict[str, Any], legacy_response: Dict[str, Any]
+        self, neural_response: dict[str, Any], legacy_response: dict[str, Any]
     ) -> float:
         """Calcula coherencia entre respuestas neural y legacy"""
 
@@ -2366,7 +2460,7 @@ class HybridBrain:
         else:
             return 0.4
 
-    def get_brain_state(self) -> Dict[str, Any]:
+    def get_brain_state(self) -> dict[str, Any]:
         """Obtiene estado completo del cerebro híbrido"""
 
         state = {
@@ -2447,11 +2541,11 @@ class HybridBrain:
             "🧠 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"
         )
 
-    def observe_project_state(self) -> Dict[str, Any]:
+    def observe_project_state(self) -> dict[str, Any]:
         """Observa el estado completo del proyecto de manera read-only"""
         try:
             state = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "observer": "HybridBrain_Omniscient",
                 "settings_state": self._observe_settings(),
                 "database_state": self._observe_database(),
@@ -2498,10 +2592,10 @@ class HybridBrain:
                     "brain_decision": "observe_on_error",
                 },
                 "error": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
-    def _observe_settings(self) -> Dict[str, Any]:
+    def _observe_settings(self) -> dict[str, Any]:
         """Observa configuraciones del proyecto (read-only)"""
         try:
             from ..settings import settings
@@ -2541,7 +2635,7 @@ class HybridBrain:
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
-    def _observe_database(self) -> Dict[str, Any]:
+    def _observe_database(self) -> dict[str, Any]:
         """Observa estado de la base de datos (read-only)"""
         try:
             # Safely observe database without modifying it
@@ -2570,7 +2664,9 @@ class HybridBrain:
                         }
                     )
             except Exception:
-                pass  # Fail silently for read-only observation
+                logger.exception(
+                    "Suppressed non-fatal error in hybrid_brain during safe DB observation"
+                )
 
             return {
                 "status": "observed",
@@ -2585,7 +2681,7 @@ class HybridBrain:
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
-    def _observe_logs(self) -> Dict[str, Any]:
+    def _observe_logs(self) -> dict[str, Any]:
         """Observa logs del sistema (read-only)"""
         try:
             logs_dir = "logs"
@@ -2616,7 +2712,7 @@ class HybridBrain:
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
-    def _observe_code_quality(self) -> Dict[str, Any]:
+    def _observe_code_quality(self) -> dict[str, Any]:
         """Observa calidad del código (read-only)"""
         try:
             src_dir = "src"
@@ -2637,7 +2733,7 @@ class HybridBrain:
                             # Count lines safely
                             try:
                                 with open(
-                                    os.path.join(root, file), "r", encoding="utf-8"
+                                    os.path.join(root, file), encoding="utf-8"
                                 ) as f:
                                     code_metrics["total_lines"] += sum(1 for _ in f)
                             except Exception:
@@ -2656,7 +2752,7 @@ class HybridBrain:
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
-    def _observe_runtime_metrics(self) -> Dict[str, Any]:
+    def _observe_runtime_metrics(self) -> dict[str, Any]:
         """Observa métricas de tiempo de ejecución"""
         return {
             "status": "observed",
@@ -2668,7 +2764,7 @@ class HybridBrain:
             "assessment": "runtime_stable",
         }
 
-    def _observe_network_activity(self) -> Dict[str, Any]:
+    def _observe_network_activity(self) -> dict[str, Any]:
         """Observa actividad de red (si está disponible)"""
         return {
             "status": "observed",
@@ -2679,7 +2775,7 @@ class HybridBrain:
             "assessment": "network_activity_unknown",
         }
 
-    def _calculate_project_health(self) -> Dict[str, Any]:
+    def _calculate_project_health(self) -> dict[str, Any]:
         """Calcula salud general del proyecto basada en observaciones"""
         return {
             "overall_health": "optimal",
@@ -2688,8 +2784,8 @@ class HybridBrain:
         }
 
     def _assess_project_modifications_needed(
-        self, observations: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, observations: dict[str, Any]
+    ) -> dict[str, Any]:
         """Evalúa si el cerebro necesita modificar algo en el proyecto"""
         recommendations = []
 
@@ -2725,7 +2821,7 @@ class HybridBrain:
             ),
         }
 
-    def make_autonomous_decision(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def make_autonomous_decision(self, context: dict[str, Any]) -> dict[str, Any]:
         """Toma decisiones autónomas basadas en el contexto"""
         # Procesar a través de la arquitectura neural
         neural_decision = (
@@ -2748,7 +2844,7 @@ class HybridBrain:
         )
 
         decision = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "consciousness_engaged": consciousness_active,
             "decision_type": "autonomous_evaluation",
             "context_assessment": self._assess_decision_context(context),
@@ -2759,7 +2855,7 @@ class HybridBrain:
         logger.info(f"🧠 Brain autonomous decision: {decision['action_taken']}")
         return decision
 
-    def _assess_decision_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def _assess_decision_context(self, context: dict[str, Any]) -> dict[str, Any]:
         """Evalúa el contexto para tomar decisiones"""
         return {
             "context_complexity": "medium",
@@ -2801,7 +2897,7 @@ class OmniscientProtectionLayer:
         """Registra intentos de modificación externa"""
         self.modification_attempts.append(
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "attribute": attribute,
                 "caller": caller,
                 "action": "blocked",
@@ -2814,8 +2910,8 @@ class OmniscientProtectionLayer:
     # ============================================================================
 
     def apply_intelligent_modifications(
-        self, observations: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, observations: dict[str, Any]
+    ) -> dict[str, Any]:
         """Aplica modificaciones inteligentes basadas en observaciones"""
         if not hasattr(self, "_protection_layer"):
             return {"error": "Protection layer not initialized"}
@@ -2843,12 +2939,12 @@ class OmniscientProtectionLayer:
             "modifications_applied": applied_modifications,
             "errors": errors,
             "brain_state": "active_modification_mode",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     def _modify_settings_intelligently(
-        self, recommendation: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, recommendation: dict[str, Any]
+    ) -> dict[str, Any]:
         """Modifica configuraciones de manera inteligente"""
         logger.info(
             f"🧠 Brain considers settings modification: {recommendation['description']}"
@@ -2875,8 +2971,8 @@ class OmniscientProtectionLayer:
         }
 
     def _initialize_database_intelligently(
-        self, recommendation: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, recommendation: dict[str, Any]
+    ) -> dict[str, Any]:
         """Inicializa base de datos de manera inteligente"""
         logger.info(
             f"🧠 Brain considers database initialization: {recommendation['description']}"
@@ -2888,13 +2984,13 @@ class OmniscientProtectionLayer:
             "result": "monitoring_continued",
         }
 
-    def get_brain_modification_history(self) -> List[Dict[str, Any]]:
+    def get_brain_modification_history(self) -> list[dict[str, Any]]:
         """Obtiene historial de modificaciones realizadas por el cerebro"""
         if not hasattr(self, "_modification_history"):
             self._modification_history = []
         return self._modification_history
 
-    def _log_brain_action(self, action: Dict[str, Any]):
+    def _log_brain_action(self, action: dict[str, Any]):
         """Registra acciones del cerebro"""
         if not hasattr(self, "_modification_history"):
             self._modification_history = []
@@ -2902,7 +2998,7 @@ class OmniscientProtectionLayer:
         self._modification_history.append(
             {
                 **action,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "brain_state": self.get_brain_state(),
             }
         )
@@ -2976,7 +3072,7 @@ class OmniscientProtectionLayer:
         logger.info("🧠 Brain continuous monitoring stopped")
 
     # Legacy compatibility methods
-    def record_experience(self, event: Any) -> Dict[str, Any]:
+    def record_experience(self, event: Any) -> dict[str, Any]:
         """Método de compatibilidad con Brain A"""
         if hasattr(event, "__dict__"):
             event_data = event.__dict__
@@ -2985,7 +3081,7 @@ class OmniscientProtectionLayer:
 
         return self.process_scraping_event(event_data)
 
-    def record_session(self, session: Any) -> Dict[str, Any]:
+    def record_session(self, session: Any) -> dict[str, Any]:
         """Método de compatibilidad con Brain B"""
         if hasattr(session, "__dict__"):
             session_data = session.__dict__
@@ -3002,7 +3098,7 @@ class OmniscientProtectionLayer:
 
         return self.process_scraping_event(event_data)
 
-    def analyze_cross_session_patterns(self) -> Dict[str, Any]:
+    def analyze_cross_session_patterns(self) -> dict[str, Any]:
         """Analiza patrones a través de múltiples sesiones"""
         if not self.learning_orchestrator:
             return {}

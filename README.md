@@ -28,13 +28,13 @@ El chat puede entender y procesar peticiones en lenguaje natural tanto en españ
 
 ### 🎯 Intenciones Reconocidas
 
-| Intención | Ejemplos en Español | Ejemplos en Inglés |
-|-----------|-------------------|-------------------|
-| **Búsqueda** | "Busca datos sobre X", "Encuentra información de Y" | "Search for X", "Find information about Y" |
-| **Scraping** | "Haz scraping de sitio.com", "Extrae datos de página.html" | "Scrape website.com", "Extract from page.html" |
-| **Conocimiento** | "Qué sabes sobre X?", "Háblame de Y" | "What do you know about X?", "Tell me about Y" |
-| **Edición** | "Edita archivo.py", "Modifica el código" | "Edit file.py", "Modify the script" |
-| **Terminal** | "Ejecuta comando X", "Corre 'dir' en cmd" | "Run command X", "Execute 'ls' in terminal" |
+| Intención        | Ejemplos en Español                                        | Ejemplos en Inglés                             |
+| ---------------- | ---------------------------------------------------------- | ---------------------------------------------- |
+| **Búsqueda**     | "Busca datos sobre X", "Encuentra información de Y"        | "Search for X", "Find information about Y"     |
+| **Scraping**     | "Haz scraping de sitio.com", "Extrae datos de página.html" | "Scrape website.com", "Extract from page.html" |
+| **Conocimiento** | "Qué sabes sobre X?", "Háblame de Y"                       | "What do you know about X?", "Tell me about Y" |
+| **Edición**      | "Edita archivo.py", "Modifica el código"                   | "Edit file.py", "Modify the script"            |
+| **Terminal**     | "Ejecuta comando X", "Corre 'dir' en cmd"                  | "Run command X", "Execute 'ls' in terminal"    |
 
 ### 🔧 Comandos Directos (Prefijo `/`)
 
@@ -62,13 +62,13 @@ El sistema incluye medidas de seguridad para:
 
 ## 1. Requisitos Previos
 
-| Recurso | Mínimo Recomendado | Notas |
-|---------|--------------------|-------|
-| Python  | 3.10+ (probado 3.12) | Asegura UTF‑8 por defecto |
-| Playwright | Última estable | Necesario salvo modo `--demo` |
-| SO | Windows / Linux / macOS | Batch principal pensado para Windows |
-| RAM | ≥ 2 GB | Más si activas RL + muchas pestañas |
-| Conexión | Estable | Para scraping real (demo funciona offline) |
+| Recurso    | Mínimo Recomendado      | Notas                                      |
+| ---------- | ----------------------- | ------------------------------------------ |
+| Python     | 3.10+ (probado 3.12)    | Asegura UTF‑8 por defecto                  |
+| Playwright | Última estable          | Necesario salvo modo `--demo`              |
+| SO         | Windows / Linux / macOS | Batch principal pensado para Windows       |
+| RAM        | ≥ 2 GB                  | Más si activas RL + muchas pestañas        |
+| Conexión   | Estable                 | Para scraping real (demo funciona offline) |
 
 Instala navegadores de Playwright tras dependencias:
 
@@ -108,16 +108,80 @@ WebScraperPRO.bat
 Ambos scripts ofrecen acceso a las siguientes operaciones:
 
 1. **🚀 Dashboard Profesional (NUEVO):** Interfaz moderna con control total y chat IA bilingüe
-2. **📱 Interfaz TUI Clásica:** La interfaz original para usuarios familiarizados
-3. **🕷️ Crawling Directo:** Scraping inmediato desde línea de comandos
-4. **🎮 Modo Demo:** Demostración sin dependencias de navegador
-5. **📊 Brain Snapshot:** Estado completo del sistema de IA
-6. **📤 Exportar Datos:** Múltiples formatos disponibles
-7. **🔧 Configuración:** Ajustes avanzados del sistema
-8. **❓ Ayuda:** Documentación integrada
-9. **Salir:** Cierra el panel de control.
+2. **🤖 Interfaz Profesional GUI (NUEVO):** Interfaz gráfica con robot face Transformers, chat inteligente y múltiples menús
+3. **📱 Interfaz TUI Clásica:** La interfaz original para usuarios familiarizados
+4. **🕷️ Crawling Directo:** Scraping inmediato desde línea de comandos
+5. **🎮 Modo Demo:** Demostración sin dependencias de navegador
+6. **📊 Brain Snapshot:** Estado completo del sistema de IA
+7. **📤 Exportar Datos:** Múltiples formatos disponibles
+8. **🔧 Configuración:** Ajustes avanzados del sistema
+9. **❓ Ayuda:** Documentación integrada
+10. **Salir:** Cierra el panel de control.
 
 En Linux/macOS usar `./WebScraperPRO.sh` (si existe) o invocar manualmente comandos equivalentes.
+
+---
+
+## 2.1. Interfaz Profesional GUI - Características Avanzadas
+
+La nueva interfaz profesional combina lo mejor de la tecnología moderna con una experiencia de usuario excepcional:
+
+### 🤖 Robot Face Transformers
+
+- **Animación Avanzada:** Robot con expresiones dinámicas y efectos metálicos
+- **Indicadores de Actividad:** Muestra el estado del sistema en tiempo real
+- **Personalización:** Colores y efectos ajustables según el tema
+
+### 💬 Chat Inteligente IA
+
+- **Procesamiento Natural:** Entiende comandos en lenguaje natural
+- **Bilingüe:** Soporte completo para español e inglés
+- **Siempre Visible:** Chat permanece en primer plano para máxima accesibilidad
+- **Historial Persistente:** Mantiene el contexto de la conversación
+
+### 🎛️ Panel de Control Profesional
+
+- **Múltiples Menús:** Organización jerárquica con submenús intuitivos
+- **Controles Avanzados:** Configuración granular de todos los parámetros
+- **Estadísticas en Tiempo Real:** Métricas actualizadas constantemente
+- **Interfaz Moderna:** Diseño inspirado en aplicaciones profesionales
+
+### 🛠️ Funcionalidades Integradas
+
+- **Scraping Inteligente:** Control completo del proceso de extracción
+- **Base de Conocimiento:** Acceso directo a la IA del sistema
+- **Monitoreo Avanzado:** Logs detallados y métricas de rendimiento
+- **Exportación Flexible:** Múltiples formatos de salida
+
+### 🎨 Tema Dark Hacker Profesional
+
+- **Colores Estratégicos:** Cyan y azul para máxima legibilidad
+- **Efectos Visuales:** Glow y animaciones sutiles
+- **Consistencia Visual:** Diseño coherente en toda la aplicación
+
+### 🔧 Requisitos del Sistema
+
+- **PyQt6:** Framework gráfico moderno
+- **Python 3.8+:** Compatibilidad asegurada
+- **Dependencias:** Instalación automática vía pip
+
+Para activar la interfaz profesional:
+
+```powershell
+# Opción 1: Directo desde línea de comandos
+python -m src.main --gui-pro
+
+# Opción 2: Usando el lanzador principal
+WebScraperPRO.bat
+# Seleccionar opción 2: "Iniciar Interfaz Profesional GUI"
+```
+
+### 🚀 Beneficios de la Nueva Interfaz
+
+- **Productividad:** Flujo de trabajo optimizado para usuarios avanzados
+- **Accesibilidad:** Controles intuitivos y ayuda integrada
+- **Rendimiento:** Optimización para operaciones de alto volumen
+- **Extensibilidad:** Arquitectura modular para futuras mejoras
 
 ---
 
@@ -257,15 +321,15 @@ Componentes Clave:
 
 ## 6. Inteligencia: Cómo Hacerlo Más “Inteligente”
 
-| Capacidad | Cómo Activar | Mejora que Aporta |
-|-----------|--------------|--------------------|
-| HybridBrain | Variable de entorno `HYBRID_BRAIN=1` al lanzar (batch ya lo puede exportar) | Fusión de estadísticas + aprendizaje incremental |
-| Ajustar Frecuencia Sync | `IA_SYNC_EVERY=50` (ejemplo) | Menos E/S en disco o mayor granularidad histórica |
-| LLM Limpieza avanzada | Proveer `LLM_API_KEY` y `LLM_MODEL` | Texto más puro y extracción robusta |
-| Extracción estructurada | Guardar esquema dinámico en DB (ver sección 11) | Datos tabulares listos sin regex/selectors |
-| RL Agent | Lanzar con `--use-rl` | Optimización adaptativa de estrategias |
-| Filtrado heurístico | Ajustar thresholds en `settings.py` | Menos ruido (páginas vacías/baja calidad) |
-| Prioridad de dominios | Brain aprende tasas de éxito | Mejora cobertura útil primero |
+| Capacidad               | Cómo Activar                                                                | Mejora que Aporta                                 |
+| ----------------------- | --------------------------------------------------------------------------- | ------------------------------------------------- |
+| HybridBrain             | Variable de entorno `HYBRID_BRAIN=1` al lanzar (batch ya lo puede exportar) | Fusión de estadísticas + aprendizaje incremental  |
+| Ajustar Frecuencia Sync | `IA_SYNC_EVERY=50` (ejemplo)                                                | Menos E/S en disco o mayor granularidad histórica |
+| LLM Limpieza avanzada   | Proveer `LLM_API_KEY` y `LLM_MODEL`                                         | Texto más puro y extracción robusta               |
+| Extracción estructurada | Guardar esquema dinámico en DB (ver sección 11)                             | Datos tabulares listos sin regex/selectors        |
+| RL Agent                | Lanzar con `--use-rl`                                                       | Optimización adaptativa de estrategias            |
+| Filtrado heurístico     | Ajustar thresholds en `settings.py`                                         | Menos ruido (páginas vacías/baja calidad)         |
+| Prioridad de dominios   | Brain aprende tasas de éxito                                                | Mejora cobertura útil primero                     |
 
 ### 6.1 Activar HybridBrain
 
@@ -313,17 +377,17 @@ Orden de carga (prioridad alta→baja):
 
 ### 7.1 Variables Comunes
 
-| Variable | Descripción | Ejemplo |
-|----------|-------------|---------|
-| `CONCURRENCY` | Workers simultáneos | `8` |
-| `LLM_API_KEY` | Clave proveedor LLM | `sk-...` |
-| `LLM_MODEL` | Modelo remoto | `gpt-4o-mini` |
-| `ROBOTS_ENABLED` | Respetar robots.txt | `true` |
-| `HYBRID_BRAIN` | Habilita cerebro híbrido | `1` |
-| `IA_SYNC_EVERY` | Intervalo sync IA | `25` |
-| `OFFLINE_MODE` | Fuerza modo sin LLM remoto | `1` |
-| `DB_PATH` | Ruta DB sqlite | `data/scraper_database.db` |
-| `MIN_CONTENT_LENGTH` | Longitud mínima texto útil | `400` |
+| Variable             | Descripción                | Ejemplo                    |
+| -------------------- | -------------------------- | -------------------------- |
+| `CONCURRENCY`        | Workers simultáneos        | `8`                        |
+| `LLM_API_KEY`        | Clave proveedor LLM        | `sk-...`                   |
+| `LLM_MODEL`          | Modelo remoto              | `gpt-4o-mini`              |
+| `ROBOTS_ENABLED`     | Respetar robots.txt        | `true`                     |
+| `HYBRID_BRAIN`       | Habilita cerebro híbrido   | `1`                        |
+| `IA_SYNC_EVERY`      | Intervalo sync IA          | `25`                       |
+| `OFFLINE_MODE`       | Fuerza modo sin LLM remoto | `1`                        |
+| `DB_PATH`            | Ruta DB sqlite             | `data/scraper_database.db` |
+| `MIN_CONTENT_LENGTH` | Longitud mínima texto útil | `400`                      |
 
 ### 7.2 Ejemplo `.env`
 
@@ -480,25 +544,25 @@ Características clave:
 
 Atajos de teclado (Keybindings):
 
-| Tecla | Acción | Descripción |
-|-------|--------|-------------|
-| s | start | Inicia crawling |
-| t | stop | Detiene crawling (cancela worker) |
-| p | pause_resume | Pausa/Reanuda refresco UI (buffer) |
-| **F9** | **toggle_chat** | **🆕 Muestra/oculta chat IA bilingüe** |
-| q | quit | Salir de la TUI |
-| r | toggle_robots | Activa/desactiva respeto robots.txt |
-| e | toggle_ethics | Activa/desactiva comprobaciones de ética |
-| o | toggle_offline | Cambia modo Offline (sin LLM remoto) |
-| d | toggle_dark | Tema oscuro (Textual) adicional |
-| l | toggle_log_panel | Oculta/Muestra panel de log |
-| x | export_markdown | Exporta reporte Markdown manual |
-| a | toggle_autoscroll | Autoscroll del log ON/OFF |
-| c | clear_log | Limpia el log principal |
-| / | focus_url | Foco rápido en campo URL |
-| ? | help | Overlay de ayuda |
-| Enter (en URL) | start | Atajo rápido para lanzar |
-| Esc (overlay) | cerrar | Cierra overlays (ayuda) |
+| Tecla          | Acción            | Descripción                              |
+| -------------- | ----------------- | ---------------------------------------- |
+| s              | start             | Inicia crawling                          |
+| t              | stop              | Detiene crawling (cancela worker)        |
+| p              | pause_resume      | Pausa/Reanuda refresco UI (buffer)       |
+| **F9**         | **toggle_chat**   | **🆕 Muestra/oculta chat IA bilingüe**    |
+| q              | quit              | Salir de la TUI                          |
+| r              | toggle_robots     | Activa/desactiva respeto robots.txt      |
+| e              | toggle_ethics     | Activa/desactiva comprobaciones de ética |
+| o              | toggle_offline    | Cambia modo Offline (sin LLM remoto)     |
+| d              | toggle_dark       | Tema oscuro (Textual) adicional          |
+| l              | toggle_log_panel  | Oculta/Muestra panel de log              |
+| x              | export_markdown   | Exporta reporte Markdown manual          |
+| a              | toggle_autoscroll | Autoscroll del log ON/OFF                |
+| c              | clear_log         | Limpia el log principal                  |
+| /              | focus_url         | Foco rápido en campo URL                 |
+| ?              | help              | Overlay de ayuda                         |
+| Enter (en URL) | start             | Atajo rápido para lanzar                 |
+| Esc (overlay)  | cerrar            | Cierra overlays (ayuda)                  |
 
 Color Semántico:
 
@@ -596,16 +660,16 @@ flake8 src
 
 ## 20. Estrategias para “Hacerlo Más Inteligente” (Checklist Accionable)
 
-| Objetivo | Acción | Resultado |
-|----------|--------|-----------|
-| Mejor limpieza | Añadir `LLM_API_KEY` | Texto semántico más estable |
-| Más patrones | Aumentar diversidad de dominios | Mejor priorización futura |
-| Menos fallos | Analizar `domain_metrics` y bloquear dominios ruidosos | Ahorro de recursos |
-| Capturar APIs | Revisar tabla APIs y derivar endpoints útiles | Extensión de scraping de datos JSON |
-| Extracción tabular | Definir esquemas dinámicos | CSV listo para BI |
-| Acelerar entrenamiento RL | Lanzar varias sesiones cortas | Ajuste más rápido de backoff |
-| Persistencia histórica | Automatizar snapshots `brain-snapshot` (cron) | Línea de tiempo de aprendizaje |
-| Evolución | Ajustar thresholds en `settings.py` tras observar métricas | Reducción de falsos positivos |
+| Objetivo                  | Acción                                                     | Resultado                           |
+| ------------------------- | ---------------------------------------------------------- | ----------------------------------- |
+| Mejor limpieza            | Añadir `LLM_API_KEY`                                       | Texto semántico más estable         |
+| Más patrones              | Aumentar diversidad de dominios                            | Mejor priorización futura           |
+| Menos fallos              | Analizar `domain_metrics` y bloquear dominios ruidosos     | Ahorro de recursos                  |
+| Capturar APIs             | Revisar tabla APIs y derivar endpoints útiles              | Extensión de scraping de datos JSON |
+| Extracción tabular        | Definir esquemas dinámicos                                 | CSV listo para BI                   |
+| Acelerar entrenamiento RL | Lanzar varias sesiones cortas                              | Ajuste más rápido de backoff        |
+| Persistencia histórica    | Automatizar snapshots `brain-snapshot` (cron)              | Línea de tiempo de aprendizaje      |
+| Evolución                 | Ajustar thresholds en `settings.py` tras observar métricas | Reducción de falsos positivos       |
 
 ---
 
@@ -621,14 +685,14 @@ flake8 src
 
 ## 22. Resolución de Problemas (Troubleshooting)
 
-| Problema | Causa Común | Solución |
-|----------|-------------|----------|
-| `playwright._impl... not found` | No instalaste browsers | `python -m playwright install` |
-| Contenido muy corto | Página dinámica/lazy | Aumenta espera; implementar scroll (futuro) |
-| Muchos `FAILED` | Bloqueo anti-bot | Disminuye velocidad / activa stealth / rota UAs |
-| Duplicados frecuentes | Páginas casi idénticas | Ajusta hashing o filtra parámetros query |
-| LLM no limpia bien | Modo offline | Proveer API key + modelo adecuado |
-| RL no aprende | Sesión corta | Ejecuta más iteraciones / más dominios |
+| Problema                        | Causa Común            | Solución                                        |
+| ------------------------------- | ---------------------- | ----------------------------------------------- |
+| `playwright._impl... not found` | No instalaste browsers | `python -m playwright install`                  |
+| Contenido muy corto             | Página dinámica/lazy   | Aumenta espera; implementar scroll (futuro)     |
+| Muchos `FAILED`                 | Bloqueo anti-bot       | Disminuye velocidad / activa stealth / rota UAs |
+| Duplicados frecuentes           | Páginas casi idénticas | Ajusta hashing o filtra parámetros query        |
+| LLM no limpia bien              | Modo offline           | Proveer API key + modelo adecuado               |
+| RL no aprende                   | Sesión corta           | Ejecuta más iteraciones / más dominios          |
 
 ---
 
@@ -707,25 +771,25 @@ Pasos recomendados pipeline:
 
 ## 27. Métricas Clave a Observar
 
-| Métrica | Fuente | Uso |
-|---------|--------|-----|
-| `avg_success_rate` | HybridBrain | Salud global |
-| `low_quality_ratio` | domain_metrics | Ajustar backoff |
-| `patterns_identified` | Autonomous brain | Cobertura semántica |
-| `queue_size` | Orchestrator stats | Saturación / tuning concurrency |
-| `response_time` | ScrapeResult | Límite vs timeouts |
+| Métrica               | Fuente             | Uso                             |
+| --------------------- | ------------------ | ------------------------------- |
+| `avg_success_rate`    | HybridBrain        | Salud global                    |
+| `low_quality_ratio`   | domain_metrics     | Ajustar backoff                 |
+| `patterns_identified` | Autonomous brain   | Cobertura semántica             |
+| `queue_size`          | Orchestrator stats | Saturación / tuning concurrency |
+| `response_time`       | ScrapeResult       | Límite vs timeouts              |
 
 ---
 
 ## 28. Extensiones Futuras (Puntos de Inyección)
 
-| Área | Estrategia |
-|------|-----------|
-| Normalización HTML | Hook antes de Readability |
-| Detección duplicados | Cambiar hash → simhash / fuzzy |
-| Persistencia | Implementar repositorio alterno (DuckDB) |
-| Prioridad URLs | Sustituir `_calculate_priority` por modelo ML avanzado |
-| Clasificación contenido | Añadir clasificador temático ML |
+| Área                    | Estrategia                                             |
+| ----------------------- | ------------------------------------------------------ |
+| Normalización HTML      | Hook antes de Readability                              |
+| Detección duplicados    | Cambiar hash → simhash / fuzzy                         |
+| Persistencia            | Implementar repositorio alterno (DuckDB)               |
+| Prioridad URLs          | Sustituir `_calculate_priority` por modelo ML avanzado |
+| Clasificación contenido | Añadir clasificador temático ML                        |
 
 ---
 

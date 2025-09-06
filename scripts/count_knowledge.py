@@ -1,11 +1,12 @@
 import re
 
+
 def count_knowledge_items():
     """Cuenta el número real de elementos de conocimiento."""
 
     file_path = r"c:\Users\DELL\Desktop\PythonWebScraper\src\intelligence\autonomous_learning.py"
 
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
     # Buscar patrones de tuplas de conocimiento
@@ -27,6 +28,7 @@ def count_knowledge_items():
         print(f"  - {cat}: {cat_count} elementos")
 
     return len(matches)
+
 
 if __name__ == "__main__":
     total_items = count_knowledge_items()

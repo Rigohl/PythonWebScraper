@@ -1,7 +1,8 @@
-import sqlite3
 import os
+import sqlite3
 
 DB_PATH = "data/scraper_database.db"
+
 
 def check_tables():
     if not os.path.exists(DB_PATH):
@@ -25,6 +26,7 @@ def check_tables():
             print(f"  - {column[1]} ({column[2]})")
 
     conn.close()
+
 
 if __name__ == "__main__":
     check_tables()

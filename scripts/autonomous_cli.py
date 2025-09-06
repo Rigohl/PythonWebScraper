@@ -14,25 +14,25 @@ Uso:
     python autonomous_cli.py stop               # Detiene el sistema
 """
 
-import asyncio
 import argparse
-import sys
-import os
-import logging
+import asyncio
 import json
-from typing import List, Optional
+import logging
+import os
+import sys
 from datetime import datetime
+from typing import List, Optional
 
 # Agregar el directorio src al path
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 from src.intelligence.autonomous_coordinator import (
-    AutonomousScraperCoordinator,
     AutonomousConfig,
+    AutonomousScraperCoordinator,
     AutonomyLevel,
+    autonomous_scrape,
     get_autonomous_coordinator,
     start_autonomous_scraper,
-    autonomous_scrape
 )
 
 
@@ -47,15 +47,15 @@ class AutonomousCLI:
         """Configura logging para la CLI."""
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
+            format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
                 logging.StreamHandler(),
-                logging.FileHandler('logs/autonomous_cli.log', mode='a')
-            ]
+                logging.FileHandler("logs/autonomous_cli.log", mode="a"),
+            ],
         )
 
         # Crear directorio de logs si no existe
-        os.makedirs('logs', exist_ok=True)
+        os.makedirs("logs", exist_ok=True)
 
     async def start_system(self, autonomy_level: str = "fully_autonomous"):
         """Inicia el sistema autónomo."""
@@ -65,10 +65,10 @@ class AutonomousCLI:
         try:
             # Convertir nivel de autonomía
             level_map = {
-                'supervised': AutonomyLevel.SUPERVISED,
-                'semi': AutonomyLevel.SEMI_AUTONOMOUS,
-                'fully_autonomous': AutonomyLevel.FULLY_AUTONOMOUS,
-                'transcendent': AutonomyLevel.TRANSCENDENT
+                "supervised": AutonomyLevel.SUPERVISED,
+                "semi": AutonomyLevel.SEMI_AUTONOMOUS,
+                "fully_autonomous": AutonomyLevel.FULLY_AUTONOMOUS,
+                "transcendent": AutonomyLevel.TRANSCENDENT,
             }
 
             level = level_map.get(autonomy_level, AutonomyLevel.FULLY_AUTONOMOUS)
@@ -78,7 +78,7 @@ class AutonomousCLI:
                 autonomy_level=level,
                 auto_start=True,
                 monitoring_enabled=True,
-                self_improvement_enabled=True
+                self_improvement_enabled=True,
             )
 
             # Obtener coordinador y inicializar
@@ -129,70 +129,70 @@ class AutonomousCLI:
 
     def _print_status_display(self, status: dict):
         """Imprime el estado del sistema de manera visual."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("🤖 ESTADO DEL SISTEMA DE SCRAPING AUTÓNOMO")
-        print("="*70)
+        print("=" * 70)
 
         # Estado del coordinador
-        coord = status['coordinator']
-        config = status['config']
+        coord = status["coordinator"]
+        config = status["config"]
 
         # Status básico
-        running_status = "🟢 EJECUTÁNDOSE" if coord['is_running'] else "🔴 DETENIDO"
+        running_status = "🟢 EJECUTÁNDOSE" if coord["is_running"] else "🔴 DETENIDO"
         print(f"📊 Estado:           {running_status}")
         print(f"⚡ Nivel Autonomía:   {config['autonomy_level'].upper()}")
         print(f"⏱️  Tiempo Activo:    {self._format_uptime(coord['uptime'])}")
 
-        if coord['emergency_mode']:
+        if coord["emergency_mode"]:
             print(f"🚨 MODO EMERGENCIA:   {coord['emergency_reason']}")
 
         print()
 
         # Métricas del coordinador
-        metrics = coord['coordination_metrics']
+        metrics = coord["coordination_metrics"]
         print("📈 MÉTRICAS DE OPERACIÓN:")
         print(f"   • Acciones Totales:     {metrics['total_autonomous_actions']}")
         print(f"   • Operaciones Exitosas: {metrics['successful_operations']}")
         print(f"   • Operaciones Fallidas: {metrics['failed_operations']}")
         print(f"   • Auto-Recuperaciones:  {metrics['auto_recoveries']}")
 
-        if metrics['successful_operations'] + metrics['failed_operations'] > 0:
-            success_rate = metrics['successful_operations'] / (
-                metrics['successful_operations'] + metrics['failed_operations']
+        if metrics["successful_operations"] + metrics["failed_operations"] > 0:
+            success_rate = metrics["successful_operations"] / (
+                metrics["successful_operations"] + metrics["failed_operations"]
             )
             print(f"   • Tasa de Éxito:        {success_rate:.1%}")
 
         print()
 
         # Estado del controlador autónomo
-        if 'autonomous_controller' in status:
-            controller = status['autonomous_controller']
+        if "autonomous_controller" in status:
+            controller = status["autonomous_controller"]
             self._print_controller_status(controller)
 
         # Estado de inteligencia
-        if 'intelligence' in status:
-            intelligence = status['intelligence']
+        if "intelligence" in status:
+            intelligence = status["intelligence"]
             self._print_intelligence_status(intelligence)
 
-        print("="*70)
+        print("=" * 70)
 
     def _print_controller_status(self, controller: dict):
         """Imprime el estado del controlador autónomo."""
         print("🧠 ESTADO DEL CEREBRO AUTÓNOMO:")
         print(f"   • Estado Sistema:       {controller['system_state'].upper()}")
 
-        consciousness = controller['consciousness']
+        consciousness = controller["consciousness"]
         print(f"   • Nivel Conciencia:     {consciousness['awareness_level']:.1%}")
         print(f"   • Procesos Activos:     {len(consciousness['active_processes'])}")
         print(f"   • Decisiones Pendientes: {controller['pending_decisions']}")
         print(f"   • Historial Decisiones: {controller['decision_history_size']}")
 
         # Salud del sistema
-        system_health = consciousness['system_health']
+        system_health = consciousness["system_health"]
         print("   • Salud del Sistema:")
         for metric, value in system_health.items():
             if isinstance(value, (int, float)):
-                if metric == 'memory_utilization':
+                if metric == "memory_utilization":
                     emoji = "🔴" if value > 0.8 else "🟡" if value > 0.6 else "🟢"
                     print(f"     - {metric}: {value:.1%} {emoji}")
                 else:
@@ -210,11 +210,15 @@ class AutonomousCLI:
         print(f"   • Patrones Identificados: {intelligence['patterns_identified']}")
         print(f"   • Estrategias Optimizadas: {intelligence['strategies_optimized']}")
         print(f"   • Último Aprendizaje:    {intelligence['last_learning']}")
-        print(f"   • Tipo de Cerebro:       {intelligence.get('brain_type', 'unknown').upper()}")
+        print(
+            f"   • Tipo de Cerebro:       {intelligence.get('brain_type', 'unknown').upper()}"
+        )
 
         # Dominios top si están disponibles
-        if 'top_domains' in intelligence and intelligence['top_domains']:
-            print(f"   • Top Dominios:          {', '.join(intelligence['top_domains'])}")
+        if "top_domains" in intelligence and intelligence["top_domains"]:
+            print(
+                f"   • Top Dominios:          {', '.join(intelligence['top_domains'])}"
+            )
 
         print()
 
@@ -250,9 +254,9 @@ class AutonomousCLI:
 
     def _print_scraping_results(self, results: dict):
         """Imprime los resultados del scraping."""
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("📊 RESULTADOS DEL SCRAPING AUTÓNOMO")
-        print("="*50)
+        print("=" * 50)
 
         print(f"🎯 Plan ID:           {results['plan_id']}")
         print(f"⏱️  Duración:          {results['duration']:.2f}s")
@@ -261,30 +265,30 @@ class AutonomousCLI:
         print(f"❌ Fallidos:          {results['failed_targets']}")
         print(f"📊 Tasa de Éxito:     {results['success_rate']:.1%}")
 
-        if results.get('autonomous_adaptations', 0) > 0:
+        if results.get("autonomous_adaptations", 0) > 0:
             print(f"🔄 Adaptaciones:      {results['autonomous_adaptations']}")
 
         print()
 
         # Mostrar resultados individuales
-        if results['results']:
+        if results["results"]:
             print("📋 RESULTADOS DETALLADOS:")
-            for i, result in enumerate(results['results'], 1):
-                status = "✅" if result.get('success', False) else "❌"
-                target = result.get('target', 'Unknown')
+            for i, result in enumerate(results["results"], 1):
+                status = "✅" if result.get("success", False) else "❌"
+                target = result.get("target", "Unknown")
 
                 print(f"   {i}. {status} {target}")
 
-                if result.get('success', False):
-                    if 'intelligence_used' in result:
+                if result.get("success", False):
+                    if "intelligence_used" in result:
                         print(f"      🧠 Inteligencia: {result['intelligence_used']}")
-                    if 'response_time' in result:
+                    if "response_time" in result:
                         print(f"      ⏱️  Tiempo: {result['response_time']:.2f}s")
                 else:
-                    if 'error' in result:
+                    if "error" in result:
                         print(f"      ❌ Error: {result['error']}")
 
-        print("="*50)
+        print("=" * 50)
 
     async def enable_full_autonomy(self):
         """Activa autonomía completa."""
@@ -307,7 +311,9 @@ class AutonomousCLI:
     async def enable_transcendent_mode(self):
         """Activa modo trascendente."""
         print("🔮 ACTIVANDO MODO TRASCENDENTE...")
-        print("⚠️  ATENCIÓN: Este modo permite al AI operar más allá de supervisión humana")
+        print(
+            "⚠️  ATENCIÓN: Este modo permite al AI operar más allá de supervisión humana"
+        )
         print("🚨 Solo usar en entornos controlados")
 
         try:
@@ -354,7 +360,9 @@ class AutonomousCLI:
                 elif command == "trans":
                     await self.enable_transcendent_mode()
                 elif command == "help":
-                    print("Comandos: start, stop, status, scrape, full, trans, help, exit")
+                    print(
+                        "Comandos: start, stop, status, scrape, full, trans, help, exit"
+                    )
                 elif command == "":
                     continue
                 else:
@@ -383,53 +391,66 @@ Ejemplos:
   python autonomous_cli.py scrape https://example.com
   python autonomous_cli.py full-autonomy            # Control total AI
   python autonomous_cli.py interactive              # Modo interactivo
-        """
+        """,
     )
 
-    parser.add_argument('command', nargs='?', default='interactive',
-                       choices=['start', 'stop', 'status', 'scrape', 'full-autonomy',
-                               'transcendent', 'interactive'],
-                       help='Comando a ejecutar')
+    parser.add_argument(
+        "command",
+        nargs="?",
+        default="interactive",
+        choices=[
+            "start",
+            "stop",
+            "status",
+            "scrape",
+            "full-autonomy",
+            "transcendent",
+            "interactive",
+        ],
+        help="Comando a ejecutar",
+    )
 
-    parser.add_argument('targets', nargs='*',
-                       help='URLs objetivo para scraping')
+    parser.add_argument("targets", nargs="*", help="URLs objetivo para scraping")
 
-    parser.add_argument('--autonomy-level',
-                       choices=['supervised', 'semi', 'fully_autonomous', 'transcendent'],
-                       default='fully_autonomous',
-                       help='Nivel de autonomía del sistema')
+    parser.add_argument(
+        "--autonomy-level",
+        choices=["supervised", "semi", "fully_autonomous", "transcendent"],
+        default="fully_autonomous",
+        help="Nivel de autonomía del sistema",
+    )
 
-    parser.add_argument('--objectives', nargs='+',
-                       help='Objetivos para scraping autónomo')
+    parser.add_argument(
+        "--objectives", nargs="+", help="Objetivos para scraping autónomo"
+    )
 
     args = parser.parse_args()
 
     cli = AutonomousCLI()
 
     try:
-        if args.command == 'start':
+        if args.command == "start":
             await cli.start_system(args.autonomy_level)
 
-        elif args.command == 'stop':
+        elif args.command == "stop":
             await cli.stop_system()
 
-        elif args.command == 'status':
+        elif args.command == "status":
             await cli.show_status()
 
-        elif args.command == 'scrape':
+        elif args.command == "scrape":
             if not args.targets:
                 print("❌ Se requiere al menos una URL para scraping")
                 sys.exit(1)
 
             await cli.autonomous_scrape(args.targets, args.objectives)
 
-        elif args.command == 'full-autonomy':
+        elif args.command == "full-autonomy":
             await cli.enable_full_autonomy()
 
-        elif args.command == 'transcendent':
+        elif args.command == "transcendent":
             await cli.enable_transcendent_mode()
 
-        elif args.command == 'interactive':
+        elif args.command == "interactive":
             await cli.interactive_mode()
 
     except KeyboardInterrupt:
@@ -443,7 +464,7 @@ Ejemplos:
 
 if __name__ == "__main__":
     # Crear directorio de logs
-    os.makedirs('logs', exist_ok=True)
+    os.makedirs("logs", exist_ok=True)
 
     # Ejecutar CLI
     try:

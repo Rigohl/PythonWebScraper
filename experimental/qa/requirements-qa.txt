@@ -1,0 +1,7 @@
+# Optional requirements for the experimental QA reader (Hugging Face)
+transformers>=4.30.0
+huggingface-hub>=0.16.0
+torch; platform_system != 'Windows'  # optional: CPU/GPU backend (or install torchvision/cuda builds as needed)
+
+# If you prefer a lightweight backend for question-answering, consider
+# 'sentence-transformers' or 'onnxruntime' pipelines depending on your needs.

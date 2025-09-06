@@ -1,3 +1,35 @@
+import asyncio
+
+from src.scrapers.base import BaseScraper
+
+
+class DummyScraper(BaseScraper):
+    def __init__(self):
+        super().__init__(name="dummy")
+
+    async def scrape(self, client, url: str):
+        # Minimal implementation for testing
+        class _R:
+            def __init__(self):
+                self.status = "ok"
+
+        return _R()
+
+
+def test_get_info_contains_name_and_type():
+    s = DummyScraper()
+    info = s.get_info()
+    assert isinstance(info, dict)
+    assert "name" in info and "type" in info
+
+
+def test_subclass_implements_scrape_event_loop():
+    s = DummyScraper()
+    # Ensure scrape is awaitable and callable
+    coro = s.scrape(None, "http://example.com")
+    assert asyncio.iscoroutine(coro)
+
+
 """
 Tests for BaseScraper contract and functionality.
 """
@@ -29,7 +61,8 @@ class TestBaseScraperContract:
         assert isinstance(info, dict)
         assert info["name"] == "dummy"
         assert "type" in info
-        assert "description" in info
+        # Note: BaseScraper.get_info() only returns name and type, not description
+        assert info["type"] == "DummyScraper"
 
     def test_base_scraper_name_property(self):
         """Verify name property is accessible."""

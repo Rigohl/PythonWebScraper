@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from src.scraper import AdvancedScraper
@@ -46,7 +48,7 @@ async def test_apply_cookies_loads_and_sets_from_db():
 
     # Simular cookies existentes en DB
     test_cookies = [{"name": "session", "value": "abc123", "domain": "example.com"}]
-    db.cookies["example.com"] = test_cookies
+    db.cookies["example.com"] = json.dumps(test_cookies)
 
     scraper = AdvancedScraper(db_manager=db, browser_adapter=adapter, llm_extractor=llm)
 
@@ -75,7 +77,7 @@ async def test_persist_cookies_saves_when_modified():
 
     # Verificar que db_manager.save_cookies fue llamado
     assert db.cookies_saved is True
-    assert db.cookies["example.com"] == new_cookies
+    assert db.cookies["example.com"] == json.dumps(new_cookies)
 
 
 @pytest.mark.asyncio
@@ -87,7 +89,7 @@ async def test_cookie_workflow_integration():
 
     # 1. Cargar cookies iniciales
     initial_cookies = [{"name": "initial", "value": "value1", "domain": "example.com"}]
-    db.cookies["example.com"] = initial_cookies
+    db.cookies["example.com"] = json.dumps(initial_cookies)
 
     scraper = AdvancedScraper(db_manager=db, browser_adapter=adapter, llm_extractor=llm)
 
@@ -106,4 +108,4 @@ async def test_cookie_workflow_integration():
     # 4. Persistir cookies (debería guardar en DB)
     await scraper._persist_cookies("example.com")
     assert db.cookies_saved is True
-    assert db.cookies["example.com"] == modified_cookies
+    assert db.cookies["example.com"] == json.dumps(modified_cookies)

@@ -1,8 +1,9 @@
 # Placeholder for scripts/check_data_quality.py
-import sqlite3
 import os
+import sqlite3
 
 DB_PATH = "data/scraper_database.db"
+
 
 def check_data_quality():
     print("=======================================")
@@ -22,22 +23,31 @@ def check_data_quality():
         print(f"\n[INFO] Total de registros en la base de datos: {total_records}")
 
         # Registros exitosos vs fallidos
-        successful = cursor.execute("SELECT COUNT(*) FROM pages WHERE status = 'SUCCESS'").fetchone()[0]
-        failed = cursor.execute("SELECT COUNT(*) FROM pages WHERE status = 'FAILED'").fetchone()[0]
-        low_quality = cursor.execute("SELECT COUNT(*) FROM pages WHERE status = 'LOW_QUALITY'").fetchone()[0]
+        successful = cursor.execute(
+            "SELECT COUNT(*) FROM pages WHERE status = 'SUCCESS'"
+        ).fetchone()[0]
+        failed = cursor.execute(
+            "SELECT COUNT(*) FROM pages WHERE status = 'FAILED'"
+        ).fetchone()[0]
+        low_quality = cursor.execute(
+            "SELECT COUNT(*) FROM pages WHERE status = 'LOW_QUALITY'"
+        ).fetchone()[0]
 
         print(f"  - Exitosos: {successful}")
         print(f"  - Fallidos: {failed}")
         print(f"  - Baja Calidad: {low_quality}")
 
         # Registros sin datos extraidos
-        no_data = cursor.execute("SELECT COUNT(*) FROM pages WHERE status = 'SUCCESS' AND (extracted_data IS NULL OR extracted_data = '')").fetchone()[0]
+        no_data = cursor.execute(
+            "SELECT COUNT(*) FROM pages WHERE status = 'SUCCESS' AND (extracted_data IS NULL OR extracted_data = '')"
+        ).fetchone()[0]
         print(f"\n[WARNING] Registros exitosos sin datos extraidos: {no_data}")
 
         # Dominios mas scrapeados
         print("\n[INFO] Top 5 dominios mas scrapeados:")
         # Extraer dominio de la URL
-        top_domains = cursor.execute("""
+        top_domains = cursor.execute(
+            """
             SELECT
                 CASE
                     WHEN url LIKE 'http://%' THEN substr(url, 8)
@@ -50,10 +60,11 @@ def check_data_quality():
             GROUP BY domain
             ORDER BY count DESC
             LIMIT 5
-        """).fetchall()
+        """
+        ).fetchall()
         for domain, count in top_domains:
             # Extraer solo el dominio principal
-            clean_domain = domain.split('/')[0] if '/' in domain else domain
+            clean_domain = domain.split("/")[0] if "/" in domain else domain
             print(f"  - {clean_domain}: {count} registros")
 
         conn.close()
@@ -63,6 +74,7 @@ def check_data_quality():
 
     except Exception as e:
         print(f"\n[ERROR] Ocurrio un error al verificar la base de datos: {e}")
+
 
 if __name__ == "__main__":
     check_data_quality()

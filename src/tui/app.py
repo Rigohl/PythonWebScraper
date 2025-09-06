@@ -1,5 +1,7 @@
 import logging
+import time
 from pathlib import Path
+from typing import Any
 
 from textual.app import App, ComposeResult
 from textual.containers import Container, Grid, Vertical
@@ -91,6 +93,7 @@ class ToastNotification(Static):
         self.styles.display = "none"
         if self._timer:
             self._timer.stop()
+            self._timer = None
 
 
 class ToastContainer(Vertical):
@@ -204,7 +207,7 @@ class LiveStats(Container):
 
     def reset(self):
         """Resetea las estadísticas a cero."""
-        self._current_stats = {k: 0 for k in self._current_stats}
+        self._current_stats = dict.fromkeys(self._current_stats, 0)
         for label in self.query(Label):
             base_text = label.renderable.split(":")[0]
             label.update(f"{base_text}: 0")
@@ -234,8 +237,6 @@ class DomainStats(Container):
         self._current_metrics = domain_metrics.copy()
 
         # Limitar la frecuencia de actualización a máximo una vez cada 0.5 segundos
-        import time
-
         current_time = time.time()
         if current_time - self._last_update_time < 0.5 and not self._update_scheduled:
             self._update_scheduled = True
@@ -246,8 +247,6 @@ class DomainStats(Container):
 
     def _apply_updates(self):
         """Actualiza la tabla con las métricas más recientes."""
-        import time
-
         try:
             table = self.query_one(DataTable)
             table.clear()
@@ -372,7 +371,8 @@ class BrainStats(Container):
         try:
             self.query_one("#brain_stats_table", DataTable).clear()
             self.query_one("#brain_recent_events", Log).clear()
-        except Exception:
+        except (LookupError, AttributeError):
+            # If widgets are not present during initialization/tests, ignore
             pass
 
 
@@ -641,7 +641,8 @@ class ScraperTUIApp(App):
         self.query_one(DomainStats).border_title = "Métricas por Dominio"
         try:
             self.query_one(BrainStats).border_title = "Brain"
-        except Exception:
+        except (LookupError, AttributeError):
+            # Widget not mounted yet or query failed
             pass
         self.query_one(AlertsDisplay).border_title = "Alertas Críticas"
         self.query_one(AlertsDisplay).reset()  # Clear alerts on mount
@@ -649,7 +650,8 @@ class ScraperTUIApp(App):
         # Poner foco inicial en el campo de URL para que no necesites ratón
         try:
             self.query_one("#start_url").focus()
-        except Exception:
+        except (AttributeError, RuntimeError):
+            # Focus may fail during tests or if widget not present
             pass
         # Cargar preferencias de UI
         self._prefs = load_prefs()
@@ -658,7 +660,7 @@ class ScraperTUIApp(App):
         if not self._show_log_panel:
             try:
                 self.query_one("#right-pane").display = "none"
-            except Exception:
+            except (AttributeError, RuntimeError):
                 pass
         # Mostrar toast de bienvenida
         self.show_toast("¡Bienvenido a Scraper PRO!", "info", 2.0)
@@ -723,7 +725,7 @@ class ScraperTUIApp(App):
         try:
             overlay = self.query_one("#help_overlay", self.HelpOverlay)
             overlay.toggle()
-        except Exception:
+        except (LookupError, AttributeError):
             pass
 
     def action_toggle_autoscroll(self) -> None:
@@ -736,7 +738,7 @@ class ScraperTUIApp(App):
         try:
             status = "ON" if self._autoscroll_log else "OFF"
             self.show_toast(f"Autoscroll Log {status}", "info")
-        except Exception:
+        except (RuntimeError, AttributeError):
             pass
 
     def action_clear_log(self) -> None:
@@ -744,14 +746,14 @@ class ScraperTUIApp(App):
         try:
             self.query_one("#log_view", Log).clear()
             self.show_toast("Log limpiado", "success")
-        except Exception:
+        except (AttributeError, RuntimeError):
             pass
 
     def action_focus_url(self) -> None:
         """Pone foco en el campo URL."""
         try:
             self.query_one("#start_url", Input).focus()
-        except Exception:
+        except (AttributeError, RuntimeError):
             pass
 
     def action_toggle_log_panel(self) -> None:
@@ -765,7 +767,7 @@ class ScraperTUIApp(App):
             self._prefs["show_log_panel"] = not currently
             save_prefs(self._prefs)
             self.show_toast("Log oculto" if currently else "Log visible", "info")
-        except Exception:
+        except (AttributeError, RuntimeError, OSError):
             pass
 
     def action_pause_resume(self) -> None:
@@ -778,24 +780,24 @@ class ScraperTUIApp(App):
         """Exporta un reporte markdown manualmente usando la base de datos configurada."""
         try:
             from ..database import DatabaseManager  # type: ignore
-        except Exception:
+        except ImportError:
             self.show_toast("Export no disponible", "error")
             return
         try:
             db = DatabaseManager(settings.DB_PATH)
             md_path = Path("exports/manual_export.md")
             md_path.parent.mkdir(parents=True, exist_ok=True)
-            with md_path.open("w", encoding="utf-8") as f:
-                db.export_to_markdown(str(md_path))
+            db.export_to_markdown(str(md_path))
             self.show_toast(f"MD exportado: {md_path}", "success", 4.0)
-        except Exception:
+        except (OSError, RuntimeError, ValueError) as e:
+            logging.exception("Error exporting markdown: %s", e)
             self.show_toast("Error exportando MD", "error")
 
     def update_intelligence_banner(self) -> None:
         """Construye y actualiza la línea de estado de inteligencia con anomalías."""
         try:
             banner = self.query_one("#intelligence_banner", self.IntelligenceBanner)
-        except Exception:
+        except (LookupError, AttributeError):
             return
 
         parts: list[str] = []
@@ -814,7 +816,7 @@ class ScraperTUIApp(App):
         )
         try:
             rl_enabled = self.query_one("#use_rl", Checkbox).value
-        except Exception:
+        except (LookupError, AttributeError):
             rl_enabled = False
         parts.append("🧪 RL:" + ("[green]ON[/]" if rl_enabled else "[grey]OFF[/]"))
         try:
@@ -833,7 +835,8 @@ class ScraperTUIApp(App):
                 parts.append(f"🎯 Éxito:[bold {color}]{rate:.0%}[/]")
                 if fail_rate >= 0.4:
                     parts.append(f"⚠ [bold red]Fallas {fail_rate:.0%}[/]")
-        except Exception:
+        except (TypeError, ZeroDivisionError, AttributeError, KeyError):
+            # Defensive: if stats shape is unexpected, skip banner augmentation
             pass
         # Backoff máximo
         try:
@@ -844,7 +847,7 @@ class ScraperTUIApp(App):
                     max_backoff = bf
             if max_backoff > 2:
                 parts.append(f"⏳ Backoff:[bold yellow]{max_backoff:.1f}x[/]")
-        except Exception:
+        except (AttributeError, TypeError):
             pass
         if getattr(self, "_paused", False):
             parts.append("[bold yellow]PAUSADO[/]")
@@ -887,7 +890,7 @@ class ScraperTUIApp(App):
         if brain_snapshot:
             try:
                 self.query_one(BrainStats).update_brain(brain_snapshot)
-            except Exception:
+            except (AttributeError, RuntimeError):
                 pass
 
         # 🧠 Actualizar métricas de inteligencia si están disponibles
@@ -896,13 +899,11 @@ class ScraperTUIApp(App):
             try:
                 intelligence_widget = self.query_one(IntelligenceStats)
                 intelligence_widget.update_intelligence_stats(intelligence_data)
-            except Exception as e:
+            except (AttributeError, RuntimeError):
                 # Silently handle if widget not found (during initialization)
                 pass
 
         # Programar actualización de UI si no hay una programada ya
-        import time
-
         current_time = time.time()
         if not self._ui_update_scheduled and (
             current_time - self._last_update_time > self._ui_update_interval
@@ -932,11 +933,9 @@ class ScraperTUIApp(App):
             failed = self.live_stats_data.get("FAILED", 0)
             total = processed or 1
             success_rate = success / total
-            from time import time
-
             if not hasattr(self, "_start_time"):
-                self._start_time = time()
-            elapsed = max(time() - self._start_time, 0.001)
+                self._start_time = time.time()
+            elapsed = max(time.time() - self._start_time, 0.001)
             throughput = processed / elapsed
             mm = int(elapsed // 60)
             ss = int(elapsed % 60)
@@ -974,8 +973,6 @@ class ScraperTUIApp(App):
             self._update_ui_now()
         finally:
             self._ui_update_scheduled = False
-            import time
-
             self._last_update_time = time.time()
 
     def _update_progress_and_labels(self):
@@ -992,7 +989,7 @@ class ScraperTUIApp(App):
             progress_bar.progress = processed_count
             percentage = (processed_count / total_urls) * 100
             stats_label.update(
-                f"Procesadas: {processed_count}/{total_urls} " f"({percentage:.2f}%)"
+                f"Procesadas: {processed_count}/{total_urls} ({percentage:.2f}%)"
             )
 
         # Actualizar etiqueta de etapa y porcentaje estilo "hacker"
@@ -1032,6 +1029,7 @@ class ScraperTUIApp(App):
                 "[bold red]Error: La URL de inicio es obligatoria.[/]"
             )
             self.show_toast("URL de inicio requerida", "error")
+            start_url_input.focus()
             return
 
         try:
@@ -1045,19 +1043,19 @@ class ScraperTUIApp(App):
 
         self.set_ui_for_crawling(True)
         # Reiniciar estadísticas
-        self.live_stats_data = {k: 0 for k in self.live_stats_data}
+        self.live_stats_data = dict.fromkeys(self.live_stats_data, 0)
         self.query_one("#stats_label").update("Iniciando...")
         # Mostrar etapa inicial
         try:
             self.query_one("#stage_label").update("[green]Starting... 0%[/]")
-        except Exception:
+        except (LookupError, AttributeError):
             pass
         self.query_one(ProgressBar).update(total=100, progress=0)
         self.query_one(LiveStats).reset()
         self.query_one(DomainStats).reset()  # Reset domain stats too
         try:
             self.query_one(BrainStats).reset()
-        except Exception:
+        except (AttributeError, RuntimeError):
             pass
         self.query_one(AlertsDisplay).reset()  # Reset alerts
 
@@ -1065,10 +1063,8 @@ class ScraperTUIApp(App):
         self.show_toast(f"Iniciando crawling desde {start_url}", "info")
         # Reiniciar cronómetro de sesión
         try:
-            from time import time as _now
-
-            self._start_time = _now()
-        except Exception:
+            self._start_time = time.time()
+        except (AttributeError, RuntimeError):
             pass
 
         # Aplicar toggles runtime a settings global para componentes subsiguientes
@@ -1104,7 +1100,7 @@ class ScraperTUIApp(App):
                 self.query_one("#stats_label").update("¡Crawling completado!")
                 try:
                     self.query_one("#stage_label").update("[green]Completed — 100%[/]")
-                except Exception:
+                except (LookupError, AttributeError):
                     pass
                 self.show_toast("Crawling completado exitosamente", "success", 4.0)
             elif event.state == WorkerState.CANCELLED:
@@ -1114,7 +1110,7 @@ class ScraperTUIApp(App):
                 )
                 try:
                     self.query_one("#stage_label").update("[yellow]Cancelled[/]")
-                except Exception:
+                except (LookupError, AttributeError):
                     pass
                 self.show_toast("Crawling cancelado", "warning", 3.0)
             elif event.state == WorkerState.ERROR:
@@ -1130,7 +1126,7 @@ class ScraperTUIApp(App):
                     self.query_one("#stage_label").update(
                         "[red]Error during crawling[/]"
                     )
-                except Exception:
+                except (LookupError, AttributeError):
                     pass
                 self.show_toast("Error durante el crawling", "error", 5.0)
 
@@ -1208,10 +1204,13 @@ class ScraperTUIApp(App):
                 description="Inicializando AI Assistant",
             )
 
-        except Exception as e:
-            logging.error(f"Error inicializando AI Assistant: {e}")
+        except (AttributeError, RuntimeError, ValueError) as e:
+            logging.exception("Error inicializando AI Assistant: %s", e)
             self.show_toast(f"Error: {e}", "error", 5.0)
-            self.query_one("#ai_status").update("Estado AI: Error")
+            try:
+                self.query_one("#ai_status").update("Estado AI: Error")
+            except (LookupError, AttributeError):
+                pass
 
     async def ai_initialization_worker(self) -> None:
         """Worker para inicializar el AI Assistant."""
@@ -1248,11 +1247,14 @@ class ScraperTUIApp(App):
                         5.0,
                     )
 
-        except Exception as e:
-            logging.error(f"Error en worker de inicialización AI: {e}")
-            self.call_from_thread(
-                self.query_one("#ai_status").update, "Estado AI: Error"
-            )
+        except (AttributeError, RuntimeError) as e:
+            logging.exception("Error en worker de inicialización AI: %s", e)
+            try:
+                self.call_from_thread(
+                    self.query_one("#ai_status").update, "Estado AI: Error"
+                )
+            except (LookupError, AttributeError):
+                pass
 
     def action_ai_search(self) -> None:
         """Inicia búsqueda inteligente."""
@@ -1326,7 +1328,6 @@ class ScraperTUIApp(App):
                     logging.info(
                         f"Generado: {artifact['format'].upper()} - {artifact['location']}"
                     )
-
             else:
                 error_msg = result.get("error", "Error desconocido")
                 self.call_from_thread(
@@ -1334,11 +1335,14 @@ class ScraperTUIApp(App):
                 )
                 logging.error(f"Error en AI Search: {error_msg}")
 
-        except Exception as e:
-            logging.error(f"Error en worker de búsqueda AI: {e}")
-            self.call_from_thread(
-                self.show_toast, f"Error inesperado: {e}", "error", 5.0
-            )
+        except (AttributeError, RuntimeError) as e:
+            logging.exception("Error en worker de búsqueda AI: %s", e)
+            try:
+                self.call_from_thread(
+                    self.show_toast, f"Error inesperado: {e}", "error", 5.0
+                )
+            except (RuntimeError, AttributeError):
+                pass
 
     def action_voice_chat(self) -> None:
         """Inicia chat por voz."""
@@ -1352,7 +1356,6 @@ class ScraperTUIApp(App):
             name="voice_chat",
             description="Chat por voz activo",
         )
-
         self.show_toast("Iniciando chat por voz... Habla ahora", "info", 4.0)
         logging.info("AI: Iniciando conversación por voz")
 
@@ -1363,7 +1366,6 @@ class ScraperTUIApp(App):
                 return
 
             conversation_result = await self.ai_assistant.execute_voice_conversation()
-
             if conversation_result["status"] == "completed":
                 self.call_from_thread(
                     self.show_toast, "Conversación por voz completada", "success", 3.0
@@ -1376,11 +1378,14 @@ class ScraperTUIApp(App):
                 )
                 logging.warning(f"Chat por voz no disponible: {error_msg}")
 
-        except Exception as e:
-            logging.error(f"Error en chat por voz: {e}")
-            self.call_from_thread(
-                self.show_toast, f"Error en chat por voz: {e}", "error", 5.0
-            )
+        except (AttributeError, RuntimeError) as e:
+            logging.exception("Error en chat por voz: %s", e)
+            try:
+                self.call_from_thread(
+                    self.show_toast, f"Error en chat por voz: {e}", "error", 5.0
+                )
+            except (RuntimeError, AttributeError):
+                pass
 
     def action_ai_history(self) -> None:
         """Muestra historial del AI Assistant."""
@@ -1416,9 +1421,12 @@ class ScraperTUIApp(App):
 
             self.show_toast(f"Historial mostrado: {len(history)} sesiones", "info", 3.0)
 
-        except Exception as e:
-            logging.error(f"Error mostrando historial AI: {e}")
-            self.show_toast(f"Error: {e}", "error", 3.0)
+        except (AttributeError, RuntimeError) as e:
+            logging.exception("Error mostrando historial AI: %s", e)
+            try:
+                self.show_toast(f"Error: {e}", "error", 3.0)
+            except (RuntimeError, AttributeError):
+                pass
 
     def action_quit(self) -> None:
         """Sale de la aplicación."""

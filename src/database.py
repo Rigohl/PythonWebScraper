@@ -17,7 +17,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import sqlite3
 from datetime import UTC, datetime
 from typing import Any
 
@@ -27,20 +26,6 @@ from .models.results import ScrapeResult
 from .settings import settings
 
 logger = logging.getLogger(__name__)
-
-# Exception tuples for better error handling
-COMMON_DB_ERRORS = (sqlite3.Error, sqlite3.OperationalError, sqlite3.DatabaseError)
-DATA_ERRORS = (ValueError, TypeError, json.JSONDecodeError)
-DB_QUERY_ERRORS = (
-    sqlite3.Error,
-    sqlite3.OperationalError,
-    sqlite3.DatabaseError,
-    ValueError,
-    TypeError,
-    AttributeError,
-)
-DB_OR_DATA_ERRORS = (*COMMON_DB_ERRORS, *DATA_ERRORS)
-DB_EXCEPTIONS = COMMON_DB_ERRORS
 
 
 class DatabaseManager:
@@ -79,7 +64,7 @@ class DatabaseManager:
         # Ensure common indexes exist to improve query performance for dedup checks
         try:
             self._ensure_indexes()
-        except (RuntimeError, AttributeError, ValueError, ImportError, OSError):
+        except Exception:
             # Don't fail construction if index creation is not possible
             logger.debug(
                 "No se pudieron crear índices en la base de datos (entorno restringido)."
@@ -100,16 +85,16 @@ class DatabaseManager:
             if hasattr(self.db, "engine") and self.db.engine is not None:
                 try:
                     self.db.engine.dispose()
-                except (AttributeError, RuntimeError, OSError):
+                except Exception:
                     # Best-effort fallback
                     pass
             # dataset.Database exposes .executable in some versions; attempt to close if present
             if hasattr(self.db, "executable") and self.db.executable is not None:
                 try:
                     self.db.executable.close()
-                except (AttributeError, RuntimeError, OSError):
+                except Exception:
                     pass
-        except (AttributeError, RuntimeError):
+        except Exception:
             pass
 
     def _ensure_indexes(self) -> None:
@@ -141,8 +126,8 @@ class DatabaseManager:
                     conn.execute(
                         text("CREATE INDEX IF NOT EXISTS idx_pages_url ON pages(url);")
                     )
-        except (ImportError, AttributeError, RuntimeError, ValueError, OSError) as e:
-            logger.debug("_ensure_indexes failed: %s", e)
+        except Exception as e:
+            logger.debug(f"_ensure_indexes failed: {e}")
 
     # ------------------------------------------------------------------
     # Discovered APIs and cookies
@@ -162,7 +147,7 @@ class DatabaseManager:
             "timestamp": datetime.now(UTC),
         }
         self.apis_table.upsert(data, ["page_url", "api_url", "payload_hash"])
-        logger.info("API descubierta en %s: %s", page_url, api_url)
+        logger.info(f"API descubierta en {page_url}: {api_url}")
 
     def save_cookies(self, domain: str, cookies_json: str) -> None:
         """Persist cookies for the given domain."""
@@ -172,7 +157,7 @@ class DatabaseManager:
             "timestamp": datetime.now(UTC),
         }
         self.cookies_table.upsert(data, ["domain"])
-        logger.debug("Cookies guardadas para el dominio: %s", domain)
+        logger.debug(f"Cookies guardadas para el dominio: {domain}")
 
     def load_cookies(self, domain: str) -> str | None:
         """Retrieve cookies for a domain or ``None`` if not found."""
@@ -187,7 +172,7 @@ class DatabaseManager:
             "timestamp": datetime.now(UTC),
         }
         self.llm_schemas_table.upsert(data, ["domain"])
-        logger.debug("Esquema LLM guardado para el dominio: %s", domain)
+        logger.debug(f"Esquema LLM guardado para el dominio: {domain}")
 
     def load_llm_extraction_schema(self, domain: str) -> str | None:
         """Retrieve a stored LLM extraction schema or ``None`` if missing."""
@@ -215,14 +200,14 @@ class DatabaseManager:
                 logger.warning(
                     f"[DEBUG] save_result url={result.url} status={result.status} content_len={clen}"
                 )
-        except (RuntimeError, AttributeError, OSError):
+        except Exception:
             pass
 
         # Primary deduplicación exacta por content_hash
         if result.content_hash:
             try:
                 existing_rows = list(self.table.find(content_hash=result.content_hash))
-            except COMMON_DB_ERRORS as e:  # graceful fallback
+            except Exception as e:  # graceful fallback
                 existing_rows = []
                 logger.debug(f"Error consulting content_hash for {result.url}: {e}")
             if existing_rows:
@@ -250,7 +235,7 @@ class DatabaseManager:
         try:
             self.table.upsert(data, ["url"])  # Insert/update canonical row
             logger.debug(f"Resultado para {result.url} guardado en la base de datos.")
-        except COMMON_DB_ERRORS as e:
+        except Exception as e:
             logger.error(f"Error guardando resultado para {result.url}: {e}")
             try:
                 existing_row = self.table.find_one(url=result.url)
@@ -262,7 +247,7 @@ class DatabaseManager:
                 logger.info(
                     f"Resultado para {result.url} guardado usando insert/update fallback."
                 )
-            except COMMON_DB_ERRORS as e2:
+            except Exception as e2:
                 logger.error(
                     f"Error crítico guardando resultado para {result.url}: {e2}"
                 )
@@ -276,7 +261,7 @@ class DatabaseManager:
                     logger.info(
                         f"Detectadas {len(dup_rows)} filas con hash duplicado tras inserción. Se recomienda limpieza manual, conservando la primera."
                     )
-            except COMMON_DB_ERRORS as e:
+            except Exception as e:
                 logger.debug(f"Post insert duplicate scan error: {e}")
 
     def _compute_normalized_hash(self, result: ScrapeResult) -> str | None:
@@ -297,7 +282,7 @@ class DatabaseManager:
                     logger.debug(
                         f"Computed normalized hash for {result.url}: {normalized_hash}"
                     )
-        except DATA_ERRORS as e:
+        except Exception as e:
             logger.debug(f"Error computing normalized hash: {e}")
 
         return normalized_hash
@@ -326,7 +311,7 @@ class DatabaseManager:
                         f"SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT {scan_limit}"
                     )
                 )
-            except (ImportError, AttributeError, RuntimeError, *DB_EXCEPTIONS):
+            except Exception:
                 rows_iter = list(self.table.limit(scan_limit))
 
             for row in rows_iter:
@@ -358,12 +343,12 @@ class DatabaseManager:
                             if existing_row:
                                 existing_row["status"] = "DUPLICATE"
                                 self.table.update(existing_row, ["url"])
-                        except COMMON_DB_ERRORS as e:  # noqa: BLE001
+                        except Exception as e:  # noqa: BLE001
                             logger.debug(
                                 f"Could not retroactively mark existing duplicate {existing_url}: {e}"
                             )
                     break
-        except DB_OR_DATA_ERRORS as e:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
             logger.debug(f"Error during fuzzy deduplication check: {e}")
 
     def _prefer_url(self, a: str, b: str) -> str:
@@ -381,7 +366,7 @@ class DatabaseManager:
 
     def _prepare_result_data(
         self, result: ScrapeResult, normalized_hash: str | None = None
-    ) -> dict[str, Any]:
+    ) -> dict:
         """Prepare result data for database insertion with proper JSON serialization."""
         data = result.model_dump(mode="json")
 
@@ -434,7 +419,7 @@ class DatabaseManager:
                         duplicate_found = True
                         existing_url = row_url
                         break
-            except COMMON_DB_ERRORS as e:
+            except Exception as e:
                 logger.debug(f"Error in post-save duplicate check: {e}")
                 return
 
@@ -447,7 +432,7 @@ class DatabaseManager:
                 data = self._prepare_result_data(result)
                 try:
                     self.table.update(data, ["url"])
-                except COMMON_DB_ERRORS as e:
+                except Exception as e:
                     logger.warning(
                         f"Could not update duplicate status for {result.url}: {e}"
                     )
@@ -459,9 +444,9 @@ class DatabaseManager:
                     logger.info(f"Confirmed saved row for {result.url}")
                 else:
                     logger.warning(f"Could not confirm saved row for {result.url}")
-            except COMMON_DB_ERRORS as e:
+            except Exception as e:
                 logger.warning(f"Could not confirm saved row for {result.url}: {e}")
-        except (RuntimeError, AttributeError, ValueError) as e:
+        except Exception as e:
             logger.warning(f"Error in post-save duplicate check for {result.url}: {e}")
 
     # ------------------------------------------------------------------
@@ -504,7 +489,7 @@ class DatabaseManager:
                 results_iterator = self.table.find(
                     status="SUCCESS"
                 )  # recreate iterator after consumption
-        except (RuntimeError, AttributeError):
+        except Exception:
             pass
         first = next(results_iterator, None)
         if first is None:
@@ -568,7 +553,7 @@ class DatabaseManager:
         from collections import Counter
 
         status_counter = Counter(r.get("status", "UNKNOWN") for r in results)
-        domain_counter: Counter[str] = Counter()
+        domain_counter = Counter()
         for r in results:
             url = r.get("url") or ""
             try:
@@ -577,7 +562,7 @@ class DatabaseManager:
                 net = _urlparse(url).netloc
                 if net:
                     domain_counter[net] += 1
-            except ValueError:
+            except Exception:
                 pass
 
         # Recent pages by scraped_at
@@ -590,9 +575,7 @@ class DatabaseManager:
         # Build markdown
         lines: list[str] = []
         lines.append("# Informe de Scraping (Markdown Export)\n")
-        lines.append(
-            f"Generado: {__import__('datetime').datetime.utcnow().isoformat()}Z\n"
-        )
+        lines.append(f"Generado: {datetime.now(UTC).isoformat()}Z\n")
         lines.append("## Resumen de Estados")
         for status, count in sorted(status_counter.items()):
             lines.append(f"- **{status}**: {count}")
@@ -604,7 +587,7 @@ class DatabaseManager:
         lines.append("\n## Páginas Recientes (10)")
         for r in recent:
             lines.append(
-                f"- {r.get('scraped_at', '?')} | {r.get('status')} | {r.get('url')}"
+                f"- {r.get('scraped_at','?')} | {r.get('status')} | {r.get('url')}"
             )
 
         # SUCCESS table
@@ -619,10 +602,10 @@ class DatabaseManager:
                 if isinstance(extracted, str):
                     try:
                         extracted = json.loads(extracted)
-                    except (json.JSONDecodeError, TypeError, ValueError):
+                    except Exception:
                         extracted = {"raw": extracted[:40]}
                 extracted_keys = (
-                    ", ".join(list(extracted.keys())[:6])
+                    ",".join(list(extracted.keys())[:6])
                     if isinstance(extracted, dict)
                     else "-"
                 )
@@ -645,7 +628,7 @@ class DatabaseManager:
                 if isinstance(brain_data, dict):
                     keys = list(brain_data.keys())[:15]
                     lines.append("Campos: " + ", ".join(keys))
-            except (OSError, json.JSONDecodeError) as e:
+            except Exception as e:
                 lines.append(f"\n_No se pudo leer brain_state.json: {e}_")
 
         with open(file_path, "w", encoding="utf-8") as f:
@@ -706,7 +689,7 @@ class DatabaseManager:
                     ):
                         unique_by_hash[ch] = r
             return list(unique_by_hash.values())
-        except DB_QUERY_ERRORS as e:
+        except Exception as e:
             logger.warning(f"Error en búsqueda: {e}")
             # Fallback: scan all results
             all_results = self.list_results()

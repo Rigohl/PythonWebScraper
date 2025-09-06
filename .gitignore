@@ -6,20 +6,27 @@ venv_validation/
 # Archivos de caché de Python
 __pycache__/
 *.pyc
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
 
 # Archivos temporales y backups
 *.bak
 *.tmp
 *.temp
 *.log
+flake8_output.txt
+flake8_output2.txt
 
 # Bases de datos
 *.db
 *.sqlite
 *.sqlite3
 
-# Scripts locales
-# Excluimos *.bat y *.sh excepto los principales
-# scripts/*.bat
-# scripts/*.sh
-logs/scraper_run.log
+# Directorios y archivos generados/temporales
+logs/
+exports/
+artifacts/
+reports/
+backups/snapshots/
+data/brain_enrichment.json

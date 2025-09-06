@@ -158,13 +158,13 @@ neural_channels = {
 ## 📊 ANÁLISIS DE COMPLEJIDAD
 
 ### Métricas de Código
-| Archivo | Líneas | Complejidad | Problema |
-|---------|--------|-------------|----------|
-| `orchestrator.py` | 562 | Alta | God Class |
-| `database.py` | 452 | Alta | Múltiples responsabilidades |
-| `scraper.py` | 334 | Media | Pipeline largo |
-| `main.py` | 216 | Media | CLI compleja |
-| `hybrid_brain.py` | 3027 | Muy Alta | Sistema complejo justificado |
+| Archivo           | Líneas | Complejidad | Problema                     |
+| ----------------- | ------ | ----------- | ---------------------------- |
+| `orchestrator.py` | 562    | Alta        | God Class                    |
+| `database.py`     | 452    | Alta        | Múltiples responsabilidades  |
+| `scraper.py`      | 334    | Media       | Pipeline largo               |
+| `main.py`         | 216    | Media       | CLI compleja                 |
+| `hybrid_brain.py` | 3027   | Muy Alta    | Sistema complejo justificado |
 
 ### Cobertura de Tests
 - **Estado Actual**: 7/8 tests pasando

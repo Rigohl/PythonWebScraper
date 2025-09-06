@@ -1,0 +1,9 @@
+commit_enabled: false
+# When true the adapter will auto-accept suggestions (mark status 'accepted')
+# but will not commit to external intelligence subsystems unless commit_enabled
+# is also true.
+auto_accept: false
+
+# When true the automation helper will run pre-commit on the staged files and
+# perform a git commit and push for the experimental/qa files. Use with caution.
+auto_commit_git: false

@@ -7,23 +7,19 @@
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 800,
   "explorer.confirmDragAndDrop": false,
-
   "security.workspace.trust.enabled": true,
-
   "git.autofetch": true,
   "git.enableSmartCommit": true,
   "git.confirmSync": false,
   "git.pruneOnFetch": true,
   "git.autoStash": true,
   "git.enableCommitSigning": true,
-
   "terminal.integrated.defaultProfile.windows": "PowerShell",
   "workbench.editor.restoreViewState": true,
   "window.commandCenter": true,
   "extensions.autoUpdate": true,
   "extensions.ignoreRecommendations": true,
   "workbench.startupEditor": "none",
-
   "github.copilot.enable": {
     "*": true,
     "plaintext": false,
@@ -33,17 +29,14 @@
   "github.copilot.inlineSuggest.enable": true,
   "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.selectedCompletionModel": "gpt-5",
-
   "chat.experimental.showChatInPanel": true,
   "chat.experimental.showChatInSidebar": true,
   "chat.experimental.chatHistory.enabled": true,
   "chat.experimental.recentMessages.enabled": true,
   "chat.experimental.smartActions.enabled": true,
   "chat.experimental.checkpoints.enabled": true,
-
   "geminicodeassist.agentYoloMode": true,
   "http.electronFetch": true,
-
   "chat.mcp.assisted.nuget.enabled": true,
   "chat.mcp.discovery.enabled": {
     "cursor-workspace": true,
@@ -52,44 +45,47 @@
     "claude-desktop": true
   },
   "chat.mcp.autostart": "newAndOutdated",
-
   "chat.tools.autoApprove": true,
-
   "redhat.telemetry.enabled": false,
   "open-php-html-js-in-browser.selectedBrowser": "Edge",
-
   "python.defaultInterpreterPath": "c:\\Python313\\python.exe",
   "python.createEnvironment.trigger": "off",
-
   "geminicodeassist.agentDebugMode": true,
   "geminicodeassist.codeGenerationPaneViewEnabled": true,
-
   "diffEditor.codeLens": true,
-
   "gitlens.ai.model": "vscode",
   "gitlens.ai.vscode.model": "copilot:gpt-5-mini",
-
   // === GITHUB CORE ===
   "github.gitAuthentication": true,
-  "githubPullRequests.remotes": ["origin", "upstream"],
+  "githubPullRequests.remotes": [
+    "origin",
+    "upstream"
+  ],
   "githubPullRequests.queries": [
     {
       "label": "⭐ Waiting for my review",
       "query": "is:open review-requested:${user}"
     },
-    { "label": "👤 Assigned to me", "query": "is:open assignee:${user}" },
-    { "label": "✍️ Created by me", "query": "is:open author:${user}" },
-    { "label": "💬 Mentioned me", "query": "is:open involves:${user}" },
+    {
+      "label": "👤 Assigned to me",
+      "query": "is:open assignee:${user}"
+    },
+    {
+      "label": "✍️ Created by me",
+      "query": "is:open author:${user}"
+    },
+    {
+      "label": "💬 Mentioned me",
+      "query": "is:open involves:${user}"
+    },
     {
       "label": "✅ Recently merged",
       "query": "is:pr is:closed author:${user} sort:updated-desc"
     }
   ],
-
   // === ACTIONS / CODESPACES (UX) ===
   "github-actions.workflows.sort": "updated",
   "github-actions.workflows.showAllRepos": false,
-
   // === TERMINAL AUTONOMY (tu lista + red habilitada) ===
   "chat.tools.terminal.autoApprove": {
     "1": true,
@@ -148,10 +144,18 @@
     "/^sort\\b.*-(o|S)\\b/": false,
     "tree": true,
     "/^tree\\b.*-o\\b/": false,
-    "/\\(.+\\)/": { "approve": false, "matchCommandLine": true },
-    "/\\{.+\\}/": { "approve": false, "matchCommandLine": true },
-    "/`.+`/": { "approve": false, "matchCommandLine": true },
-
+    "/\\(.+\\)/": {
+      "approve": false,
+      "matchCommandLine": true
+    },
+    "/\\{.+\\}/": {
+      "approve": false,
+      "matchCommandLine": true
+    },
+    "/`.+`/": {
+      "approve": false,
+      "matchCommandLine": true
+    },
     "rm": false,
     "rmdir": false,
     "del": false,
@@ -167,14 +171,12 @@
     "spps": false,
     "taskkill": false,
     "taskkill.exe": false,
-
     "curl": true,
     "wget": true,
     "Invoke-RestMethod": true,
     "Invoke-WebRequest": true,
     "irm": true,
     "iwr": true,
-
     "chmod": false,
     "chown": false,
     "Set-ItemProperty": false,
@@ -185,7 +187,6 @@
     "eval": false,
     "Invoke-Expression": false,
     "iex": false,
-
     "flake8": true,
     "black": true,
     "pytest": true,
@@ -350,17 +351,14 @@
       "matchCommandLine": true
     }
   },
-
   "chat.agent.maxRequests": 200,
-
   "editor.codeActions.triggerOnFocusChange": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit",
     "source.fixAll": "explicit"
   },
-
   "[python]": {
-    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.organizeImports": "explicit",

@@ -1,0 +1,5 @@
+[
+  {"id": "doc1", "title": "Python web scraping", "text": "Python es excelente para web scraping. BeautifulSoup y requests son comunes."},
+  {"id": "doc2", "title": "Playwright usage", "text": "Playwright permite automatizar navegadores. Es útil para páginas dinámicas."},
+  {"id": "doc3", "title": "Data storage", "text": "Guardamos resultados en SQLite o CSV. La persistencia es importante."}
+]

@@ -73,6 +73,11 @@ def _add_action_arguments(action_group: argparse._MutuallyExclusiveGroup) -> Non
         help="Launch Professional Dashboard TUI mode (NUEVO)",
     )
     action_group.add_argument(
+        "--gui-pro",
+        action="store_true",
+        help="Launch Professional GUI mode with Transformers robot face",
+    )
+    action_group.add_argument(
         "--demo", action="store_true", help="Run in demo mode (without Playwright)"
     )
     action_group.add_argument(
@@ -147,6 +152,8 @@ async def _handle_action(args: argparse.Namespace) -> bool:
         await launch_tui()
     elif args.tui_pro:
         await launch_professional_tui()
+    elif args.gui_pro:
+        await launch_professional_gui()
     elif args.demo:
         await run_demo_mode()
     elif args.crawl:
@@ -190,14 +197,20 @@ async def _handle_crawl_action(args: argparse.Namespace) -> None:
 async def launch_tui() -> None:
     """Launch the Text User Interface"""
     # Check if required dependencies are available
-    if not _check_tui_dependencies():
+    try:
+        if not _check_tui_dependencies():
+            # _check_tui_dependencies already logs the error; ensure we exit
+            sys.exit(1)
+
+        # Import corrected TUI class name (was ScraperTUIApp in app.py)
+        from .tui.app import ScraperTUIApp  # type: ignore
+
+        app = ScraperTUIApp()
+        await app.run_async()
+    except ImportError as e:
+        # Explicitly log error so tests that patch logger detect this path
+        logger.error("Failed to import TUI app: %s", e)
         sys.exit(1)
-
-    # Import corrected TUI class name (was ScraperTUIApp in app.py)
-    from .tui.app import ScraperTUIApp  # type: ignore
-
-    app = ScraperTUIApp()
-    await app.run_async()
 
 
 async def launch_professional_tui() -> None:
@@ -209,6 +222,18 @@ async def launch_professional_tui() -> None:
     from .tui.professional_app import run_professional_app
 
     await run_professional_app()
+
+
+async def launch_professional_gui() -> None:
+    """Launch the Professional GUI with Transformers robot face"""
+    # Check if required dependencies are available
+    if not _check_gui_dependencies():
+        sys.exit(1)
+
+    from .gui.professional_app import run_professional_gui
+
+    # Run GUI in main thread
+    run_professional_gui()
 
 
 def _check_tui_dependencies(tui_type: str = "TUI") -> bool:
@@ -229,6 +254,23 @@ def _check_tui_dependencies(tui_type: str = "TUI") -> bool:
             "%s dependencies not available. Install textual: pip install textual",
             tui_type,
         )
+        return False
+
+
+def _check_gui_dependencies() -> bool:
+    """Check if GUI dependencies are available
+
+    Returns:
+        True if dependencies are available, False otherwise
+    """
+    try:
+        # Check PyQt6
+        __import__("PyQt6.QtWidgets")
+        __import__("PyQt6.QtCore")
+        __import__("PyQt6.QtGui")
+        return True
+    except ImportError:
+        logger.error("GUI dependencies not available. Install PyQt6: pip install PyQt6")
         return False
 
 

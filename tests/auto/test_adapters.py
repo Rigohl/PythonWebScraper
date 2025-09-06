@@ -36,12 +36,9 @@ async def test_httpx_adapter_get():
 
 
 def _import_browser_adapter():
-    try:
-        from src.adapters.browser_adapter import BrowserAdapter
+    from src.adapters.browser_adapter import BrowserAdapter
 
-        return BrowserAdapter
-    except Exception:
-        pytest.skip("BrowserAdapter not available")
+    return BrowserAdapter
 
 
 def test_browser_adapter_abstract():
@@ -53,12 +50,9 @@ def test_browser_adapter_abstract():
 
 
 def _import_llm_adapter():
-    try:
-        from src.adapters.llm_adapter import LLMAdapter
+    from src.adapters.llm_adapter import LLMAdapter
 
-        return LLMAdapter
-    except Exception:
-        pytest.skip("LLMAdapter not available")
+    return LLMAdapter
 
 
 def test_llm_adapter_abstract():

@@ -2,43 +2,7 @@
 
 > Informe generado automáticamente por HybridBrain (capa advisory, sin auto-modificación)
 
-Generado: 2025-09-06T13:47:25.832290Z
-Total sugerencias: 3
+Generado: 2025-09-06T22:30:53.731736+00:00Z
+Total sugerencias: 0
 
 ## Sugerencias Prioritarias
-
-### Optimizar estrategia en dominio lento code.visualstudio.com (HIGH)
-ID: `slowdomain::code.visualstudio.com` | Categoría: performance | Confianza: 0.81
-Referencias KB: perf:latency-tuning, perf:cache-static
-
-**Rationale:** Tiempo respuesta 2.76s es +1.74s vs global 1.02s.
-
-**Acción Recomendada:** Aumentar delay incremental + revisar headers / compresión y activar caching selectivo.
-
-**Señales:** `{'domain_avg_rt': 2.7556438497891533, 'global_avg_rt': 1.0162883333333335, 'delta': 1.7393555164558199}`
-
----
-
-### Ampliar cobertura de extracción en test.com (MEDIUM)
-ID: `extraction::fields::test.com` | Categoría: extraction | Confianza: 0.63
-Referencias KB: selectors:robust-css, selectors:xpath-fallback
-
-**Rationale:** Campos candidatos no reforzados: field_title...
-
-**Acción Recomendada:** Añadir reglas de parseo / selectores para campos faltantes y validar calidad.
-
-**Señales:** `{'missing_fields': ['field_title'], 'domain_attempts': 35}`
-
----
-
-### Ampliar cobertura de extracción en code.visualstudio.com (MEDIUM)
-ID: `extraction::fields::code.visualstudio.com` | Categoría: extraction | Confianza: 0.63
-Referencias KB: selectors:robust-css, selectors:xpath-fallback
-
-**Rationale:** Campos candidatos no reforzados: field_title...
-
-**Acción Recomendada:** Añadir reglas de parseo / selectores para campos faltantes y validar calidad.
-
-**Señales:** `{'missing_fields': ['field_title'], 'domain_attempts': 7}`
-
----

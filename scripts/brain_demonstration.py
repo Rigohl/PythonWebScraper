@@ -6,6 +6,7 @@ Este archivo demuestra las capacidades del cerebro masivamente expandido
 con 148+ elementos de conocimiento técnico distribuidos en 12+ dominios.
 """
 
+
 def demonstrate_brain_capabilities():
     """Demuestra las capacidades del cerebro expandido."""
 
@@ -19,71 +20,64 @@ def demonstrate_brain_capabilities():
             "Behavioral mimicking for human-like patterns",
             "Advanced proxy rotation and IP management",
             "CAPTCHA handling and automation",
-            "ML-powered content extraction"
+            "ML-powered content extraction",
         ],
-
         "🚀 JavaScript Ecosystem": [
             "Modern ES6+ async/await patterns",
             "React, Vue, Angular framework expertise",
             "Node.js backend development",
             "NPM package management",
             "Webpack and Vite bundling",
-            "Testing with Jest and Cypress"
+            "Testing with Jest and Cypress",
         ],
-
         "🤖 Bot Development": [
             "Discord.py and Telegram bot creation",
             "Natural Language Processing integration",
             "Multi-platform bot architecture",
             "Rate limiting and quota management",
             "Authentication and security",
-            "Conversational AI design"
+            "Conversational AI design",
         ],
-
         "🎨 UI/UX Design Excellence": [
             "Design systems and component libraries",
             "User journey mapping and research",
             "Accessibility (WCAG) compliance",
             "Responsive design principles",
             "Usability testing methodologies",
-            "Information architecture"
+            "Information architecture",
         ],
-
         "🔒 Security Best Practices": [
             "Input validation and sanitization",
             "Cryptography and encryption",
             "XSS and CSRF prevention",
             "OAuth2 and JWT authentication",
             "Secure API design",
-            "Penetration testing techniques"
+            "Penetration testing techniques",
         ],
-
         "⚡ Performance Optimization": [
             "Application profiling and monitoring",
             "Caching strategies (Redis, Memcached)",
             "Lazy loading and code splitting",
             "Database query optimization",
             "CDN and edge computing",
-            "Async processing patterns"
+            "Async processing patterns",
         ],
-
         "🗄️ Database Excellence": [
             "Connection pooling and optimization",
             "Advanced indexing strategies",
             "NoSQL vs SQL decision making",
             "Data migration and backup",
             "Query performance tuning",
-            "Distributed database patterns"
+            "Distributed database patterns",
         ],
-
         "☁️ Advanced Domains": [
             "Machine Learning model integration",
             "DevOps and CI/CD pipelines",
             "Cloud architecture (AWS, Azure, GCP)",
             "Microservices design patterns",
             "System scalability planning",
-            "Container orchestration"
-        ]
+            "Container orchestration",
+        ],
     }
 
     total_techniques = 0
@@ -112,6 +106,7 @@ def demonstrate_brain_capabilities():
 
     return True
 
+
 def show_knowledge_integration():
     """Muestra cómo se integra el conocimiento entre dominios."""
 
@@ -122,23 +117,23 @@ def show_knowledge_integration():
         {
             "scenario": "🌐 Bot Web Scraper Inteligente",
             "domains": ["Web Scraping", "Bot Development", "JavaScript", "Security"],
-            "description": "Combina técnicas anti-detección con arquitectura de bot, manejo asíncrono y seguridad."
+            "description": "Combina técnicas anti-detección con arquitectura de bot, manejo asíncrono y seguridad.",
         },
         {
             "scenario": "🎨 Dashboard de Performance",
             "domains": ["UI/UX", "Performance", "Database", "JavaScript"],
-            "description": "Integra diseño responsivo con optimización de rendimiento y queries eficientes."
+            "description": "Integra diseño responsivo con optimización de rendimiento y queries eficientes.",
         },
         {
             "scenario": "🔒 API Segura Escalable",
             "domains": ["Security", "Performance", "Database", "Cloud"],
-            "description": "Combina autenticación robusta con caching distribuido y arquitectura cloud."
+            "description": "Combina autenticación robusta con caching distribuido y arquitectura cloud.",
         },
         {
             "scenario": "🤖 ML-Powered Scraper",
             "domains": ["Web Scraping", "Machine Learning", "Performance", "Security"],
-            "description": "Fusiona técnicas de scraping con ML para extracción inteligente y evasión adaptativa."
-        }
+            "description": "Fusiona técnicas de scraping con ML para extracción inteligente y evasión adaptativa.",
+        },
     ]
 
     for integration in integrations:
@@ -148,6 +143,7 @@ def show_knowledge_integration():
 
     return True
 
+
 def demonstrate_autonomous_capabilities():
     """Demuestra las capacidades de autonomía del cerebro."""
 
@@ -155,18 +151,33 @@ def demonstrate_autonomous_capabilities():
     print("=" * 50)
 
     autonomous_features = [
-        ("🧠 Neuronas Verdaderas", "Procesamiento con potenciales de membrana y plasticidad STDP"),
-        ("🤔 Razonamiento Avanzado", "Deductivo, inductivo, abductivo y lógica difusa integrada"),
-        ("💭 Memoria Sofisticada", "Episódica, semántica y de trabajo con consolidación"),
+        (
+            "🧠 Neuronas Verdaderas",
+            "Procesamiento con potenciales de membrana y plasticidad STDP",
+        ),
+        (
+            "🤔 Razonamiento Avanzado",
+            "Deductivo, inductivo, abductivo y lógica difusa integrada",
+        ),
+        (
+            "💭 Memoria Sofisticada",
+            "Episódica, semántica y de trabajo con consolidación",
+        ),
         ("😊 Procesamiento Emocional", "Valencia-arousal con regulación emocional"),
-        ("🎯 Metacognición", "Autoconciencia, autorreflexión y calibración de confianza"),
+        (
+            "🎯 Metacognición",
+            "Autoconciencia, autorreflexión y calibración de confianza",
+        ),
         ("🌐 Consciencia Unificada", "Teoría del Espacio de Trabajo Global"),
         ("🔧 Autoinspección de Código", "Análisis AST para autoconciencia estructural"),
         ("🔄 Motor de Actualización", "Generación autónoma de parches y mejoras"),
         ("🧩 Arquitectura de Plugins", "Sistema extensible dinámico"),
         ("📚 Almacén de Conocimiento", "Base de datos SQLite con 148+ elementos"),
         ("🎓 Aprendizaje Autónomo", "Siembra automática de conocimiento especializado"),
-        ("⚙️ Formulación de Estrategias", "Generación inteligente basada en conocimiento")
+        (
+            "⚙️ Formulación de Estrategias",
+            "Generación inteligente basada en conocimiento",
+        ),
     ]
 
     for feature, description in autonomous_features:
@@ -184,6 +195,7 @@ def demonstrate_autonomous_capabilities():
     print("   • Autoconsciencia y autoaprendizaje")
 
     return True
+
 
 if __name__ == "__main__":
     print("🚀 INICIANDO DEMOSTRACIÓN DEL CEREBRO EXPANDIDO")

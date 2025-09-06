@@ -1,0 +1,32 @@
+name: Experimental QA tests
+
+on:
+  push:
+    branches: [ main, 'fix/*', '**' ]
+  pull_request:
+    paths:
+      - 'experimental/qa/**'
+
+jobs:
+  test-experimental-qa:
+    runs-on: ubuntu-latest
+    env:
+      QA_HF: 'false'
+    if: contains(github.event.head_commit.message, 'skip-experimental-qa') == false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+      - name: Optionally install HF deps (only if QA_HF=true)
+        if: env.QA_HF == 'true'
+        run: |
+          pip install -r experimental/qa/requirements-qa.txt
+      - name: Run experimental tests
+        run: |
+          python -m pytest -q experimental/qa/tests

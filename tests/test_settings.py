@@ -1,7 +1,3 @@
-"""
-Tests for settings configuration and defaults.
-"""
-
 import re
 from importlib import reload
 

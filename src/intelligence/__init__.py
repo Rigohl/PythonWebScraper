@@ -12,9 +12,39 @@ Components:
 - Legacy components: LLMExtractor, RLAgent
 """
 
-# Legacy imports for backward compatibility
-from ..llm_extractor import LLMExtractor
-from ..rl_agent import RLAgent
+
+# Legacy imports for backward compatibility (use lazy imports to avoid heavy deps at import time)
+def _lazy_import(name: str, package: str):
+    """Import a symbol on first access and cache it in module globals.
+
+    Usage: call _lazy_import('RLAgent', '..rl_agent') to import when needed.
+    """
+    if name in globals() and globals()[name] is not None:
+        return globals()[name]
+    try:
+        module = __import__(package, fromlist=[name])
+        obj = getattr(module, name)
+        globals()[name] = obj
+        return obj
+    except Exception:
+        globals()[name] = None
+        return None
+
+
+def get_LLMExtractor():
+    """Return the LLMExtractor class or None if not available."""
+    return _lazy_import("LLMExtractor", "..llm_extractor")
+
+
+def get_RLAgent():
+    """Return the RLAgent class or None if not available."""
+    return _lazy_import("RLAgent", "..rl_agent")
+
+
+# Backwards-compatible proxies (the tests or callers can call get_LLMExtractor()/get_RLAgent()
+# or import the names and check for None). We intentionally do NOT import heavy libs here.
+LLMExtractor = None
+RLAgent = None
 
 # New autonomous intelligence components
 try:
@@ -30,7 +60,6 @@ try:
     from .integration import IntelligenceIntegration
 
     # Knowledge and autonomous learning systems
-
     # Singleton function for hybrid integration
     def get_intelligence_integration() -> IntelligenceIntegration:
         """Obtiene la instancia singleton de IntelligenceIntegration con HybridBrain"""

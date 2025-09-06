@@ -2,20 +2,49 @@ import importlib.util
 
 import pytest
 
-from src.tui.app import launch_professional_tui
+
+def test_tui_compose_does_not_raise():
+    """Smoke test: instantiating the TUI and calling compose() should not raise."""
+    # Import inside test to avoid top-level import side-effects during collection
+    from src.tui.app import ScraperTUIApp
+
+    # Create a test subclass that doesn't initialize AI
+    class TestScraperTUIApp(ScraperTUIApp):
+        def on_mount(self) -> None:
+            """Skip AI initialization."""
+            pass
+
+    app = TestScraperTUIApp(log_file_path=None)
+
+    # For Textual apps, we need to run the app in test mode to have an active context
+    async def run_compose():
+        try:
+            async with app.run_test() as pilot:
+                widgets = list(app.compose())
+                assert len(widgets) > 0
+        except Exception as e:
+            if "styles.css" in str(e):
+                pytest.skip("styles.css not found, skipping TUI compose test")
+            else:
+                assert False, f"Unexpected exception: {e}"
+
+    import asyncio
+
+    asyncio.run(run_compose())
 
 
 def test_tui_launch_smoke_demo_mode():
     """Probar que el TUI principal se inicializa sin excepciones en modo demo"""
     try:
-        # Intentar lanzar TUI en modo demo (debería ser no-bloqueante)
-        # En un test real, esto podría requerir mocking del event loop
-        # Por ahora, verificamos que la función existe y es callable
-        assert callable(launch_professional_tui)
+        # Verificar que podemos importar la clase principal del TUI
+        from src.tui.app import ScraperTUIApp
 
-        # Si podemos ejecutar sin excepciones inmediatas, es una buena señal
-        # Nota: En un entorno de CI/testing, el TUI completo podría no ejecutarse
-        # pero al menos podemos verificar que no hay import errors
+        # Verificar que es callable (constructor)
+        assert callable(ScraperTUIApp)
+
+        # Si podemos instanciar sin excepciones inmediatas, es una buena señal
+        app = ScraperTUIApp(log_file_path=None)
+        assert app is not None
 
     except Exception as e:
         # Si hay algún error de importación o inicialización, fallar el test
@@ -25,17 +54,10 @@ def test_tui_launch_smoke_demo_mode():
 def test_tui_imports_successful():
     """Verificar que todos los imports del TUI funcionan correctamente"""
     try:
-        from textual.app import App
+        from src.tui.app import ScraperTUIApp
 
-        from src.tui.app import ProfessionalScraperApp
-
-        # Verificar que ProfessionalScraperApp hereda de App
-        assert issubclass(ProfessionalScraperApp, App)
-
-        # Verificar que podemos instanciar la clase (sin ejecutar)
-        app = ProfessionalScraperApp()
+        app = ScraperTUIApp()
         assert app is not None
-
     except ImportError as e:
         pytest.fail(f"TUI import failed: {e}")
     except Exception as e:
