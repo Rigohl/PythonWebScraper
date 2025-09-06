@@ -5491,3 +5491,118 @@
 {"timestamp": "2025-09-06 07:47:34,708", "level": "INFO", "name": "__main__", "message": "Exporting data to JSON: C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_frcud3v6\\export.json"}
 {"timestamp": "2025-09-06 07:47:34,762", "level": "INFO", "name": "src.database", "message": "3 registros exportados a C:\\Users\\DELL\\AppData\\Local\\Temp\\test_cli_json_frcud3v6\\export.json"}
 {"timestamp": "2025-09-06 07:47:34,763", "level": "INFO", "name": "__main__", "message": "JSON export completed"}
+{"timestamp": "2025-09-06 08:50:23,202", "level": "ERROR", "name": "src.tui.professional_app", "message": "Error initializing domain table: No nodes match '#domain_stats_table' on Screen(id='_default')"}
+{"timestamp": "2025-09-06 08:50:23,289", "level": "INFO", "name": "src.intelligence.neural_brain", "message": "\ud83e\udde0 Neural Brain initialized with distributed processing"}
+{"timestamp": "2025-09-06 08:50:23,290", "level": "INFO", "name": "src.intelligence.advanced_reasoning", "message": "\ud83e\udde0 Advanced Reasoning System initialized"}
+{"timestamp": "2025-09-06 08:50:23,291", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "No persistent memory state found, starting fresh"}
+{"timestamp": "2025-09-06 08:50:23,291", "level": "INFO", "name": "src.intelligence.advanced_memory", "message": "\ud83e\udde0 Advanced Memory System initialized"}
+{"timestamp": "2025-09-06 08:50:23,291", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "No emotional state found, starting with neutral state"}
+{"timestamp": "2025-09-06 08:50:23,292", "level": "INFO", "name": "src.intelligence.emotional_brain", "message": "\ud83c\udfad Emotional Brain System initialized"}
+{"timestamp": "2025-09-06 08:50:23,292", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "No metacognitive state found, starting fresh"}
+{"timestamp": "2025-09-06 08:50:23,292", "level": "INFO", "name": "src.intelligence.metacognitive_brain", "message": "\ud83e\udd14 Metacognitive Brain System initialized"}
+{"timestamp": "2025-09-06 08:50:23,292", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Unified Brain Architecture initialized with true neural systems"}
+{"timestamp": "2025-09-06 08:50:23,298", "level": "WARNING", "name": "src.intelligence.brain", "message": "Could not load brain state: ExperienceEvent.__init__() got an unexpected keyword argument 'id'"}
+{"timestamp": "2025-09-06 08:50:23,300", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 34 domains"}
+{"timestamp": "2025-09-06 08:50:23,301", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 34 domains"}
+{"timestamp": "2025-09-06 08:50:23,305", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Loaded brain overrides from config/brain_overrides.json"}
+{"timestamp": "2025-09-06 08:50:26,947", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-06 08:50:26,948", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\ude80 Advanced AI systems loaded successfully"}
+{"timestamp": "2025-09-06 08:50:26,949", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'HybridBrain' object has no attribute 'last_self_maintenance'"}
+{"timestamp": "2025-09-06 08:50:26,949", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-06 08:50:26,951", "level": "INFO", "name": "src.intelligence.advanced_ml", "message": "No saved models found, starting fresh"}
+{"timestamp": "2025-09-06 08:50:26,952", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Some advanced AI modules failed to load: 'ContinuousLearningOrchestrator' object has no attribute 'set_ml_intelligence'"}
+{"timestamp": "2025-09-06 08:50:26,977", "level": "INFO", "name": "src.intelligence.curiosity", "message": "\ud83e\udde0 Sistema de curiosidad inicializado"}
+{"timestamp": "2025-09-06 08:50:26,977", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Sistema de curiosidad inicializado exitosamente"}
+{"timestamp": "2025-09-06 08:50:26,978", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"}
+{"timestamp": "2025-09-06 08:50:27,653", "level": "WARNING", "name": "src.intelligence.hybrid_brain", "message": "Code introspection init failed: 'HybridBrain' object has no attribute 'knowledge_store'"}
+{"timestamp": "2025-09-06 08:50:27,658", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\uddec KnowledgeStore ready (SQLite)"}
+{"timestamp": "2025-09-06 08:50:27,661", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udd0c Plugins loaded: 0"}
+{"timestamp": "2025-09-06 08:50:27,661", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83e\udde0 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"}
+{"timestamp": "2025-09-06 08:50:56,950", "level": "INFO", "name": "src.intelligence.hybrid_brain", "message": "\ud83d\udee0\ufe0f Self-maintenance cycle done"}
+{"timestamp": "2025-09-06 08:52:16,955", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 08:54:16,960", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 08:56:16,965", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 08:58:16,971", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:00:16,979", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:02:16,984", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:04:16,987", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:06:17,078", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:08:17,086", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:10:17,093", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:12:17,100", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:14:17,107", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:16:17,111", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:18:17,115", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:20:17,121", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:22:17,174", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:24:17,179", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:26:17,186", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:28:17,192", "level": "ERROR", "name": "src.intelligence.hybrid_brain", "message": "Background processing error: 'NeuralBrain' object has no attribute 'homeostatic_update'"}
+{"timestamp": "2025-09-06 09:58:01,777", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 09:58:01,779", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-06 09:58:01,779", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-06 09:58:01,779", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-06 09:58:01,779", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 09:59:49,435", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 09:59:49,437", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-06 09:59:49,437", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-06 09:59:49,438", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-06 09:59:49,438", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:00:32,315", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:00:32,317", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-06 10:00:32,318", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-06 10:00:32,318", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-06 10:00:32,318", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:00:54,880", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:00:54,882", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-06 10:00:54,882", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-06 10:00:54,883", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-06 10:00:54,883", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:12:03,257", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:12:03,259", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-06 10:12:03,259", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-06 10:12:03,259", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-06 10:12:03,259", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:12:03,540", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies cargadas para example.com"}
+{"timestamp": "2025-09-06 10:12:03,541", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies guardadas para example.com"}
+{"timestamp": "2025-09-06 10:12:03,549", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:12:03,593", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:12:03,700", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:12:04,448", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:12:04,448", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:13:08,552", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:13:08,553", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-06 10:13:08,553", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-06 10:13:08,553", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-06 10:13:08,553", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:13:09,003", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies cargadas para example.com"}
+{"timestamp": "2025-09-06 10:13:09,004", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies guardadas para example.com"}
+{"timestamp": "2025-09-06 10:13:09,008", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:13:09,034", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:13:09,091", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:13:09,660", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:13:09,661", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:17:06,451", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:17:06,453", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-06 10:17:06,453", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-06 10:17:06,454", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-06 10:17:06,454", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:17:06,928", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies cargadas para example.com"}
+{"timestamp": "2025-09-06 10:17:06,929", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies guardadas para example.com"}
+{"timestamp": "2025-09-06 10:17:06,937", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:17:06,975", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:17:07,066", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:17:07,639", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:17:07,639", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:43:31,320", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:43:31,335", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "Loaded intelligence for 22 domains"}
+{"timestamp": "2025-09-06 10:43:31,335", "level": "INFO", "name": "src.intelligence.autonomous_brain", "message": "AutonomousLearningBrain initialized with intelligence on 22 domains"}
+{"timestamp": "2025-09-06 10:43:31,336", "level": "INFO", "name": "src.intelligence.integration", "message": "\ud83e\udde0 Intelligence integration initialized with autonomous brain"}
+{"timestamp": "2025-09-06 10:43:31,336", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}
+{"timestamp": "2025-09-06 10:43:31,812", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies cargadas para example.com"}
+{"timestamp": "2025-09-06 10:43:31,813", "level": "INFO", "name": "AdvancedScraper", "message": "Cookies guardadas para example.com"}
+{"timestamp": "2025-09-06 10:43:31,818", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:43:31,929", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:43:32,092", "level": "INFO", "name": "readability.readability", "message": "ruthless removal did not work. "}
+{"timestamp": "2025-09-06 10:43:32,688", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Using DummyBrain for intelligent orchestration"}
+{"timestamp": "2025-09-06 10:43:32,688", "level": "INFO", "name": "ScrapingOrchestrator", "message": "\ud83e\udde0 Autonomous intelligence system initialized"}

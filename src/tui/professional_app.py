@@ -3,7 +3,6 @@
 import asyncio
 import logging
 from datetime import datetime
-from typing import List, Optional
 
 from rich.console import Console
 from textual.app import App, ComposeResult
@@ -34,6 +33,7 @@ from textual.widgets import (
 from ..intelligence import language_utils
 from ..intelligence.hybrid_brain import HybridBrain
 from ..intelligence.intent_recognizer import IntentRecognizer, IntentType
+from ..settings import settings as app_settings
 
 
 class ChatOverlay(Static):
@@ -105,7 +105,15 @@ class ChatOverlay(Static):
         log.write(f"[yellow][IA-EN][/]: {en}")
 
 
-from .. import settings
+# Algunas operaciones de consulta en Textual pueden lanzar NoMatches cuando un selector no coincide.
+# Importamos la excepción si está disponible y proveemos un fallback seguro para evitar dependencias frágiles.
+try:  # pragma: no cover - depende de versión Textual
+    from textual.css.query import NoMatches  # type: ignore
+except ImportError:  # fallback local si la importación falla
+
+    class NoMatches(Exception):  # type: ignore
+        pass
+
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +166,8 @@ class WebScraperProfessionalApp(App):
         self.metrics_data = {}
         self.start_time = None
         self.console = Console()
-        self._brain: Optional[HybridBrain] = None
+        self._brain: HybridBrain | None = None
+        self._chat_visible: bool = False
 
     def compose(self) -> ComposeResult:
         """Compone la interfaz principal"""
@@ -168,7 +177,6 @@ class WebScraperProfessionalApp(App):
 
         # Contenido principal con tabs
         with TabbedContent(initial="dashboard-tab", id="main_tabs"):
-
             # Tab 1: Dashboard Principal
             with TabPane("🏠 Dashboard", id="dashboard-tab"):
                 self._create_dashboard_view()
@@ -201,7 +209,6 @@ class WebScraperProfessionalApp(App):
         with Container(id="dashboard-container", classes="dashboard-view"):
             # Grid principal del dashboard
             with Grid(id="dashboard-main-grid", classes="dashboard-grid"):
-
                 # Sección superior: KPIs principales
                 with Container(classes="kpis-section"):
                     with Horizontal(classes="kpis-row"):
@@ -238,7 +245,6 @@ class WebScraperProfessionalApp(App):
                             )
                             yield ProgressBar(
                                 total=100,
-                                progress=0,
                                 id="main_progress",
                                 show_percentage=True,
                                 show_eta=True,
@@ -302,7 +308,6 @@ class WebScraperProfessionalApp(App):
         """Crea la vista de control del scraper"""
         with Container(id="scraper-control-container", classes="scraper-view"):
             with Grid(classes="scraper-grid"):
-
                 # Panel de configuración
                 with Container(classes="config-panel"):
                     yield Label(
@@ -320,7 +325,7 @@ class WebScraperProfessionalApp(App):
 
                         yield Label("Concurrencia:", classes="field-label")
                         yield Input(
-                            value=str(settings.CONCURRENCY),
+                            value=str(app_settings.CONCURRENCY),
                             id="concurrency_input",
                             classes="number-input",
                         )
@@ -397,7 +402,6 @@ class WebScraperProfessionalApp(App):
         """Crea la vista de inteligencia IA"""
         with Container(id="intelligence-container", classes="intelligence-view"):
             with Grid(classes="intelligence-grid"):
-
                 # Panel de control de IA
                 with Container(classes="ai-control-panel"):
                     yield Label(
@@ -505,7 +509,6 @@ class WebScraperProfessionalApp(App):
         """Crea la vista de monitoreo en tiempo real"""
         with Container(id="monitoring-container", classes="monitoring-view"):
             with Grid(classes="monitoring-grid"):
-
                 # Panel de estadísticas por dominio
                 with Container(classes="domain-stats-panel"):
                     yield Label(
@@ -545,7 +548,6 @@ class WebScraperProfessionalApp(App):
         """Crea la vista de exportación y reportes"""
         with Container(id="export-container", classes="export-view"):
             with Grid(classes="export-grid"):
-
                 # Panel de formatos de exportación
                 with Container(classes="export-formats-panel"):
                     yield Label(
@@ -626,7 +628,6 @@ class WebScraperProfessionalApp(App):
         """Crea la vista de configuración avanzada"""
         with Container(id="config-container", classes="config-view"):
             with Grid(classes="config-grid"):
-
                 # Panel de configuración del sistema
                 with Container(classes="system-config-panel"):
                     yield Label(
@@ -726,13 +727,17 @@ class WebScraperProfessionalApp(App):
                 async def init_brain_background():
                     try:
                         await self._ensure_brain_initialized(log)
-                    except Exception as e:
-                        logger.error(f"Error en inicialización background: {e}")
+                    except (NoMatches, RuntimeError, AttributeError) as e:
+                        logger.error("Error en inicialización background: %s", e)
 
                 # Programar la inicialización para después de que la UI esté lista
                 self.call_later(init_brain_background)
-        except Exception as e:
-            logger.error(f"No se pudo montar ChatOverlay: {e}")
+        except NoMatches as e:
+            # Si no existe todavía el nodo, lo omitimos con aviso controlado
+            logger.warning("ChatOverlay no disponible al montar: %s", e)
+        except RuntimeError as e:
+            # Errores del loop/evento de Textual
+            logger.error("Error de tiempo de ejecución al montar ChatOverlay: %s", e)
 
     async def handle_chat_overlay_chat_message(self, message: ChatOverlay.ChatMessage):  # type: ignore
         """Procesa mensajes del chat."""
@@ -774,10 +779,10 @@ class WebScraperProfessionalApp(App):
                 elif intent.type == IntentType.CRAWL:
                     url = intent.parameters.get("url", "")
                     intent_prefix_es = (
-                        f"[bold green]Detectada intención:[/] iniciar scraping\n\n"
+                        "[bold green]Detectada intención:[/] iniciar scraping\n\n"
                     )
                     intent_prefix_en = (
-                        f"[bold green]Intent detected:[/] start crawling\n\n"
+                        "[bold green]Intent detected:[/] start crawling\n\n"
                     )
                     # Simular comando /crawl
                     if url:
@@ -799,10 +804,10 @@ class WebScraperProfessionalApp(App):
 
                 elif intent.type == IntentType.SNAPSHOT:
                     intent_prefix_es = (
-                        f"[bold purple]Detectada intención:[/] generar snapshot\n\n"
+                        "[bold purple]Detectada intención:[/] generar snapshot\n\n"
                     )
                     intent_prefix_en = (
-                        f"[bold purple]Intent detected:[/] generate snapshot\n\n"
+                        "[bold purple]Intent detected:[/] generate snapshot\n\n"
                     )
                     # Simular comando /snapshot
                     await self._process_chat_command(
@@ -811,11 +816,9 @@ class WebScraperProfessionalApp(App):
 
                 elif intent.type == IntentType.STATUS:
                     intent_prefix_es = (
-                        f"[bold cyan]Detectada intención:[/] consulta de estado\n\n"
+                        "[bold cyan]Detectada intención:[/] consulta de estado\n\n"
                     )
-                    intent_prefix_en = (
-                        f"[bold cyan]Intent detected:[/] status query\n\n"
-                    )
+                    intent_prefix_en = "[bold cyan]Intent detected:[/] status query\n\n"
                     # Simular comando /status
                     await self._process_chat_command(
                         "status", overlay, log, show_cmd=False
@@ -827,9 +830,9 @@ class WebScraperProfessionalApp(App):
                     new_content = intent.parameters.get("new_content", "")
 
                     intent_prefix_es = (
-                        f"[bold orange]Detectada intención:[/] editar archivo"
+                        "[bold orange]Detectada intención:[/] editar archivo"
                     )
-                    intent_prefix_en = f"[bold orange]Intent detected:[/] edit file"
+                    intent_prefix_en = "[bold orange]Intent detected:[/] edit file"
 
                     if file:
                         intent_prefix_es += f" '{file}'"
@@ -844,9 +847,9 @@ class WebScraperProfessionalApp(App):
                 elif intent.type == IntentType.TERMINAL:
                     command = intent.parameters.get("command", "")
 
-                    intent_prefix_es = f"[bold magenta]Detectada intención:[/] ejecutar comando en terminal"
+                    intent_prefix_es = "[bold magenta]Detectada intención:[/] ejecutar comando en terminal"
                     intent_prefix_en = (
-                        f"[bold magenta]Intent detected:[/] execute terminal command"
+                        "[bold magenta]Intent detected:[/] execute terminal command"
                     )
 
                     if command:
@@ -870,8 +873,8 @@ class WebScraperProfessionalApp(App):
 
             # Consultar la KB
             kb_summary_es = kb_summary_en = ""
-            numbered_lines_es: List[str] = []
-            numbered_lines_en: List[str] = []
+            numbered_lines_es: list[str] = []
+            numbered_lines_en: list[str] = []
 
             # Intentar obtener respuesta del cerebro
             if self._brain:
@@ -879,7 +882,7 @@ class WebScraperProfessionalApp(App):
                     # Primero intentamos consulta al cerebro para respuesta semántica
                     brain_response = None
                     if hasattr(self._brain, "get_response") and callable(
-                        getattr(self._brain, "get_response")
+                        self._brain.get_response
                     ):
                         try:
                             brain_response = self._brain.get_response(user_text)
@@ -887,7 +890,7 @@ class WebScraperProfessionalApp(App):
                                 # Si el cerebro tiene una respuesta directa, la usamos
                                 enriched_es = brain_response.get("es", enriched_es)
                                 enriched_en = brain_response.get("en", enriched_en)
-                        except Exception:
+                        except (AttributeError, KeyError, TypeError, RuntimeError):
                             # Si falla, seguimos con el flujo normal
                             pass
 
@@ -896,11 +899,7 @@ class WebScraperProfessionalApp(App):
                     if kb_results:
                         for idx, r in enumerate(kb_results[:5], start=1):
                             title = r.get("title") or r.get("id", "") or "sin_titulo"
-                            content = (
-                                r.get("content", "")[:50] + "..."
-                                if r.get("content")
-                                else ""
-                            )
+                            # omitimos contenido para evitar ruido en el chat y cumplir lint
                             numbered_lines_es.append(f"[bold]{idx}.[/] {title}")
                             numbered_lines_en.append(f"[bold]{idx}.[/] {title}")
                         kb_summary_es = (
@@ -915,7 +914,7 @@ class WebScraperProfessionalApp(App):
                         kb_summary_en = (
                             "\n\n[dim]No relevant results in knowledge base[/]"
                         )
-                except Exception as kb_e:
+                except (RuntimeError, AttributeError, KeyError, TypeError) as kb_e:
                     kb_summary_es = f"\n\n[red]Error consultando KB: {kb_e}[/]"
                     kb_summary_en = f"\n\n[red]Error querying KB: {kb_e}[/]"
             else:
@@ -925,11 +924,11 @@ class WebScraperProfessionalApp(App):
             response_es = f"{enriched_es}{kb_summary_es}"
             response_en = f"{enriched_en}{kb_summary_en}"
             overlay.add_response(user_text, response_es, response_en)
-        except Exception as e:
+        except (NoMatches, RuntimeError, AttributeError) as e:
             try:
                 self.query_one("#chat_log", RichLog).write(f"[red]Error IA: {e}[/]")
-            except Exception:
-                logger.error(f"Chat error: {e}")
+            except NoMatches:
+                logger.error("Chat error: %s", e)
 
     def action_toggle_chat(self) -> None:
         """Muestra/oculta el overlay de chat sin destruirlo."""
@@ -939,10 +938,12 @@ class WebScraperProfessionalApp(App):
                 overlay.remove_class("chat-hidden")
             else:
                 overlay.add_class("chat-hidden")
-        except Exception as e:
-            logger.error(f"toggle_chat error: {e}")
+        except NoMatches as e:
+            logger.warning("No se encontró ChatOverlay para toggle: %s", e)
+        except (AttributeError, RuntimeError) as e:
+            logger.error("toggle_chat error: %s", e)
 
-    async def _ensure_brain_initialized(self, log: Optional[RichLog] = None):
+    async def _ensure_brain_initialized(self, log: RichLog | None = None):
         """Inicializa el cerebro de manera asíncrona si no está ya inicializado."""
         if self._brain is not None:
             return
@@ -955,11 +956,7 @@ class WebScraperProfessionalApp(App):
         try:
             # Inicializar en segundo plano
             async def init_brain():
-                try:
-                    return HybridBrain()
-                except Exception as e:
-                    logger.error(f"Error en inicialización cerebro: {e}")
-                    return None
+                return HybridBrain()
 
             # Ejecutar inicialización en worker
             worker = self.run_worker(init_brain(), name="BrainInitWorker")
@@ -971,16 +968,16 @@ class WebScraperProfessionalApp(App):
                 else:
                     log.write("[red]⚠️ HybridBrain no pudo inicializarse.[/]")
 
-        except Exception as e:
+        except (RuntimeError, AttributeError) as e:
             if log:
                 log.write(f"[red]⛔ Error inicializando HybridBrain: {e}[/]")
-            logger.error(f"Error inicializando HybridBrain: {e}")
+            logger.error("Error inicializando HybridBrain: %s", e)
             self._brain = None
 
     async def _process_chat_command(
         self,
         command_text: str,
-        overlay: ChatOverlay,
+        _overlay: ChatOverlay,
         log: RichLog,
         show_cmd: bool = True,
     ):
@@ -1068,7 +1065,9 @@ class WebScraperProfessionalApp(App):
                         log.write("\n".join(lines))
                     else:
                         log.write("[yellow]⚠️ Sin resultados en base de conocimiento[/]")
-                except Exception as ke:
+                except NoMatches as ke:
+                    log.write(f"[red]⛔ UI no disponible para mostrar KB: {ke}[/]")
+                except (RuntimeError, AttributeError, KeyError, TypeError) as ke:
                     log.write(f"[red]⛔ Error consultando KB: {ke}[/]")
             else:
                 log.write("[red]⛔ Cerebro no inicializado. Intenta más tarde.[/]")
@@ -1097,7 +1096,9 @@ class WebScraperProfessionalApp(App):
                                 lines.append(f"  • {key}: {value}")
 
                     log.write("\n".join(lines))
-                except Exception as se:
+                except NoMatches as se:
+                    log.write(f"[red]⛔ UI no disponible para snapshot: {se}[/]")
+                except (RuntimeError, AttributeError, KeyError, TypeError) as se:
                     log.write(f"[red]⛔ Error generando snapshot: {se}[/]")
             else:
                 log.write("[red]⛔ Cerebro no inicializado. Intenta más tarde.[/]")
@@ -1162,7 +1163,7 @@ class WebScraperProfessionalApp(App):
                         metrics = self._brain.get_metrics() or {}
                         for key, value in metrics.items():
                             brain_lines.append(f"• {key}: {value}")
-                except Exception as be:
+                except (RuntimeError, AttributeError) as be:
                     brain_lines.append(f"[red]Error obteniendo métricas: {be}[/]")
 
             log.write("\n".join(brain_lines))
@@ -1186,23 +1187,23 @@ class WebScraperProfessionalApp(App):
                     ("Pending...", "0", "0%", "0/min", "-"),
                 ]
             )
-        except Exception as e:
-            logger.error(f"Error initializing domain table: {e}")
+        except NoMatches as e:
+            logger.warning("Tabla de dominios no disponible aún: %s", e)
+        except (AttributeError, RuntimeError) as e:
+            logger.error("Error initializing domain table: %s", e)
 
     def _update_time_display(self):
         """Actualiza la visualización del tiempo"""
-        try:
-            current_time = datetime.now().strftime("%H:%M:%S")
-            # Actualizar header si es necesario
-        except Exception as e:
-            logger.error(f"Error updating time: {e}")
+        # Esta operación no debería fallar; evitamos try/except innecesario
+        _ = datetime.now().strftime("%H:%M:%S")
+        # Actualizar header si es necesario
 
     def _update_system_metrics(self):
         """Actualiza las métricas del sistema"""
         try:
             try:
                 import psutil  # type: ignore
-            except Exception:
+            except ImportError:
                 return
 
             # Actualizar métricas de sistema
@@ -1213,16 +1214,19 @@ class WebScraperProfessionalApp(App):
             try:
                 self.query_one("#cpu_usage", Label).update(f"CPU: {cpu_percent:.1f}%")
                 self.query_one("#memory_usage", Label).update(
-                    f"Memoria: {memory.used // (1024*1024)} MB"
+                    f"Memoria: {memory.used // (1024 * 1024)} MB"
                 )
-            except:
-                pass  # Elementos no existen aún
+            except NoMatches:
+                # Elementos no creados todavía; no es un error
+                return
+            except AttributeError as e:
+                logger.debug("Widgets de métricas aún no inicializados: %s", e)
 
         except ImportError:
             # psutil no disponible
             pass
-        except Exception as e:
-            logger.error(f"Error updating system metrics: {e}")
+        except (RuntimeError, AttributeError) as e:
+            logger.error("Error updating system metrics: %s", e)
 
     def on_system_update(self, message):
         """Maneja actualizaciones del sistema"""
@@ -1256,7 +1260,16 @@ class WebScraperProfessionalApp(App):
             if not start_url:
                 start_url = "https://books.toscrape.com/"
 
-            concurrency = int(self.query_one("#concurrency_input", Input).value or "8")
+            # Validar concurrencia con captura de error específico
+            try:
+                concurrency = int(
+                    self.query_one("#concurrency_input", Input).value or "8"
+                )
+            except (ValueError, NoMatches) as e:
+                logger.warning(
+                    "Concurrencia inválida, usando valor por defecto (8): %s", e
+                )
+                concurrency = 8
 
             # Actualizar estado
             self.scraping_active = True
@@ -1277,8 +1290,10 @@ class WebScraperProfessionalApp(App):
                 self._scraping_worker(start_url, concurrency), name="ScrapingWorker"
             )
 
-        except Exception as e:
-            logger.error(f"Error starting scraping: {e}")
+        except NoMatches as e:
+            logger.error("No se pudo iniciar scraping por UI incompleta: %s", e)
+        except RuntimeError as e:
+            logger.error("Error de ejecución al iniciar scraping: %s", e)
             self._stop_scraping_process()
 
     def _stop_scraping_process(self):
@@ -1294,8 +1309,10 @@ class WebScraperProfessionalApp(App):
             self.query_one("#start_scraping_btn", Button).disabled = False
             self.query_one("#pause_scraping_btn", Button).disabled = True
             self.query_one("#stop_scraping_btn", Button).disabled = True
-        except Exception as e:
-            self.log_error(f"Error al detener scraping: {e}")
+        except NoMatches as e:
+            logger.debug("UI parcial al detener scraping: %s", e)
+        except AttributeError as e:
+            logger.debug("Estado del worker no disponible al detener: %s", e)
 
     async def _scraping_worker(self, start_url: str, concurrency: int):
         """Worker para el proceso de scraping"""
@@ -1331,12 +1348,39 @@ class WebScraperProfessionalApp(App):
             log = self.query_one("#realtime_log", RichLog)
             log.write("[green]✅ Scraping completado exitosamente[/]")
 
-        except Exception as e:
-            logger.error(f"Error in scraping worker: {e}")
+        except asyncio.CancelledError:
+            # Cancelación esperada del worker
+            log = self.query_one("#realtime_log", RichLog)
+            log.write("[yellow]⏹️ Scraping cancelado[/]")
+            return
+        except NoMatches as e:
+            logger.debug("Log en tiempo real no disponible: %s", e)
+        except (RuntimeError, AttributeError, ValueError) as e:
+            logger.error("Error in scraping worker: %s", e)
             log = self.query_one("#realtime_log", RichLog)
             log.write(f"[red]❌ Error en scraping: {e}[/]")
         finally:
             self._stop_scraping_process()
+
+    async def _process_edit_intent(
+        self, file: str, old_content: str, new_content: str, log: RichLog
+    ) -> None:
+        """Maneja intención de edición de archivo de forma segura (placeholder)."""
+        if not file:
+            log.write("[red]⛔ Debes indicar un archivo.[/]")
+            return
+        # Evitar efectos secundarios: solo informamos por ahora
+        log.write(
+            f"[yellow]📝 Edición simulada de '{file}'. Esta función está en modo seguro.[/]"
+        )
+
+    async def _process_terminal_intent(self, command: str, log: RichLog) -> None:
+        """Maneja intención de ejecutar comando en terminal (placeholder)."""
+        if not command:
+            log.write("[red]⛔ Comando vacío.[/]")
+            return
+        # Modo seguro: no ejecutar, solo mostrar
+        log.write(f"[yellow]🔒 Ejecución de terminal deshabilitada: '{command}'[/]")
 
 
 async def run_professional_app():

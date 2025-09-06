@@ -1,0 +1,75 @@
+src\database.py:595:40: E231 missing whitespace after ','
+src\document_generator.py:126:13: F841 local variable 'synthesis' is assigned to but never used
+src\document_generator.py:127:13: F841 local variable 'organized_content' is assigned to but never used
+src\exceptions.py:6:1: E303 too many blank lines (3)
+src\exceptions.py:11:1: E303 too many blank lines (3)
+src\exceptions.py:16:1: E303 too many blank lines (3)
+src\exceptions.py:21:1: E303 too many blank lines (3)
+src\exceptions.py:26:1: E303 too many blank lines (3)
+src\exceptions.py:28:1: W391 blank line at end of file
+src\gui\controller.py:18:1: E402 module level import not at top of file
+src\intelligence\__init__.py:37:9: F824 `global _integration_instance` is unused: name is never assigned in scope
+src\intelligence\advanced_anti_detection.py:256:13: E722 do not use bare 'except'
+src\intelligence\advanced_anti_detection.py:308:13: E722 do not use bare 'except'
+src\intelligence\advanced_anti_detection.py:341:9: E722 do not use bare 'except'
+src\intelligence\advanced_anti_detection.py:360:9: E722 do not use bare 'except'
+src\intelligence\advanced_anti_detection.py:375:9: E722 do not use bare 'except'
+src\intelligence\advanced_anti_detection.py:398:17: E722 do not use bare 'except'
+src\intelligence\advanced_anti_detection.py:402:9: E722 do not use bare 'except'
+src\intelligence\advanced_memory.py:94:9: F841 local variable 'time_since_encoding' is assigned to but never used
+src\intelligence\advanced_ml.py:139:9: E722 do not use bare 'except'
+src\intelligence\advanced_reasoning.py:303:9: E722 do not use bare 'except'
+src\intelligence\advanced_reasoning.py:367:9: E722 do not use bare 'except'
+src\intelligence\autonomous_brain.py:331:13: F841 local variable 'failed' is assigned to but never used
+src\intelligence\autonomous_controller.py:791:13: F841 local variable 'episode' is assigned to but never used
+src\intelligence\autonomous_controller.py:971:21: F841 local variable 'confidence_adjustment' is assigned to but never used
+src\intelligence\autonomous_controller.py:1170:26: F821 undefined name 'os'
+src\intelligence\autonomous_controller.py:1173:13: F821 undefined name 'os'
+src\intelligence\autonomous_controller.py:1173:25: F821 undefined name 'os'
+src\intelligence\autonomous_coordinator.py:453:33: F541 f-string is missing placeholders
+src\intelligence\autonomous_coordinator.py:572:25: F541 f-string is missing placeholders
+src\intelligence\autonomous_learning.py:163:13: F841 local variable 'tree' is assigned to but never used
+src\intelligence\autonomous_learning.py:1328:5: F811 redefinition of unused 'seed_all_knowledge' from line 194
+src\intelligence\brain.py:59:1: E402 module level import not at top of file
+src\intelligence\code_auto_modifier.py:54:9: E722 do not use bare 'except'
+src\intelligence\database_brain_adapter.py:408:24: F541 f-string is missing placeholders
+src\intelligence\embedding_adapter.py:256:60: E999 SyntaxError: invalid syntax
+src\intelligence\hybrid_brain.py:1200:5: F811 redefinition of unused '_check_and_report_advisories' from line 1151
+src\intelligence\metacognitive_brain.py:339:9: F841 local variable 'task_type' is assigned to but never used
+src\intelligence\novelty_detector.py:391:62: E999 SyntaxError: invalid syntax
+src\intelligence\plugin_manager.py:38:13: F841 local variable 'full_module' is assigned to but never used
+src\intelligence\proactivity_manager.py:466:34: E999 SyntaxError: invalid syntax
+src\intelligence\self_improvement.py:332:34: F541 f-string is missing placeholders
+src\intelligence\self_repair.py:287:13: F841 local variable 'worst' is assigned to but never used
+src\intelligence\vector_store.py:429:63: E999 SyntaxError: invalid syntax
+src\intelligent_search.py:277:13: F841 local variable 'results' is assigned to but never used
+src\intelligent_search.py:462:9: F841 local variable 'search_id' is assigned to but never used
+src\reloader.py:80:5: F841 local variable 'module' is assigned to but never used
+src\scrapers\test_example\parser.py:13:1: E302 expected 2 blank lines, found 1
+src\scrapers\test_example\parser.py:39:21: E722 do not use bare 'except'
+src\scrapers\test_example\scraper.py:17:1: E302 expected 2 blank lines, found 1
+src\self_healing.py:581:23: F541 f-string is missing placeholders
+src\tui\app.py:899:13: F841 local variable 'e' is assigned to but never used
+src\tui\professional_app.py:108:1: E402 module level import not at top of file
+src\tui\professional_app.py:777:25: F541 f-string is missing placeholders
+src\tui\professional_app.py:780:25: F541 f-string is missing placeholders
+src\tui\professional_app.py:802:25: F541 f-string is missing placeholders
+src\tui\professional_app.py:805:25: F541 f-string is missing placeholders
+src\tui\professional_app.py:814:25: F541 f-string is missing placeholders
+src\tui\professional_app.py:817:25: F541 f-string is missing placeholders
+src\tui\professional_app.py:830:25: F541 f-string is missing placeholders
+src\tui\professional_app.py:832:40: F541 f-string is missing placeholders
+src\tui\professional_app.py:847:40: F541 f-string is missing placeholders
+src\tui\professional_app.py:849:25: F541 f-string is missing placeholders
+src\tui\professional_app.py:899:29: F841 local variable 'content' is assigned to but never used
+src\tui\professional_app.py:1195:13: F841 local variable 'current_time' is assigned to but never used
+src\tui\professional_app.py:1218:13: E722 do not use bare 'except'
+src\tui\professional_app_update.py:7:68: F821 undefined name 'TextLog'
+src\tui\professional_app_update.py:92:61: F821 undefined name 'TextLog'
+src\tui\professional_app_update.py:185:13: F541 f-string is missing placeholders
+src\voice_assistant.py:110:13: E722 do not use bare 'except'
+src\voice_assistant.py:658:11: F541 f-string is missing placeholders
+tests\fixtures_inteligentes.py:270:5: E722 do not use bare 'except'
+tests\test_inteligencia_avanzada.py:83:9: F841 local variable 'final_performance' is assigned to but never used
+tests\test_inteligencia_avanzada.py:170:13: F841 local variable 'experience' is assigned to but never used
+tests\test_inteligencia_avanzada.py:200:13: F841 local variable 'state' is assigned to but never used

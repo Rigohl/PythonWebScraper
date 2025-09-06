@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Optional
+from typing import Any
 
 try:
     import httpx  # type: ignore
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class HttpxAdapter:
-    def __init__(self, client: Optional["httpx.AsyncClient"] = None) -> None:  # type: ignore[name-defined]
+    def __init__(self, client: httpx.AsyncClient | None = None) -> None:  # type: ignore[name-defined]
         if not HTTPX_AVAILABLE:
             raise RuntimeError(
                 "httpx no está disponible. Instale con: pip install httpx"
@@ -77,7 +77,8 @@ class HttpxAdapter:
         )
         try:
             return response.json()
-        except Exception as e:  # noqa: BLE001
+        except ValueError as e:
+            # httpx.Response.json puede lanzar ValueError cuando el cuerpo no es JSON válido
             raise RuntimeError(f"Error parseando JSON desde {url}: {e}") from e
 
     async def _request(
@@ -90,7 +91,7 @@ class HttpxAdapter:
         backoff_base: float,
     ):
         attempt = 0
-        last_exc: Optional[Exception] = None
+        last_exc: Exception | None = None
         while attempt <= max_retries:
             try:
                 response = await self.client.request(method, url, timeout=timeout)
@@ -100,14 +101,19 @@ class HttpxAdapter:
                         raise RuntimeError(f"HTTP {response.status_code} (reintento)")
                     else:
                         # Si agotamos los reintentos, lanza error
-                        msg = f"Fallo HTTP tras {attempt+1} intentos para {url}: HTTP {response.status_code}"
+                        msg = f"Fallo HTTP tras {attempt + 1} intentos para {url}: HTTP {response.status_code}"
                         logger.warning(msg)
                         raise RuntimeError(msg)
                 return response
-            except Exception as exc:  # noqa: BLE001
+            except (
+                httpx.ConnectError,
+                httpx.ReadError,
+                httpx.TimeoutException,
+                httpx.TransportError,
+            ) as exc:  # type: ignore[attr-defined]
                 last_exc = exc
                 if attempt >= max_retries:
-                    msg = f"Fallo HTTP tras {attempt+1} intentos para {url}: {exc}"  # noqa: E501
+                    msg = f"Fallo HTTP tras {attempt + 1} intentos para {url}: {exc}"  # noqa: E501
                     logger.warning(msg)
                     raise RuntimeError(msg) from exc
                 sleep_for = backoff_base * (2**attempt)
@@ -120,10 +126,11 @@ class HttpxAdapter:
         if self._own_client:
             try:
                 await self.client.aclose()
-            except Exception:  # noqa: BLE001
-                pass
+            except (httpx.HTTPError, RuntimeError) as exc:  # type: ignore[name-defined]
+                # Cerrar puede fallar por transporte desconectado o eventos del loop
+                logger.debug(f"Ignorando error al cerrar cliente httpx: {exc}")
 
-    async def __aenter__(self) -> "HttpxAdapter":
+    async def __aenter__(self) -> HttpxAdapter:
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:

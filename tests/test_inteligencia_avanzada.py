@@ -5,7 +5,6 @@ Tests creativos que simulan aprendizaje real, consciencia emergente
 y evolución adaptativa del sistema Web Scraper PRO.
 """
 
-
 import pytest
 
 
@@ -80,7 +79,7 @@ class TestAprendizajeAdaptativo:
     ):
         """Test de evolución del aprendizaje adaptativo"""
         initial_performance = mock_adaptive_learning_cycle["performance_history"][0]
-        final_performance = mock_adaptive_learning_cycle["performance_history"][-1]
+        mock_adaptive_learning_cycle["performance_history"][-1]
 
         # Simular ciclo de aprendizaje adaptativo
         adaptation_results = await self._simulate_adaptation_cycle(
@@ -197,7 +196,7 @@ class TestInteligenciaArtificialAvanzada:
 
         for _ in range(optimization_cycles):
             # Monitorear estado cognitivo
-            state = mock_metacognitive_system.monitor_cognitive_state()
+            mock_metacognitive_system.monitor_cognitive_state()
 
             # Realizar ajustes metacognitivos
             reflection = mock_metacognitive_system.reflect_on_learning()

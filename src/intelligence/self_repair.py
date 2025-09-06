@@ -284,7 +284,7 @@ class SelfRepairAdvisor:
                 continue
             rates_sorted = sorted(rates, key=lambda x: x[1], reverse=True)
             best = rates_sorted[0]
-            worst = rates_sorted[-1]
+            rates_sorted[-1]
             avg = sum(r[1] for r in rates) / len(rates)
             gain = best[1] - avg
             if gain >= self.thresholds["schedule_gain_min"] and best[2] >= 3:

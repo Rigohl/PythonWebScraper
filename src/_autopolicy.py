@@ -325,7 +325,7 @@ def map_concurrent(items: List[Any], fn: Callable, max_workers: int) -> List[Any
         for future in as_completed(future_to_item):
             try:
                 results.append(future.result())
-            except Exception as e:
+            except (RuntimeError, ValueError) as e:
                 item = future_to_item[future]
                 logger.error(f"Error procesando el ítem {item}: {e}")
     return results

@@ -11,9 +11,9 @@ def load_autonomy_settings():
         os.path.dirname(__file__), "../../config/autonomy_settings.json"
     )
     try:
-        with open(settings_file, "r", encoding="utf-8") as f:
+        with open(settings_file, encoding="utf-8") as f:
             return json.load(f)
-    except Exception:
+    except (OSError, ValueError):
         return {"use_emojis": True}
 
 
@@ -21,7 +21,7 @@ def setup_logging(default_path="config/logging.json", default_level=logging.INFO
     """Initialize logging configuration"""
     path = Path(default_path)
     if path.exists():
-        with open(path, "rt") as f:
+        with open(path, encoding="utf-8") as f:
             config = json.load(f)
             # Ensure log directories exist
             log_dir = Path("logs")
@@ -30,7 +30,7 @@ def setup_logging(default_path="config/logging.json", default_level=logging.INFO
     else:
         logging.basicConfig(level=default_level)
         logging.warning(
-            f"Logging config file {default_path} not found. Using basic configuration."
+            "Logging config file %s not found. Using basic configuration.", default_path
         )
 
 

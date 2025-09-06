@@ -26,8 +26,7 @@ import io
 import json
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from typing import Optional, Type
+from datetime import UTC, datetime
 from urllib.parse import urljoin, urlparse
 
 import html2text
@@ -44,7 +43,7 @@ from .database import DatabaseManager
 try:
     # Adapter interface (tests inject MockBrowserAdapter via keyword browser_adapter)
     from .adapters.browser_adapter import BrowserAdapter, PlaywrightAdapter
-except Exception:  # pragma: no cover
+except ImportError:  # pragma: no cover
     BrowserAdapter = object  # type: ignore
     PlaywrightAdapter = object  # type: ignore
 from .exceptions import ContentQualityError, NetworkError, ParsingError
@@ -96,23 +95,29 @@ class AdvancedScraper:
         """
         # Allow alias llm_adapter used in tests; wrap in LLMExtractor for uniform API
         if llm_extractor is None and llm_adapter is not None:
-            try:
+            if hasattr(llm_adapter, "extract_structured_data") and hasattr(
+                llm_adapter, "clean_text"
+            ):
                 llm_extractor = LLMExtractor(adapter=llm_adapter)  # type: ignore
-            except Exception:
+            else:
                 llm_extractor = llm_adapter  # last resort
 
         if browser_adapter is None and page is not None:
-            # Wrap provided Playwright page with adapter for unified interface
-            try:
+            # Validate page object before creating adapter
+            if hasattr(page, "goto") and hasattr(page, "content"):
                 browser_adapter = PlaywrightAdapter(page)  # type: ignore
-            except Exception:
-                browser_adapter = None
+            else:
+                raise ValueError(
+                    "El objeto 'page' proporcionado no es un Page de Playwright válido"
+                )
         if browser_adapter is None:
             raise ValueError(
                 "Se requiere 'browser_adapter' o 'page' válido para inicializar AdvancedScraper"
             )
-        if db_manager is None or llm_extractor is None:
-            raise ValueError("db_manager y llm_extractor son obligatorios")
+        if db_manager is None:
+            raise ValueError("db_manager es obligatorio")
+        if llm_extractor is None:
+            raise ValueError("llm_extractor es obligatorio")
         self.adapter = browser_adapter
         self.page = page  # Puede ser None en tests (MockAdapter no necesita Page real)
         self.db_manager = db_manager
@@ -122,7 +127,7 @@ class AdvancedScraper:
     async def scrape(
         self,
         url: str,
-        extraction_schema: Optional[Type[BaseModel]] = None,
+        extraction_schema: type[BaseModel] | None = None,
     ) -> ScrapeResult:
         """Scrape a single URL and return structured results.
 
@@ -143,7 +148,7 @@ class AdvancedScraper:
         ScrapeResult
             A structured result describing the outcome of the scrape.
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         domain = urlparse(url).netloc
 
         # Register a response listener to capture API calls
@@ -160,37 +165,39 @@ class AdvancedScraper:
                 full_html = (
                     await self.adapter.get_content()
                     if hasattr(self.adapter, "get_content")
-                    else await self.page.content()
+                    else await self.page.content() if self.page else ""
                 )  # type: ignore
                 scrape_result = await self._process_content(
                     url, full_html, response, extraction_schema
                 )
             except (PlaywrightTimeoutError, NetworkError) as exc:
-                self.logger.warning(f"Error de red o timeout en scrape de {url}: {exc}")
+                self.logger.warning(
+                    "Error de red o timeout en scrape de %s: %s", url, exc
+                )
                 return ScrapeResult(
                     status="RETRY", url=url, error_message=str(exc), retryable=True
                 )
             except ParsingError as exc:
-                self.logger.error(f"Error de parseo en scrape de {url}: {exc}")
+                self.logger.error("Error de parseo en scrape de %s: %s", url, exc)
                 return ScrapeResult(status="FAILED", url=url, error_message=str(exc))
             except ContentQualityError as exc:
                 self.logger.warning(
-                    f"Contenido de baja calidad en scrape de {url}: {exc}"
+                    "Contenido de baja calidad en scrape de %s: %s", url, exc
                 )
                 return ScrapeResult(
                     status="LOW_QUALITY", url=url, error_message=str(exc)
                 )
-            except Exception as exc:  # noqa: BLE001
-                # Catch all unexpected errors to avoid crashing the crawler
+            except (ValueError, RuntimeError, KeyError, TypeError) as exc:
+                # Catch specific unexpected errors to avoid crashing the crawler
                 self.logger.error(
-                    f"Error inesperado en scrape de {url}: {exc}", exc_info=True
+                    "Error inesperado en scrape de %s: %s", url, exc, exc_info=True
                 )
                 return ScrapeResult(
                     status="FAILED", url=url, error_message=f"Unexpected error: {exc}"
                 )
 
         # Set duration and return the result
-        end_time = datetime.now(timezone.utc)
+        end_time = datetime.now(UTC)
         scrape_result.crawl_duration = (end_time - start_time).total_seconds()
         return scrape_result
 
@@ -213,9 +220,11 @@ class AdvancedScraper:
             ):
                 try:
                     json_payload = await response.json()
-                except Exception as exc:  # noqa: BLE001
+                except (ValueError, TypeError) as exc:
                     self.logger.debug(
-                        f"No se pudo procesar el payload JSON de la API {response.url}: {exc}"
+                        "No se pudo procesar el payload JSON de la API %s: %s",
+                        response.url,
+                        exc,
                     )
                     return
                 payload_str = json.dumps(json_payload, sort_keys=True)
@@ -223,11 +232,11 @@ class AdvancedScraper:
                 try:
                     # Use adapter-provided current URL if available (tests provide MockBrowserAdapter)
                     page_url = getattr(self.adapter, "get_current_url", None)
-                    try:
-                        if callable(page_url):
+                    if callable(page_url):
+                        try:
                             page_url = page_url()
-                    except Exception:
-                        page_url = None
+                        except (RuntimeError, AttributeError, TypeError):
+                            page_url = None
                     # Fallback to Playwright page URL when adapter doesn't provide one
                     if not page_url and self.page is not None:
                         page_url = getattr(self.page, "url", None)
@@ -236,10 +245,11 @@ class AdvancedScraper:
                         api_url=response.url,
                         payload_hash=payload_hash,
                     )
-                except Exception:
+                except (RuntimeError, AttributeError, TypeError, KeyError):
                     # Saving API data should never break scraping
                     self.logger.debug(
-                        f"No se pudo guardar la API descubierta para {response.url}",
+                        "No se pudo guardar la API descubierta para %s",
+                        response.url,
                         exc_info=True,
                     )
 
@@ -248,7 +258,7 @@ class AdvancedScraper:
         if hasattr(self.adapter, "add_response_listener"):
             try:
                 self.adapter.add_response_listener(handler)
-            except Exception:
+            except (RuntimeError, AttributeError, TypeError):
                 pass
         elif self.page is not None:
             self.page.on("response", handler)  # type: ignore
@@ -261,7 +271,7 @@ class AdvancedScraper:
                     self.adapter.remove_response_listener(handler)
                 elif self.page is not None:
                     self.page.remove_listener("response", handler)  # type: ignore
-            except Exception:
+            except (RuntimeError, AttributeError, TypeError):
                 pass
 
     async def _apply_cookies(self, domain: str) -> None:
@@ -278,16 +288,16 @@ class AdvancedScraper:
         try:
             cookies = json.loads(cookies_json)
         except json.JSONDecodeError as exc:
-            self.logger.error(f"Error al decodificar cookies para {domain}: {exc}")
+            self.logger.error("Error al decodificar cookies para %s: %s", domain, exc)
             return
         try:
             if hasattr(self.adapter, "set_cookies"):
                 await self.adapter.set_cookies(cookies)  # type: ignore
             elif self.page is not None:
                 await self.page.context.add_cookies(cookies)  # type: ignore
-            self.logger.info(f"Cookies cargadas para {domain}")
-        except Exception as exc:  # noqa: BLE001
-            self.logger.debug(f"No se pudieron aplicar cookies para {domain}: {exc}")
+            self.logger.info("Cookies cargadas para %s", domain)
+        except (RuntimeError, AttributeError, TypeError, ValueError) as exc:
+            self.logger.debug("No se pudieron aplicar cookies para %s: %s", domain, exc)
 
     async def _persist_cookies(self, domain: str) -> None:
         """Persist current cookies for a domain to the database."""
@@ -298,26 +308,26 @@ class AdvancedScraper:
                 current_cookies = await self.page.context.cookies()  # type: ignore
             else:
                 current_cookies = []
-        except Exception:
-            self.logger.debug(f"No se pudieron obtener cookies actuales para {domain}")
+        except (RuntimeError, AttributeError, TypeError):
+            self.logger.debug("No se pudieron obtener cookies actuales para %s", domain)
             return
         if not current_cookies:
             # If adapter explicitly indicates cookies were set (tests), persist an empty list
             if getattr(self.adapter, "cookies_were_set", False):
                 try:
                     self.db_manager.save_cookies(domain, json.dumps(current_cookies))
-                    self.logger.info(f"Cookies guardadas para {domain} (empty)")
-                except Exception:
+                    self.logger.info("Cookies guardadas para %s (empty)", domain)
+                except (RuntimeError, AttributeError, TypeError, ValueError):
                     self.logger.debug(
-                        f"No se pudieron guardar cookies para {domain}", exc_info=True
+                        "No se pudieron guardar cookies para %s", domain, exc_info=True
                     )
             return
         try:
             self.db_manager.save_cookies(domain, json.dumps(current_cookies))
-            self.logger.info(f"Cookies guardadas para {domain}")
-        except Exception:  # noqa: BLE001
+            self.logger.info("Cookies guardadas para %s", domain)
+        except (RuntimeError, AttributeError, TypeError, ValueError):
             self.logger.debug(
-                f"No se pudieron guardar cookies para {domain}", exc_info=True
+                "No se pudieron guardar cookies para %s", domain, exc_info=True
             )
 
     async def _navigate_to_url(self, url: str):
@@ -346,10 +356,12 @@ class AdvancedScraper:
             if hasattr(self.adapter, "wait_for_load_state"):
                 try:
                     await self.adapter.wait_for_load_state("networkidle")  # type: ignore
-                except Exception:
+                except (RuntimeError, AttributeError, TypeError):
                     pass
             return response_obj
         # Fallback to direct Playwright page
+        if self.page is None:
+            raise RuntimeError("No page available for navigation")
         response = await self.page.goto(
             url, wait_until="domcontentloaded", timeout=30_000
         )  # type: ignore
@@ -363,7 +375,7 @@ class AdvancedScraper:
         url: str,
         full_html: str,
         response,
-        extraction_schema: Optional[Type[BaseModel]] = None,
+        extraction_schema: type[BaseModel] | None = None,
     ) -> ScrapeResult:
         """Extract text, validate quality, compute hashes and build result."""
         # Use readability to extract main content and title
@@ -396,14 +408,17 @@ class AdvancedScraper:
         ]
         # Capture screenshot and derive a perceptual hash
         visual_hash = None
-        try:
-            if hasattr(self.adapter, "screenshot"):
-                screenshot = await self.adapter.screenshot()  # type: ignore
-            else:
-                screenshot = await self.page.screenshot()  # type: ignore
-            visual_hash = str(imagehash.phash(Image.open(io.BytesIO(screenshot))))
-        except Exception:
-            visual_hash = "unavailable"
+        if hasattr(self.adapter, "screenshot") or (
+            self.page is not None and hasattr(self.page, "screenshot")
+        ):
+            try:
+                if hasattr(self.adapter, "screenshot"):
+                    screenshot = await self.adapter.screenshot()  # type: ignore
+                else:
+                    screenshot = await self.page.screenshot()  # type: ignore
+                visual_hash = str(imagehash.phash(Image.open(io.BytesIO(screenshot))))
+            except (OSError, ValueError):
+                visual_hash = "unavailable"
         # Optionally perform structured extraction
         extracted_data = None
         if extraction_schema:
@@ -434,9 +449,7 @@ class AdvancedScraper:
         )
         return result
 
-    def _validate_content_quality(
-        self, text: Optional[str], title: Optional[str]
-    ) -> None:
+    def _validate_content_quality(self, text: str | None, title: str | None) -> None:
         """Validate that the extracted content meets quality thresholds.
 
         Raises
@@ -460,9 +473,7 @@ class AdvancedScraper:
                     f"Contenido parece ser una página de error (contiene: '{phrase}')."
                 )
 
-    def _classify_content(
-        self, title: Optional[str], content_text: Optional[str]
-    ) -> str:
+    def _classify_content(self, title: str | None, content_text: str | None) -> str:
         """Classify the type of content based on title and body text."""
         if not title and not content_text:
             return "UNKNOWN"

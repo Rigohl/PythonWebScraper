@@ -6,7 +6,7 @@ Integra síntesis de voz, reconocimiento de voz y chat inteligente
 import logging
 import threading
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Manejo de dependencias opcionales
 try:
@@ -43,7 +43,7 @@ class VoiceEngine:
                 self.engine = pyttsx3.init()
                 self._configure_voice()
                 logger.info("🎤 Motor de voz inicializado")
-            except Exception as e:
+            except (ImportError, RuntimeError) as e:
                 logger.error(f"Error inicializando motor de voz: {e}")
                 self.enabled = False
 
@@ -93,7 +93,7 @@ class VoiceEngine:
             self.engine.say(text)
             self.engine.runAndWait()
             self.speaking = False
-        except Exception as e:
+        except (RuntimeError, AttributeError) as e:
             logger.error(f"Error en síntesis asíncrona: {e}")
             self.speaking = False
 
@@ -107,8 +107,9 @@ class VoiceEngine:
             try:
                 self.engine.stop()
                 self.speaking = False
-            except:
-                pass
+            except RuntimeError as e:
+                # pyttsx3 puede lanzar RuntimeError si el loop/evento interno está en estado inválido
+                logger.warning(f"No se pudo detener el motor de voz limpiamente: {e}")
 
 
 class SpeechRecognizer:
@@ -130,11 +131,11 @@ class SpeechRecognizer:
                     self.recognizer.adjust_for_ambient_noise(source, duration=1)
 
                 logger.info("🎧 Reconocedor de voz inicializado")
-            except Exception as e:
+            except (ImportError, RuntimeError, OSError) as e:
                 logger.error(f"Error inicializando reconocedor: {e}")
                 self.enabled = False
 
-    def listen_once(self, timeout: int = 5) -> Optional[str]:
+    def listen_once(self, timeout: int = 5) -> str | None:
         """Escucha y reconoce una frase"""
         if not self.enabled:
             return None
@@ -167,6 +168,10 @@ class SpeechRecognizer:
             logger.error(f"🎧 Error del servicio de reconocimiento: {e}")
             self.listening = False
             return None
+        except (OSError, ConnectionError) as e:
+            logger.error(f"🎧 Error de sistema en reconocimiento: {e}")
+            self.listening = False
+            return None
         except Exception as e:
             logger.error(f"🎧 Error inesperado: {e}")
             self.listening = False
@@ -182,10 +187,10 @@ class IntelligentChat:
 
     def __init__(self, brain_instance=None):
         self.brain = brain_instance
-        self.conversation_history: List[Dict[str, Any]] = []
+        self.conversation_history: list[dict[str, Any]] = []
         self.active = False
 
-    def process_message(self, message: str, user_id: str = "user") -> Dict[str, Any]:
+    def process_message(self, message: str, user_id: str = "user") -> dict[str, Any]:
         """Procesa un mensaje y genera respuesta inteligente"""
 
         # Registrar mensaje en historial
@@ -223,8 +228,8 @@ class IntelligentChat:
         return response
 
     def _process_with_brain(
-        self, message: str, user_entry: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, message: str, user_entry: dict[str, Any]
+    ) -> dict[str, Any]:
         """Procesa el mensaje con el cerebro híbrido"""
         if not self.brain:
             return {"status": "no_brain", "analysis": "Cerebro no disponible"}
@@ -244,13 +249,13 @@ class IntelligentChat:
 
             return analysis
 
-        except Exception as e:
+        except (AttributeError, ValueError) as e:
             logger.error(f"Error procesando con cerebro: {e}")
             return {"status": "error", "error": str(e)}
 
     def _generate_response(
-        self, message: str, brain_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, message: str, brain_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Genera respuesta basada en el análisis del cerebro"""
 
         # Análisis básico del mensaje
@@ -314,8 +319,8 @@ class IntelligentChat:
             }
 
     def _handle_search_request(
-        self, message: str, brain_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, message: str, brain_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Maneja solicitudes de búsqueda"""
         # Extraer tema de búsqueda
         search_terms = self._extract_search_terms(message)
@@ -328,8 +333,8 @@ class IntelligentChat:
         }
 
     def _handle_document_request(
-        self, message: str, brain_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, message: str, brain_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Maneja solicitudes de creación de documentos"""
         doc_type = self._detect_document_type(message)
         topic = self._extract_document_topic(message)
@@ -342,7 +347,7 @@ class IntelligentChat:
             "topic": topic,
         }
 
-    def _extract_search_terms(self, message: str) -> List[str]:
+    def _extract_search_terms(self, message: str) -> list[str]:
         """Extrae términos de búsqueda del mensaje"""
         # Implementación básica - mejorar con NLP
         keywords = ["buscar", "busca", "información", "sobre", "acerca", "de"]
@@ -383,7 +388,7 @@ class IntelligentChat:
 
         return "tema general"
 
-    def get_conversation_summary(self) -> Dict[str, Any]:
+    def get_conversation_summary(self) -> dict[str, Any]:
         """Obtiene resumen de la conversación"""
         if not self.conversation_history:
             return {"messages": 0, "topics": [], "summary": "Sin conversación"}
@@ -414,7 +419,7 @@ class IntelligentChat:
 
         return (end_time - start_time).total_seconds() / 60.0
 
-    def _extract_conversation_topics(self) -> List[str]:
+    def _extract_conversation_topics(self) -> list[str]:
         """Extrae temas principales de la conversación"""
         # Implementación básica - mejorar con NLP
         topics = set()
@@ -551,7 +556,7 @@ class VoiceAssistant:
 
         return True
 
-    def _execute_actions(self, actions: List[str], response_data: Dict[str, Any]):
+    def _execute_actions(self, actions: list[str], response_data: dict[str, Any]):
         """Ejecuta acciones solicitadas"""
         for action in actions:
             try:
@@ -563,11 +568,11 @@ class VoiceAssistant:
                     self._show_capabilities()
                 else:
                     logger.warning(f"Acción desconocida: {action}")
-            except Exception as e:
+            except (ValueError, AttributeError) as e:
                 logger.error(f"Error ejecutando acción {action}: {e}")
                 self.speak(f"Hubo un error ejecutando la acción: {action}")
 
-    def _perform_intelligent_search(self, response_data: Dict[str, Any]):
+    def _perform_intelligent_search(self, response_data: dict[str, Any]):
         """Realiza búsqueda inteligente"""
         search_terms = response_data.get("search_terms", ["información general"])
 
@@ -577,7 +582,7 @@ class VoiceAssistant:
 
         # TODO: Integrar con el sistema de scraping para búsqueda real
 
-    def _create_document(self, response_data: Dict[str, Any]):
+    def _create_document(self, response_data: dict[str, Any]):
         """Crea documento solicitado"""
         doc_type = response_data.get("document_type", "documento")
         topic = response_data.get("topic", "tema general")
@@ -610,7 +615,7 @@ class VoiceAssistant:
         logger.info(f"🔊 Hablando: {text[:50]}...")
         return self.voice_engine.speak(text, blocking)
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Obtiene estado del asistente"""
         return {
             "voice_synthesis": self.voice_engine.enabled,
@@ -655,7 +660,7 @@ def main():
 
     # Mostrar estadísticas finales
     stats = assistant.get_status()
-    print(f"\n📊 Estadísticas de la conversación:")
+    print("\n📊 Estadísticas de la conversación:")
     print(f"Mensajes totales: {stats['conversation_stats']['total_messages']}")
     print(f"Duración: {stats['conversation_stats']['duration_minutes']:.1f} minutos")
 

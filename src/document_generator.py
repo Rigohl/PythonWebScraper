@@ -123,8 +123,8 @@ class DocumentGenerator:
 
         try:
             topic = search_data.get("topic", "Documento sin título")
-            synthesis = search_data.get("synthesis", {})
-            organized_content = search_data.get("organized_content", {})
+            search_data.get("synthesis", {})
+            search_data.get("organized_content", {})
 
             logger.info(f"📄 Generando documento '{document_type}' para: {topic}")
 

@@ -509,7 +509,7 @@ class ScraperTUIApp(App):
             "RETRY": 0,
             "LOW_QUALITY": 0,
         }
-        self.domain_metrics = {}
+        self.domain_metrics: dict[str, Any] = {}
         self.toast_container = ToastContainer()
         # Control para actualizaciones por lotes
         self._ui_update_scheduled = False
@@ -786,7 +786,7 @@ class ScraperTUIApp(App):
             md_path = Path("exports/manual_export.md")
             md_path.parent.mkdir(parents=True, exist_ok=True)
             with md_path.open("w", encoding="utf-8") as f:
-                f.write(db.export_to_markdown())
+                db.export_to_markdown(str(md_path))
             self.show_toast(f"MD exportado: {md_path}", "success", 4.0)
         except Exception:
             self.show_toast("Error exportando MD", "error")

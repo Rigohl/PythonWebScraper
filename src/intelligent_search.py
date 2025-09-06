@@ -126,7 +126,7 @@ class IntelligentSearchEngine:
 
             return search_session
 
-        except Exception as e:
+        except (aiohttp.ClientError, json.JSONDecodeError, AttributeError) as e:
             logger.error(f"Error en búsqueda inteligente: {e}")
             search_session["status"] = "error"
             search_session["error"] = str(e)
@@ -166,7 +166,7 @@ class IntelligentSearchEngine:
                 "confidence": analysis.get("confidence", 0.7),
             }
 
-        except Exception as e:
+        except (AttributeError, ValueError) as e:
             logger.error(f"Error analizando tema con cerebro: {e}")
             return {"original_topic": topic, "expanded_terms": [topic], "error": str(e)}
 
@@ -262,7 +262,7 @@ class IntelligentSearchEngine:
 
                 return results
 
-        except Exception as e:
+        except (aiohttp.ClientError, json.JSONDecodeError) as e:
             logger.error(f"Error buscando en Wikipedia: {e}")
             return []
 
@@ -274,7 +274,7 @@ class IntelligentSearchEngine:
             # Por ahora, generar contenido de ejemplo
             # TODO: Implementar búsqueda real con APIs o scraping
 
-            results = []
+            pass
 
             # Simular algunos resultados útiles
             example_results = [
@@ -304,7 +304,7 @@ class IntelligentSearchEngine:
 
             return example_results[:max_results]
 
-        except Exception as e:
+        except (ValueError, TypeError) as e:
             logger.error(f"Error en búsqueda general web: {e}")
             return []
 
@@ -459,7 +459,7 @@ class SearchResultsExporter:
             raise ValueError(f"Formato no soportado: {format_type}")
 
         topic = search_session.get("topic", "unknown")
-        search_id = search_session.get("search_id", "unknown")
+        search_session.get("search_id", "unknown")
 
         if not output_path:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

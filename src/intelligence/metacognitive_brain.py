@@ -21,7 +21,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -336,7 +335,7 @@ class MetacognitiveController:
     ) -> CognitiveStrategy:
         """Selecciona estrategia óptima basada en contexto y estado"""
 
-        task_type = task_context.get("type", "general")
+        task_context.get("type", "general")
         complexity = task_context.get("complexity", 0.5)
         time_pressure = task_context.get("time_pressure", 0.5)
         familiarity = task_context.get("familiarity", 0.5)

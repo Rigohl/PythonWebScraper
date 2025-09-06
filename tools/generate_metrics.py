@@ -11,7 +11,8 @@ if __name__ == "__main__":
     except SystemExit as e:
         code = e.code if isinstance(e.code, int) else 1
         sys.exit(code)
-    except Exception:
+    except (ImportError, FileNotFoundError, RuntimeError, OSError) as e:
+        print(f"Error running generate_metrics.py: {e}", file=sys.stderr)
         # If an unexpected exception occurs, return non-zero
         sys.exit(1)
     sys.exit(0)

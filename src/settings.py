@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+import os
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     Notes
     -----
     - ``LLM_MODEL`` defaults to ``gpt-3.5-turbo``. Override this via the
-      environment to experiment with different models (e.g. gpt-4) without
+      environment to experiment with different models (e.g. gpt.4) without
       changing code.
     - ``CONCURRENCY``, ``USER_AGENT_LIST`` and database paths mirror the
       original repository. Feel free to adjust them in your ``.env``.
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     # --- General settings ---
     APP_NAME: str = "Web Scraper PRO"
-    START_URLS: List[str] = ["http://books.toscrape.com/"]
+    START_URLS: list[str] = ["http://books.toscrape.com/"]
     LOG_LEVEL: str = "INFO"
     LOG_FILE: str = "logs/scraper_run.log"
 
@@ -34,13 +34,13 @@ class Settings(BaseSettings):
     INITIAL_RETRY_BACKOFF_FACTOR: int = 2
     REPETITIVE_PATH_THRESHOLD: int = 2
     MAX_REDIRECTS: int = 10
-    ALLOWED_CONTENT_TYPES: List[str] = ["text/html", "application/xhtml+xml"]
+    ALLOWED_CONTENT_TYPES: list[str] = ["text/html", "application/xhtml+xml"]
     PREQUALIFICATION_ENABLED: bool = True
     MAX_CONTENT_LENGTH_BYTES: int = 10_000_000  # 10MB
 
     # --- User‑Agent and proxies ---
     USER_AGENT: str = "PythonWebScraperPRO/1.0"
-    USER_AGENT_LIST: List[str] = [
+    USER_AGENT_LIST: list[str] = [
         # Chrome on Windows
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -63,13 +63,13 @@ class Settings(BaseSettings):
     ]
 
     # Lista de proxies (placeholder, llenar con proxies reales)
-    PROXY_LIST: List[str] = [
+    PROXY_LIST: list[str] = [
         # "http://user:pass@host:port",
         # "https://user:pass@host:port"
     ]
 
     # Cabeceras HTTP por defecto para imitar un navegador real
-    DEFAULT_HTTP_HEADERS: Dict[str, str] = {
+    DEFAULT_HTTP_HEADERS: dict[str, str] = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "en-US,en;q=0.9,es;q=0.8",
@@ -84,7 +84,7 @@ class Settings(BaseSettings):
     }
 
     # Patrones de URLs que suelen ser trampas para crawlers
-    CRAWLER_TRAP_PATTERNS: List[str] = [
+    CRAWLER_TRAP_PATTERNS: list[str] = [
         r"/calendar/\\d{4}/\\d{1,2}/",  # Calendarios infinitos
         r"/search\\?.*sort=.*",  # Múltiples combinaciones de ordenación
         r"/filter\\?.*=",  # Múltiples combinaciones de filtros
@@ -94,7 +94,7 @@ class Settings(BaseSettings):
     ]
 
     # --- Content type priorities ---
-    CONTENT_TYPE_PRIORITIES: Dict[str, int] = {
+    CONTENT_TYPE_PRIORITIES: dict[str, int] = {
         "PRODUCT": 1,
         "BLOG_POST": 2,
         "ARTICLE": 2,
@@ -117,7 +117,7 @@ class Settings(BaseSettings):
     # --- LLM configuration ---
     # LLM API key should be provided via environment variables or a secure
     # secrets manager. Default to None to avoid accidental check-ins of keys.
-    LLM_API_KEY: Optional[str] = None
+    LLM_API_KEY: str | None = None
     # Name of the LLM model to call. Required by ``LLMExtractor``. Defaults to
     # gpt‑3.5‑turbo for broad compatibility. You can override this in your
     # environment or ``.env`` file.
@@ -167,7 +167,7 @@ class Settings(BaseSettings):
     # incorrectly classified as too short (which prevents SUCCESS rows needed
     # for CLI export tests).
     MIN_CONTENT_LENGTH: int = 20
-    FORBIDDEN_PHRASES: List[str] = [
+    FORBIDDEN_PHRASES: list[str] = [
         "acceso denegado",
         "enable javascript",
         "habilite las cookies",
@@ -175,14 +175,14 @@ class Settings(BaseSettings):
         "login required",
         "please log in",
     ]
-    BLOCKED_RESOURCE_TYPES: List[str] = [
+    BLOCKED_RESOURCE_TYPES: list[str] = [
         "image",
         "stylesheet",
         "font",
         "media",
         "other",
     ]
-    RETRYABLE_STATUS_CODES: List[int] = [429, 500, 502, 503, 504]
+    RETRYABLE_STATUS_CODES: list[int] = [429, 500, 502, 503, 504]
 
     # --- Database configuration ---
     DB_PATH: str = "data/scraper_database.db"
@@ -191,7 +191,7 @@ class Settings(BaseSettings):
     TUI_LOG_PATH: str = "logs/scraper_run.md"
 
     # --- Extraction schema (legacy) ---
-    EXTRACTION_SCHEMA: Dict[str, Dict[str, str]] = {
+    EXTRACTION_SCHEMA: dict[str, dict[str, str]] = {
         "books.toscrape.com": {
             "price": ".price_color",
         },
@@ -209,13 +209,9 @@ settings = Settings()
 # Dynamic test-friendly adjustments (executed at import time). We detect the
 # pytest environment via PYTEST_CURRENT_TEST and relax thresholds that would
 # otherwise cause fixture HTML to be rejected as LOW_QUALITY/FAILED.
-try:  # pragma: no cover - environment dependent
-    import os
-
-    if "PYTEST_CURRENT_TEST" in os.environ:
-        # Allow very small pages (like the simple http_server fixtures) to be
-        # treated as valid content so integration / CLI tests persist results.
-        if settings.MIN_CONTENT_LENGTH > 5:
-            settings.MIN_CONTENT_LENGTH = 5  # type: ignore
-except Exception:
-    pass
+# This block is intentionally simple and should not raise in normal conditions.
+if "PYTEST_CURRENT_TEST" in os.environ:  # pragma: no cover - environment dependent
+    # Allow very small pages (like the simple http_server fixtures) to be
+    # treated as valid content so integration / CLI tests persist results.
+    if settings.MIN_CONTENT_LENGTH > 5:
+        settings.MIN_CONTENT_LENGTH = 5  # type: ignore

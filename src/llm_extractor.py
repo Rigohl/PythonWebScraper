@@ -46,8 +46,14 @@ class LLMExtractor:
                     api_key=settings.LLM_API_KEY, model=settings.LLM_MODEL
                 )
                 logger.info("LLMExtractor: adaptador OpenAI inicializado.")
-            except Exception as e:  # pragma: no cover - unexpected init failures
-                logger.error(f"LLMExtractor: error inicializando adaptador OpenAI: {e}")
+            except (
+                ImportError,
+                ValueError,
+                TypeError,
+            ) as e:  # pragma: no cover - unexpected init failures
+                logger.error(
+                    "LLMExtractor: error inicializando adaptador OpenAI: %s", e
+                )
                 self.adapter = OfflineLLMAdapter()
         else:
             self.adapter = OfflineLLMAdapter()
@@ -92,5 +98,5 @@ class LLMExtractor:
         try:
             # Prefer async path when available
             return await self.adapter.extract_structured_data(html_content, response_model)  # type: ignore[attr-defined]
-        except Exception:
+        except (AttributeError, TypeError):
             return self.adapter.extract_sync(html_content, response_model)

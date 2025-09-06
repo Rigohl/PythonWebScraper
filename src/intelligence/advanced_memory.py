@@ -91,7 +91,7 @@ class MemoryTrace:
             current_time = time.time()
 
         # Decay temporal (Ley de Potencia del Olvido)
-        time_since_encoding = current_time - self.encoding_time
+        current_time - self.encoding_time
         time_since_access = current_time - self.last_access
 
         base_decay = math.pow(time_since_access / 3600, -0.5)  # Power law decay

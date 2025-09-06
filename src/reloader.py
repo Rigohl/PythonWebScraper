@@ -77,5 +77,5 @@ class ScraperRegistry:
 
 def reload_module(module_name: str) -> types.ModuleType:
     """Reload a module by name, handling imports correctly."""
-    module = sys.modules[module_name]
+    sys.modules[module_name]
     return cast(types.ModuleType, __import__(module_name, fromlist=["*"]))

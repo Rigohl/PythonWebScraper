@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "name": "PythonWebScraper",
+    "description": "A Python-based web scraping application designed for modularity and easy extension.",
+    "language": "Python"
+  },
+  "key_locations": {
+    "knowledge_base": "GEMINI.md",
+    "source_dir": "src/",
+    "tests_dir": "tests/",
+    "docs_dir": "docs/",
+    "log_file": "logs/autonomous_cli.log"
+  },
+  "project_commands": {
+    "test": "pytest",
+    "lint": "flake8",
+    "format": "black",
+    "pre_commit_check": "pre-commit run --all-files"
+  },
+  "coding_conventions": {
+    "formatter": "black",
+    "linter": "flake8",
+    "line_length": 120
+  },
+  "agent_behavior": {
+    "auto_update_knowledge_base": true,
+    "enforce_coding_standards": true
+  }
+}

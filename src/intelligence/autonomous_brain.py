@@ -328,7 +328,7 @@ class AutonomousLearningBrain:
 
             # Analyze successful vs failed sessions
             successful = [s for s in recent_sessions if s.success]
-            failed = [s for s in recent_sessions if not s.success]
+            [s for s in recent_sessions if not s.success]
 
             # Update best strategies
             strategies = []

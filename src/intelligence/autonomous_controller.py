@@ -968,7 +968,7 @@ class AutonomousControllerBrain:
                     success = decision.result.get("success", False)
 
                     # Ajustar confianza basado en resultado
-                    confidence_adjustment = 0.1 if success else -0.1
+                    0.1 if success else -0.1
                     # Esto se usaría para entrenar un modelo de decisiones
 
             # Registrar aprendizaje en memoria

@@ -7,6 +7,19 @@ venv_validation/
 __pycache__/
 *.pyc
 
+# Archivos temporales y backups
+*.bak
+*.tmp
+*.temp
+*.log
+
+# Bases de datos
+*.db
+*.sqlite
+*.sqlite3
+
 # Scripts locales
-*.bat
-*.sh"logs/scraper_run.log"  
+# Excluimos *.bat y *.sh excepto los principales
+# scripts/*.bat
+# scripts/*.sh
+logs/scraper_run.log

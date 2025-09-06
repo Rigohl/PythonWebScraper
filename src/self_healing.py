@@ -68,7 +68,7 @@ class SelfHealingManager:
             else:
                 self.config = self._create_default_config()
                 self.save_configuration()
-        except Exception as e:
+        except (json.JSONDecodeError, IOError, OSError) as e:
             logger.warning("Error cargando configuración auto-reparación: %s", e)
             self.config = self._create_default_config()
 
@@ -94,7 +94,7 @@ class SelfHealingManager:
             self.config_file.parent.mkdir(parents=True, exist_ok=True)
             with open(self.config_file, "w", encoding="utf-8") as f:
                 json.dump(self.config, f, indent=2)
-        except Exception as e:
+        except (IOError, OSError) as e:
             logger.error("Error guardando configuración: %s", e)
 
     def diagnose_system(self) -> List[Issue]:
@@ -562,7 +562,7 @@ class SelfHealingManager:
             with open(self.learning_file, "w", encoding="utf-8") as f:
                 json.dump(history_data, f, indent=2)
 
-        except Exception as e:
+        except (IOError, OSError) as e:
             logger.error("Error guardando historial de aprendizaje: %s", e)
 
     def generate_improvement_report(self) -> str:

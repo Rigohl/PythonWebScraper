@@ -17,8 +17,9 @@ from __future__ import annotations
 import json
 import logging
 import os
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+import sqlite3
+from datetime import UTC, datetime
+from typing import Any
 
 import dataset
 
@@ -26,6 +27,20 @@ from .models.results import ScrapeResult
 from .settings import settings
 
 logger = logging.getLogger(__name__)
+
+# Exception tuples for better error handling
+COMMON_DB_ERRORS = (sqlite3.Error, sqlite3.OperationalError, sqlite3.DatabaseError)
+DATA_ERRORS = (ValueError, TypeError, json.JSONDecodeError)
+DB_QUERY_ERRORS = (
+    sqlite3.Error,
+    sqlite3.OperationalError,
+    sqlite3.DatabaseError,
+    ValueError,
+    TypeError,
+    AttributeError,
+)
+DB_OR_DATA_ERRORS = (*COMMON_DB_ERRORS, *DATA_ERRORS)
+DB_EXCEPTIONS = COMMON_DB_ERRORS
 
 
 class DatabaseManager:
@@ -44,8 +59,8 @@ class DatabaseManager:
 
     def __init__(
         self,
-        db_path: Optional[str] = None,
-        db_connection: Optional[dataset.Database] = None,
+        db_path: str | None = None,
+        db_connection: dataset.Database | None = None,
     ) -> None:
         if db_connection is not None:
             self.db = db_connection
@@ -64,7 +79,7 @@ class DatabaseManager:
         # Ensure common indexes exist to improve query performance for dedup checks
         try:
             self._ensure_indexes()
-        except Exception:
+        except (RuntimeError, AttributeError, ValueError, ImportError, OSError):
             # Don't fail construction if index creation is not possible
             logger.debug(
                 "No se pudieron crear índices en la base de datos (entorno restringido)."
@@ -73,7 +88,7 @@ class DatabaseManager:
     # ------------------------------------------------------------------
     # Context manager API
     # ------------------------------------------------------------------
-    def __enter__(self) -> "DatabaseManager":
+    def __enter__(self) -> DatabaseManager:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -82,22 +97,19 @@ class DatabaseManager:
         # raised during exit is suppressed and must be handled by the caller.
         try:
             # Use SQLAlchemy engine dispose if available to close connections cleanly
-            if hasattr(self.db, "engine") and getattr(self.db, "engine") is not None:
+            if hasattr(self.db, "engine") and self.db.engine is not None:
                 try:
                     self.db.engine.dispose()
-                except Exception:
+                except (AttributeError, RuntimeError, OSError):
                     # Best-effort fallback
                     pass
             # dataset.Database exposes .executable in some versions; attempt to close if present
-            if (
-                hasattr(self.db, "executable")
-                and getattr(self.db, "executable") is not None
-            ):
+            if hasattr(self.db, "executable") and self.db.executable is not None:
                 try:
                     self.db.executable.close()
-                except Exception:
+                except (AttributeError, RuntimeError, OSError):
                     pass
-        except Exception:
+        except (AttributeError, RuntimeError):
             pass
 
     def _ensure_indexes(self) -> None:
@@ -129,8 +141,8 @@ class DatabaseManager:
                     conn.execute(
                         text("CREATE INDEX IF NOT EXISTS idx_pages_url ON pages(url);")
                     )
-        except Exception as e:
-            logger.debug(f"_ensure_indexes failed: {e}")
+        except (ImportError, AttributeError, RuntimeError, ValueError, OSError) as e:
+            logger.debug("_ensure_indexes failed: %s", e)
 
     # ------------------------------------------------------------------
     # Discovered APIs and cookies
@@ -147,22 +159,22 @@ class DatabaseManager:
             "page_url": page_url,
             "api_url": api_url,
             "payload_hash": payload_hash,
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(UTC),
         }
         self.apis_table.upsert(data, ["page_url", "api_url", "payload_hash"])
-        logger.info(f"API descubierta en {page_url}: {api_url}")
+        logger.info("API descubierta en %s: %s", page_url, api_url)
 
     def save_cookies(self, domain: str, cookies_json: str) -> None:
         """Persist cookies for the given domain."""
         data = {
             "domain": domain,
             "cookies": cookies_json,
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(UTC),
         }
         self.cookies_table.upsert(data, ["domain"])
-        logger.debug(f"Cookies guardadas para el dominio: {domain}")
+        logger.debug("Cookies guardadas para el dominio: %s", domain)
 
-    def load_cookies(self, domain: str) -> Optional[str]:
+    def load_cookies(self, domain: str) -> str | None:
         """Retrieve cookies for a domain or ``None`` if not found."""
         row = self.cookies_table.find_one(domain=domain)
         return row["cookies"] if row else None
@@ -172,12 +184,12 @@ class DatabaseManager:
         data = {
             "domain": domain,
             "schema": schema_json,
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(UTC),
         }
         self.llm_schemas_table.upsert(data, ["domain"])
-        logger.debug(f"Esquema LLM guardado para el dominio: {domain}")
+        logger.debug("Esquema LLM guardado para el dominio: %s", domain)
 
-    def load_llm_extraction_schema(self, domain: str) -> Optional[str]:
+    def load_llm_extraction_schema(self, domain: str) -> str | None:
         """Retrieve a stored LLM extraction schema or ``None`` if missing."""
         row = self.llm_schemas_table.find_one(domain=domain)
         return row["schema"] if row else None
@@ -203,14 +215,14 @@ class DatabaseManager:
                 logger.warning(
                     f"[DEBUG] save_result url={result.url} status={result.status} content_len={clen}"
                 )
-        except Exception:
+        except (RuntimeError, AttributeError, OSError):
             pass
 
         # Primary deduplicación exacta por content_hash
         if result.content_hash:
             try:
                 existing_rows = list(self.table.find(content_hash=result.content_hash))
-            except Exception as e:  # graceful fallback
+            except COMMON_DB_ERRORS as e:  # graceful fallback
                 existing_rows = []
                 logger.debug(f"Error consulting content_hash for {result.url}: {e}")
             if existing_rows:
@@ -238,7 +250,7 @@ class DatabaseManager:
         try:
             self.table.upsert(data, ["url"])  # Insert/update canonical row
             logger.debug(f"Resultado para {result.url} guardado en la base de datos.")
-        except Exception as e:
+        except COMMON_DB_ERRORS as e:
             logger.error(f"Error guardando resultado para {result.url}: {e}")
             try:
                 existing_row = self.table.find_one(url=result.url)
@@ -250,7 +262,7 @@ class DatabaseManager:
                 logger.info(
                     f"Resultado para {result.url} guardado usando insert/update fallback."
                 )
-            except Exception as e2:
+            except COMMON_DB_ERRORS as e2:
                 logger.error(
                     f"Error crítico guardando resultado para {result.url}: {e2}"
                 )
@@ -264,10 +276,10 @@ class DatabaseManager:
                     logger.info(
                         f"Detectadas {len(dup_rows)} filas con hash duplicado tras inserción. Se recomienda limpieza manual, conservando la primera."
                     )
-            except Exception as e:
+            except COMMON_DB_ERRORS as e:
                 logger.debug(f"Post insert duplicate scan error: {e}")
 
-    def _compute_normalized_hash(self, result: ScrapeResult) -> Optional[str]:
+    def _compute_normalized_hash(self, result: ScrapeResult) -> str | None:
         """Compute a normalized hash for fuzzy duplicate detection."""
         normalized_hash = None
         try:
@@ -285,7 +297,7 @@ class DatabaseManager:
                     logger.debug(
                         f"Computed normalized hash for {result.url}: {normalized_hash}"
                     )
-        except Exception as e:
+        except DATA_ERRORS as e:
             logger.debug(f"Error computing normalized hash: {e}")
 
         return normalized_hash
@@ -314,7 +326,7 @@ class DatabaseManager:
                         f"SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT {scan_limit}"
                     )
                 )
-            except Exception:
+            except (ImportError, AttributeError, RuntimeError, *DB_EXCEPTIONS):
                 rows_iter = list(self.table.limit(scan_limit))
 
             for row in rows_iter:
@@ -346,12 +358,12 @@ class DatabaseManager:
                             if existing_row:
                                 existing_row["status"] = "DUPLICATE"
                                 self.table.update(existing_row, ["url"])
-                        except Exception as e:  # noqa: BLE001
+                        except COMMON_DB_ERRORS as e:  # noqa: BLE001
                             logger.debug(
                                 f"Could not retroactively mark existing duplicate {existing_url}: {e}"
                             )
                     break
-        except Exception as e:  # noqa: BLE001
+        except DB_OR_DATA_ERRORS as e:  # noqa: BLE001
             logger.debug(f"Error during fuzzy deduplication check: {e}")
 
     def _prefer_url(self, a: str, b: str) -> str:
@@ -368,8 +380,8 @@ class DatabaseManager:
         return a if a < b else b
 
     def _prepare_result_data(
-        self, result: ScrapeResult, normalized_hash: Optional[str] = None
-    ) -> dict:
+        self, result: ScrapeResult, normalized_hash: str | None = None
+    ) -> dict[str, Any]:
         """Prepare result data for database insertion with proper JSON serialization."""
         data = result.model_dump(mode="json")
 
@@ -422,7 +434,7 @@ class DatabaseManager:
                         duplicate_found = True
                         existing_url = row_url
                         break
-            except Exception as e:
+            except COMMON_DB_ERRORS as e:
                 logger.debug(f"Error in post-save duplicate check: {e}")
                 return
 
@@ -435,7 +447,7 @@ class DatabaseManager:
                 data = self._prepare_result_data(result)
                 try:
                     self.table.update(data, ["url"])
-                except Exception as e:
+                except COMMON_DB_ERRORS as e:
                     logger.warning(
                         f"Could not update duplicate status for {result.url}: {e}"
                     )
@@ -447,9 +459,9 @@ class DatabaseManager:
                     logger.info(f"Confirmed saved row for {result.url}")
                 else:
                     logger.warning(f"Could not confirm saved row for {result.url}")
-            except Exception as e:
+            except COMMON_DB_ERRORS as e:
                 logger.warning(f"Could not confirm saved row for {result.url}: {e}")
-        except Exception as e:
+        except (RuntimeError, AttributeError, ValueError) as e:
             logger.warning(f"Error in post-save duplicate check for {result.url}: {e}")
 
     # ------------------------------------------------------------------
@@ -462,7 +474,7 @@ class DatabaseManager:
         """
         return self.save_result(result)
 
-    def get_result_by_url(self, url: str) -> Optional[Dict[str, Any]]:
+    def get_result_by_url(self, url: str) -> dict[str, Any] | None:
         """Fetch a stored result by URL and deserialise JSON fields."""
         row = self.table.find_one(url=url)
         return self._deserialize_row(row) if row else None
@@ -492,7 +504,7 @@ class DatabaseManager:
                 results_iterator = self.table.find(
                     status="SUCCESS"
                 )  # recreate iterator after consumption
-        except Exception:
+        except (RuntimeError, AttributeError):
             pass
         first = next(results_iterator, None)
         if first is None:
@@ -556,7 +568,7 @@ class DatabaseManager:
         from collections import Counter
 
         status_counter = Counter(r.get("status", "UNKNOWN") for r in results)
-        domain_counter = Counter()
+        domain_counter: Counter[str] = Counter()
         for r in results:
             url = r.get("url") or ""
             try:
@@ -565,7 +577,7 @@ class DatabaseManager:
                 net = _urlparse(url).netloc
                 if net:
                     domain_counter[net] += 1
-            except Exception:
+            except ValueError:
                 pass
 
         # Recent pages by scraped_at
@@ -592,7 +604,7 @@ class DatabaseManager:
         lines.append("\n## Páginas Recientes (10)")
         for r in recent:
             lines.append(
-                f"- {r.get('scraped_at','?')} | {r.get('status')} | {r.get('url')}"
+                f"- {r.get('scraped_at', '?')} | {r.get('status')} | {r.get('url')}"
             )
 
         # SUCCESS table
@@ -607,10 +619,10 @@ class DatabaseManager:
                 if isinstance(extracted, str):
                     try:
                         extracted = json.loads(extracted)
-                    except Exception:
+                    except (json.JSONDecodeError, TypeError, ValueError):
                         extracted = {"raw": extracted[:40]}
                 extracted_keys = (
-                    ",".join(list(extracted.keys())[:6])
+                    ", ".join(list(extracted.keys())[:6])
                     if isinstance(extracted, dict)
                     else "-"
                 )
@@ -626,14 +638,14 @@ class DatabaseManager:
         brain_state_path = os.path.join("data", "brain_state.json")
         if os.path.exists(brain_state_path):
             try:
-                with open(brain_state_path, "r", encoding="utf-8") as bf:
+                with open(brain_state_path, encoding="utf-8") as bf:
                     brain_data = json.load(bf)
                 lines.append("\n## Brain Snapshot (Resumen)")
                 # Extraer campos clave si existen
                 if isinstance(brain_data, dict):
                     keys = list(brain_data.keys())[:15]
                     lines.append("Campos: " + ", ".join(keys))
-            except Exception as e:
+            except (OSError, json.JSONDecodeError) as e:
                 lines.append(f"\n_No se pudo leer brain_state.json: {e}_")
 
         with open(file_path, "w", encoding="utf-8") as f:
@@ -643,12 +655,12 @@ class DatabaseManager:
     # ------------------------------------------------------------------
     # Search operations
     # ------------------------------------------------------------------
-    def list_results(self) -> List[Dict[str, Any]]:
+    def list_results(self) -> list[dict[str, Any]]:
         """Return a list of all stored results with deserialised fields."""
         all_rows = self.table.all()
         return [self._deserialize_row(dict(row)) for row in all_rows]
 
-    def search_results(self, query: str) -> List[Dict[str, Any]]:
+    def search_results(self, query: str) -> list[dict[str, Any]]:
         """Search results whose title or content contains a substring.
 
         Args:
@@ -694,7 +706,7 @@ class DatabaseManager:
                     ):
                         unique_by_hash[ch] = r
             return list(unique_by_hash.values())
-        except Exception as e:
+        except DB_QUERY_ERRORS as e:
             logger.warning(f"Error en búsqueda: {e}")
             # Fallback: scan all results
             all_results = self.list_results()
@@ -711,7 +723,7 @@ class DatabaseManager:
     # ------------------------------------------------------------------
     # Internal helper methods
     # ------------------------------------------------------------------
-    def _process_csv_row(self, row: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_csv_row(self, row: dict[str, Any]) -> dict[str, Any]:
         """Flatten extracted data for CSV export and remove the original field."""
         if row.get("extracted_data"):
             try:
@@ -724,7 +736,7 @@ class DatabaseManager:
                 row.pop("extracted_data", None)
         return row
 
-    def _deserialize_row(self, row: Dict[str, Any]) -> Dict[str, Any]:
+    def _deserialize_row(self, row: dict[str, Any]) -> dict[str, Any]:
         """Deserialise JSON fields (links, extracted_data, healing_events)."""
         if row is None:
             return row

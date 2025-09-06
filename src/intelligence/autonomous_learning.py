@@ -160,7 +160,7 @@ class AutonomousPatchGenerator:
     def _add_basic_type_hints(self, content: str) -> str:
         """Add basic type hints where obvious."""
         try:
-            tree = ast.parse(content)
+            ast.parse(content)
             lines = content.splitlines()
 
             # Check if typing is imported
