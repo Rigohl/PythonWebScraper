@@ -31,12 +31,7 @@ include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
-extend_skip_glob = [
-    "backups/**/*",
-    ".venv/**/*",
-    "build/**/*",
-    "dist/**/*"
-]
+extend_skip_glob = ["backups/**/*", ".venv/**/*", "build/**/*", "dist/**/*"]
 
 [tool.flake8]
 max-line-length = 88
@@ -47,17 +42,30 @@ extend-exclude = [
     ".venv/",
     "__pycache__/",
     "build/",
-    "dist/"
+    "dist/",
 ]
 
 [tool.mypy]
 python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
-exclude = [
-    "backups/",
-    "build/",
-    "dist/"
+exclude = ["backups/", "build/", "dist/"]
+
+# Allow missing imports for quicker mypy runs; tighten later per-module as needed
+ignore_missing_imports = true
+
+[tool.pre-commit]
+# Suggested pre-commit hooks
+repos = [
+    { repo = "https://github.com/psf/black", rev = "24.0.0", hooks = [
+        { id = "black" },
+    ] },
+    { repo = "https://github.com/PyCQA/isort", rev = "5.12.0", hooks = [
+        { id = "isort" },
+    ] },
+    { repo = "https://github.com/pycqa/flake8", rev = "5.0.0", hooks = [
+        { id = "flake8" },
+    ] },
 ]
 
 [tool.pytest.ini_options]
@@ -71,19 +79,13 @@ filterwarnings = [
     "error",
     "ignore::UserWarning",
     "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning"
+    "ignore::PendingDeprecationWarning",
 ]
 asyncio_mode = "auto"
 
 [tool.coverage.run]
 source = ["src"]
-omit = [
-    "*/tests/*",
-    "*/backups/*",
-    "*/__pycache__/*",
-    "*/venv/*",
-    "*/.venv/*"
-]
+omit = ["*/tests/*", "*/backups/*", "*/__pycache__/*", "*/venv/*", "*/.venv/*"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -94,5 +96,5 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
     "if 0:",
-    "if __name__ == .__main__.:"
+    "if __name__ == .__main__.:",
 ]

@@ -7,6 +7,10 @@ isort>=5.0.0
 flake8>=7.0.0
 mypy>=1.0.0
 
+# Optional mypy plugins (uncomment if you use them)
+# types-requests
+# types-Pillow
+
 # Additional tools for quality assurance
 coverage>=7.0.0
 pytest-cov>=4.0.0
@@ -15,3 +19,6 @@ bandit>=1.7.0
 # Documentation
 sphinx>=7.0.0
 sphinx-rtd-theme>=2.0.0
+
+# Note: install dev deps with:
+# pip install -r requirements-dev.txt
