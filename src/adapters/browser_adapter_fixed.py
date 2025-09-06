@@ -7,10 +7,10 @@ y una implementación concreta usando Playwright. Facilita el testing con mocks.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse
 
 try:
     from playwright.async_api import Page, Response
@@ -185,8 +185,7 @@ class MockBrowserAdapter(BrowserAdapter):
         self.mock_api_responses = []
         self.response_listeners = []
         self.cookies_store = []
-        # Track if cookies were set
-        self.cookies_were_set = False
+        self._cookies_were_set = False
 
     async def navigate_to_url(
         self, url: str, wait_until: str = "domcontentloaded", timeout: int = 30000
@@ -196,69 +195,13 @@ class MockBrowserAdapter(BrowserAdapter):
             from src.exceptions import NetworkError
 
             raise NetworkError("Simulated network error for testing")
-        # Return configured mock_response (or default)
-        response_info = getattr(
-            self,
-            "mock_response",
-            {"status": 200, "url": url, "headers": {"content-type": "text/html"}},
-        )
 
-        # If mock API responses are configured, synthesize minimal response objects
-        # and notify registered listeners. Handlers may be sync or async.
-        if self.mock_api_responses:
-            import inspect
+        # Process any API responses
+        for response in self.mock_api_responses:
+            for handler in self.response_listeners:
+                await handler(response)
 
-            for api in self.mock_api_responses:
-
-                class _FakeReq:
-                    def __init__(self, rt):
-                        self.resource_type = rt
-
-                class _FakeResp:
-                    def __init__(self, d):
-                        self.url = d.get("url")
-                        self.headers = d.get("headers", {})
-                        self.request = _FakeReq(
-                            d.get("request", {}).get("resource_type")
-                        )
-                        self._json = d.get("json")
-
-                    async def json(self):
-                        if callable(self._json):
-                            try:
-                                res = self._json()
-                                if inspect.isawaitable(res):
-                                    return await res
-                                return res
-                            except TypeError:
-                                # _json might be an async function
-                                return await self._json()
-                        return self._json
-
-                fake = _FakeResp(api)
-
-                for h in list(self.response_listeners):
-                    try:
-                        res = h(fake)
-                        if inspect.isawaitable(res):
-                            await res
-                    except Exception:
-                        # Swallow errors during tests
-                        pass
-        # Simulate server-set cookies upon navigation so tests that expect
-        # cookie persistence observe them. Use the domain from the URL.
-        try:
-            parsed = urlparse(url)
-            domain = parsed.netloc
-            if domain:
-                self.cookies_store = [
-                    {"name": "session", "value": "abc123", "domain": domain}
-                ]
-                self.cookies_were_set = True
-        except Exception:
-            pass
-
-        return response_info
+        return self.mock_response
 
     async def get_content(self) -> str:
         """Mock content."""
@@ -268,7 +211,7 @@ class MockBrowserAdapter(BrowserAdapter):
         self, state: str = "networkidle", timeout: int = 15000
     ) -> None:
         """Mock wait."""
-        pass
+        await asyncio.sleep(0.01)  # Small delay to simulate waiting
 
     async def screenshot(self) -> bytes:
         """Mock screenshot."""
@@ -281,8 +224,7 @@ class MockBrowserAdapter(BrowserAdapter):
     async def set_cookies(self, cookies: List[Dict[str, Any]]) -> None:
         """Mock cookies setter."""
         self.cookies_store = cookies.copy()
-        # Flag for tests to assert cookies were applied
-        self.cookies_were_set = True
+        self._cookies_were_set = True
 
     def add_response_listener(self, handler) -> None:
         """Mock add listener."""
@@ -296,3 +238,8 @@ class MockBrowserAdapter(BrowserAdapter):
     def get_current_url(self) -> str:
         """Mock current URL."""
         return self.mock_url
+
+    @property
+    def cookies_were_set(self) -> bool:
+        """Check if cookies were set."""
+        return self._cookies_were_set

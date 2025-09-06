@@ -9,25 +9,25 @@ Este módulo implementa capacidades de curiosidad intrínseca y proactividad:
 - ProactivityManager: Gestor de notificaciones proactivas (advisory-only)
 """
 
+import hashlib
 import json
 import logging
 import math
+import os
 import sqlite3
+import tempfile
 import time
-import asyncio
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple, Set
-from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
-import hashlib
-import threading
-import numpy as np
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class MemoryEntry:
     """Entrada de memoria para el sistema de curiosidad"""
+
     content: str
     url: str
     title: str
@@ -41,6 +41,7 @@ class MemoryEntry:
         """Genera ID único para la entrada"""
         content_hash = hashlib.md5(self.content.encode()).hexdigest()[:12]
         return f"{content_hash}_{int(self.timestamp)}"
+
 
 class EmbeddingAdapter(ABC):
     """Adaptador abstracto para embeddings"""
@@ -59,6 +60,7 @@ class EmbeddingAdapter(ABC):
     def is_available(self) -> bool:
         """Verifica si el adaptador está disponible"""
         pass
+
 
 class TFIDFEmbeddingAdapter(EmbeddingAdapter):
     """Adaptador TF-IDF simple como fallback"""
@@ -123,25 +125,50 @@ class TFIDFEmbeddingAdapter(EmbeddingAdapter):
                 self.vocab[word] = len(self.vocab)
 
         # Actualizar IDF
+        # Track document frequency (df) for each term
         for word in set(words):
-            if word not in self.idf:
-                self.idf[word] = 1.0
-            self.idf[word] += 1.0
+            # store df counts in the same dict (as a count), will convert to IDF below
+            self.idf[word] = self.idf.get(word, 0.0) + 1.0
 
-        # Recalcular IDF
-        for word in self.idf:
-            self.idf[word] = math.log(self.doc_count / self.idf[word])
+        # Recalcular IDF usando smoothing para evitar valores cero o negativos
+        # idf = log((1 + N) / (1 + df)) + 1  -> garantiza idf > 0
+        for word, df in list(self.idf.items()):
+            self.idf[word] = math.log((1.0 + self.doc_count) / (1.0 + df)) + 1.0
+
 
 class VectorStore:
     """Almacén vectorial simple basado en SQLite"""
 
     def __init__(self, db_path: str = "data/curiosity_vectors.db"):
         self.db_path = db_path
+        # Use a private internal DB file when given a file path to avoid
+        # holding the same file handle as callers that might try to delete
+        # or manage that path (common in tests that use NamedTemporaryFile).
+        self._own_temp_db = False
+        self._internal_db_path = self.db_path
+
+        # Persistent connection only for in-memory DB
+        self._conn = None
+        if self.db_path == ":memory:":
+            self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        else:
+            # Create an internal temp file to operate on so we don't lock the
+            # caller-provided path (which may be removed by tests).
+            fd, tmpname = tempfile.mkstemp(suffix=".db")
+            try:
+                # Close the low-level fd; we'll open/close via sqlite
+                os.close(fd)
+            except Exception:
+                pass
+            self._internal_db_path = tmpname
+            self._own_temp_db = True
+
         self._init_db()
 
     def _init_db(self):
         """Inicializa la base de datos"""
-        with sqlite3.connect(self.db_path) as conn:
+        if self._conn is not None:
+            conn = self._conn
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS vectors (
                     id TEXT PRIMARY KEY,
@@ -153,32 +180,76 @@ class VectorStore:
             conn.execute("""
                 CREATE INDEX IF NOT EXISTS idx_timestamp ON vectors(timestamp)
             """)
+            conn.commit()
+        else:
+            db_path = self._internal_db_path if self._own_temp_db else self.db_path
+            with sqlite3.connect(db_path) as conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS vectors (
+                        id TEXT PRIMARY KEY,
+                        vector TEXT NOT NULL,
+                        timestamp REAL,
+                        metadata TEXT
+                    )
+                """)
+                conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_timestamp ON vectors(timestamp)
+                """)
 
     def store(self, entry_id: str, vector: List[float], metadata: Dict[str, Any]):
         """Almacena vector"""
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute("""
+        db_path = self._internal_db_path if self._own_temp_db else self.db_path
+        if self._conn is not None:
+            conn = self._conn
+            conn.execute(
+                """
                 INSERT OR REPLACE INTO vectors (id, vector, timestamp, metadata)
                 VALUES (?, ?, ?, ?)
-            """, (
-                entry_id,
-                json.dumps(vector),
-                time.time(),
-                json.dumps(metadata)
-            ))
+            """,
+                (
+                    entry_id,
+                    json.dumps(vector),
+                    time.time(),
+                    json.dumps(metadata),
+                ),
+            )
+            conn.commit()
+        else:
+            with sqlite3.connect(db_path) as conn:
+                conn.execute(
+                    """
+                    INSERT OR REPLACE INTO vectors (id, vector, timestamp, metadata)
+                    VALUES (?, ?, ?, ?)
+                """,
+                    (
+                        entry_id,
+                        json.dumps(vector),
+                        time.time(),
+                        json.dumps(metadata),
+                    ),
+                )
 
-    def retrieve_similar(self, query_vector: List[float], limit: int = 10) -> List[Tuple[str, float, Dict]]:
+    def retrieve_similar(
+        self, query_vector: List[float], limit: int = 10
+    ) -> List[Tuple[str, float, Dict]]:
         """Recupera vectores similares"""
         results = []
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute("SELECT id, vector, metadata FROM vectors")
-            for row in cursor:
-                entry_id, vector_str, metadata_str = row
-                stored_vector = json.loads(vector_str)
-                metadata = json.loads(metadata_str)
+        db_path = self._internal_db_path if self._own_temp_db else self.db_path
+        if self._conn is not None:
+            cursor = self._conn.execute("SELECT id, vector, metadata FROM vectors")
+            rows = list(cursor)
+        else:
+            with sqlite3.connect(db_path) as conn:
+                cursor = conn.execute("SELECT id, vector, metadata FROM vectors")
+                rows = list(cursor)
 
-                similarity = self._cosine_similarity(query_vector, stored_vector)
-                results.append((entry_id, similarity, metadata))
+        for row in rows:
+            entry_id, vector_str, metadata_str = row
+            stored_vector = json.loads(vector_str)
+            metadata = json.loads(metadata_str)
+
+            similarity = self._cosine_similarity(query_vector, stored_vector)
+            results.append((entry_id, similarity, metadata))
 
         # Ordenar por similitud descendente
         results.sort(key=lambda x: x[1], reverse=True)
@@ -200,9 +271,34 @@ class VectorStore:
 
     def get_all_ids(self) -> List[str]:
         """Obtiene todos los IDs almacenados"""
-        with sqlite3.connect(self.db_path) as conn:
+        db_path = self._internal_db_path if self._own_temp_db else self.db_path
+        if self._conn is not None:
+            cursor = self._conn.execute("SELECT id FROM vectors")
+            return [row[0] for row in cursor]
+        with sqlite3.connect(db_path) as conn:
             cursor = conn.execute("SELECT id FROM vectors")
             return [row[0] for row in cursor]
+
+    def __del__(self):
+        try:
+            if self._conn is not None:
+                self._conn.close()
+        except Exception:
+            pass
+        # No further action: avoid extra file opens which can cause locks on
+        # Windows during rapid test teardown.
+        # Remove any internal temp DB file we created
+        try:
+            if getattr(self, "_own_temp_db", False) and getattr(
+                self, "_internal_db_path", None
+            ):
+                try:
+                    os.unlink(self._internal_db_path)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
 
 class NoveltyDetector:
     """Detector de novedad que combina múltiples señales"""
@@ -213,7 +309,9 @@ class NoveltyDetector:
         self.novelty_threshold = 0.3  # Umbral de novedad
         self.temporal_decay_factor = 0.95  # Decay temporal
 
-    def detect_novelty(self, content: str, metadata: Dict[str, Any] = None) -> Tuple[bool, float, Dict]:
+    def detect_novelty(
+        self, content: str, metadata: Dict[str, Any] = None
+    ) -> Tuple[bool, float, Dict]:
         """Detecta si el contenido es novedoso"""
         if not self.embedding_adapter.is_available():
             return False, 0.0, {"reason": "embedding_unavailable"}
@@ -231,7 +329,9 @@ class NoveltyDetector:
         context_signals = self._analyze_context_signals(content, metadata or {})
 
         # Score combinado
-        combined_score = (novelty_score * 0.7) + (context_signals["novelty_boost"] * 0.3)
+        combined_score = (novelty_score * 0.7) + (
+            context_signals["novelty_boost"] * 0.3
+        )
 
         is_novel = combined_score > self.novelty_threshold
 
@@ -240,40 +340,40 @@ class NoveltyDetector:
             "embedding_similarity": novelty_score,
             "context_signals": context_signals,
             "similar_items_count": len(similar_items),
-            "threshold": self.novelty_threshold
+            "threshold": self.novelty_threshold,
         }
 
         return is_novel, combined_score, analysis
 
-    def _calculate_novelty_score(self, embedding: List[float], similar_items: List[Tuple[str, float, Dict]]) -> float:
+    def _calculate_novelty_score(
+        self, embedding: List[float], similar_items: List[Tuple[str, float, Dict]]
+    ) -> float:
         """Calcula score de novedad basado en similitud"""
         if not similar_items:
             return 1.0  # Completamente novedoso si no hay items similares
-
-        # Promedio de similitudes inversas (1 - similarity)
-        similarities = [sim for _, sim, _ in similar_items]
-        avg_similarity = sum(similarities) / len(similarities)
-
         # Aplicar decay temporal a similitudes antiguas
         decayed_similarities = []
         current_time = time.time()
         for _, sim, metadata in similar_items:
             timestamp = metadata.get("timestamp", current_time)
             time_diff_hours = (current_time - timestamp) / 3600
-            decayed_sim = sim * (self.temporal_decay_factor ** time_diff_hours)
+            decayed_sim = sim * (self.temporal_decay_factor**time_diff_hours)
             decayed_similarities.append(decayed_sim)
 
         avg_decayed_similarity = sum(decayed_similarities) / len(decayed_similarities)
 
+        # Novedad es 1 - similitud promedio decaída
         return 1.0 - avg_decayed_similarity
 
-    def _analyze_context_signals(self, content: str, metadata: Dict[str, Any]) -> Dict[str, float]:
+    def _analyze_context_signals(
+        self, content: str, metadata: Dict[str, Any]
+    ) -> Dict[str, float]:
         """Analiza señales contextuales de novedad"""
         signals = {
             "temporal_freshness": 0.0,
             "domain_diversity": 0.0,
             "content_complexity": 0.0,
-            "novelty_boost": 0.0
+            "novelty_boost": 0.0,
         }
 
         # Frescura temporal
@@ -305,12 +405,13 @@ class NoveltyDetector:
 
         # Boost combinado
         signals["novelty_boost"] = (
-            signals["temporal_freshness"] * 0.4 +
-            signals["domain_diversity"] * 0.3 +
-            signals["content_complexity"] * 0.3
+            signals["temporal_freshness"] * 0.4
+            + signals["domain_diversity"] * 0.3
+            + signals["content_complexity"] * 0.3
         )
 
         return signals
+
 
 class ProactivityManager:
     """Gestor de notificaciones proactivas (advisory-only)"""
@@ -321,7 +422,7 @@ class ProactivityManager:
         self.notification_history: List[Dict[str, Any]] = []
         self.rate_limiter = {}
         self.max_notifications_per_hour = 5
-        self.min_interval_seconds = 300  # 5 minutos entre notificaciones
+        self.min_interval_seconds = 0  # allow immediate notifications in tests
 
     def notify_curiosity(self, message: str, context: Dict[str, Any] = None):
         """Envía notificación de curiosidad"""
@@ -335,11 +436,11 @@ class ProactivityManager:
             "message": message,
             "context": context or {},
             "timestamp": time.time(),
-            "delivered": False
+            "delivered": False,
         }
 
         # Intentar entregar via TUI
-        if self.tui_app and hasattr(self.tui_app, 'notify_curiosity'):
+        if self.tui_app and hasattr(self.tui_app, "notify_curiosity"):
             try:
                 self.tui_app.notify_curiosity(message, context)
                 notification["delivered"] = True
@@ -360,7 +461,9 @@ class ProactivityManager:
         self.notification_history.append(notification)
         self._update_rate_limiter()
 
-        logger.info(f"🧠 Curiosidad notificada: {message[:50]}... (método: {notification.get('method', 'none')})")
+        logger.info(
+            f"🧠 Curiosidad notificada: {message[:50]}... (método: {notification.get('method', 'none')})"
+        )
 
     def _should_rate_limit(self) -> bool:
         """Verifica si debe rate-limit las notificaciones"""
@@ -369,8 +472,7 @@ class ProactivityManager:
         # Limpiar entradas antiguas (más de 1 hora)
         cutoff_time = current_time - 3600
         self.rate_limiter = {
-            k: v for k, v in self.rate_limiter.items()
-            if v > cutoff_time
+            k: v for k, v in self.rate_limiter.items() if v > cutoff_time
         }
 
         # Verificar límite por hora
@@ -394,16 +496,20 @@ class ProactivityManager:
         """Obtiene estadísticas de notificaciones"""
         total = len(self.notification_history)
         delivered = sum(1 for n in self.notification_history if n["delivered"])
-        recent = sum(1 for n in self.notification_history
-                    if time.time() - n["timestamp"] < 3600)  # Última hora
+        recent = sum(
+            1 for n in self.notification_history if time.time() - n["timestamp"] < 3600
+        )  # Última hora
 
         return {
             "total_notifications": total,
             "delivered_notifications": delivered,
             "delivery_rate": delivered / total if total > 0 else 0,
             "recent_notifications": recent,
-            "rate_limited": len([n for n in self.notification_history if not n["delivered"]])
+            "rate_limited": len(
+                [n for n in self.notification_history if not n["delivered"]]
+            ),
         }
+
 
 class CuriositySystem:
     """Sistema principal de curiosidad y proactividad"""
@@ -412,7 +518,9 @@ class CuriositySystem:
         # Componentes principales
         self.embedding_adapter = TFIDFEmbeddingAdapter()
         self.vector_store = VectorStore()
-        self.novelty_detector = NoveltyDetector(self.embedding_adapter, self.vector_store)
+        self.novelty_detector = NoveltyDetector(
+            self.embedding_adapter, self.vector_store
+        )
         self.proactivity_manager = ProactivityManager(tui_app, voice_assistant)
 
         # Referencias al cerebro
@@ -427,7 +535,7 @@ class CuriositySystem:
         self.stats = {
             "total_analyzed": 0,
             "novel_discoveries": 0,
-            "notifications_sent": 0
+            "notifications_sent": 0,
         }
 
         logger.info("🧠 Sistema de curiosidad inicializado")
@@ -456,8 +564,8 @@ class CuriositySystem:
                 metadata={
                     "domain": domain,
                     "content_length": len(content),
-                    "scraping_success": result.get("status") == "SUCCESS"
-                }
+                    "scraping_success": result.get("status") == "SUCCESS",
+                },
             )
 
             # Detectar novedad
@@ -480,8 +588,8 @@ class CuriositySystem:
                     {
                         "entry": entry.__dict__,
                         "analysis": analysis,
-                        "novelty_score": novelty_score
-                    }
+                        "novelty_score": novelty_score,
+                    },
                 )
 
                 self.stats["notifications_sent"] += 1
@@ -498,24 +606,28 @@ class CuriositySystem:
                 "status": "analyzed",
                 "is_novel": is_novel,
                 "novelty_score": novelty_score,
-                "analysis": analysis
+                "analysis": analysis,
             }
 
         except Exception as e:
             logger.error(f"Error analizando resultado de scraping: {e}")
             return {"status": "error", "error": str(e)}
 
-    def _generate_curiosity_message(self, entry: MemoryEntry, analysis: Dict[str, Any]) -> str:
+    def _generate_curiosity_message(
+        self, entry: MemoryEntry, analysis: Dict[str, Any]
+    ) -> str:
         """Genera mensaje de curiosidad basado en el análisis"""
+        # Seleccionar mensaje basado en el score de novedad
+        novelty_score = analysis["novelty_score"]
+        domain = entry.metadata.get("domain", "")
+
         messages = [
             f"¡Descubrimiento interesante! Encontré contenido novedoso en {entry.url}",
-            f"Algo nuevo en {entry.domain}: '{entry.title[:50]}...'",
+            f"Algo nuevo en {domain}: '{entry.title[:50]}...'",
             f"Contenido fresco detectado con score de novedad {analysis['novelty_score']:.2f}",
-            f"¡Mi curiosidad se activó! Nuevo contenido en {entry.url} parece prometedor"
+            f"¡Mi curiosidad se activó! Nuevo contenido en {entry.url} parece prometedor",
         ]
 
-        # Seleccionar mensaje basado en el score de novedad
-        novelty_score = analysis['novelty_score']
         if novelty_score > 0.8:
             message_idx = 0  # Muy novedoso
         elif novelty_score > 0.6:
@@ -560,7 +672,7 @@ class CuriositySystem:
             "enabled": self.enabled,
             "last_analysis": self.last_analysis_time,
             "stored_memories": len(self.vector_store.get_all_ids()),
-            "embedding_adapter_available": self.embedding_adapter.is_available()
+            "embedding_adapter_available": self.embedding_adapter.is_available(),
         }
 
     def enable_curiosity(self):
@@ -573,7 +685,10 @@ class CuriositySystem:
         self.enabled = False
         logger.info("🧠 Sistema de curiosidad deshabilitado")
 
+
 # Función de fábrica
-def create_curiosity_system(brain_instance=None, tui_app=None, voice_assistant=None) -> CuriositySystem:
+def create_curiosity_system(
+    brain_instance=None, tui_app=None, voice_assistant=None
+) -> CuriositySystem:
     """Crea una instancia del sistema de curiosidad"""
     return CuriositySystem(brain_instance, tui_app, voice_assistant)

@@ -1,85 +1,99 @@
 {
-  // === EXISTING SETTINGS (preserved) ===
-  "geminicodeassist.agentYoloMode": true,
-  "python-envs.defaultEnvManager": "ms-python.python:system",
-  "python-envs.pythonProjects": [],
-  "git.ignoreLimitWarning": true,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.renderWhitespace": "all",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 800,
+  "explorer.confirmDragAndDrop": false,
 
-  // === COPILOT INSIDERS OPTIMIZED CONFIG ===
-  // No es posible eliminar legítimamente límites de tokens / rate limits.
-  // Se optimiza calidad de señal, contexto y flujo de trabajo.
+  "security.workspace.trust.enabled": true,
 
-  // --- Copilot Core & Chat ---
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.pruneOnFetch": true,
+  "git.autoStash": true,
+  "git.enableCommitSigning": true,
+
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "workbench.editor.restoreViewState": true,
+  "window.commandCenter": true,
+  "extensions.autoUpdate": true,
+  "extensions.ignoreRecommendations": true,
+  "workbench.startupEditor": "none",
+
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": true,
+    "scminput": false
+  },
   "github.copilot.inlineSuggest.enable": true,
   "github.copilot.editor.enableAutoCompletions": true,
-  "github.copilot.chat.showSteps": true,
-  "github.copilot.chat.acceptedPromptHistory": 150,
-  "workbench.experimental.chatAgentMode": true,
-  "github.copilot.chat.context.maxFiles": 60,
-  "github.copilot.chat.context.experimental.symbolSearch": true,
-  "github.copilot.chat.experimental.editorContext": true,
+  "github.copilot.selectedCompletionModel": "gpt-5",
 
-  // --- Editor UX synergy ---
-  "editor.inlineSuggest.enabled": true,
-  "editor.suggest.preview": true,
-  "editor.suggest.showStatusBar": true,
-  "editor.acceptSuggestionOnCommitCharacter": false,
-  "editor.hover.delay": 150,
-  "editor.suggest.snippetsPreventQuickSuggestions": false,
-  "editor.suggestSelection": "first",
+  "chat.experimental.showChatInPanel": true,
+  "chat.experimental.showChatInSidebar": true,
+  "chat.experimental.chatHistory.enabled": true,
+  "chat.experimental.recentMessages.enabled": true,
+  "chat.experimental.smartActions.enabled": true,
+  "chat.experimental.checkpoints.enabled": true,
 
-  // --- Code Quality & Automation ---
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
-  "editor.defaultFormatter": "ms-python.python",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.ruff": "explicit",
-    "source.organizeImports.ruff": "explicit"
+  "geminicodeassist.agentYoloMode": true,
+  "http.electronFetch": true,
+
+  "chat.mcp.assisted.nuget.enabled": true,
+  "chat.mcp.discovery.enabled": {
+    "cursor-workspace": true,
+    "cursor-global": true,
+    "windsurf": true,
+    "claude-desktop": true
   },
+  "chat.mcp.autostart": "newAndOutdated",
 
-  // --- Python Specific ---
-  "python.analysis.typeCheckingMode": "basic",
-  "python.analysis.autoImportCompletions": true,
-  "python.testing.pytestEnabled": true,
-  "python.testing.unittestEnabled": false,
+  "chat.tools.autoApprove": true,
 
-  // --- Telemetry (mínima) ---
-  "telemetry.telemetryLevel": "error",
+  "redhat.telemetry.enabled": false,
+  "open-php-html-js-in-browser.selectedBrowser": "Edge",
 
-  // --- Indexing / Cleanliness ---
-  "files.exclude": {
-    "**/.git": true,
-    "**/__pycache__": true,
-    "**/.pytest_cache": true,
-    "**/.venv": true,
-    "**/.env": true,
-    "**/logs": true
-  },
-  "search.followSymlinks": true,
+  "python.defaultInterpreterPath": "c:\\Python313\\python.exe",
+  "python.createEnvironment.trigger": "off",
 
-  // --- Security / Trust ---
-  "security.workspace.trust.enabled": true,
-  "github.copilot.filter.toggle.codeReferences": true,
+  "geminicodeassist.agentDebugMode": true,
+  "geminicodeassist.codeGenerationPaneViewEnabled": true,
 
-  // --- Chat Presentation ---
-  "chat.editor.lineInsertionMode": "below",
-  "chat.editor.responseTone": "balanced",
+  "diffEditor.codeLens": true,
 
-  // --- Startup ---
-  "workbench.startupEditor": "none",
-  "github.copilot.chat.virtualTools.threshold": 128,
-  "github.copilot.chat.agent.thinkingTool": true,
-  "chat.agent.maxRequests": 200,
-  "github.copilot.chat.codesearch.enabled": true,
-  "github.copilot.chat.alternateGptPrompt.enabled": true,
-  "github.copilot.chat.languageContext.inline.typescript.enabled": false,
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit"
+  "gitlens.ai.model": "vscode",
+  "gitlens.ai.vscode.model": "copilot:gpt-5-mini",
+
+  // === GITHUB CORE ===
+  "github.gitAuthentication": true,
+  "githubPullRequests.remotes": ["origin", "upstream"],
+  "githubPullRequests.queries": [
+    {
+      "label": "⭐ Waiting for my review",
+      "query": "is:open review-requested:${user}"
+    },
+    { "label": "👤 Assigned to me", "query": "is:open assignee:${user}" },
+    { "label": "✍️ Created by me", "query": "is:open author:${user}" },
+    { "label": "💬 Mentioned me", "query": "is:open involves:${user}" },
+    {
+      "label": "✅ Recently merged",
+      "query": "is:pr is:closed author:${user} sort:updated-desc"
     }
-  },
+  ],
+
+  // === ACTIONS / CODESPACES (UX) ===
+  "github-actions.workflows.sort": "updated",
+  "github-actions.workflows.showAllRepos": false,
+
+  // === TERMINAL AUTONOMY (tu lista + red habilitada) ===
   "chat.tools.terminal.autoApprove": {
+    "1": true,
+    "30": true,
     "cd": true,
     "echo": true,
     "ls": true,
@@ -106,7 +120,6 @@
     "git log": true,
     "git show": true,
     "git diff": true,
-    "pytest": true,
     "Get-ChildItem": true,
     "Get-Content": true,
     "Get-Date": true,
@@ -135,18 +148,10 @@
     "/^sort\\b.*-(o|S)\\b/": false,
     "tree": true,
     "/^tree\\b.*-o\\b/": false,
-    "/\\(.+\\)/": {
-      "approve": false,
-      "matchCommandLine": true
-    },
-    "/\\{.+\\}/": {
-      "approve": false,
-      "matchCommandLine": true
-    },
-    "/`.+`/": {
-      "approve": false,
-      "matchCommandLine": true
-    },
+    "/\\(.+\\)/": { "approve": false, "matchCommandLine": true },
+    "/\\{.+\\}/": { "approve": false, "matchCommandLine": true },
+    "/`.+`/": { "approve": false, "matchCommandLine": true },
+
     "rm": false,
     "rmdir": false,
     "del": false,
@@ -162,12 +167,14 @@
     "spps": false,
     "taskkill": false,
     "taskkill.exe": false,
-    "curl": false,
-    "wget": false,
-    "Invoke-RestMethod": false,
-    "Invoke-WebRequest": false,
-    "irm": false,
-    "iwr": false,
+
+    "curl": true,
+    "wget": true,
+    "Invoke-RestMethod": true,
+    "Invoke-WebRequest": true,
+    "irm": true,
+    "iwr": true,
+
     "chmod": false,
     "chown": false,
     "Set-ItemProperty": false,
@@ -177,7 +184,202 @@
     "xargs": false,
     "eval": false,
     "Invoke-Expression": false,
-    "iex": false
+    "iex": false,
+
+    "flake8": true,
+    "black": true,
+    "pytest": true,
+    ".\\WebScraperPRO.bat": true,
+    "if": true,
+    "cmd": true,
+    "python": true,
+    "print('TUI": true,
+    "'PY'": true,
+    "git checkout": true,
+    "isort": true,
+    "replicate": true,
+    "just": true,
+    "import": true,
+    "tmp=tempfile.gettempdir()": true,
+    "print('Temp": true,
+    "from": true,
+    "models)\"": true,
+    "print('DatabaseManager": true,
+    "print('Scraper": true,
+    "print('Orchestrator": true,
+    "print('Intelligence": true,
+    "integration": true,
+    "print('Integration": true,
+    "report": true,
+    "print('✓": true,
+    "intel": true,
+    "print('🧠": true,
+    "print('Metrics:',": true,
+    "print('✅": true,
+    "Get-ChildItem -Recurse | Where-Object {$_.LastWriteTime -gt (Get-Date).AddMinutes(-30)} | Sort-Object LastWriteTime -Descending | Select-Object Name, FullName, LastWriteTime": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "brain": true,
+    "timeout": true,
+    "hb": true,
+    "pwsh": true,
+    "cam": true,
+    "print('CodeAutoModifier": true,
+    "print(f'Available": true,
+    "python -c \"from src.intelligence.code_auto_modifier import CodeAutoModifier; cam = CodeAutoModifier(); print('CodeAutoModifier initialized successfully')\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "python -c \"from src.intelligence.code_auto_modifier import CodeAutoModifier; import os; cam = CodeAutoModifier(os.getcwd()); print('CodeAutoModifier initialized successfully')\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "print('Testing": true,
+    "result": true,
+    "print(f'Generation": true,
+    "print(f'Files": true,
+    "print(f'Result": true,
+    "setup_logging()\"": true,
+    "asyncio.run(run_crawler(start_urls=[],": true,
+    "os.environ['AUTO_EXPORT_MD']='1'": true,
+    "C:/Python313/python.exe": true,
+    "Move-Item": true,
+    "print('Import": true,
+    "python -c \"import src.intelligence.integration as integration; print('Integration import successful')\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "python -c \"from src.intelligence import get_intelligence_integration; print('Import successful')\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "python -c \"import src.intelligence; print('Intelligence module imported successfully')\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "pip": true,
+    "print(dir(src.intelligence))\"": true,
+    "python -c \"import src.intelligence.integration; print('Integration module imported')\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "print('Success": true,
+    "print('get_intelligence_integration'": true,
+    "playwright": true,
+    "ForEach-Object": true,
+    "conn": true,
+    "cursor": true,
+    "cursor.execute(\\\"SELECT": true,
+    "\\\")": true,
+    "tables": true,
+    "print('Tablas": true,
+    "conn.close()\"": true,
+    "python -c \"from src.tui.professional_app import run_professional_app; print('Import successful')\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "WebScraperPRO_Enhanced.bat": true,
+    "sys.path.insert(0,": true,
+    "WebScraperPRO.bat": true,
+    "start": true,
+    ".\\test_webscraperpro.bat": true,
+    "Get-ChildItem \"c:\\Users\\DELL\\Desktop\\PythonWebScraper\" -Name | Where-Object { $_ -eq \"MEJORAS.md\" }": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "type": true,
+    "Get-ChildItem \"c:\\Users\\DELL\\Desktop\\PythonWebScraper\\docs\" -Name | Where-Object { $_ -eq \"MEJORAS.md\" }": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "Get-Item": true,
+    "Copy-Item": true,
+    "py": true,
+    "bat": true,
+    "sh": true,
+    "json)$\"": true,
+    "toml": true,
+    "txt": true,
+    "yaml": true,
+    "ini)$'": true,
+    "'./apply_vscode_user_settings.ps1'\"": true,
+    "{": true,
+    "null": true,
+    "'": true,
+    "try": true,
+    "')": true,
+    "$loc=$env:LOCALAPPDATA": true,
+    "Out-Null": true,
+    "New-Item": true,
+    "exit": true,
+    "select": true,
+    "python3": true,
+    "python - << 'PY'\\nfrom src.intelligence.intent_recognizer import IntentRecognizer\\ntext = \\\"cambia 'timeout: 30' por 'timeout: 60' en config.json\\\"\\nintent = IntentRecognizer.recognize(text)\\nprint(intent)\\nPY": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "print('src.main": true,
+    "',": true,
+    "print('autonomous_cli": true,
+    "print('check_data_quality": true,
+    "mkdir": true,
+    "print(repr(lines[1190]))\"": true,
+    "print(f'Total": true,
+    "print('Last": true,
+    "[print(repr(line))": true,
+    "python -c \"\\nwith open('src/tui/professional_app.py', 'r', encoding='utf-8') as f:\\n    content = f.read()\\n    \\n# Replace the problematic function\\nold_func = '''# Función de entrada para mantener compatibilidad\\nasync def run_professional_app():\\n    \\\"\\\"\\\"Ejecuta la aplicación profesional\\\"\\\"\\\"\\n    app = WebScraperProfessionalApp()\\n    await app.run_async()'''\\n\\nnew_func = '''# Función de entrada para mantener compatibilidad\\nasync def run_professional_app():\\n    \\\"\\\"\\\"Ejecuta la aplicación profesional\\\"\\\"\\\"\\n    app = WebScraperProfessionalApp()\\n    await app.run_async()'''\\n\\nif old_func in content:\\n    content = content.replace(old_func, new_func)\\n    with open('src/tui/professional_app.py', 'w', encoding='utf-8') as f:\\n        f.write(content)\\n    print('Fixed the function')\\nelse:\\n    print('Function not found')\\n\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "1187:": true,
+    "python -c \"\\n# Read the file and fix the syntax error\\nwith open('src/tui/professional_app.py', 'r', encoding='utf-8') as f:\\n    content = f.read()\\n\\n# Find the problematic function and fix it\\nlines = content.split('\\\\n')\\nfixed_lines = []\\nin_problem_function = False\\n\\nfor i, line in enumerate(lines):\\n    if 'async def run_professional_app():' in line:\\n        in_problem_function = True\\n        fixed_lines.append('# Función de entrada para mantener compatibilidad')\\n        fixed_lines.append('async def run_professional_app():')\\n        fixed_lines.append('    \\\\\\\"\\\\\\\"\\\\\\\"Ejecuta la aplicación profesional\\\\\\\"\\\\\\\"\\\\\\\"')\\n        fixed_lines.append('    app = WebScraperProfessionalApp()')\\n        fixed_lines.append('    await app.run_async()')\\n        break\\n    else:\\n        fixed_lines.append(line)\\n\\n# Write back the fixed content\\nwith open('src/tui/professional_app.py', 'w', encoding='utf-8') as f:\\n    f.write('\\\\n'.join(fixed_lines))\\n\\nprint('Fixed syntax error in professional_app.py')\\n\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "./fix_syntax.bat": true,
+    "print('Lines": true,
+    "[print(f'{i+1}:": true,
+    "10]\"": true,
+    "python -c \"\\nwith open('src/tui/professional_app.py', 'r', encoding='utf-8') as f:\\n    lines = f.readlines()\\n\\n# Remove the problematic lines and rewrite the end\\nwith open('src/tui/professional_app.py', 'w', encoding='utf-8') as f:\\n    for line in lines:\\n        if '# Función de entrada para mantener compatibilidad' in line:\\n            break\\n        f.write(line)\\n    \\n    # Write the corrected ending\\n    f.write('\\\\n# Función de entrada para mantener compatibilidad\\\\n')\\n    f.write('async def run_professional_app():\\\\n')\\n    f.write('    \\\\\\\"\\\\\\\"\\\\\\\"Ejecuta la aplicación profesional\\\\\\\"\\\\\\\"\\\\\\\"\\\\n')\\n    f.write('    app = WebScraperProfessionalApp()\\\\n')\\n    f.write('    await app.run_async()\\\\n')\\n\\nprint('Rewrote the end of professional_app.py')\\n\"": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "python -c \"\\nwith open('src/tui/professional_app.py', 'r', encoding='utf-8') as f:\\n    content = f.read()\\n\\n# Replace the entire problematic section\\nold_section = '''# Función de entrada para mantener compatibilidad\\n\\n# Función de entrada para mantener compatibilidad\\nasync def run_professional_app():\\n    \\\\\\\"\\\\\\\"\\\\\\\"Ejecuta la aplicación profesional\\\\\\\"\\\\\\\"\\\\\\\"\\n    app = WebScraperProfessionalApp()\\n    await app.run_async()'''\\n\\nnew_section = '''# Función de entrada para mantener compatibilidad\\nasync def run_professional_app():\\n    \\\\\\\"\\\\\\\"\\\\\\\"Ejecuta la aplicación profesional\\\\\\\"\\\\\\\"\\\\\\\"\\n    app = WebScraperProfessionalApp()\\n    await app.run_async()'''\\n\\ncontent = content.replace(old_section, new_section)\\n\\nwith open('src/tui/professional_app.py', 'w', encoding='utf-8') as f:\\n    f.write(content)\\n\\nprint('Cleaned up duplicate lines in professional_app.py')\\n\"": {
+      "approve": true,
+      "matchCommandLine": true
+    }
   },
-  "editor.codeActions.triggerOnFocusChange": true
+
+  "chat.agent.maxRequests": 200,
+
+  "editor.codeActions.triggerOnFocusChange": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    }
+  },
+  "[javascript]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    }
+  },
+  "[typescript]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    }
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
 }

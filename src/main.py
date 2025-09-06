@@ -4,7 +4,6 @@ import argparse
 import asyncio
 import logging
 import sys
-import os
 import json
 
 # The runner now handles logging setup, so we just import it.
@@ -151,6 +150,7 @@ async def launch_tui():
         logger.error("TUI dependencies not available. Install textual: pip install textual")
         sys.exit(1)
 
+
 async def launch_professional_tui():
     """Launch the Professional Dashboard TUI"""
     try:
@@ -182,6 +182,7 @@ async def output_brain_snapshot():
         logger.error(f"Failed to produce brain snapshot: {e}")
         print(json.dumps({"error": str(e)}))
 
+
 async def query_knowledge_base(query: str):
     """Queries the brain's knowledge base."""
     print(f"🧠 Consultando la Base de Conocimiento con: '{query}'")
@@ -207,6 +208,7 @@ async def query_knowledge_base(query: str):
         logger.error(f"Error al consultar la base de conocimiento: {e}")
         print(json.dumps({"error": str(e)}))
 
+
 async def generate_repair_report():
     """Generates and exports the IA self-repair report."""
     print("🧠 Generando reporte de auto-reparacion y diagnostico...")
@@ -219,6 +221,7 @@ async def generate_repair_report():
         logger.error(f"Error al generar el reporte de auto-reparacion: {e}")
         print(json.dumps({"error": str(e)}))
 
+
 async def run_demo_mode():
     """Run in demo mode without Playwright"""
     logger.info("Running in demo mode...")
@@ -228,6 +231,7 @@ async def run_demo_mode():
     ]
     await runner.discover_and_run_scrapers(demo_urls)
 
+
 async def export_to_csv(file_path: str, db_path: str):
     """Export scraped data to CSV (run sync export in thread)."""
     logger.info(f"Exporting data to CSV: {file_path}")
@@ -236,6 +240,7 @@ async def export_to_csv(file_path: str, db_path: str):
     await asyncio.to_thread(db_manager.export_to_csv, file_path)
     logger.info("CSV export completed")
 
+
 async def export_to_json(file_path: str, db_path: str):
     """Export scraped data to JSON (run sync export in thread)."""
     logger.info(f"Exporting data to JSON: {file_path}")
@@ -243,12 +248,19 @@ async def export_to_json(file_path: str, db_path: str):
     await asyncio.to_thread(db_manager.export_to_json, file_path)
     logger.info("JSON export completed")
 
+
 async def export_to_markdown(file_path: str, db_path: str):
     """Export scraped data to a Markdown report."""
     logger.info(f"Exporting data to Markdown: {file_path}")
     db_manager = DatabaseManager(db_path=db_path)
     await asyncio.to_thread(db_manager.export_to_markdown, file_path)
     logger.info("Markdown export completed")
+
+
+async def get_app_version():
+    """Get the application version from settings."""
+    from .settings import settings
+    return settings.SCRAPER_VERSION
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -643,6 +643,27 @@ Ideas futuras:
 
 ---
 
+## 23.1. Actualización Reciente: Refactor de Adapters y Tests
+
+Se ha completado una etapa de refactorización y mejora de la calidad del código, enfocada en los adaptadores y la cobertura de pruebas.
+
+- **Refactor de Adapters**:
+  - Se ha añadido `__all__` para controlar las importaciones y se ha configurado un logger específico en `src/adapters/__init__.py`.
+  - Los adapters ahora tienen un manejo de errores más explícito y un logging uniforme.
+  - Se ha añadido un `NullHandler` por defecto para evitar warnings de logging en entornos sin configuración.
+
+- **Nuevos Tests**:
+  - Se han añadido tests unitarios en `tests/test_adapters.py` para:
+    - `MockBrowserAdapter`
+    - `HttpxAdapter` (usando un cliente mock)
+    - `OfflineLLMAdapter`
+    - `MockLLMAdapter`
+  - Esto asegura un comportamiento más predecible y facilita futuras modificaciones.
+
+Estos cambios mejoran la mantenibilidad y robustez del núcleo del scraper.
+
+---
+
 ## 24. Comandos Comunes (Resumen)
 
 ```powershell

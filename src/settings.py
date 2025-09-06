@@ -21,6 +21,12 @@ class Settings(BaseSettings):
       original repository. Feel free to adjust them in your ``.env``.
     """
 
+    # --- General settings ---
+    APP_NAME: str = "Web Scraper PRO"
+    START_URLS: List[str] = ["http://books.toscrape.com/"]
+    LOG_LEVEL: str = "INFO"
+    LOG_FILE: str = "logs/scraper_run.log"
+
     # --- Crawler configuration ---
     CONCURRENCY: int = 5
     DEFAULT_DELAY: int = 1
@@ -129,6 +135,7 @@ class Settings(BaseSettings):
     )
     # Accelerated test mode (skips network HEAD prequalification & long stealth)
     FAST_TEST_MODE: bool = False
+    CONSCIOUSNESS_ENABLED: bool = False  # Master toggle for consciousness features
 
     # --- Curiosity / Proactivity Configuration ---
     # Curiosity system for making the brain proactive and aware

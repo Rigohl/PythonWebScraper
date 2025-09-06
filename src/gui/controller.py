@@ -1,10 +1,10 @@
 import asyncio
 import logging
-import threading
 import os
 import sys
+import threading
 from dataclasses import dataclass, field
-from typing import Callable, Optional, List
+from typing import Callable, List, Optional
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
@@ -19,6 +19,7 @@ from src.runner import run_crawler
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class ScraperConfig:
     start_urls: List[str] = field(default_factory=list)
@@ -28,19 +29,31 @@ class ScraperConfig:
     use_rl: bool = False
     hot_reload: bool = False
 
+
 class ScraperController(QObject):
     # Signals for GUI updates
     status_changed = pyqtSignal(str)
     stats_update = pyqtSignal(dict)
     brain_activity = pyqtSignal(float)
 
-    def __init__(self):
+    def __init__(self, runner: Optional[Callable[..., object]] = None):
+        """Create a new controller.
+
+        Parameters
+        ----------
+        runner:
+            Optional async callable matching the signature of `run_crawler`.
+            If None the real `run_crawler` from `src.runner` will be used. This
+            allows injecting a dummy runner in tests.
+        """
         super().__init__()
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
         self._running = False
         self._config = ScraperConfig()
+        # Runner injection for testability
+        self._runner = runner or run_crawler
 
     def is_running(self) -> bool:
         return self._running
@@ -63,7 +76,15 @@ class ScraperController(QObject):
         if self._loop and self._loop.is_running():
             self._loop.call_soon_threadsafe(self._loop.stop)
         self._running = False
+        # Emit STOPPED and wait shortly for the background thread to finish so
+        # that tests observing the signal can receive it reliably.
         self.status_changed.emit("STOPPED")
+        try:
+            if self._thread and self._thread.is_alive():
+                # join with a small timeout to avoid blocking long-running runs
+                self._thread.join(timeout=0.5)
+        except Exception:
+            pass
 
     def _thread_main(self):
         try:
@@ -88,12 +109,12 @@ class ScraperController(QObject):
             self.stats_update.emit(stats)
             # Derive a numeric brain activity metric if available
             activity = 0.0
-            if 'brain' in stats:
-                b = stats['brain']
-                activity = float(b.get('events_last_minute', 0)) / 50.0
+            if "brain" in stats:
+                b = stats["brain"]
+                activity = float(b.get("events_last_minute", 0)) / 50.0
             self.brain_activity.emit(min(1.0, activity))
 
-        await run_crawler(
+        await self._runner(
             start_urls=self._config.start_urls,
             db_path=self._config.db_path,
             concurrency=self._config.concurrency,

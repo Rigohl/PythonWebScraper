@@ -324,6 +324,123 @@
       "last_updated": 1757088176.6141632,
       "content_types": {},
       "best_strategies": []
+    },
+    {
+      "domain": "localhost:52629",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.7151209680000001,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757147018.5855365,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:64102",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.701902158,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757148017.8433821,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:64142",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.6946964640000001,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757148044.9307377,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:63078",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.7051231920000001,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757164787.487397,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:63451",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.8031672240000001,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757165337.9444766,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:61645",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.7400853390000002,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757166342.135333,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:50952",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.6599969460000001,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757166366.3891146,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:51049",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.6840077579999999,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757166421.7066245,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:51085",
+      "total_attempts": 3,
+      "success_rate": 0.0,
+      "avg_response_time": 0.668855532,
+      "optimal_delay": 1.3310000000000004,
+      "preferred_user_agent": "",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757166445.7497382,
+      "content_types": {},
+      "best_strategies": []
     }
   ],
   "patterns": {
@@ -351,7 +468,16 @@
     "localhost:59131": [],
     "localhost:59193": [],
     "localhost:52922": [],
-    "localhost:53043": []
+    "localhost:53043": [],
+    "localhost:52629": [],
+    "localhost:64102": [],
+    "localhost:64142": [],
+    "localhost:63078": [],
+    "localhost:63451": [],
+    "localhost:61645": [],
+    "localhost:50952": [],
+    "localhost:51049": [],
+    "localhost:51085": []
   },
-  "last_save": 1757088274.8054364
+  "last_save": 1757166445.8261867
 }

@@ -129,20 +129,24 @@ async def run_crawler(
     # Initialize HybridBrain - Intelligence is always active
     hybrid_brain = get_hybrid_brain()
 
-    # Configure brain based on settings
-    if settings.CONSCIOUSNESS_ENABLED:
+    # Configure brain based on settings. Be defensive: certain settings may
+    # be missing in tests or minimal environments, so use getattr with
+    # sensible defaults to avoid AttributeError in subprocessed CLI runs.
+    consciousness_enabled = getattr(settings, "CONSCIOUSNESS_ENABLED", False)
+    if consciousness_enabled:
         hybrid_brain.enable_consciousness()
     else:
         hybrid_brain.disable_consciousness()
 
-    hybrid_brain.set_integration_mode(settings.INTELLIGENCE_INTEGRATION_MODE)
+    intelligence_mode = getattr(settings, "INTELLIGENCE_INTEGRATION_MODE", "unified")
+    hybrid_brain.set_integration_mode(intelligence_mode)
 
-    # Start continuous learning if enabled
-    if settings.CONTINUOUS_LEARNING_ENABLED:
+    # Start continuous learning if enabled (default: False)
+    if getattr(settings, "CONTINUOUS_LEARNING_ENABLED", False):
         hybrid_brain.start_continuous_learning()
 
     logger.info(
-        f"🧠 HybridBrain initialized - Mode: {settings.INTELLIGENCE_INTEGRATION_MODE}, Consciousness: {settings.CONSCIOUSNESS_ENABLED}"
+        f"🧠 HybridBrain initialized - Mode: {intelligence_mode}, Consciousness: {consciousness_enabled}"
     )
 
     # 🧠 Initialize brain monitoring and omniscient observation

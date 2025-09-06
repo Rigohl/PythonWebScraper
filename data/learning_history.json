@@ -60,10 +60,10 @@
     },
     {
       "domain": "test.com",
-      "total_attempts": 14,
-      "success_rate": 0.35501652883378676,
-      "avg_response_time": 0.002548420615317174,
-      "optimal_delay": 1.3240391581000008,
+      "total_attempts": 28,
+      "success_rate": 0.6092250881824883,
+      "avg_response_time": 0.0012357198229566316,
+      "optimal_delay": 1.5432682299368672,
       "preferred_user_agent": "Test-Agent",
       "common_patterns": [],
       "error_patterns": [
@@ -72,11 +72,11 @@
         "status_FAILED",
         "Unexpected error: Unexpected error"
       ],
-      "last_updated": 1757088265.3749282,
+      "last_updated": 1757148089.053938,
       "content_types": {},
       "best_strategies": [
         "optimal_delay:1.00",
-        "preferred_ua:445"
+        "preferred_ua:907"
       ]
     },
     {
@@ -136,6 +136,195 @@
       "last_updated": 1757088250.8634481,
       "content_types": {},
       "best_strategies": []
+    },
+    {
+      "domain": "localhost:52154",
+      "total_attempts": 3,
+      "success_rate": 0.657,
+      "avg_response_time": 0.7762694729999999,
+      "optimal_delay": 1.0,
+      "preferred_user_agent": "TestAgent/1.0",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757146371.641147,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:52179",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.6967353090000001,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "TestAgent/1.0",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757146375.7180746,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:52629",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.7151209680000001,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757147018.583361,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:64102",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.701902158,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757148017.8408546,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:64142",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.6946964640000001,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757148044.928228,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:64226",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.7136032170000001,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "TestAgent/1.0",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757148077.8494775,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:64248",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.7044261690000001,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "TestAgent/1.0",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757148081.778193,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:63078",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.7051231920000001,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757164787.485397,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:63451",
+      "total_attempts": 3,
+      "success_rate": 0.657,
+      "avg_response_time": 0.8031672240000001,
+      "optimal_delay": 1.0,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757165337.9404764,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:61645",
+      "total_attempts": 3,
+      "success_rate": 0.657,
+      "avg_response_time": 0.7400853390000002,
+      "optimal_delay": 1.0,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [],
+      "last_updated": 1757166342.133321,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:50952",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.6599969460000001,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757166366.3881137,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:51049",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.6840077579999999,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757166421.7056036,
+      "content_types": {},
+      "best_strategies": []
+    },
+    {
+      "domain": "localhost:51085",
+      "total_attempts": 3,
+      "success_rate": 0.357,
+      "avg_response_time": 0.668855532,
+      "optimal_delay": 1.1,
+      "preferred_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      "common_patterns": [],
+      "error_patterns": [
+        "status_DUPLICATE"
+      ],
+      "last_updated": 1757166445.7474892,
+      "content_types": {},
+      "best_strategies": []
     }
   ],
   "patterns": {
@@ -176,7 +365,62 @@
       "localhost:53365//{token}",
       "localhost:53365//page1_clone.html",
       "localhost:53365//page1.html"
+    ],
+    "localhost:52154": [
+      "localhost:52154//index.html",
+      "localhost:52154//page2.html",
+      "localhost:52154//page1.html"
+    ],
+    "localhost:52179": [
+      "localhost:52179//{token}",
+      "localhost:52179//page1.html"
+    ],
+    "localhost:52629": [
+      "localhost:52629//index.html",
+      "localhost:52629//page1.html"
+    ],
+    "localhost:64102": [
+      "localhost:64102//index.html",
+      "localhost:64102//page1.html"
+    ],
+    "localhost:64142": [
+      "localhost:64142//index.html",
+      "localhost:64142//page1.html"
+    ],
+    "localhost:64226": [
+      "localhost:64226//index.html",
+      "localhost:64226//page1.html"
+    ],
+    "localhost:64248": [
+      "localhost:64248//{token}",
+      "localhost:64248//page1.html"
+    ],
+    "localhost:63078": [
+      "localhost:63078//index.html",
+      "localhost:63078//page1.html"
+    ],
+    "localhost:63451": [
+      "localhost:63451//index.html",
+      "localhost:63451//page2.html",
+      "localhost:63451//page1.html"
+    ],
+    "localhost:61645": [
+      "localhost:61645//index.html",
+      "localhost:61645//page2.html",
+      "localhost:61645//page1.html"
+    ],
+    "localhost:50952": [
+      "localhost:50952//index.html",
+      "localhost:50952//page1.html"
+    ],
+    "localhost:51049": [
+      "localhost:51049//index.html",
+      "localhost:51049//page1.html"
+    ],
+    "localhost:51085": [
+      "localhost:51085//index.html",
+      "localhost:51085//page1.html"
     ]
   },
-  "last_save": 1757088265.375471
+  "last_save": 1757166445.7474892
 }

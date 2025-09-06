@@ -520,6 +520,852 @@
       },
       "complexity": "very_low",
       "hour": 10
+    },
+    {
+      "t": 1757147017.2650619,
+      "domain": "localhost:52629",
+      "url": "http://localhost:52629/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.151364,
+      "crawl_duration": 1.151364,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 26,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757147018.5536664,
+      "domain": "localhost:52629",
+      "url": "http://localhost:52629/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.051486,
+      "crawl_duration": 1.051486,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757147018.5870404,
+      "domain": "localhost:52629",
+      "url": "http://localhost:52629/page2.html",
+      "status": "DUPLICATE",
+      "success": false,
+      "response_time": 1.083528,
+      "crawl_duration": 1.083528,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757148016.5901287,
+      "domain": "localhost:64102",
+      "url": "http://localhost:64102/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.158664,
+      "crawl_duration": 1.158664,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 26,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757148017.836339,
+      "domain": "localhost:64102",
+      "url": "http://localhost:64102/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.038465,
+      "crawl_duration": 1.038465,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757148017.8443813,
+      "domain": "localhost:64102",
+      "url": "http://localhost:64102/page2.html",
+      "status": "DUPLICATE",
+      "success": false,
+      "response_time": 1.045003,
+      "crawl_duration": 1.045003,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757148043.6283727,
+      "domain": "localhost:64142",
+      "url": "http://localhost:64142/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.035302,
+      "crawl_duration": 1.035302,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 26,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757148044.9216158,
+      "domain": "localhost:64142",
+      "url": "http://localhost:64142/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.061827,
+      "crawl_duration": 1.061827,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757148044.9332561,
+      "domain": "localhost:64142",
+      "url": "http://localhost:64142/page2.html",
+      "status": "DUPLICATE",
+      "success": false,
+      "response_time": 1.065078,
+      "crawl_duration": 1.065078,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 2
+    },
+    {
+      "t": 1757164786.2374165,
+      "domain": "localhost:63078",
+      "url": "http://localhost:63078/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.154726,
+      "crawl_duration": 1.154726,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 26,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757164787.481906,
+      "domain": "localhost:63078",
+      "url": "http://localhost:63078/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.045327,
+      "crawl_duration": 1.045327,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757164787.4893963,
+      "domain": "localhost:63078",
+      "url": "http://localhost:63078/page2.html",
+      "status": "DUPLICATE",
+      "success": false,
+      "response_time": 1.052866,
+      "crawl_duration": 1.052866,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757165336.4708562,
+      "domain": "localhost:63451",
+      "url": "http://localhost:63451/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.381082,
+      "crawl_duration": 1.380082,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 25,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757165337.8968391,
+      "domain": "localhost:63451",
+      "url": "http://localhost:63451/page2.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.119867,
+      "crawl_duration": 1.119867,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757165337.9484754,
+      "domain": "localhost:63451",
+      "url": "http://localhost:63451/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.216587,
+      "crawl_duration": 1.216587,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166340.8262696,
+      "domain": "localhost:61645",
+      "url": "http://localhost:61645/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.314687,
+      "crawl_duration": 1.314687,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 25,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166342.1260667,
+      "domain": "localhost:61645",
+      "url": "http://localhost:61645/page2.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.042555,
+      "crawl_duration": 1.042555,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166342.1373394,
+      "domain": "localhost:61645",
+      "url": "http://localhost:61645/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.092966,
+      "crawl_duration": 1.092966,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166365.1917458,
+      "domain": "localhost:50952",
+      "url": "http://localhost:50952/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.046098,
+      "crawl_duration": 1.046098,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 25,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166366.3675704,
+      "domain": "localhost:50952",
+      "url": "http://localhost:50952/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 0.985074,
+      "crawl_duration": 0.985074,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_fast"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166366.3907008,
+      "domain": "localhost:50952",
+      "url": "http://localhost:50952/page2.html",
+      "status": "DUPLICATE",
+      "success": false,
+      "response_time": 0.99785,
+      "crawl_duration": 0.99785,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_fast"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166420.4453132,
+      "domain": "localhost:51049",
+      "url": "http://localhost:51049/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.038174,
+      "crawl_duration": 1.038174,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 25,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166421.6812756,
+      "domain": "localhost:51049",
+      "url": "http://localhost:51049/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.028058,
+      "crawl_duration": 1.028058,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166421.7086241,
+      "domain": "localhost:51049",
+      "url": "http://localhost:51049/page2.html",
+      "status": "DUPLICATE",
+      "success": false,
+      "response_time": 1.05168,
+      "crawl_duration": 1.05168,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166444.5342026,
+      "domain": "localhost:51085",
+      "url": "http://localhost:51085/index.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.016186,
+      "crawl_duration": 1.016186,
+      "links_count": 2,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 25,
+      "patterns": [
+        "links_found_2",
+        "internal_links_2",
+        "small_content",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "86f7e437faa5",
+      "tag_counts": {
+        "a": 2
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166445.7261784,
+      "domain": "localhost:51085",
+      "url": "http://localhost:51085/page1.html",
+      "status": "SUCCESS",
+      "success": true,
+      "response_time": 1.003639,
+      "crawl_duration": 1.003639,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
+    },
+    {
+      "t": 1757166445.7507396,
+      "domain": "localhost:51085",
+      "url": "http://localhost:51085/page2.html",
+      "status": "DUPLICATE",
+      "success": false,
+      "response_time": 1.02904,
+      "crawl_duration": 1.02904,
+      "links_count": 0,
+      "extracted_fields": 0,
+      "healing_events": 0,
+      "retryable": false,
+      "http_status_code": 200,
+      "content_type": "GENERAL",
+      "content_len": 32,
+      "patterns": [
+        "small_content",
+        "lang_en",
+        "status_success",
+        "response_medium"
+      ],
+      "error_message": null,
+      "user_agent": null,
+      "delay_used": null,
+      "structure_hash": "516b9783fca5",
+      "tag_counts": {
+        "p": 1
+      },
+      "complexity": "very_low",
+      "hour": 7
     }
   ],
   "domain_index": {
@@ -689,27 +1535,335 @@
           "s": 2
         }
       }
+    },
+    "localhost:52629": {
+      "attempts": 3,
+      "success": 2,
+      "response_times": [
+        1.151364,
+        1.051486,
+        1.083528
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 3,
+        "lang_en": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "2": {
+          "a": 3,
+          "s": 2
+        }
+      }
+    },
+    "localhost:64102": {
+      "attempts": 3,
+      "success": 2,
+      "response_times": [
+        1.158664,
+        1.038465,
+        1.045003
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 3,
+        "lang_en": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "2": {
+          "a": 3,
+          "s": 2
+        }
+      }
+    },
+    "localhost:64142": {
+      "attempts": 3,
+      "success": 2,
+      "response_times": [
+        1.035302,
+        1.061827,
+        1.065078
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 3,
+        "lang_en": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "2": {
+          "a": 3,
+          "s": 2
+        }
+      }
+    },
+    "localhost:63078": {
+      "attempts": 3,
+      "success": 2,
+      "response_times": [
+        1.154726,
+        1.045327,
+        1.052866
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 3,
+        "lang_en": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "7": {
+          "a": 3,
+          "s": 2
+        }
+      }
+    },
+    "localhost:63451": {
+      "attempts": 3,
+      "success": 3,
+      "response_times": [
+        1.381082,
+        1.119867,
+        1.216587
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 3,
+        "lang_en": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "7": {
+          "a": 3,
+          "s": 3
+        }
+      }
+    },
+    "localhost:61645": {
+      "attempts": 3,
+      "success": 3,
+      "response_times": [
+        1.314687,
+        1.042555,
+        1.092966
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 3,
+        "lang_en": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "7": {
+          "a": 3,
+          "s": 3
+        }
+      }
+    },
+    "localhost:50952": {
+      "attempts": 3,
+      "success": 2,
+      "response_times": [
+        1.046098,
+        0.985074,
+        0.99785
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 1,
+        "lang_en": 2,
+        "response_fast": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "7": {
+          "a": 3,
+          "s": 2
+        }
+      }
+    },
+    "localhost:51049": {
+      "attempts": 3,
+      "success": 2,
+      "response_times": [
+        1.038174,
+        1.028058,
+        1.05168
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 3,
+        "lang_en": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "7": {
+          "a": 3,
+          "s": 2
+        }
+      }
+    },
+    "localhost:51085": {
+      "attempts": 3,
+      "success": 2,
+      "response_times": [
+        1.016186,
+        1.003639,
+        1.02904
+      ],
+      "patterns": {
+        "links_found_2": 1,
+        "internal_links_2": 1,
+        "small_content": 3,
+        "status_success": 3,
+        "response_medium": 3,
+        "lang_en": 2
+      },
+      "errors": {},
+      "content_types": {
+        "GENERAL": 3
+      },
+      "complexity": {
+        "very_low": 3
+      },
+      "structure_hashes": {
+        "86f7e437faa5": 1,
+        "516b9783fca5": 2
+      },
+      "hour_profile": {
+        "7": {
+          "a": 3,
+          "s": 2
+        }
+      }
     }
   },
   "pattern_freq": {
     "field_title": 5,
     "short_text_title": 5,
-    "links_found_2": 9,
-    "small_content": 17,
-    "internal_links_2": 4,
-    "status_success": 12,
+    "links_found_2": 18,
+    "small_content": 44,
+    "internal_links_2": 13,
+    "status_success": 39,
     "response_slow": 5,
-    "lang_en": 8,
-    "response_medium": 5,
-    "response_very_slow": 2
+    "lang_en": 26,
+    "response_medium": 30,
+    "response_very_slow": 2,
+    "response_fast": 2
   },
   "error_signatures": {},
   "content_type_stats": {
-    "GENERAL": 12
+    "GENERAL": 39
   },
   "complexity_distribution": {
     "unknown": 5,
-    "very_low": 12
+    "very_low": 39
   },
   "hour_success": {
     "21": {
@@ -723,7 +1877,19 @@
     "10": {
       "attempts": 3,
       "success": 2
+    },
+    "2": {
+      "attempts": 3,
+      "success": 2
+    },
+    "7": {
+      "attempts": 3,
+      "success": 2
+    },
+    "7": {
+      "attempts": 3,
+      "success": 2
     }
   },
-  "last_saved": 1757088274.806457
+  "last_saved": 1757166445.827187
 }
