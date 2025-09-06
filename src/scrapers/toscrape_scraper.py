@@ -1,16 +1,19 @@
 # src/scrapers/toscrape_scraper.py
 
-from httpx import AsyncClient
-from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-from .base import BaseScraper
+from bs4 import BeautifulSoup
+from httpx import AsyncClient
+
 from ..models.results import ScrapeResult
+from .base import BaseScraper
+
 
 class ToscrapeScraper(BaseScraper):
     """
     A scraper for books.toscrape.com.
     """
+
     def __init__(self):
         super().__init__(name="toscrape_books")
 
@@ -28,7 +31,11 @@ class ToscrapeScraper(BaseScraper):
 
         # Description is in a meta tag
         description_tag = soup.find("meta", attrs={"name": "description"})
-        description = description_tag["content"].strip() if description_tag else "No description found."
+        description = (
+            description_tag["content"].strip()
+            if description_tag
+            else "No description found."
+        )
 
         # Find all links on the page and make them absolute
         links = [urljoin(url, a["href"]) for a in soup.find_all("a", href=True)]
@@ -48,4 +55,3 @@ class ToscrapeScraper(BaseScraper):
             http_status_code=response.status_code,
             content_type="PRODUCT",
         )
-

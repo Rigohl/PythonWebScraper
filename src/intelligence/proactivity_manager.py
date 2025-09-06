@@ -6,16 +6,16 @@ It implements rate limiting, user preference checking, and advisory-only notific
 to ensure the system remains helpful without being intrusive.
 """
 
-import logging
 import asyncio
+import logging
 import time
-from typing import List, Optional, Dict, Any, Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
-from .novelty_detector import NoveltyAnalysis
 from .. import settings
+from .novelty_detector import NoveltyAnalysis
 
 logger = logging.getLogger(__name__)
 

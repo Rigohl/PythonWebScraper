@@ -4,16 +4,13 @@ Capacidades de creación, modificación y refactoring automático de código.
 """
 
 import ast
-import os
-import shutil
-import tempfile
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass
-import inspect
-import textwrap
-import re
 import json
+import re
+import shutil
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 
 @dataclass
 class CodeChange:
@@ -24,6 +21,7 @@ class CodeChange:
     new_content: str = ""
     line_range: Optional[Tuple[int, int]] = None
     confidence: float = 0.8
+
 
 @dataclass
 class CodeAnalysisResult:
@@ -56,6 +54,7 @@ class CodeAnalysisResult:
         except:
             return 0.0
 
+
 class CodeAutoModifier:
     """Sistema principal para auto-modificación de código."""
 
@@ -74,11 +73,11 @@ class CodeAutoModifier:
         """Analiza la calidad del código y sugiere mejoras."""
         path = Path(file_path)
 
-        if not path.exists() or not path.suffix == '.py':
+        if not path.exists() or not path.suffix == ".py":
             return CodeAnalysisResult(file_path, [], [], 0, 0, [])
 
         try:
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -104,7 +103,7 @@ class CodeAutoModifier:
                 suggestions=suggestions,
                 complexity_score=complexity,
                 quality_score=quality,
-                dependencies=dependencies
+                dependencies=dependencies,
             )
 
         except Exception as e:
@@ -114,10 +113,12 @@ class CodeAutoModifier:
                 suggestions=[],
                 complexity_score=0,
                 quality_score=0,
-                dependencies=[]
+                dependencies=[],
             )
 
-    def auto_improve_file(self, file_path: str, apply_changes: bool = False) -> List[CodeChange]:
+    def auto_improve_file(
+        self, file_path: str, apply_changes: bool = False
+    ) -> List[CodeChange]:
         """Mejora automáticamente un archivo de código."""
         analysis = self.analyze_code_quality(file_path)
         changes = []
@@ -133,56 +134,57 @@ class CodeAutoModifier:
 
         return changes
 
-    def create_scraper_module(self, domain: str, selectors: Dict[str, str],
-                            config: Dict[str, Any] = None) -> str:
+    def create_scraper_module(
+        self, domain: str, selectors: Dict[str, str], config: Dict[str, Any] = None
+    ) -> str:
         """Crea automáticamente un módulo completo de scraper."""
 
         # Preparar datos
         class_name = self._domain_to_class_name(domain)
-        module_name = domain.replace('.', '_').replace('-', '_')
+        module_name = domain.replace(".", "_").replace("-", "_")
 
         config = config or {
-            'rate_limit': 1.0,
-            'timeout': 30,
-            'headers': {
-                'User-Agent': 'Mozilla/5.0 (compatible; ScraperBot/1.0)'
-            }
+            "rate_limit": 1.0,
+            "timeout": 30,
+            "headers": {"User-Agent": "Mozilla/5.0 (compatible; ScraperBot/1.0)"},
         }
 
         # Crear estructura de directorios
-        module_dir = self.project_root / 'src' / 'scrapers' / module_name
+        module_dir = self.project_root / "src" / "scrapers" / module_name
         module_dir.mkdir(parents=True, exist_ok=True)
 
         # Generar archivos
         files_created = []
 
         # 1. Scraper principal
-        scraper_code = self._generate_scraper_class(domain, class_name, selectors, config)
-        scraper_file = module_dir / 'scraper.py'
+        scraper_code = self._generate_scraper_class(
+            domain, class_name, selectors, config
+        )
+        scraper_file = module_dir / "scraper.py"
         scraper_file.write_text(scraper_code)
         files_created.append(str(scraper_file))
 
         # 2. Parser específico
         parser_code = self._generate_parser_class(class_name, selectors)
-        parser_file = module_dir / 'parser.py'
+        parser_file = module_dir / "parser.py"
         parser_file.write_text(parser_code)
         files_created.append(str(parser_file))
 
         # 3. Configuración
-        config_file = module_dir / 'config.json'
+        config_file = module_dir / "config.json"
         config_file.write_text(json.dumps(config, indent=2))
         files_created.append(str(config_file))
 
         # 4. Tests
         test_code = self._generate_test_class(class_name, module_name)
-        test_file = self.project_root / 'tests' / f'test_{module_name}.py'
+        test_file = self.project_root / "tests" / f"test_{module_name}.py"
         test_file.parent.mkdir(parents=True, exist_ok=True)
         test_file.write_text(test_code)
         files_created.append(str(test_file))
 
         # 5. __init__.py
-        init_file = module_dir / '__init__.py'
-        init_file.write_text(f'from .scraper import {class_name}Scraper\n')
+        init_file = module_dir / "__init__.py"
+        init_file.write_text(f"from .scraper import {class_name}Scraper\n")
         files_created.append(str(init_file))
 
         return f"Created scraper module for {domain} with {len(files_created)} files"
@@ -191,7 +193,7 @@ class CodeAutoModifier:
         """Refactoriza código para mejorar performance."""
         changes = []
 
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -202,18 +204,23 @@ class CodeAutoModifier:
         for optimization in optimizations:
             change = CodeChange(
                 file_path=file_path,
-                change_type='optimize',
-                description=optimization['description'],
-                old_content=optimization['old_code'],
-                new_content=optimization['new_code'],
-                confidence=optimization['confidence']
+                change_type="optimize",
+                description=optimization["description"],
+                old_content=optimization["old_code"],
+                new_content=optimization["new_code"],
+                confidence=optimization["confidence"],
             )
             changes.append(change)
 
         return changes
 
-    def _generate_scraper_class(self, domain: str, class_name: str,
-                              selectors: Dict[str, str], config: Dict[str, Any]) -> str:
+    def _generate_scraper_class(
+        self,
+        domain: str,
+        class_name: str,
+        selectors: Dict[str, str],
+        config: Dict[str, Any],
+    ) -> str:
         """Genera una clase scraper completa."""
         template = '''"""
 {domain} Scraper
@@ -333,9 +340,7 @@ class {class_name}Scraper:
 '''
 
         return template.format(
-            domain=domain,
-            class_name=class_name,
-            config=repr(config)
+            domain=domain, class_name=class_name, config=repr(config)
         )
 
     def _generate_parser_class(self, class_name: str, selectors: Dict[str, str]) -> str:
@@ -506,10 +511,7 @@ class {class_name}Parser:
         return True
 '''
 
-        return template.format(
-            class_name=class_name,
-            selectors=repr(selectors)
-        )
+        return template.format(class_name=class_name, selectors=repr(selectors))
 
     def _generate_test_class(self, class_name: str, module_name: str) -> str:
         """Genera tests automáticos."""
@@ -654,32 +656,29 @@ class Test{class_name}Parser:
         assert is_valid is False
 '''
 
-        return template.format(
-            class_name=class_name,
-            module_name=module_name
-        )
+        return template.format(class_name=class_name, module_name=module_name)
 
     def _domain_to_class_name(self, domain: str) -> str:
         """Convierte dominio a nombre de clase válido."""
         # Remover protocolo si existe
-        domain = domain.replace('http://', '').replace('https://', '')
+        domain = domain.replace("http://", "").replace("https://", "")
 
         # Remover www si existe
-        domain = domain.replace('www.', '')
+        domain = domain.replace("www.", "")
 
         # Convertir a CamelCase
-        parts = domain.replace('.', '_').replace('-', '_').split('_')
-        return ''.join(word.capitalize() for word in parts if word)
+        parts = domain.replace(".", "_").replace("-", "_").split("_")
+        return "".join(word.capitalize() for word in parts if word)
 
     def _load_templates(self) -> Dict[str, str]:
         """Carga templates para generación de código."""
         return {
-            'function': '''
+            "function": '''
 def {name}({params}):
     """{docstring}"""
     {body}
 ''',
-            'class': '''
+            "class": '''
 class {name}:
     """{docstring}"""
 
@@ -688,7 +687,7 @@ class {name}:
 
     {methods}
 ''',
-            'test_function': '''
+            "test_function": '''
 def test_{name}():
     """Test for {name}."""
     # Arrange
@@ -699,29 +698,29 @@ def test_{name}():
 
     # Assert
     {assert_statements}
-'''
+''',
         }
 
     def _load_improvement_patterns(self) -> List[Dict[str, Any]]:
         """Carga patrones de mejora automática."""
         return [
             {
-                'name': 'replace_print_with_logging',
-                'pattern': r'print\((.*)\)',
-                'replacement': r'logger.info(\1)',
-                'description': 'Replace print statements with logging'
+                "name": "replace_print_with_logging",
+                "pattern": r"print\((.*)\)",
+                "replacement": r"logger.info(\1)",
+                "description": "Replace print statements with logging",
             },
             {
-                'name': 'add_type_hints',
-                'pattern': r'def (\w+)\((.*)\):',
-                'check': lambda content: '-> ' not in content,
-                'description': 'Add return type hints to functions'
+                "name": "add_type_hints",
+                "pattern": r"def (\w+)\((.*)\):",
+                "check": lambda content: "-> " not in content,
+                "description": "Add return type hints to functions",
             },
             {
-                'name': 'extract_long_functions',
-                'check': lambda content: len(content.split('\n')) > 50,
-                'description': 'Extract long functions into smaller ones'
-            }
+                "name": "extract_long_functions",
+                "check": lambda content: len(content.split("\n")) > 50,
+                "description": "Extract long functions into smaller ones",
+            },
         ]
 
     def _calculate_complexity(self, tree: ast.AST) -> float:
@@ -748,41 +747,53 @@ def test_{name}():
                 if node.end_lineno and node.lineno:
                     length = node.end_lineno - node.lineno
                     if length > 50:
-                        issues.append(f"Function '{node.name}' is too long ({length} lines)")
+                        issues.append(
+                            f"Function '{node.name}' is too long ({length} lines)"
+                        )
 
         # Print statements
-        if 'print(' in content:
+        if "print(" in content:
             issues.append("Contains print statements (should use logging)")
 
         # Missing docstrings
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
                 if not ast.get_docstring(node):
-                    issues.append(f"{node.__class__.__name__} '{node.name}' missing docstring")
+                    issues.append(
+                        f"{node.__class__.__name__} '{node.name}' missing docstring"
+                    )
 
         # Hardcoded values
-        if re.search(r'http://|https://', content):
+        if re.search(r"http://|https://", content):
             issues.append("Contains hardcoded URLs")
 
         return issues
 
-    def _generate_suggestions(self, content: str, tree: ast.AST, issues: List[str]) -> List[str]:
+    def _generate_suggestions(
+        self, content: str, tree: ast.AST, issues: List[str]
+    ) -> List[str]:
         """Genera sugerencias de mejora."""
         suggestions = []
 
         for issue in issues:
             if "too long" in issue:
-                suggestions.append("Consider breaking long functions into smaller, focused functions")
+                suggestions.append(
+                    "Consider breaking long functions into smaller, focused functions"
+                )
             elif "print statements" in issue:
                 suggestions.append("Replace print statements with proper logging")
             elif "missing docstring" in issue:
-                suggestions.append("Add descriptive docstrings to functions and classes")
+                suggestions.append(
+                    "Add descriptive docstrings to functions and classes"
+                )
             elif "hardcoded" in issue:
                 suggestions.append("Move hardcoded values to configuration files")
 
         return suggestions
 
-    def _calculate_quality_score(self, content: str, tree: ast.AST, issues: List[str]) -> float:
+    def _calculate_quality_score(
+        self, content: str, tree: ast.AST, issues: List[str]
+    ) -> float:
         """Calcula score de calidad del código."""
         base_score = 1.0
 
@@ -791,11 +802,11 @@ def test_{name}():
         score = base_score - (len(issues) * penalty_per_issue)
 
         # Bonificar buenas prácticas
-        if 'logging' in content:
+        if "logging" in content:
             score += 0.1
-        if 'typing' in content or 'Type' in content:
+        if "typing" in content or "Type" in content:
             score += 0.1
-        if 'docstring' in content or '"""' in content:
+        if "docstring" in content or '"""' in content:
             score += 0.1
 
         return max(0.0, min(1.0, score))
@@ -814,32 +825,39 @@ def test_{name}():
 
         return list(dependencies)
 
-    def _apply_automatic_improvements(self, file_path: str,
-                                    analysis: CodeAnalysisResult) -> List[CodeChange]:
+    def _apply_automatic_improvements(
+        self, file_path: str, analysis: CodeAnalysisResult
+    ) -> List[CodeChange]:
         """Aplica mejoras automáticas basadas en el análisis."""
         changes = []
 
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             content = f.read()
 
         # Aplicar patrones de mejora
         for pattern in self.improvement_patterns:
-            if pattern['name'] == 'replace_print_with_logging':
-                if 'print(' in content:
-                    new_content = re.sub(pattern['pattern'], pattern['replacement'], content)
+            if pattern["name"] == "replace_print_with_logging":
+                if "print(" in content:
+                    new_content = re.sub(
+                        pattern["pattern"], pattern["replacement"], content
+                    )
                     if new_content != content:
-                        changes.append(CodeChange(
-                            file_path=file_path,
-                            change_type='modify',
-                            description=pattern['description'],
-                            old_content=content,
-                            new_content=new_content,
-                            confidence=0.9
-                        ))
+                        changes.append(
+                            CodeChange(
+                                file_path=file_path,
+                                change_type="modify",
+                                description=pattern["description"],
+                                old_content=content,
+                                new_content=new_content,
+                                confidence=0.9,
+                            )
+                        )
 
         return changes
 
-    def _detect_performance_optimizations(self, content: str, tree: ast.AST) -> List[Dict[str, Any]]:
+    def _detect_performance_optimizations(
+        self, content: str, tree: ast.AST
+    ) -> List[Dict[str, Any]]:
         """Detecta oportunidades de optimización de performance."""
         optimizations = []
 
@@ -847,12 +865,14 @@ def test_{name}():
         for node in ast.walk(tree):
             if isinstance(node, ast.For):
                 # Ejemplo: detectar loops que podrían ser list comprehensions
-                optimizations.append({
-                    'description': 'Consider using list comprehension for better performance',
-                    'old_code': 'for loop',
-                    'new_code': 'list comprehension',
-                    'confidence': 0.7
-                })
+                optimizations.append(
+                    {
+                        "description": "Consider using list comprehension for better performance",
+                        "old_code": "for loop",
+                        "new_code": "list comprehension",
+                        "confidence": 0.7,
+                    }
+                )
 
         return optimizations
 
@@ -863,14 +883,14 @@ def test_{name}():
         shutil.copy2(change.file_path, backup_path)
 
         # Aplicar cambio
-        with open(change.file_path, 'w') as f:
+        with open(change.file_path, "w") as f:
             f.write(change.new_content)
 
     def get_modification_stats(self) -> Dict[str, Any]:
         """Obtiene estadísticas del sistema de modificación."""
         return {
-            'total_templates': len(self.templates),
-            'improvement_patterns': len(self.improvement_patterns),
-            'backup_dir': str(self.backup_dir),
-            'backups_count': len(list(self.backup_dir.glob('*.backup')))
+            "total_templates": len(self.templates),
+            "improvement_patterns": len(self.improvement_patterns),
+            "backup_dir": str(self.backup_dir),
+            "backups_count": len(list(self.backup_dir.glob("*.backup"))),
         }

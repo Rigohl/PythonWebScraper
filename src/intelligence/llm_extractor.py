@@ -20,12 +20,16 @@ except Exception:  # pragma: no cover
     # unittest.mock.patch in tests.
     instructor = SimpleNamespace(patch=lambda *a, **k: None)  # type: ignore
 
+
 class LLMExtractor(_BaseLLMExtractor):  # type: ignore
     async def extract(self, html_content, response_model):  # type: ignore[override]
         try:
             # Reuse async structured path if available
-            return await self.adapter.extract_structured_data(html_content, response_model)
+            return await self.adapter.extract_structured_data(
+                html_content, response_model
+            )
         except Exception:
             return self.adapter.extract_sync(html_content, response_model)
+
 
 __all__ = ["LLMExtractor", "settings", "instructor"]

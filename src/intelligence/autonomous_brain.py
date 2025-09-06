@@ -15,12 +15,11 @@ Features:
 
 import json
 import logging
-import hashlib
-import time
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-from pathlib import Path
 import statistics
+import time
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +27,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ScrapingSession:
     """Represents a single scraping session with performance metrics."""
+
     domain: str
     url: str
     timestamp: float
@@ -46,6 +46,7 @@ class ScrapingSession:
 @dataclass
 class DomainIntelligence:
     """Intelligence gathered about a specific domain."""
+
     domain: str
     total_attempts: int
     success_rate: float
@@ -84,8 +85,10 @@ class AutonomousLearningBrain:
         # Load existing knowledge
         self._load_intelligence()
 
-        logger.info("AutonomousLearningBrain initialized with intelligence on %d domains",
-                   len(self.domain_intelligence))
+        logger.info(
+            "AutonomousLearningBrain initialized with intelligence on %d domains",
+            len(self.domain_intelligence),
+        )
 
     def learn_from_session(self, session: ScrapingSession) -> None:
         """
@@ -110,7 +113,9 @@ class AutonomousLearningBrain:
             # Persist learning
             self._save_intelligence()
 
-            logger.info(f"Learned from session: {session.domain} (success: {session.success})")
+            logger.info(
+                f"Learned from session: {session.domain} (success: {session.success})"
+            )
 
         except Exception as e:
             logger.error(f"Error learning from session: {e}")
@@ -133,7 +138,7 @@ class AutonomousLearningBrain:
                     "timeout": 15 if intel.avg_response_time < 5 else 30,
                     "expected_patterns": intel.common_patterns[:5],
                     "avoid_patterns": intel.error_patterns[:3],
-                    "confidence": min(intel.total_attempts / 10.0, 1.0)
+                    "confidence": min(intel.total_attempts / 10.0, 1.0),
                 }
 
                 # Adaptive adjustments based on success rate
@@ -143,7 +148,9 @@ class AutonomousLearningBrain:
                 elif intel.success_rate > 0.9:
                     strategy["delay"] *= 0.8  # More aggressive
 
-                logger.info(f"Providing learned strategy for {domain} (confidence: {strategy['confidence']:.2f})")
+                logger.info(
+                    f"Providing learned strategy for {domain} (confidence: {strategy['confidence']:.2f})"
+                )
                 return strategy
 
             else:
@@ -154,7 +161,9 @@ class AutonomousLearningBrain:
             logger.error(f"Error getting optimal strategy: {e}")
             return self._get_default_adaptive_strategy(url)
 
-    def predict_success_probability(self, domain: str, strategy: Dict[str, Any]) -> float:
+    def predict_success_probability(
+        self, domain: str, strategy: Dict[str, Any]
+    ) -> float:
         """
         Predict the probability of success for a given domain with a specific strategy.
 
@@ -180,7 +189,9 @@ class AutonomousLearningBrain:
 
             # Consider pattern matching
             expected_patterns = strategy.get("expected_patterns", [])
-            pattern_match_score = len(set(expected_patterns) & set(intel.common_patterns)) / max(len(intel.common_patterns), 1)
+            pattern_match_score = len(
+                set(expected_patterns) & set(intel.common_patterns)
+            ) / max(len(intel.common_patterns), 1)
             adjustments += pattern_match_score * 0.1
 
             return max(0.0, min(1.0, base_probability + adjustments))
@@ -201,10 +212,14 @@ class AutonomousLearningBrain:
                 "domains_learned": len(self.domain_intelligence),
                 "patterns_discovered": len(self.pattern_library),
                 "top_domains": sorted(
-                    [(d, intel.total_attempts) for d, intel in self.domain_intelligence.items()],
-                    key=lambda x: x[1], reverse=True
+                    [
+                        (d, intel.total_attempts)
+                        for d, intel in self.domain_intelligence.items()
+                    ],
+                    key=lambda x: x[1],
+                    reverse=True,
                 )[:10],
-                "learning_efficiency": self._calculate_learning_efficiency()
+                "learning_efficiency": self._calculate_learning_efficiency(),
             }
         except Exception as e:
             logger.error(f"Error generating intelligence summary: {e}")
@@ -227,7 +242,7 @@ class AutonomousLearningBrain:
                 error_patterns=[],
                 last_updated=time.time(),
                 content_types={},
-                best_strategies=[]
+                best_strategies=[],
             )
 
         intel = self.domain_intelligence[domain]
@@ -237,18 +252,23 @@ class AutonomousLearningBrain:
 
         # Update success rate (weighted average)
         old_success_rate = intel.success_rate
-        intel.success_rate = (old_success_rate * self.memory_decay +
-                             (1.0 if session.success else 0.0) * (1 - self.memory_decay))
+        intel.success_rate = old_success_rate * self.memory_decay + (
+            1.0 if session.success else 0.0
+        ) * (1 - self.memory_decay)
 
         # Update response time (weighted average)
-        intel.avg_response_time = (intel.avg_response_time * self.memory_decay +
-                                  session.response_time * (1 - self.memory_decay))
+        intel.avg_response_time = (
+            intel.avg_response_time * self.memory_decay
+            + session.response_time * (1 - self.memory_decay)
+        )
 
         # Update optimal delay based on success and response time
         if session.success and session.response_time < intel.avg_response_time:
-            intel.optimal_delay = (intel.optimal_delay * 0.9 + session.delay_used * 0.1)
+            intel.optimal_delay = intel.optimal_delay * 0.9 + session.delay_used * 0.1
         elif not session.success:
-            intel.optimal_delay = min(intel.optimal_delay * 1.1, 5.0)  # Increase but cap at 5s
+            intel.optimal_delay = min(
+                intel.optimal_delay * 1.1, 5.0
+            )  # Increase but cap at 5s
 
         # Update preferred user agent based on success
         if session.success:
@@ -299,7 +319,9 @@ class AutonomousLearningBrain:
                 return
 
             # Get recent sessions for this domain
-            recent_sessions = [s for s in self.session_history[-50:] if s.domain == domain]
+            recent_sessions = [
+                s for s in self.session_history[-50:] if s.domain == domain
+            ]
 
             if not recent_sessions:
                 return
@@ -313,8 +335,10 @@ class AutonomousLearningBrain:
 
             if successful:
                 avg_delay = statistics.mean(s.delay_used for s in successful)
-                common_ua = max(set(s.user_agent for s in successful),
-                               key=lambda x: sum(1 for s in successful if s.user_agent == x))
+                common_ua = max(
+                    set(s.user_agent for s in successful),
+                    key=lambda x: sum(1 for s in successful if s.user_agent == x),
+                )
 
                 strategies.append(f"optimal_delay:{avg_delay:.2f}")
                 strategies.append(f"preferred_ua:{hash(common_ua) % 1000}")
@@ -328,17 +352,18 @@ class AutonomousLearningBrain:
         """Extract a generalized pattern from a URL."""
         try:
             from urllib.parse import urlparse
+
             parsed = urlparse(url)
 
             # Create a pattern by removing specific IDs and values
-            path_parts = parsed.path.split('/')
+            path_parts = parsed.path.split("/")
             generalized_parts = []
 
             for part in path_parts:
                 if part.isdigit():
-                    generalized_parts.append('{id}')
+                    generalized_parts.append("{id}")
                 elif len(part) > 20:  # Likely a hash or token
-                    generalized_parts.append('{token}')
+                    generalized_parts.append("{token}")
                 else:
                     generalized_parts.append(part)
 
@@ -357,7 +382,7 @@ class AutonomousLearningBrain:
             "timeout": 15,
             "expected_patterns": [],
             "avoid_patterns": [],
-            "confidence": 0.0
+            "confidence": 0.0,
         }
 
     def _calculate_learning_efficiency(self) -> float:
@@ -370,8 +395,12 @@ class AutonomousLearningBrain:
             recent_sessions = self.session_history[-20:]
             overall_sessions = self.session_history
 
-            recent_success = sum(1 for s in recent_sessions if s.success) / len(recent_sessions)
-            overall_success = sum(1 for s in overall_sessions if s.success) / len(overall_sessions)
+            recent_success = sum(1 for s in recent_sessions if s.success) / len(
+                recent_sessions
+            )
+            overall_success = sum(1 for s in overall_sessions if s.success) / len(
+                overall_sessions
+            )
 
             # Efficiency is how much better we're doing recently
             return max(0.0, (recent_success - overall_success) + 0.5)
@@ -384,7 +413,7 @@ class AutonomousLearningBrain:
         """Load previously saved intelligence from disk."""
         try:
             if self.data_path.exists():
-                with open(self.data_path, 'r', encoding='utf-8') as f:
+                with open(self.data_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
 
                 # Load domain intelligence
@@ -395,7 +424,9 @@ class AutonomousLearningBrain:
                 # Load pattern library
                 self.pattern_library = data.get("patterns", {})
 
-                logger.info(f"Loaded intelligence for {len(self.domain_intelligence)} domains")
+                logger.info(
+                    f"Loaded intelligence for {len(self.domain_intelligence)} domains"
+                )
 
         except Exception as e:
             logger.warning(f"Could not load previous intelligence: {e}")
@@ -404,12 +435,14 @@ class AutonomousLearningBrain:
         """Save current intelligence to disk."""
         try:
             data = {
-                "domains": [asdict(intel) for intel in self.domain_intelligence.values()],
+                "domains": [
+                    asdict(intel) for intel in self.domain_intelligence.values()
+                ],
                 "patterns": self.pattern_library,
-                "last_save": time.time()
+                "last_save": time.time(),
             }
 
-            with open(self.data_path, 'w', encoding='utf-8') as f:
+            with open(self.data_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
         except Exception as e:
@@ -428,11 +461,17 @@ def get_learning_brain() -> AutonomousLearningBrain:
     return _global_brain
 
 
-def create_session_from_result(result, response_time: float = 0.0, retry_count: int = 0,
-                              user_agent: str = "", delay_used: float = 1.0) -> ScrapingSession:
+def create_session_from_result(
+    result,
+    response_time: float = 0.0,
+    retry_count: int = 0,
+    user_agent: str = "",
+    delay_used: float = 1.0,
+) -> ScrapingSession:
     """Create a ScrapingSession from a ScrapeResult for learning."""
     try:
         from urllib.parse import urlparse
+
         domain = urlparse(result.url).netloc
 
         # Calculate extraction quality based on content
@@ -459,7 +498,7 @@ def create_session_from_result(result, response_time: float = 0.0, retry_count: 
         errors = []
         if result.status != "SUCCESS":
             errors.append(f"status_{result.status}")
-            if hasattr(result, 'error_message') and result.error_message:
+            if hasattr(result, "error_message") and result.error_message:
                 errors.append(result.error_message)
 
         return ScrapingSession(
@@ -469,13 +508,13 @@ def create_session_from_result(result, response_time: float = 0.0, retry_count: 
             success=(result.status == "SUCCESS"),
             response_time=response_time,
             content_length=len(result.content_text or ""),
-            status_code=getattr(result, 'status_code', 200),
+            status_code=getattr(result, "status_code", 200),
             retry_count=retry_count,
             user_agent=user_agent,
             delay_used=delay_used,
             extraction_quality=quality,
             patterns_found=patterns,
-            errors=errors
+            errors=errors,
         )
 
     except Exception as e:
@@ -483,7 +522,7 @@ def create_session_from_result(result, response_time: float = 0.0, retry_count: 
         # Return a minimal session
         return ScrapingSession(
             domain="unknown",
-            url=result.url if hasattr(result, 'url') else "unknown",
+            url=result.url if hasattr(result, "url") else "unknown",
             timestamp=time.time(),
             success=False,
             response_time=0.0,
@@ -494,5 +533,5 @@ def create_session_from_result(result, response_time: float = 0.0, retry_count: 
             delay_used=1.0,
             extraction_quality=0.0,
             patterns_found=[],
-            errors=["session_creation_error"]
+            errors=["session_creation_error"],
         )

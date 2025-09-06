@@ -7,6 +7,7 @@ Estas funciones permiten capturar:
 Se usan sólo en diagnósticos / reporting interno (IA-B) y no forman parte
 de la API pública estable; evitar dependencias pesadas.
 """
+
 from __future__ import annotations
 
 import time

@@ -1,6 +1,5 @@
 """Hot reloading functionality for scraper modules."""
 
-import asyncio
 import importlib
 import logging
 import os
@@ -8,10 +7,12 @@ import sys
 import time
 from pathlib import Path
 from typing import Callable, Dict, Optional
+
+from watchdog.events import FileModifiedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler, FileModifiedEvent
 
 logger = logging.getLogger(__name__)
+
 
 class ScraperReloader(FileSystemEventHandler):
     def __init__(self, callback: Callable[[str], None]):
@@ -23,22 +24,25 @@ class ScraperReloader(FileSystemEventHandler):
         if not isinstance(event, FileModifiedEvent):
             return
 
-        if not event.src_path.endswith('.py'):
+        if not event.src_path.endswith(".py"):
             return
 
         # Convert to module path
         file_path = os.path.abspath(event.src_path)
-        if not any(p in file_path for p in ['src/scrapers', 'src\\scrapers']):
+        if not any(p in file_path for p in ["src/scrapers", "src\\scrapers"]):
             return
 
         # Debounce check
         current_time = time.time()
-        if file_path in self.last_reload and \
-           current_time - self.last_reload[file_path] < self.debounce_seconds:
+        if (
+            file_path in self.last_reload
+            and current_time - self.last_reload[file_path] < self.debounce_seconds
+        ):
             return
 
         self.last_reload[file_path] = current_time
         self.callback(file_path)
+
 
 class HotReloader:
     def __init__(self, scrapers_dir: str):
@@ -65,6 +69,7 @@ class HotReloader:
             self.observer.join()
             self._running = False
 
+
 def reload_module(module_path: str) -> bool:
     """
     Reload a Python module by its file path.
@@ -73,13 +78,13 @@ def reload_module(module_path: str) -> bool:
     try:
         # Convert file path to module name
         module_path = os.path.abspath(module_path)
-        src_index = module_path.find('src')
+        src_index = module_path.find("src")
         if src_index == -1:
             logger.warning(f"Not a src module: {module_path}")
             return False
 
         # Convert to proper module path
-        module_name = module_path[src_index:].replace(os.sep, '.').replace('.py', '')
+        module_name = module_path[src_index:].replace(os.sep, ".").replace(".py", "")
 
         # Force reload all related modules
         for name in list(sys.modules.keys()):

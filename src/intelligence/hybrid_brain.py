@@ -19,39 +19,40 @@ El HybridBrain actúa como:
 import json
 import logging
 import os
-import time
-import asyncio
-from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List, Tuple
-from urllib.parse import urlparse
 import statistics
 import threading
+import time
 from collections import defaultdict, deque
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
+from urllib.parse import urlparse
 
-from .brain import Brain, ExperienceEvent
-from .autonomous_brain import AutonomousLearningBrain, ScrapingSession, DomainIntelligence
-from .brain_enrichment import EnrichmentStore
-from .self_repair import SelfRepairAdvisor
-from .knowledge_base import KnowledgeBase
-from .rule_engine import RuleEngine
-from .auto_testing import AutoTestingFramework
+from .advanced_memory import create_advanced_memory_system
 from .advanced_ml import AdvancedMLIntelligence
-from .self_improvement import SelfImprovingSystem
+from .advanced_reasoning import create_advanced_reasoning_system
+from .auto_testing import AutoTestingFramework
+from .autonomous_brain import (
+    AutonomousLearningBrain,
+    ScrapingSession,
+)
+from .autonomous_learning import KnowledgeSeeder
+from .brain import Brain, ExperienceEvent
+from .brain_enrichment import EnrichmentStore
+from .cdp_stealth import StealthCDPBrowser
+from .code_introspection import CodeIntrospectionEngine
 from .continuous_learning import ContinuousLearningOrchestrator
+from .emotional_brain import create_emotional_brain
+from .knowledge_base import KnowledgeBase
+from .knowledge_store import KnowledgeStore
+from .metacognitive_brain import create_metacognitive_brain
 
 # Import new brain systems
 from .neural_brain import create_neural_brain
-from .advanced_reasoning import create_advanced_reasoning_system
-from .advanced_memory import create_advanced_memory_system
-from .emotional_brain import create_emotional_brain
-from .metacognitive_brain import create_metacognitive_brain
-from .cdp_stealth import StealthCDPBrowser
-from .knowledge_store import KnowledgeStore
 from .plugin_manager import PluginManager
-import time
-from .code_introspection import CodeIntrospectionEngine
-from .autonomous_learning import KnowledgeSeeder
-from .curiosity import CuriositySystem
+from .rule_engine import RuleEngine
+from .self_improvement import SelfImprovingSystem
+from .self_repair import SelfRepairAdvisor
+
 # Self-update engine (to be created) provides analysis & suggestions
 try:
     from .self_update_engine import SelfUpdateEngine
@@ -59,6 +60,7 @@ except Exception:  # graceful if not yet created
     SelfUpdateEngine = None
 
 logger = logging.getLogger(__name__)
+
 
 class UnifiedBrainArchitecture:
     """
@@ -80,22 +82,22 @@ class UnifiedBrainArchitecture:
             "active_coalitions": [],
             "conscious_contents": deque(maxlen=10),
             "attention_weights": defaultdict(float),
-            "integration_buffer": []
+            "integration_buffer": [],
         }
 
         # Cross-system communication channels
         self.neural_channels = {
-            "memory_emotional": [],      # Memory <-> Emotion connections
-            "reasoning_memory": [],      # Reasoning <-> Memory connections
-            "metacog_all": [],          # Metacognition monitors all
-            "emotion_decision": [],     # Emotion influences decisions
-            "neural_global": []         # Neural <-> Global workspace
+            "memory_emotional": [],  # Memory <-> Emotion connections
+            "reasoning_memory": [],  # Reasoning <-> Memory connections
+            "metacog_all": [],  # Metacognition monitors all
+            "emotion_decision": [],  # Emotion influences decisions
+            "neural_global": [],  # Neural <-> Global workspace
         }
 
         # Consciousness parameters
         self.consciousness_threshold = 0.6  # Threshold for conscious access
-        self.integration_window = 100       # ms for neural integration
-        self.attention_decay = 0.95        # Attention decay rate
+        self.integration_window = 100  # ms for neural integration
+        self.attention_decay = 0.95  # Attention decay rate
 
         # System metrics
         self.neural_activity_level = 0.5
@@ -106,7 +108,9 @@ class UnifiedBrainArchitecture:
         self.background_cycles = 0
         self.last_consolidation = time.time()
 
-        logger.info("🧠 Unified Brain Architecture initialized with true neural systems")
+        logger.info(
+            "🧠 Unified Brain Architecture initialized with true neural systems"
+        )
 
     def process_sensory_input(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Procesa input sensorial a través de toda la arquitectura neural"""
@@ -115,16 +119,15 @@ class UnifiedBrainArchitecture:
 
         # 1. NEURAL PROCESSING: Raw input through neural clusters
         neural_response = self.neural_brain.process_distributed(
-            input_data=input_data,
-            clusters=['sensory', 'pattern', 'memory']
+            input_data=input_data, clusters=["sensory", "pattern", "memory"]
         )
 
         # 2. EMOTIONAL APPRAISAL: Process emotional significance
-        event_description = input_data.get('description', 'sensory input')
+        event_description = input_data.get("description", "sensory input")
         emotional_context = {
-            'familiarity': input_data.get('familiarity', 0.5),
-            'goal_relevance': input_data.get('importance', 0.5),
-            'controllable': input_data.get('controllable', True)
+            "familiarity": input_data.get("familiarity", 0.5),
+            "goal_relevance": input_data.get("importance", 0.5),
+            "controllable": input_data.get("controllable", True),
         }
 
         emotional_response = self.emotional_brain.process_emotional_event(
@@ -133,9 +136,9 @@ class UnifiedBrainArchitecture:
 
         # 3. MEMORY ENCODING: Store with emotional enhancement
         memory_content = {
-            'input_data': input_data,
-            'neural_response': neural_response,
-            'timestamp': processing_start
+            "input_data": input_data,
+            "neural_response": neural_response,
+            "timestamp": processing_start,
         }
 
         # Emotional influence on memory encoding
@@ -143,49 +146,54 @@ class UnifiedBrainArchitecture:
 
         # Create episode for episodic memory
         from .advanced_memory import Episode
+
         episode = Episode(
             event_description=event_description,
-            participants=['self'],
-            location=input_data.get('location', 'unknown'),
+            participants=["self"],
+            location=input_data.get("location", "unknown"),
             timestamp=processing_start,
             duration=1.0,
-            outcome=input_data.get('outcome', 'processed'),
-            details=enhanced_memory
+            outcome=input_data.get("outcome", "processed"),
+            details=enhanced_memory,
         )
 
         memory_id = self.memory_system.encode_episode(episode)
 
         # 4. REASONING INTEGRATION: Apply reasoning to understand input
         reasoning_context = {
-            'facts': [input_data],
-            'goals': ['understand_input', 'extract_meaning'],
-            'constraints': []
+            "facts": [input_data],
+            "goals": ["understand_input", "extract_meaning"],
+            "constraints": [],
         }
 
         reasoning_result = self.reasoning_system.integrated_reasoning(
             query="analyze_sensory_input",
             context=reasoning_context,
-            reasoning_types=['deductive', 'inductive']
+            reasoning_types=["deductive", "inductive"],
         )
 
         # 5. METACOGNITIVE MONITORING: Monitor the processing
         task_context = {
-            'type': 'sensory_processing',
-            'complexity': input_data.get('complexity', 0.5),
-            'time_pressure': 0.3,
-            'familiarity': emotional_context['familiarity']
+            "type": "sensory_processing",
+            "complexity": input_data.get("complexity", 0.5),
+            "time_pressure": 0.3,
+            "familiarity": emotional_context["familiarity"],
         }
 
-        metacog_cycle = self.metacognitive_brain.initiate_metacognitive_cycle(task_context)
+        metacog_cycle = self.metacognitive_brain.initiate_metacognitive_cycle(
+            task_context
+        )
 
         # 6. GLOBAL WORKSPACE INTEGRATION: Combine all subsystem outputs
-        integrated_response = self._integrate_in_global_workspace({
-            'neural': neural_response,
-            'emotional': emotional_response.primary_emotion.value,
-            'memory': memory_id,
-            'reasoning': reasoning_result,
-            'metacognitive': metacog_cycle
-        })
+        integrated_response = self._integrate_in_global_workspace(
+            {
+                "neural": neural_response,
+                "emotional": emotional_response.primary_emotion.value,
+                "memory": memory_id,
+                "reasoning": reasoning_result,
+                "metacognitive": metacog_cycle,
+            }
+        )
 
         # 7. UPDATE NEURAL CONNECTIONS: Hebbian learning between systems
         self._update_cross_system_connections(input_data, integrated_response)
@@ -193,18 +201,20 @@ class UnifiedBrainArchitecture:
         processing_time = time.time() - processing_start
 
         return {
-            'integrated_response': integrated_response,
-            'neural_activity': neural_response,
-            'emotional_state': self.emotional_brain.get_emotional_state(),
-            'memory_encoding': memory_id,
-            'reasoning_analysis': reasoning_result,
-            'metacognitive_state': self.metacognitive_brain.get_metacognitive_status(),
-            'consciousness_level': self.consciousness_level,
-            'processing_time_ms': processing_time * 1000,
-            'neural_activity_level': self.neural_activity_level
+            "integrated_response": integrated_response,
+            "neural_activity": neural_response,
+            "emotional_state": self.emotional_brain.get_emotional_state(),
+            "memory_encoding": memory_id,
+            "reasoning_analysis": reasoning_result,
+            "metacognitive_state": self.metacognitive_brain.get_metacognitive_status(),
+            "consciousness_level": self.consciousness_level,
+            "processing_time_ms": processing_time * 1000,
+            "neural_activity_level": self.neural_activity_level,
         }
 
-    def _integrate_in_global_workspace(self, subsystem_outputs: Dict[str, Any]) -> Dict[str, Any]:
+    def _integrate_in_global_workspace(
+        self, subsystem_outputs: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Integra outputs de subsistemas en workspace global (consciousness)"""
 
         # Calculate coalition strengths
@@ -214,27 +224,29 @@ class UnifiedBrainArchitecture:
             strength = 0.5  # Base strength
 
             # Neural coalition strength
-            if subsystem == 'neural':
-                strength = output.get('overall_activation', 0.5)
+            if subsystem == "neural":
+                strength = output.get("overall_activation", 0.5)
 
             # Emotional coalition strength
-            elif subsystem == 'emotional':
+            elif subsystem == "emotional":
                 emotional_intensity = self.emotional_brain.current_emotion.intensity
                 strength = emotional_intensity
 
             # Memory coalition strength
-            elif subsystem == 'memory':
+            elif subsystem == "memory":
                 # Recent memory encoding suggests active memory system
                 strength = 0.7
 
             # Reasoning coalition strength
-            elif subsystem == 'reasoning':
-                confidence = output.get('overall_confidence', 0.5)
+            elif subsystem == "reasoning":
+                confidence = output.get("overall_confidence", 0.5)
                 strength = confidence
 
             # Metacognitive coalition strength
-            elif subsystem == 'metacognitive':
-                awareness_level = self.metacognitive_brain.current_metacognitive_state['self_awareness_level']
+            elif subsystem == "metacognitive":
+                awareness_level = self.metacognitive_brain.current_metacognitive_state[
+                    "self_awareness_level"
+                ]
                 strength = awareness_level
 
             coalition_strengths[subsystem] = strength
@@ -242,83 +254,119 @@ class UnifiedBrainArchitecture:
         # Determine winning coalition(s) for conscious access
         consciousness_threshold = self.consciousness_threshold
         winning_coalitions = [
-            subsystem for subsystem, strength in coalition_strengths.items()
+            subsystem
+            for subsystem, strength in coalition_strengths.items()
             if strength > consciousness_threshold
         ]
 
         # Update global workspace
-        self.global_workspace['active_coalitions'] = winning_coalitions
-        self.global_workspace['attention_weights'].update(coalition_strengths)
+        self.global_workspace["active_coalitions"] = winning_coalitions
+        self.global_workspace["attention_weights"].update(coalition_strengths)
 
         # Create integrated conscious content
         if winning_coalitions:
             conscious_content = {
-                'timestamp': time.time(),
-                'dominant_coalition': max(coalition_strengths.items(), key=lambda x: x[1])[0],
-                'coalition_strengths': coalition_strengths,
-                'integrated_meaning': self._extract_integrated_meaning(subsystem_outputs),
-                'consciousness_level': max(coalition_strengths.values())
+                "timestamp": time.time(),
+                "dominant_coalition": max(
+                    coalition_strengths.items(), key=lambda x: x[1]
+                )[0],
+                "coalition_strengths": coalition_strengths,
+                "integrated_meaning": self._extract_integrated_meaning(
+                    subsystem_outputs
+                ),
+                "consciousness_level": max(coalition_strengths.values()),
             }
 
-            self.global_workspace['conscious_contents'].append(conscious_content)
-            self.consciousness_level = conscious_content['consciousness_level']
+            self.global_workspace["conscious_contents"].append(conscious_content)
+            self.consciousness_level = conscious_content["consciousness_level"]
 
         # Apply attention decay
-        for subsystem in self.global_workspace['attention_weights']:
-            self.global_workspace['attention_weights'][subsystem] *= self.attention_decay
+        for subsystem in self.global_workspace["attention_weights"]:
+            self.global_workspace["attention_weights"][
+                subsystem
+            ] *= self.attention_decay
 
         return {
-            'conscious_access': len(winning_coalitions) > 0,
-            'dominant_process': max(coalition_strengths.items(), key=lambda x: x[1])[0],
-            'coalition_strengths': coalition_strengths,
-            'consciousness_level': self.consciousness_level,
-            'integrated_meaning': self._extract_integrated_meaning(subsystem_outputs) if winning_coalitions else None
+            "conscious_access": len(winning_coalitions) > 0,
+            "dominant_process": max(coalition_strengths.items(), key=lambda x: x[1])[0],
+            "coalition_strengths": coalition_strengths,
+            "consciousness_level": self.consciousness_level,
+            "integrated_meaning": (
+                self._extract_integrated_meaning(subsystem_outputs)
+                if winning_coalitions
+                else None
+            ),
         }
 
     def _extract_integrated_meaning(self, subsystem_outputs: Dict[str, Any]) -> str:
         """Extrae significado integrado de outputs de subsistemas"""
 
-        neural_response = subsystem_outputs.get('neural', {})
-        emotional_state = subsystem_outputs.get('emotional', 'neutral')
-        reasoning_result = subsystem_outputs.get('reasoning', {})
+        neural_response = subsystem_outputs.get("neural", {})
+        emotional_state = subsystem_outputs.get("emotional", "neutral")
+        reasoning_result = subsystem_outputs.get("reasoning", {})
 
         # Simple integration heuristic
-        neural_interpretation = neural_response.get('interpretation', 'neural_processing')
-        emotional_valence = 'positive' if emotional_state in ['joy', 'surprise'] else 'negative' if emotional_state in ['fear', 'anger', 'sadness'] else 'neutral'
-        reasoning_conclusion = reasoning_result.get('final_conclusion', 'analysis_complete')
+        neural_interpretation = neural_response.get(
+            "interpretation", "neural_processing"
+        )
+        emotional_valence = (
+            "positive"
+            if emotional_state in ["joy", "surprise"]
+            else (
+                "negative"
+                if emotional_state in ["fear", "anger", "sadness"]
+                else "neutral"
+            )
+        )
+        reasoning_conclusion = reasoning_result.get(
+            "final_conclusion", "analysis_complete"
+        )
 
         integrated_meaning = f"Neural: {neural_interpretation}, Emotional: {emotional_valence}, Reasoning: {reasoning_conclusion}"
 
         return integrated_meaning
 
-    def _update_cross_system_connections(self, input_data: Dict[str, Any], response: Dict[str, Any]):
+    def _update_cross_system_connections(
+        self, input_data: Dict[str, Any], response: Dict[str, Any]
+    ):
         """Actualiza conexiones entre sistemas (Hebbian learning)"""
 
         # Strengthen connections based on co-activation
         connection_strength = 0.1
 
         # Memory-Emotion connections
-        if response.get('emotional_state', {}).get('current_emotion', {}).get('intensity', 0) > 0.5:
-            self.neural_channels['memory_emotional'].append({
-                'timestamp': time.time(),
-                'strength': connection_strength,
-                'context': 'emotional_memory_encoding'
-            })
+        if (
+            response.get("emotional_state", {})
+            .get("current_emotion", {})
+            .get("intensity", 0)
+            > 0.5
+        ):
+            self.neural_channels["memory_emotional"].append(
+                {
+                    "timestamp": time.time(),
+                    "strength": connection_strength,
+                    "context": "emotional_memory_encoding",
+                }
+            )
 
         # Reasoning-Memory connections
-        if response.get('reasoning_analysis', {}).get('overall_confidence', 0) > 0.6:
-            self.neural_channels['reasoning_memory'].append({
-                'timestamp': time.time(),
-                'strength': connection_strength,
-                'context': 'reasoning_memory_retrieval'
-            })
+        if response.get("reasoning_analysis", {}).get("overall_confidence", 0) > 0.6:
+            self.neural_channels["reasoning_memory"].append(
+                {
+                    "timestamp": time.time(),
+                    "strength": connection_strength,
+                    "context": "reasoning_memory_retrieval",
+                }
+            )
 
         # Metacognition monitors all systems
-        self.neural_channels['metacog_all'].append({
-            'timestamp': time.time(),
-            'monitored_systems': ['neural', 'emotional', 'memory', 'reasoning'],
-            'monitoring_strength': connection_strength
-        })
+        self.neural_channels["metacog_all"].append(
+            {
+                "timestamp": time.time(),
+                "monitored_systems": ["neural", "emotional", "memory", "reasoning"],
+                "monitoring_strength": connection_strength,
+            }
+        )
 
         # Trim old connections (maintain recent history only)
         for channel in self.neural_channels.values():
@@ -349,17 +397,17 @@ class UnifiedBrainArchitecture:
 
             # Self-reflection trigger
             performance_metrics = {
-                'consciousness_level': self.consciousness_level,
-                'neural_activity': self.neural_activity_level,
-                'integration_coherence': self.integration_coherence
+                "consciousness_level": self.consciousness_level,
+                "neural_activity": self.neural_activity_level,
+                "integration_coherence": self.integration_coherence,
             }
 
             reflection_context = {
-                'performance_metrics': performance_metrics,
-                'cognitive_state': {
-                    'cognitive_load': self.metacognitive_brain.monitor.cognitive_load,
-                    'attention_focus': self.metacognitive_brain.monitor.attention_focus
-                }
+                "performance_metrics": performance_metrics,
+                "cognitive_state": {
+                    "cognitive_load": self.metacognitive_brain.monitor.cognitive_load,
+                    "attention_focus": self.metacognitive_brain.monitor.attention_focus,
+                },
             }
 
             self.metacognitive_brain.trigger_self_reflection(reflection_context)
@@ -372,11 +420,13 @@ class UnifiedBrainArchitecture:
 
         # Neural activity level
         active_neurons = self.neural_brain.get_active_neuron_count()
-        total_neurons = sum(len(cluster.neurons) for cluster in self.neural_brain.clusters.values())
+        total_neurons = sum(
+            len(cluster.neurons) for cluster in self.neural_brain.clusters.values()
+        )
         self.neural_activity_level = active_neurons / max(1, total_neurons)
 
         # Integration coherence
-        active_coalitions = len(self.global_workspace['active_coalitions'])
+        active_coalitions = len(self.global_workspace["active_coalitions"])
         total_systems = 5  # neural, emotional, memory, reasoning, metacognitive
         self.integration_coherence = active_coalitions / total_systems
 
@@ -386,30 +436,39 @@ class UnifiedBrainArchitecture:
         """Obtiene estado completo de consciencia"""
 
         return {
-            'consciousness_level': self.consciousness_level,
-            'neural_activity_level': self.neural_activity_level,
-            'integration_coherence': self.integration_coherence,
-            'global_workspace': {
-                'active_coalitions': self.global_workspace['active_coalitions'],
-                'current_focus': self.global_workspace['current_focus'],
-                'attention_distribution': dict(self.global_workspace['attention_weights']),
-                'conscious_contents_count': len(self.global_workspace['conscious_contents'])
+            "consciousness_level": self.consciousness_level,
+            "neural_activity_level": self.neural_activity_level,
+            "integration_coherence": self.integration_coherence,
+            "global_workspace": {
+                "active_coalitions": self.global_workspace["active_coalitions"],
+                "current_focus": self.global_workspace["current_focus"],
+                "attention_distribution": dict(
+                    self.global_workspace["attention_weights"]
+                ),
+                "conscious_contents_count": len(
+                    self.global_workspace["conscious_contents"]
+                ),
             },
-            'subsystem_states': {
-                'neural': self.neural_brain.get_brain_state(),
-                'emotional': self.emotional_brain.get_emotional_state(),
-                'memory': self.memory_system.get_memory_statistics(),
-                'reasoning': {
-                    'available_reasoners': ['deductive', 'inductive', 'abductive', 'fuzzy'],
-                    'active': True
+            "subsystem_states": {
+                "neural": self.neural_brain.get_brain_state(),
+                "emotional": self.emotional_brain.get_emotional_state(),
+                "memory": self.memory_system.get_memory_statistics(),
+                "reasoning": {
+                    "available_reasoners": [
+                        "deductive",
+                        "inductive",
+                        "abductive",
+                        "fuzzy",
+                    ],
+                    "active": True,
                 },
-                'metacognitive': self.metacognitive_brain.get_metacognitive_status()
+                "metacognitive": self.metacognitive_brain.get_metacognitive_status(),
             },
-            'cross_system_connections': {
+            "cross_system_connections": {
                 channel: len(connections) if isinstance(connections, list) else 0
                 for channel, connections in self.neural_channels.items()
             },
-            'background_cycles': self.background_cycles
+            "background_cycles": self.background_cycles,
         }
 
 
@@ -447,7 +506,7 @@ class HybridBrain:
             self.autonomous_brain,
             self.enrichment,
             overrides=self.overrides,
-            knowledge_base=self.knowledge_base
+            knowledge_base=self.knowledge_base,
         )
 
         self.auto_testing = AutoTestingFramework()
@@ -481,7 +540,9 @@ class HybridBrain:
             self.learning_orchestrator.set_self_improver(self.self_improver)
             self.learning_orchestrator.set_knowledge_base(self.knowledge_base)
 
-            logger.info("🚀 Advanced AI modules loaded: ML Intelligence, Self-Improvement, CDP Stealth, Continuous Learning")
+            logger.info(
+                "🚀 Advanced AI modules loaded: ML Intelligence, Self-Improvement, CDP Stealth, Continuous Learning"
+            )
 
         except Exception as e:
             logger.warning(f"Some advanced AI modules failed to load: {e}")
@@ -490,21 +551,29 @@ class HybridBrain:
         # Inicializar sistema de curiosidad
         self._initialize_curiosity_system()
 
-        logger.info("🧠 HybridBrain initialized with Unified Neural Architecture + Legacy Systems")
+        logger.info(
+            "🧠 HybridBrain initialized with Unified Neural Architecture + Legacy Systems"
+        )
 
         # ================= Code Introspection & Self-Update =================
         try:
-            self.code_introspector = CodeIntrospectionEngine(code_dir=os.path.dirname(__file__))
+            self.code_introspector = CodeIntrospectionEngine(
+                code_dir=os.path.dirname(__file__)
+            )
             self.code_structure = self.code_introspector.parse_directory()
             if SelfUpdateEngine:
-                project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+                project_root = os.path.abspath(
+                    os.path.join(os.path.dirname(__file__), "..", "..")
+                )
                 self.self_update_engine = SelfUpdateEngine(root_dir=project_root)
             else:
                 self.self_update_engine = None
 
             # Initialize knowledge seeder
             self.knowledge_seeder = KnowledgeSeeder(self.knowledge_store)
-            logger.info("🔍 Code introspection active | files=%d", len(self.code_structure))
+            logger.info(
+                "🔍 Code introspection active | files=%d", len(self.code_structure)
+            )
         except Exception as e:
             logger.warning(f"Code introspection init failed: {e}")
             self.code_introspector = None
@@ -525,7 +594,7 @@ class HybridBrain:
 
         # Plugin manager
         try:
-            plugins_dir = os.path.join(os.path.dirname(__file__), 'plugins')
+            plugins_dir = os.path.join(os.path.dirname(__file__), "plugins")
             self.plugin_manager = PluginManager(plugins_dir)
             self.plugin_manager.discover()
             self.plugin_manager.initialize(self)
@@ -536,10 +605,10 @@ class HybridBrain:
 
         # Adaptation engine simple stats
         self.adaptation_stats = {
-            'events_processed': 0,
-            'success_events': 0,
-            'failure_events': 0,
-            'domains': {}
+            "events_processed": 0,
+            "success_events": 0,
+            "failure_events": 0,
+            "domains": {},
         }
 
         # Inicializar historial de modificaciones y estado omnisciente
@@ -556,7 +625,10 @@ class HybridBrain:
         def background_loop():
             while True:
                 try:
-                    if self.consciousness_enabled and self.integration_mode in ["unified", "hybrid"]:
+                    if self.consciousness_enabled and self.integration_mode in [
+                        "unified",
+                        "hybrid",
+                    ]:
                         self.unified_brain.background_consciousness_cycle()
                         # Continuous reflective thinking
                         self._continuous_thought_cycle()
@@ -591,17 +663,17 @@ class HybridBrain:
 
         # Enhance event data for neural processing
         enhanced_event = {
-            'description': f"Scraping event: {event_data.get('event_type', 'unknown')}",
-            'url': event_data.get('url', ''),
-            'status_code': event_data.get('status_code', 200),
-            'success': event_data.get('success', True),
-            'data_extracted': event_data.get('data_extracted', {}),
-            'complexity': self._estimate_complexity(event_data),
-            'familiarity': self._estimate_familiarity(event_data),
-            'importance': event_data.get('importance', 0.5),
-            'controllable': True,
-            'location': 'web_scraping_context',
-            'outcome': 'success' if event_data.get('success', True) else 'failure'
+            "description": f"Scraping event: {event_data.get('event_type', 'unknown')}",
+            "url": event_data.get("url", ""),
+            "status_code": event_data.get("status_code", 200),
+            "success": event_data.get("success", True),
+            "data_extracted": event_data.get("data_extracted", {}),
+            "complexity": self._estimate_complexity(event_data),
+            "familiarity": self._estimate_familiarity(event_data),
+            "importance": event_data.get("importance", 0.5),
+            "controllable": True,
+            "location": "web_scraping_context",
+            "outcome": "success" if event_data.get("success", True) else "failure",
         }
 
         # Process through unified neural architecture
@@ -626,14 +698,18 @@ class HybridBrain:
 
         return {
             **neural_response,
-            'scraping_insights': scraping_insights,
-            'processing_mode': 'unified_neural',
-            'consciousness_engaged': neural_response['integrated_response']['conscious_access'],
-            'plugin_outputs': plugin_outputs
+            "scraping_insights": scraping_insights,
+            "processing_mode": "unified_neural",
+            "consciousness_engaged": neural_response["integrated_response"][
+                "conscious_access"
+            ],
+            "plugin_outputs": plugin_outputs,
         }
 
     # ===================== Strategy Formulation & Continuous Thought =====================
-    def formulate_strategy(self, goal: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def formulate_strategy(
+        self, goal: str, context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """Genera una estrategia estructurada usando razonamiento multi-modal y conocimiento de programación."""
         context = context or {}
 
@@ -642,55 +718,70 @@ class HybridBrain:
         if self.knowledge_store:
             try:
                 # Get relevant programming knowledge
-                if 'scraping' in goal.lower() or 'web' in goal.lower():
-                    prog_knowledge = self.knowledge_store.query_programming_knowledge('web_scraping')
+                if "scraping" in goal.lower() or "web" in goal.lower():
+                    prog_knowledge = self.knowledge_store.query_programming_knowledge(
+                        "web_scraping"
+                    )
                     programming_knowledge.extend(prog_knowledge)
 
-                if 'performance' in goal.lower() or 'optimization' in goal.lower():
-                    perf_knowledge = self.knowledge_store.query_programming_knowledge('performance')
+                if "performance" in goal.lower() or "optimization" in goal.lower():
+                    perf_knowledge = self.knowledge_store.query_programming_knowledge(
+                        "performance"
+                    )
                     programming_knowledge.extend(perf_knowledge)
 
-                if 'database' in goal.lower() or 'data' in goal.lower():
-                    db_knowledge = self.knowledge_store.query_programming_knowledge('database')
+                if "database" in goal.lower() or "data" in goal.lower():
+                    db_knowledge = self.knowledge_store.query_programming_knowledge(
+                        "database"
+                    )
                     programming_knowledge.extend(db_knowledge)
             except Exception:
                 pass
 
         reasoning_input = {
-            'facts': [{'goal': goal, 'time': time.time()}] +
-                     [{'programming_insight': k[2], 'confidence': k[3]} for k in programming_knowledge[:5]],
-            'goals': [goal],
-            'constraints': context.get('constraints', []),
-            'knowledge_base': programming_knowledge
+            "facts": [{"goal": goal, "time": time.time()}]
+            + [
+                {"programming_insight": k[2], "confidence": k[3]}
+                for k in programming_knowledge[:5]
+            ],
+            "goals": [goal],
+            "constraints": context.get("constraints", []),
+            "knowledge_base": programming_knowledge,
         }
 
         reasoning = self.unified_brain.reasoning_system.integrated_reasoning(
             query=f"strategy_{goal}",
             context=reasoning_input,
-            reasoning_types=['abductive', 'deductive', 'inductive']
+            reasoning_types=["abductive", "deductive", "inductive"],
         )
 
-        meta_cycle = self.unified_brain.metacognitive_brain.initiate_metacognitive_cycle({
-            'type': 'strategy_formulation',
-            'complexity': context.get('complexity', 0.5),
-            'familiarity': 0.5,
-            'knowledge_used': len(programming_knowledge)
-        })
+        meta_cycle = (
+            self.unified_brain.metacognitive_brain.initiate_metacognitive_cycle(
+                {
+                    "type": "strategy_formulation",
+                    "complexity": context.get("complexity", 0.5),
+                    "familiarity": 0.5,
+                    "knowledge_used": len(programming_knowledge),
+                }
+            )
+        )
 
         strategy = {
-            'goal': goal,
-            'steps': reasoning.get('reasoning_steps', [])[:10],
-            'confidence': reasoning.get('overall_confidence', 0.5),
-            'meta': meta_cycle,
-            'programming_insights': [k[2] for k in programming_knowledge[:3]],
-            'knowledge_enhanced': len(programming_knowledge) > 0,
-            'timestamp': time.time()
+            "goal": goal,
+            "steps": reasoning.get("reasoning_steps", [])[:10],
+            "confidence": reasoning.get("overall_confidence", 0.5),
+            "meta": meta_cycle,
+            "programming_insights": [k[2] for k in programming_knowledge[:3]],
+            "knowledge_enhanced": len(programming_knowledge) > 0,
+            "timestamp": time.time(),
         }
 
         self.strategy_history.append(strategy)
         if self.knowledge_store:
             try:
-                self.knowledge_store.add_strategy(goal, strategy['confidence'], strategy['steps'], strategy['meta'])
+                self.knowledge_store.add_strategy(
+                    goal, strategy["confidence"], strategy["steps"], strategy["meta"]
+                )
             except Exception:
                 pass
         return strategy
@@ -705,13 +796,15 @@ class HybridBrain:
             finally:
                 self.last_self_maintenance = now
         # Proactive strategy every 15 min
-        if (not self.strategy_history) or (now - self.strategy_history[-1]['timestamp'] > 900):
+        if (not self.strategy_history) or (
+            now - self.strategy_history[-1]["timestamp"] > 900
+        ):
             try:
-                self.formulate_strategy('optimize_scraping')
+                self.formulate_strategy("optimize_scraping")
             except Exception:
                 pass
         # Curiosity analysis every 5 min (configurable)
-        if hasattr(self, 'curiosity_system') and self.curiosity_system:
+        if hasattr(self, "curiosity_system") and self.curiosity_system:
             try:
                 self._run_curiosity_analysis_cycle()
             except Exception as e:
@@ -721,7 +814,7 @@ class HybridBrain:
 
     def _run_curiosity_analysis_cycle(self):
         """Ejecuta análisis de curiosidad periódica en segundo plano"""
-        if not hasattr(self, 'last_curiosity_analysis'):
+        if not hasattr(self, "last_curiosity_analysis"):
             self.last_curiosity_analysis = 0
 
         now = time.time()
@@ -733,16 +826,20 @@ class HybridBrain:
 
         try:
             # Ejecutar análisis de curiosidad
-            if hasattr(self.curiosity_system, 'analyze_current_state'):
+            if hasattr(self.curiosity_system, "analyze_current_state"):
                 analysis_result = self.curiosity_system.analyze_current_state()
 
                 # Procesar cualquier novedad detectada
-                if analysis_result and analysis_result.get('novelty_detected', False):
-                    logger.info("🧠 Curiosidad: Novedad detectada en el análisis periódico")
+                if analysis_result and analysis_result.get("novelty_detected", False):
+                    logger.info(
+                        "🧠 Curiosidad: Novedad detectada en el análisis periódico"
+                    )
 
                     # Generar notificación si es apropiado
-                    if hasattr(self.curiosity_system, 'generate_notification'):
-                        notification = self.curiosity_system.generate_notification(analysis_result)
+                    if hasattr(self.curiosity_system, "generate_notification"):
+                        notification = self.curiosity_system.generate_notification(
+                            analysis_result
+                        )
                         if notification:
                             logger.info(f"🧠 Curiosidad: {notification}")
 
@@ -755,115 +852,137 @@ class HybridBrain:
     def run_self_maintenance_cycle(self) -> Dict[str, Any]:
         """Analiza estructura de código y genera sugerencias de mejora (si disponible)."""
         result = {
-            'timestamp': time.time(),
-            'introspection': None,
-            'improvement_suggestions': None
+            "timestamp": time.time(),
+            "introspection": None,
+            "improvement_suggestions": None,
         }
         try:
             if self.code_introspector:
                 self.code_structure = self.code_introspector.parse_directory()
-                result['introspection'] = {
-                    'files': len(self.code_structure),
-                    'classes': sum(len(v['classes']) for v in self.code_structure.values()),
-                    'functions': sum(len(v['functions']) for v in self.code_structure.values())
+                result["introspection"] = {
+                    "files": len(self.code_structure),
+                    "classes": sum(
+                        len(v["classes"]) for v in self.code_structure.values()
+                    ),
+                    "functions": sum(
+                        len(v["functions"]) for v in self.code_structure.values()
+                    ),
                 }
                 # Persist metrics per file
                 if self.knowledge_store:
                     for path, meta in self.code_structure.items():
                         try:
                             lines = 0
-                            with open(path, 'r', encoding='utf-8') as fh:
-                                lines = fh.read().count('\n') + 1
-                            avg_func_len = lines / max(1, len(meta['functions'])) if meta['functions'] else lines
+                            with open(path, "r", encoding="utf-8") as fh:
+                                lines = fh.read().count("\n") + 1
+                            avg_func_len = (
+                                lines / max(1, len(meta["functions"]))
+                                if meta["functions"]
+                                else lines
+                            )
                             self.knowledge_store.add_code_metrics(
                                 file_path=path,
                                 lines=lines,
-                                functions=len(meta['functions']),
-                                classes=len(meta['classes']),
+                                functions=len(meta["functions"]),
+                                classes=len(meta["classes"]),
                                 avg_func_len=avg_func_len,
                                 complexity=0.0,
-                                imports=len(meta['imports'])
+                                imports=len(meta["imports"]),
                             )
                         except Exception:
                             pass
             if self.self_update_engine:
                 analysis = self.self_update_engine.analyze_repository()
-                suggestions = self.self_update_engine.generate_improvement_suggestions(analysis)
-                result['improvement_suggestions'] = suggestions[:10]
+                suggestions = self.self_update_engine.generate_improvement_suggestions(
+                    analysis
+                )
+                result["improvement_suggestions"] = suggestions[:10]
                 if self.knowledge_store:
                     for s in suggestions[:25]:
                         try:
                             self.knowledge_store.add_improvement_suggestion(
-                                file_path=s.get('file', 'n/a'),
-                                issue_type=s['type'],
-                                description=s.get('detail', ''),
-                                severity='high' if s.get('priority') == 'high' else 'medium',
-                                score=0.9 if s.get('priority') == 'high' else 0.6,
-                                suggestion=s.get('detail', '')
+                                file_path=s.get("file", "n/a"),
+                                issue_type=s["type"],
+                                description=s.get("detail", ""),
+                                severity=(
+                                    "high" if s.get("priority") == "high" else "medium"
+                                ),
+                                score=0.9 if s.get("priority") == "high" else 0.6,
+                                suggestion=s.get("detail", ""),
                             )
                         except Exception:
                             pass
         except Exception as e:
-            result['error'] = str(e)
+            result["error"] = str(e)
         logger.info("🛠️ Self-maintenance cycle done")
         return result
 
     def get_code_self_awareness(self) -> Dict[str, Any]:
         if not self.code_structure:
-            return {'available': False}
+            return {"available": False}
         return {
-            'available': True,
-            'files_analyzed': len(self.code_structure),
-            'metrics': {
-                'total_classes': sum(len(v['classes']) for v in self.code_structure.values()),
-                'total_functions': sum(len(v['functions']) for v in self.code_structure.values())
-            }
+            "available": True,
+            "files_analyzed": len(self.code_structure),
+            "metrics": {
+                "total_classes": sum(
+                    len(v["classes"]) for v in self.code_structure.values()
+                ),
+                "total_functions": sum(
+                    len(v["functions"]) for v in self.code_structure.values()
+                ),
+            },
         }
 
     # ===================== Event -> Fact Ingestion & Adaptation =====================
-    def _ingest_event_fact(self, event: Dict[str, Any], neural_response: Dict[str, Any]):
+    def _ingest_event_fact(
+        self, event: Dict[str, Any], neural_response: Dict[str, Any]
+    ):
         if not self.knowledge_store:
             return
         try:
-            domain = ''
-            if 'url' in event:
+            domain = ""
+            if "url" in event:
                 try:
-                    domain = urlparse(event['url']).netloc
+                    domain = urlparse(event["url"]).netloc
                 except Exception:
-                    domain = ''
-            success = event.get('success', True)
+                    domain = ""
+            success = event.get("success", True)
             self.knowledge_store.add_fact(
-                category='scrape_event',
-                subject=domain or 'unknown_domain',
-                predicate='event_result',
-                obj='success' if success else 'failure',
+                category="scrape_event",
+                subject=domain or "unknown_domain",
+                predicate="event_result",
+                obj="success" if success else "failure",
                 confidence=0.8 if success else 0.4,
-                source='runtime'
+                source="runtime",
             )
             # Adapt counters
-            self.adaptation_stats['events_processed'] += 1
+            self.adaptation_stats["events_processed"] += 1
             if success:
-                self.adaptation_stats['success_events'] += 1
+                self.adaptation_stats["success_events"] += 1
             else:
-                self.adaptation_stats['failure_events'] += 1
+                self.adaptation_stats["failure_events"] += 1
             if domain:
-                d = self.adaptation_stats['domains'].setdefault(domain, {'success':0,'failure':0})
+                d = self.adaptation_stats["domains"].setdefault(
+                    domain, {"success": 0, "failure": 0}
+                )
                 if success:
-                    d['success'] += 1
+                    d["success"] += 1
                 else:
-                    d['failure'] += 1
+                    d["failure"] += 1
         except Exception:
             pass
 
     def _adaptive_update(self):
         # Simple heuristic: if a domain has >30% failures and enough samples, generate strategy
-        for domain, stats in list(self.adaptation_stats['domains'].items()):
-            total = stats['success'] + stats['failure']
+        for domain, stats in list(self.adaptation_stats["domains"].items()):
+            total = stats["success"] + stats["failure"]
             if total >= 5:
-                failure_rate = stats['failure']/total if total else 0
+                failure_rate = stats["failure"] / total if total else 0
                 if failure_rate > 0.3:
                     try:
-                        self.formulate_strategy(f'improve_domain_{domain}', context={'complexity':0.6})
+                        self.formulate_strategy(
+                            f"improve_domain_{domain}", context={"complexity": 0.6}
+                        )
                     except Exception:
                         pass
 
@@ -876,12 +995,12 @@ class HybridBrain:
             "backoff_threshold": 0.5,
             "min_visits_for_backoff": 5,
             "autonomous_learning_weight": 0.4,
-            "simple_brain_weight": 0.6
+            "simple_brain_weight": 0.6,
         }
 
         try:
             if os.path.exists(overrides_file):
-                with open(overrides_file, 'r', encoding='utf-8') as f:
+                with open(overrides_file, "r", encoding="utf-8") as f:
                     overrides = json.load(f)
                 logger.info(f"🧠 Loaded brain overrides from {overrides_file}")
                 return {**defaults, **overrides}
@@ -900,28 +1019,30 @@ class HybridBrain:
         context = {"domain": domain}
 
         # 1. Datos del SimpleBrain
-        context['simple'] = {
-            'visits': self.simple_brain.domain_stats.get(domain, {}).get('visits', 0),
-            'success_rate': self.simple_brain.domain_success_rate(domain),
-            'error_rate': self.simple_brain.domain_error_rate(domain),
-            'link_yield': self.simple_brain.link_yield(domain),
-            'avg_response_time': self.simple_brain.avg_response_time(domain)
+        context["simple"] = {
+            "visits": self.simple_brain.domain_stats.get(domain, {}).get("visits", 0),
+            "success_rate": self.simple_brain.domain_success_rate(domain),
+            "error_rate": self.simple_brain.domain_error_rate(domain),
+            "link_yield": self.simple_brain.link_yield(domain),
+            "avg_response_time": self.simple_brain.avg_response_time(domain),
         }
 
         # 2. Datos del AutonomousLearningBrain
         auto_intel = self.autonomous_brain.domain_intelligence.get(domain)
-        context['autonomous'] = auto_intel.to_dict() if auto_intel else {}
+        context["autonomous"] = auto_intel.to_dict() if auto_intel else {}
 
         # 3. Datos del EnrichmentStore
-        context['enrichment'] = self.enrichment.domain_insight(domain)
+        context["enrichment"] = self.enrichment.domain_insight(domain)
 
         # 4. Evaluar con RuleEngine
         flat_data_for_rules = {
-            'domain': domain,
-            **context['simple'],
-            **context['enrichment']
+            "domain": domain,
+            **context["simple"],
+            **context["enrichment"],
         }
-        context['rule_engine_results'] = self.rule_engine.evaluate_all(flat_data_for_rules)
+        context["rule_engine_results"] = self.rule_engine.evaluate_all(
+            flat_data_for_rules
+        )
 
         return context
 
@@ -929,15 +1050,15 @@ class HybridBrain:
         """Registra un resultado de scraping en ambos sistemas"""
 
         # Extraer información del resultado
-        url = getattr(result, 'url', '')
-        domain = urlparse(url).netloc if url else ''
+        url = getattr(result, "url", "")
+        domain = urlparse(url).netloc if url else ""
 
         # Determinar estado
-        if getattr(result, 'success', False):
+        if getattr(result, "success", False):
             status = "SUCCESS"
-        elif getattr(result, 'is_duplicate', False):
+        elif getattr(result, "is_duplicate", False):
             status = "DUPLICATE"
-        elif getattr(result, 'error', None):
+        elif getattr(result, "error", None):
             status = "ERROR"
         else:
             status = "RETRY"
@@ -946,38 +1067,48 @@ class HybridBrain:
         event = ExperienceEvent(
             url=url,
             status=status,
-            response_time=context.get('response_time') if context else None,
-            content_length=len(getattr(result, 'content', '') or ''),
-            new_links=len(getattr(result, 'links', []) or []),
+            response_time=context.get("response_time") if context else None,
+            content_length=len(getattr(result, "content", "") or ""),
+            new_links=len(getattr(result, "links", []) or []),
             domain=domain,
-            extracted_fields=len(getattr(result, 'extracted_data', {}) or {}),
-            error_type=context.get('error_type') if context else None
+            extracted_fields=len(getattr(result, "extracted_data", {}) or {}),
+            error_type=context.get("error_type") if context else None,
         )
 
         # Registrar en Brain (IA-A)
         self.simple_brain.record_event(event)
 
         # Crear sesión para AutonomousLearningBrain (IA-B) con el dataclass real
-        content_len = len(getattr(result, 'content', '') or '')
-        extracted_fields = len(getattr(result, 'extracted_data', {}) or {})
-        response_time = (context or {}).get('response_time', 0.0)
-        status_code = getattr(result, 'status_code', 200 if status == 'SUCCESS' else 500)
-        retry_count = (context or {}).get('retry_count', 0)
-        user_agent = (context or {}).get('user_agent', '')
-        delay_used = (context or {}).get('delay_used', 1.0)
+        content_len = len(getattr(result, "content", "") or "")
+        extracted_fields = len(getattr(result, "extracted_data", {}) or {})
+        response_time = (context or {}).get("response_time", 0.0)
+        status_code = getattr(
+            result, "status_code", 200 if status == "SUCCESS" else 500
+        )
+        retry_count = (context or {}).get("retry_count", 0)
+        user_agent = (context or {}).get("user_agent", "")
+        delay_used = (context or {}).get("delay_used", 1.0)
         # Heurística simple para calidad de extracción
-        extraction_quality = min(extracted_fields / 10.0, 1.0) if extracted_fields else 0.0
+        extraction_quality = (
+            min(extracted_fields / 10.0, 1.0) if extracted_fields else 0.0
+        )
         patterns_found = self._extract_patterns(result)
         errors = []
-        if status == 'ERROR':
-            errors = [getattr(result, 'error_message', (context or {}).get('error_type', 'unknown'))]
+        if status == "ERROR":
+            errors = [
+                getattr(
+                    result,
+                    "error_message",
+                    (context or {}).get("error_type", "unknown"),
+                )
+            ]
 
         try:
             session = ScrapingSession(
                 domain=domain,
                 url=url,
                 timestamp=time.time(),
-                success=(status == 'SUCCESS'),
+                success=(status == "SUCCESS"),
                 response_time=response_time,
                 content_length=content_len,
                 status_code=status_code,
@@ -994,7 +1125,9 @@ class HybridBrain:
 
         # Registrar enriquecimiento (tolerante a fallos, nunca rompe el flujo)
         try:
-            self.enrichment.add_session(result, context=context, patterns=patterns_found)
+            self.enrichment.add_session(
+                result, context=context, patterns=patterns_found
+            )
         except Exception:
             pass
 
@@ -1005,7 +1138,9 @@ class HybridBrain:
             pass
 
         # Log híbrido
-        logger.debug(f"🧠 Hybrid learning: {status} for {domain} - Brain+Autonomous updated")
+        logger.debug(
+            f"🧠 Hybrid learning: {status} for {domain} - Brain+Autonomous updated"
+        )
 
         # Chequear y reportar avisos de alto impacto
         try:
@@ -1017,37 +1152,44 @@ class HybridBrain:
         """Revisa y reporta avisos de alto impacto para un dominio."""
         # 1. Obtener la tasa de error actual del cerebro simple
         error_rate = self.simple_brain.domain_error_rate(domain)
-        min_visits = self.overrides.get('min_visits_for_backoff', 5)
+        min_visits = self.overrides.get("min_visits_for_backoff", 5)
 
         # 2. Solo actuar si hay suficientes datos
-        if self.simple_brain.domain_stats.get(domain, {}).get('visits', 0) < min_visits:
+        if self.simple_brain.domain_stats.get(domain, {}).get("visits", 0) < min_visits:
             return
 
         # 3. Si la tasa de error es alta, generar sugerencias
-        if error_rate >= self.overrides.get('backoff_threshold', 0.5):
+        if error_rate >= self.overrides.get("backoff_threshold", 0.5):
             # Usar el Rule Engine para obtener la sugerencia específica
-            domain_data = {'domain': domain, 'error_rate': error_rate}
+            domain_data = {"domain": domain, "error_rate": error_rate}
             rule_results = self.rule_engine.evaluate_all(domain_data)
 
             # Buscar la regla de backoff
-            backoff_suggestion = next((r for r in rule_results if r.get('rule_id') == 'high_error_rate_backoff'), None)
+            backoff_suggestion = next(
+                (
+                    r
+                    for r in rule_results
+                    if r.get("rule_id") == "high_error_rate_backoff"
+                ),
+                None,
+            )
 
             if backoff_suggestion:
                 # Obtener conocimiento relacionado
                 kb_ref_id = "scraping:respect-delays"
                 kb_snippet = self.knowledge_base.get(kb_ref_id)
-                kb_title = kb_snippet.get('title', 'N/A') if kb_snippet else 'N/A'
+                kb_title = kb_snippet.get("title", "N/A") if kb_snippet else "N/A"
 
                 # Imprimir el aviso en un formato claro y estructurado
-                print("\n" + "-"*25)
+                print("\n" + "-" * 25)
                 print("🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
-                print("-"*25)
+                print("-" * 25)
                 print(f"Dominio:           {domain}")
                 print(f"Síntoma:           Tasa de Error Elevada ({error_rate:.1%})")
                 print(f"Sugerencia ID:     {backoff_suggestion['rule_id']}")
                 print(f"Recomendación:     {backoff_suggestion['message']}")
                 print(f"Conocimiento Rel.: {kb_ref_id} - {kb_title}")
-                print("-"*25 + "\n")
+                print("-" * 25 + "\n")
 
         # Chequear y reportar avisos de alto impacto
         try:
@@ -1059,44 +1201,51 @@ class HybridBrain:
         """Revisa y reporta avisos de alto impacto para un dominio."""
         # 1. Obtener la tasa de error actual del cerebro simple
         error_rate = self.simple_brain.domain_error_rate(domain)
-        min_visits = self.overrides.get('min_visits_for_backoff', 5)
+        min_visits = self.overrides.get("min_visits_for_backoff", 5)
 
         # 2. Solo actuar si hay suficientes datos
-        if self.simple_brain.domain_stats.get(domain, {}).get('visits', 0) < min_visits:
+        if self.simple_brain.domain_stats.get(domain, {}).get("visits", 0) < min_visits:
             return
 
         # 3. Si la tasa de error es alta, generar sugerencias
-        if error_rate >= self.overrides.get('backoff_threshold', 0.5):
+        if error_rate >= self.overrides.get("backoff_threshold", 0.5):
             # Usar el Rule Engine para obtener la sugerencia específica
-            domain_data = {'domain': domain, 'error_rate': error_rate}
+            domain_data = {"domain": domain, "error_rate": error_rate}
             rule_results = self.rule_engine.evaluate_all(domain_data)
 
             # Buscar la regla de backoff
-            backoff_suggestion = next((r for r in rule_results if r.get('rule_id') == 'high_error_rate_backoff'), None)
+            backoff_suggestion = next(
+                (
+                    r
+                    for r in rule_results
+                    if r.get("rule_id") == "high_error_rate_backoff"
+                ),
+                None,
+            )
 
             if backoff_suggestion:
                 # Obtener conocimiento relacionado
                 kb_ref_id = "scraping:respect-delays"
                 kb_snippet = self.knowledge_base.get(kb_ref_id)
-                kb_title = kb_snippet.get('title', 'N/A') if kb_snippet else 'N/A'
+                kb_title = kb_snippet.get("title", "N/A") if kb_snippet else "N/A"
 
                 # Imprimir el aviso en un formato claro y estructurado
-                print("\n" + "-"*25)
+                print("\n" + "-" * 25)
                 print("🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
-                print("-"*25)
+                print("-" * 25)
                 print(f"Dominio:           {domain}")
                 print(f"Síntoma:           Tasa de Error Elevada ({error_rate:.1%})")
                 print(f"Sugerencia ID:     {backoff_suggestion['rule_id']}")
                 print(f"Recomendación:     {backoff_suggestion['message']}")
                 print(f"Conocimiento Rel.: {kb_ref_id} - {kb_title}")
-                print("-"*25 + "\n")
+                print("-" * 25 + "\n")
 
     def _extract_patterns(self, result) -> List[str]:
         """Extrae patrones avanzados del resultado para el aprendizaje autónomo profundo"""
         patterns = []
 
         # Patrones de estructura de página
-        if hasattr(result, 'extracted_data') and result.extracted_data:
+        if hasattr(result, "extracted_data") and result.extracted_data:
             for key in result.extracted_data.keys():
                 patterns.append(f"field_{key}")
 
@@ -1105,9 +1254,9 @@ class HybridBrain:
                 if isinstance(value, str):
                     # Detectar formatos específicos
                     if value and value[0].isdigit():
-                        if '$' in value or '€' in value:
+                        if "$" in value or "€" in value:
                             patterns.append(f"price_format_{key}")
-                        elif '-' in value or '/' in value:
+                        elif "-" in value or "/" in value:
                             patterns.append(f"date_format_{key}")
                     # Detectar longitud de contenido
                     if len(value) > 200:
@@ -1122,7 +1271,7 @@ class HybridBrain:
                     patterns.append(f"nested_{key}")
 
         # Patrones de links - Análisis avanzado
-        if hasattr(result, 'links') and result.links:
+        if hasattr(result, "links") and result.links:
             link_count = len(result.links)
             patterns.append(f"links_found_{link_count}")
 
@@ -1132,7 +1281,7 @@ class HybridBrain:
             pagination_candidates = 0
             domain_patterns = set()
 
-            if hasattr(result, 'url'):
+            if hasattr(result, "url"):
                 base_domain = urlparse(result.url).netloc
 
                 for link in result.links:
@@ -1148,13 +1297,20 @@ class HybridBrain:
                             # Detectar posible paginación
                             path = parsed.path
                             query = parsed.query
-                            if any(x in path for x in ['/page/', '/p/', 'page=', '?p=']):
+                            if any(
+                                x in path for x in ["/page/", "/p/", "page=", "?p="]
+                            ):
                                 pagination_candidates += 1
-                            elif query and any(x in query for x in ['page=', 'p=', 'pg=']):
+                            elif query and any(
+                                x in query for x in ["page=", "p=", "pg="]
+                            ):
                                 pagination_candidates += 1
 
                         # Detectar links a recursos específicos
-                        if any(media in link.lower() for media in ['.jpg', '.png', '.pdf', '.mp4']):
+                        if any(
+                            media in link.lower()
+                            for media in [".jpg", ".png", ".pdf", ".mp4"]
+                        ):
                             media_links += 1
                     except Exception:
                         continue
@@ -1170,8 +1326,8 @@ class HybridBrain:
                 patterns.append(f"media_links_{min(media_links, 20)}")
 
         # Patrones de contenido - Análisis avanzado
-        content_text = getattr(result, 'content_text', '') or ''
-        content_html = getattr(result, 'content_html', '') or ''
+        content_text = getattr(result, "content_text", "") or ""
+        content_html = getattr(result, "content_html", "") or ""
         content_length = len(content_text)
 
         # Clasificación de tamaño
@@ -1185,50 +1341,69 @@ class HybridBrain:
         # Análisis de estructura HTML
         if content_html:
             # Detectar tablas
-            if '<table' in content_html:
-                tables_count = content_html.count('<table')
+            if "<table" in content_html:
+                tables_count = content_html.count("<table")
                 patterns.append(f"tables_{min(tables_count, 10)}")
 
             # Detectar formularios
-            if '<form' in content_html:
-                forms_count = content_html.count('<form')
+            if "<form" in content_html:
+                forms_count = content_html.count("<form")
                 patterns.append(f"forms_{forms_count}")
 
             # Detectar scripts incrustados
-            if '<script' in content_html:
-                scripts_count = content_html.count('<script')
+            if "<script" in content_html:
+                scripts_count = content_html.count("<script")
                 patterns.append(f"scripts_{min(scripts_count, 20)}")
 
                 # Detectar frameworks comunes
-                js_frameworks = ['react', 'vue', 'angular', 'jquery', 'bootstrap']
+                js_frameworks = ["react", "vue", "angular", "jquery", "bootstrap"]
                 for framework in js_frameworks:
                     if framework in content_html.lower():
                         patterns.append(f"uses_{framework}")
 
             # Detectar secciones importantes
-            if '<header' in content_html or '<nav' in content_html:
+            if "<header" in content_html or "<nav" in content_html:
                 patterns.append("has_header_nav")
 
-            if '<footer' in content_html:
+            if "<footer" in content_html:
                 patterns.append("has_footer")
 
             # Detectar estructuras comunes
-            if '<article' in content_html:
+            if "<article" in content_html:
                 patterns.append("article_structure")
 
-            if '<section' in content_html:
-                sections_count = content_html.count('<section')
+            if "<section" in content_html:
+                sections_count = content_html.count("<section")
                 patterns.append(f"sections_{min(sections_count, 10)}")
 
         # Análisis semántico del contenido
         if content_text:
             # Detectar tipo de contenido
             semantic_indicators = {
-                "product": ["comprar", "precio", "disponible", "envío", "stock", "producto"],
+                "product": [
+                    "comprar",
+                    "precio",
+                    "disponible",
+                    "envío",
+                    "stock",
+                    "producto",
+                ],
                 "article": ["publicado", "autor", "artículo", "leer", "comentarios"],
                 "profile": ["perfil", "usuario", "biografía", "seguir", "miembro"],
-                "listing": ["resultados", "ordenar por", "filtrar", "mostrar", "búsqueda"],
-                "news": ["noticia", "última hora", "reportaje", "periodista", "actualidad"]
+                "listing": [
+                    "resultados",
+                    "ordenar por",
+                    "filtrar",
+                    "mostrar",
+                    "búsqueda",
+                ],
+                "news": [
+                    "noticia",
+                    "última hora",
+                    "reportaje",
+                    "periodista",
+                    "actualidad",
+                ],
             }
 
             content_lower = content_text.lower()
@@ -1242,7 +1417,7 @@ class HybridBrain:
                 "es": ["de", "la", "el", "en", "que", "por", "con", "para"],
                 "en": ["the", "of", "and", "to", "in", "is", "that"],
                 "fr": ["le", "la", "les", "des", "du", "et", "est"],
-                "de": ["der", "die", "das", "und", "ist", "für"]
+                "de": ["der", "die", "das", "und", "ist", "für"],
             }
 
             lang_scores = {}
@@ -1258,7 +1433,7 @@ class HybridBrain:
                     patterns.append(f"lang_{detected_lang[0]}")
 
         # Patrones de respuesta y metadatos HTTP
-        if hasattr(result, 'http_status_code') and result.http_status_code:
+        if hasattr(result, "http_status_code") and result.http_status_code:
             status_code = result.http_status_code
             # Agrupar códigos por categoría
             if 200 <= status_code < 300:
@@ -1271,7 +1446,7 @@ class HybridBrain:
                 patterns.append(f"status_server_error_{status_code}")
 
         # Patrones de tiempo de carga
-        if hasattr(result, 'response_time') and result.response_time:
+        if hasattr(result, "response_time") and result.response_time:
             response_time = result.response_time
             if response_time < 0.5:
                 patterns.append("response_very_fast")
@@ -1285,21 +1460,21 @@ class HybridBrain:
                 patterns.append("response_very_slow")
 
         # Patrones de healing
-        if hasattr(result, 'healing_events') and result.healing_events:
+        if hasattr(result, "healing_events") and result.healing_events:
             healing_count = len(result.healing_events)
             patterns.append(f"healing_applied_{min(healing_count, 5)}")
 
             # Tipos de healing aplicados
             healing_types = set()
             for event in result.healing_events:
-                if 'type' in event:
-                    healing_types.add(event['type'])
+                if "type" in event:
+                    healing_types.add(event["type"])
 
             for htype in healing_types:
                 patterns.append(f"healing_type_{htype}")
 
         # LLM insights
-        if hasattr(result, 'llm_extracted_data') and result.llm_extracted_data:
+        if hasattr(result, "llm_extracted_data") and result.llm_extracted_data:
             patterns.append("llm_enhanced")
 
             # Contar campos extraídos por LLM
@@ -1313,8 +1488,10 @@ class HybridBrain:
 
         # Prioridad básica del Brain (IA-A) con overrides
         simple_priority = (
-            self.simple_brain.domain_success_rate(domain) * self.overrides["priority_weight_success"] +
-            self.simple_brain.link_yield(domain) * self.overrides["priority_weight_link"]
+            self.simple_brain.domain_success_rate(domain)
+            * self.overrides["priority_weight_success"]
+            + self.simple_brain.link_yield(domain)
+            * self.overrides["priority_weight_link"]
         )
 
         # Inteligencia del AutonomousLearningBrain (IA-B)
@@ -1323,16 +1500,25 @@ class HybridBrain:
         # Usar la inteligencia autónoma (adaptado a la API real)
         try:
             import statistics
-            domain_sessions = [s for s in self.autonomous_brain.session_history if s.domain == domain]
+
+            domain_sessions = [
+                s for s in self.autonomous_brain.session_history if s.domain == domain
+            ]
             if domain_sessions:
-                success_rate = sum(1 for s in domain_sessions if s.success) / len(domain_sessions)
-                avg_response = statistics.mean([s.response_time for s in domain_sessions]) if domain_sessions else 0
+                success_rate = sum(1 for s in domain_sessions if s.success) / len(
+                    domain_sessions
+                )
+                avg_response = (
+                    statistics.mean([s.response_time for s in domain_sessions])
+                    if domain_sessions
+                    else 0
+                )
                 pattern_count = sum(len(s.patterns_found) for s in domain_sessions)
 
                 autonomous_priority = (
-                    success_rate * 0.4 +
-                    min(avg_response / 1000, 1.0) * 0.3 +  # Convertir ms a ratio
-                    (pattern_count / 10) * 0.3  # Normalizar patrones
+                    success_rate * 0.4
+                    + min(avg_response / 1000, 1.0) * 0.3  # Convertir ms a ratio
+                    + (pattern_count / 10) * 0.3  # Normalizar patrones
                 )
         except Exception:
             # Fallback en caso de error
@@ -1340,8 +1526,8 @@ class HybridBrain:
 
         # Combinar ambas prioridades con pesos configurables (overrides)
         hybrid_priority = (
-            simple_priority * self.overrides["simple_brain_weight"] +
-            autonomous_priority * self.overrides["autonomous_learning_weight"]
+            simple_priority * self.overrides["simple_brain_weight"]
+            + autonomous_priority * self.overrides["autonomous_learning_weight"]
         )
 
         return hybrid_priority
@@ -1353,7 +1539,7 @@ class HybridBrain:
         simple_backoff = self.simple_brain.should_backoff(
             domain,
             error_threshold=self.overrides["backoff_threshold"],
-            min_visits=self.overrides["min_visits_for_backoff"]
+            min_visits=self.overrides["min_visits_for_backoff"],
         )
 
         # Backoff inteligente del AutonomousLearningBrain (IA-B)
@@ -1361,15 +1547,19 @@ class HybridBrain:
 
         try:
             # Usar la API real del cerebro autónomo
-            domain_sessions = [s for s in self.autonomous_brain.session_history if s.domain == domain]
+            domain_sessions = [
+                s for s in self.autonomous_brain.session_history if s.domain == domain
+            ]
             if len(domain_sessions) >= self.overrides["min_visits_for_backoff"]:
-                success_rate = sum(1 for s in domain_sessions if s.success) / len(domain_sessions)
+                success_rate = sum(1 for s in domain_sessions if s.success) / len(
+                    domain_sessions
+                )
                 error_count = sum(len(s.errors) for s in domain_sessions)
 
                 # Backoff si el éxito es muy bajo o hay muchos errores
                 autonomous_backoff = (
-                    success_rate < self.overrides["backoff_threshold"] or
-                    error_count > 3
+                    success_rate < self.overrides["backoff_threshold"]
+                    or error_count > 3
                 )
         except Exception:
             autonomous_backoff = False
@@ -1384,32 +1574,53 @@ class HybridBrain:
 
         try:
             import statistics
+
             # Usar la API real del cerebro autónomo
-            domain_sessions = [s for s in self.autonomous_brain.session_history if s.domain == domain]
+            domain_sessions = [
+                s for s in self.autonomous_brain.session_history if s.domain == domain
+            ]
             if domain_sessions:
-                success_rate = sum(1 for s in domain_sessions if s.success) / len(domain_sessions)
+                success_rate = sum(1 for s in domain_sessions if s.success) / len(
+                    domain_sessions
+                )
 
                 # Extraer estrategias basadas en sesiones exitosas
                 successful_sessions = [s for s in domain_sessions if s.success]
                 if successful_sessions:
-                    best_session = max(successful_sessions, key=lambda s: s.extraction_quality)
-                    config.update({
-                        'delay': best_session.delay_used,
-                        'user_agent_pattern': best_session.user_agent,
-                        'retry_count': min(5, max(1, int(statistics.median([s.retry_count for s in successful_sessions])))),
-                        'timeout': 30,  # Valor por defecto
-                        'predicted_success_rate': success_rate
-                    })
+                    best_session = max(
+                        successful_sessions, key=lambda s: s.extraction_quality
+                    )
+                    config.update(
+                        {
+                            "delay": best_session.delay_used,
+                            "user_agent_pattern": best_session.user_agent,
+                            "retry_count": min(
+                                5,
+                                max(
+                                    1,
+                                    int(
+                                        statistics.median(
+                                            [s.retry_count for s in successful_sessions]
+                                        )
+                                    ),
+                                ),
+                            ),
+                            "timeout": 30,  # Valor por defecto
+                            "predicted_success_rate": success_rate,
+                        }
+                    )
         except Exception:
             # Si hay error, no añadimos nada a la configuración
             pass
 
         # Combinar con métricas del Brain simple
-        config.update({
-            'simple_priority': self.simple_brain.domain_priority(domain),
-            'error_rate': self.simple_brain.domain_error_rate(domain),
-            'avg_response_time': self.simple_brain.avg_response_time(domain)
-        })
+        config.update(
+            {
+                "simple_priority": self.simple_brain.domain_priority(domain),
+                "error_rate": self.simple_brain.domain_error_rate(domain),
+                "avg_response_time": self.simple_brain.avg_response_time(domain),
+            }
+        )
 
         return config
 
@@ -1422,9 +1633,14 @@ class HybridBrain:
         # Stats del AutonomousLearningBrain (IA-B)
         try:
             domains_learned = len(self.autonomous_brain.domain_intelligence)
-            total_patterns = sum(len(v) for v in self.autonomous_brain.pattern_library.values())
+            total_patterns = sum(
+                len(v) for v in self.autonomous_brain.pattern_library.values()
+            )
             # Contar estrategias: suma de longitudes de best_strategies por dominio
-            strategies_optimized = sum(len(intel.best_strategies) for intel in self.autonomous_brain.domain_intelligence.values())
+            strategies_optimized = sum(
+                len(intel.best_strategies)
+                for intel in self.autonomous_brain.domain_intelligence.values()
+            )
             learning_sessions = len(self.autonomous_brain.session_history)
         except Exception as e:
             logger.error(f"Error collecting autonomous brain stats: {e}")
@@ -1435,11 +1651,21 @@ class HybridBrain:
 
         # Calcular métricas avanzadas de AutonomousLearningBrain
         try:
-            successful_sessions = sum(1 for s in self.autonomous_brain.session_history if s.success)
-            success_rate = successful_sessions / max(learning_sessions, 1) if learning_sessions > 0 else 0
+            successful_sessions = sum(
+                1 for s in self.autonomous_brain.session_history if s.success
+            )
+            success_rate = (
+                successful_sessions / max(learning_sessions, 1)
+                if learning_sessions > 0
+                else 0
+            )
 
             # Analizar los tiempos de respuesta
-            response_times = [s.response_time for s in self.autonomous_brain.session_history if s.success]
+            response_times = [
+                s.response_time
+                for s in self.autonomous_brain.session_history
+                if s.success
+            ]
             avg_response_time = statistics.mean(response_times) if response_times else 0
 
             # Analizar patrones más comunes
@@ -1451,7 +1677,9 @@ class HybridBrain:
             for pattern in all_patterns:
                 pattern_frequency[pattern] = pattern_frequency.get(pattern, 0) + 1
 
-            top_patterns = sorted(pattern_frequency.items(), key=lambda x: x[1], reverse=True)[:5]
+            top_patterns = sorted(
+                pattern_frequency.items(), key=lambda x: x[1], reverse=True
+            )[:5]
 
             # Estadísticas por dominio
             domain_success_rates = {}
@@ -1470,36 +1698,38 @@ class HybridBrain:
             learning_efficiency = 0
 
         autonomous_stats = {
-            'domains_learned': domains_learned,
-            'total_patterns': total_patterns,
-            'strategies_optimized': strategies_optimized,
-            'learning_sessions': learning_sessions,
-            'success_rate': round(success_rate, 2),
-            'avg_response_time': round(avg_response_time, 2),
-            'top_patterns': top_patterns,
-            'domain_success_rates': domain_success_rates,
-            'learning_efficiency': round(learning_efficiency, 2)
+            "domains_learned": domains_learned,
+            "total_patterns": total_patterns,
+            "strategies_optimized": strategies_optimized,
+            "learning_sessions": learning_sessions,
+            "success_rate": round(success_rate, 2),
+            "avg_response_time": round(avg_response_time, 2),
+            "top_patterns": top_patterns,
+            "domain_success_rates": domain_success_rates,
+            "learning_efficiency": round(learning_efficiency, 2),
         }
 
         # Combinar estadísticas
         hybrid_stats = {
-            'hybrid_system': True,
-            'simple_brain': simple_stats,
-            'autonomous_brain': autonomous_stats,
-            'enrichment': self.enrichment.summarize(),
-            'repair_suggestions_preview': self.generate_repair_suggestions(limit=5),
-            'knowledge_base_snippets': len(self.knowledge_base.snippets),
-            'rule_engine_summary': self.rule_engine.get_rule_summary(),
-            'auto_testing_summary': self.auto_testing.get_testing_summary(),
-            'top_performing_domains': self._get_top_performing_domains(),
-            'learning_insights': self._get_learning_insights(),
-            'overrides': self.overrides,
+            "hybrid_system": True,
+            "simple_brain": simple_stats,
+            "autonomous_brain": autonomous_stats,
+            "enrichment": self.enrichment.summarize(),
+            "repair_suggestions_preview": self.generate_repair_suggestions(limit=5),
+            "knowledge_base_snippets": len(self.knowledge_base.snippets),
+            "rule_engine_summary": self.rule_engine.get_rule_summary(),
+            "auto_testing_summary": self.auto_testing.get_testing_summary(),
+            "top_performing_domains": self._get_top_performing_domains(),
+            "learning_insights": self._get_learning_insights(),
+            "overrides": self.overrides,
         }
 
         return hybrid_stats
 
     # ----------------- Compatibilidad con interfaz Brain simple -----------------
-    def snapshot(self) -> Dict[str, Any]:  # pragma: no cover - usada por tests heredados
+    def snapshot(
+        self,
+    ) -> Dict[str, Any]:  # pragma: no cover - usada por tests heredados
         """Devuelve un snapshot similar al Brain clásico para compatibilidad.
 
         Estructura:
@@ -1512,7 +1742,7 @@ class HybridBrain:
         }
         """
         simple = self.simple_brain.snapshot()
-        simple['hybrid'] = True
+        simple["hybrid"] = True
         return simple
 
     def domain_priority(self, domain: str) -> float:  # pragma: no cover
@@ -1528,21 +1758,27 @@ class HybridBrain:
         domain_scores = {}
 
         # Combinar dominios de ambos sistemas
-        all_domains = set(self.simple_brain.domain_stats.keys()) | set(self.autonomous_brain.domain_intelligence.keys())
+        all_domains = set(self.simple_brain.domain_stats.keys()) | set(
+            self.autonomous_brain.domain_intelligence.keys()
+        )
 
         for domain in all_domains:
             hybrid_priority = self.get_domain_priority(domain)
             simple_success = self.simple_brain.domain_success_rate(domain)
 
             domain_scores[domain] = {
-                'domain': domain,
-                'hybrid_priority': hybrid_priority,
-                'simple_success_rate': simple_success,
-                'total_visits': self.simple_brain.domain_stats.get(domain, {}).get('visits', 0)
+                "domain": domain,
+                "hybrid_priority": hybrid_priority,
+                "simple_success_rate": simple_success,
+                "total_visits": self.simple_brain.domain_stats.get(domain, {}).get(
+                    "visits", 0
+                ),
             }
 
         # Ordenar por prioridad híbrida
-        sorted_domains = sorted(domain_scores.values(), key=lambda x: x['hybrid_priority'], reverse=True)
+        sorted_domains = sorted(
+            domain_scores.values(), key=lambda x: x["hybrid_priority"], reverse=True
+        )
 
         return sorted_domains[:5]
 
@@ -1552,22 +1788,35 @@ class HybridBrain:
         insights = []
 
         # Insights del Brain simple
-        top_errors = sorted(self.simple_brain.error_type_freq.items(), key=lambda x: x[1], reverse=True)[:3]
+        top_errors = sorted(
+            self.simple_brain.error_type_freq.items(), key=lambda x: x[1], reverse=True
+        )[:3]
         if top_errors:
-            insights.append(f"Errores más comunes: {', '.join([f'{err}({count})' for err, count in top_errors])}")
+            insights.append(
+                f"Errores más comunes: {', '.join([f'{err}({count})' for err, count in top_errors])}"
+            )
 
         # Insights del sistema autónomo
         try:
-            total_patterns = sum(len(di.common_patterns) for di in self.autonomous_brain.domain_intelligence.values())
+            total_patterns = sum(
+                len(di.common_patterns)
+                for di in self.autonomous_brain.domain_intelligence.values()
+            )
         except Exception:
             total_patterns = 0
         if total_patterns > 0:
             insights.append(f"Patrones descubiertos: {total_patterns} únicos")
 
         try:
-            domains_with_strategies = sum(1 for intel in self.autonomous_brain.domain_intelligence.values() if intel.best_strategies)
+            domains_with_strategies = sum(
+                1
+                for intel in self.autonomous_brain.domain_intelligence.values()
+                if intel.best_strategies
+            )
             if domains_with_strategies > 0:
-                insights.append(f"Estrategias optimizadas: {domains_with_strategies} dominios")
+                insights.append(
+                    f"Estrategias optimizadas: {domains_with_strategies} dominios"
+                )
         except Exception:
             pass
 
@@ -1578,7 +1827,7 @@ class HybridBrain:
         self.simple_brain.flush()
         # Persistencia del cerebro autónomo (compatibilidad: usar método privado existente)
         try:
-            if hasattr(self.autonomous_brain, 'save_learning_data'):
+            if hasattr(self.autonomous_brain, "save_learning_data"):
                 self.autonomous_brain.save_learning_data()  # type: ignore[attr-defined]
             else:
                 self.autonomous_brain._save_intelligence()  # type: ignore[attr-defined]
@@ -1606,13 +1855,13 @@ class HybridBrain:
 
             # Preparar mensaje de estado
             stats = self.get_comprehensive_stats()
-            domains_count = len(stats['simple_brain']['domains'])
-            patterns_count = stats['autonomous_brain']['total_patterns']
+            domains_count = len(stats["simple_brain"]["domains"])
+            patterns_count = stats["autonomous_brain"]["total_patterns"]
 
             new_entry = f"{timestamp} | FEAT | IA-B: Sistema híbrido activo - {domains_count} dominios, {patterns_count} patrones\n"
 
             # Agregar entrada al final del archivo
-            with open(self.ia_sync_file, 'a', encoding='utf-8') as f:
+            with open(self.ia_sync_file, "a", encoding="utf-8") as f:
                 f.write(new_entry)
 
             logger.info("🧠 IA_SYNC updated with hybrid brain status")
@@ -1644,30 +1893,38 @@ class HybridBrain:
                 f"Total sugerencias: {len(suggestions)}",
                 "",
                 "## Sugerencias Prioritarias",
-                ""
+                "",
             ]
             for s in suggestions:
-                lines.extend([
-                    f"### {s['title']} ({s['severity'].upper()})",
-                    f"ID: `{s['id']}` | Categoría: {s['category']} | Confianza: {s.get('confidence', 0):.2f}",
-                    (f"Referencias KB: {', '.join(s.get('kb_refs', []))}" if s.get('kb_refs') else ""),
-                    "",
-                    f"**Rationale:** {s['rationale']}",
-                    "",
-                    f"**Acción Recomendada:** {s['recommended_action']}",
-                    "",
-                    f"**Señales:** `{s['signals']}`",
-                    "",
-                    "---",
-                    ""
-                ])
-            with open(path, 'w', encoding='utf-8') as f:
-                f.write('\n'.join(lines))
+                lines.extend(
+                    [
+                        f"### {s['title']} ({s['severity'].upper()})",
+                        f"ID: `{s['id']}` | Categoría: {s['category']} | Confianza: {s.get('confidence', 0):.2f}",
+                        (
+                            f"Referencias KB: {', '.join(s.get('kb_refs', []))}"
+                            if s.get("kb_refs")
+                            else ""
+                        ),
+                        "",
+                        f"**Rationale:** {s['rationale']}",
+                        "",
+                        f"**Acción Recomendada:** {s['recommended_action']}",
+                        "",
+                        f"**Señales:** `{s['signals']}`",
+                        "",
+                        "---",
+                        "",
+                    ]
+                )
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines))
         except Exception:
             pass
 
     # ----------------- Conocimiento / Razonamiento -----------------
-    def get_knowledge(self, category: str = None, tags: List[str] = None, limit: int = 5) -> List[Dict[str, Any]]:
+    def get_knowledge(
+        self, category: str = None, tags: List[str] = None, limit: int = 5
+    ) -> List[Dict[str, Any]]:
         try:
             results = self.knowledge_base.search(category=category, tags=tags)
             return results[:limit]
@@ -1679,7 +1936,7 @@ class HybridBrain:
         print(f"Searching knowledge base for: {query}")
         try:
             # Search by category and tags based on the query
-            tags = [tag.strip() for tag in query.split(' ')]
+            tags = [tag.strip() for tag in query.split(" ")]
             results = self.knowledge_base.search(category=query, tags=tags)
             # Limit results to first 10 if needed
             return results[:10] if len(results) > 10 else results
@@ -1699,30 +1956,49 @@ class HybridBrain:
           }
         Retorna hipótesis y referencias de conocimiento.
         """
-        domain = observation.get('domain')
-        symptom = observation.get('symptom')
+        domain = observation.get("domain")
+        symptom = observation.get("symptom")
         hypotheses = []
         kb_refs = []
         try:
-            if symptom == 'high_error_rate':
-                er = observation.get('error_rate', 0)
-                if er >= self.overrides.get('backoff_threshold', 0.5):
-                    hypotheses.append('Posible saturación o bloqueo parcial: aplicar backoff y revisar patrones de petición.')
-                    kb_refs.extend([s['id'] for s in self.get_knowledge(category='scraping', tags=['adaptive'])])
-                    kb_refs.extend([s['id'] for s in self.get_knowledge(category='anti-bot')])
-            if symptom == 'slow_domain':
-                kb_refs.extend([s['id'] for s in self.get_knowledge(category='performance')])
-                hypotheses.append('Latencia elevada sostenida: considerar aumentar delay y habilitar caching selectivo.')
-            if symptom == 'structural_drift':
-                kb_refs.extend([s['id'] for s in self.get_knowledge(category='selectors')])
-                hypotheses.append('Variación estructural: regenerar selectores robustos y añadir fallback XPath.')
+            if symptom == "high_error_rate":
+                er = observation.get("error_rate", 0)
+                if er >= self.overrides.get("backoff_threshold", 0.5):
+                    hypotheses.append(
+                        "Posible saturación o bloqueo parcial: aplicar backoff y revisar patrones de petición."
+                    )
+                    kb_refs.extend(
+                        [
+                            s["id"]
+                            for s in self.get_knowledge(
+                                category="scraping", tags=["adaptive"]
+                            )
+                        ]
+                    )
+                    kb_refs.extend(
+                        [s["id"] for s in self.get_knowledge(category="anti-bot")]
+                    )
+            if symptom == "slow_domain":
+                kb_refs.extend(
+                    [s["id"] for s in self.get_knowledge(category="performance")]
+                )
+                hypotheses.append(
+                    "Latencia elevada sostenida: considerar aumentar delay y habilitar caching selectivo."
+                )
+            if symptom == "structural_drift":
+                kb_refs.extend(
+                    [s["id"] for s in self.get_knowledge(category="selectors")]
+                )
+                hypotheses.append(
+                    "Variación estructural: regenerar selectores robustos y añadir fallback XPath."
+                )
         except Exception:
             pass
         return {
-            'domain': domain,
-            'symptom': symptom,
-            'hypotheses': hypotheses,
-            'knowledge_refs': list(dict.fromkeys(kb_refs))
+            "domain": domain,
+            "symptom": symptom,
+            "hypotheses": hypotheses,
+            "knowledge_refs": list(dict.fromkeys(kb_refs)),
         }
 
     def reason_declaratively(self, domain_data: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -1739,28 +2015,31 @@ class HybridBrain:
         except Exception:
             return []
 
-    def _auto_learn_from_session(self, result, context: Dict[str, Any], patterns: List[str]):
+    def _auto_learn_from_session(
+        self, result, context: Dict[str, Any], patterns: List[str]
+    ):
         """Auto-aprendizaje dinámico: extrae conocimiento de sesiones exitosas."""
         try:
-            if not getattr(result, 'success', False):
+            if not getattr(result, "success", False):
                 return
 
             # Generar snippets dinámicos de patrones exitosos
-            domain = urlparse(getattr(result, 'url', '')).netloc
-            response_time = (context or {}).get('response_time', 0)
+            domain = urlparse(getattr(result, "url", "")).netloc
+            response_time = (context or {}).get("response_time", 0)
 
             # Aprender de velocidad excepcional
             if response_time and response_time < 0.3:
                 snippet_id = f"learned:fast_domain:{domain.replace('.', '_')}"
                 if snippet_id not in self.knowledge_base.snippets:
                     from .knowledge_base import KnowledgeSnippet
+
                     snippet = KnowledgeSnippet(
                         id=snippet_id,
                         category="performance",
                         title=f"Optimización observada en {domain}",
                         content=f"Dominio {domain} responde consistentemente en <0.3s. Mantener configuración actual.",
                         tags=["learned", "fast", domain],
-                        quality_score=0.7
+                        quality_score=0.7,
                     )
                     self.knowledge_base.snippets[snippet_id] = snippet
 
@@ -1769,6 +2048,7 @@ class HybridBrain:
                 snippet_id = f"learned:extraction:{domain.replace('.', '_')}"
                 if snippet_id not in self.knowledge_base.snippets:
                     from .knowledge_base import KnowledgeSnippet
+
                     top_patterns = patterns[:5]
                     snippet = KnowledgeSnippet(
                         id=snippet_id,
@@ -1776,14 +2056,16 @@ class HybridBrain:
                         title=f"Patrones exitosos en {domain}",
                         content=f"Patrones validados: {', '.join(top_patterns)}. Priorizar estos selectores.",
                         tags=["learned", "extraction", domain],
-                        quality_score=0.75
+                        quality_score=0.75,
                     )
                     self.knowledge_base.snippets[snippet_id] = snippet
 
         except Exception:
             pass
 
-    def evaluate_suggestion_effectiveness(self, suggestion_id: str, outcome: str, metrics: Dict[str, Any]):
+    def evaluate_suggestion_effectiveness(
+        self, suggestion_id: str, outcome: str, metrics: Dict[str, Any]
+    ):
         """Sistema meta-cognitivo: evalúa efectividad de sugerencias aplicadas.
 
         Args:
@@ -1796,11 +2078,9 @@ class HybridBrain:
             feedback_id = f"feedback:{suggestion_id}:{time.time()}"
             from .knowledge_base import KnowledgeSnippet
 
-            effectiveness_score = {
-                'success': 0.9,
-                'partial': 0.6,
-                'failure': 0.2
-            }.get(outcome, 0.5)
+            effectiveness_score = {"success": 0.9, "partial": 0.6, "failure": 0.2}.get(
+                outcome, 0.5
+            )
 
             snippet = KnowledgeSnippet(
                 id=feedback_id,
@@ -1808,14 +2088,16 @@ class HybridBrain:
                 title=f"Efectividad de {suggestion_id}",
                 content=f"Sugerencia {suggestion_id} resultó en {outcome}. Métricas: {metrics}",
                 tags=["feedback", "effectiveness", outcome],
-                quality_score=effectiveness_score
+                quality_score=effectiveness_score,
             )
             self.knowledge_base.snippets[feedback_id] = snippet
 
             # Ajustar reglas dinámicamente según feedback
-            if outcome == 'failure':
+            if outcome == "failure":
                 # Reducir prioridad de reglas similares
-                rule_category = suggestion_id.split('::')[0] if '::' in suggestion_id else None
+                rule_category = (
+                    suggestion_id.split("::")[0] if "::" in suggestion_id else None
+                )
                 if rule_category:
                     for rule in self.rule_engine.rules.values():
                         if rule.action.category == rule_category:
@@ -1839,8 +2121,12 @@ class HybridBrain:
         # Generate autonomous patch proposals
         try:
             if self.self_update_engine:
-                patch_proposals = self.self_update_engine.generate_patch_proposals(self.knowledge_store)
-                logger.info("🔧 Generated %d autonomous patch proposals", len(patch_proposals))
+                patch_proposals = self.self_update_engine.generate_patch_proposals(
+                    self.knowledge_store
+                )
+                logger.info(
+                    "🔧 Generated %d autonomous patch proposals", len(patch_proposals)
+                )
         except Exception as e:
             logger.warning(f"Patch generation failed: {e}")
 
@@ -1851,7 +2137,9 @@ class HybridBrain:
             except Exception as e:
                 logger.warning(f"Failed to start continuous learning: {e}")
 
-    def get_ml_suggestions(self, url: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+    def get_ml_suggestions(
+        self, url: str, context: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
         """Obtiene sugerencias del sistema ML avanzado"""
         if not self.ml_intelligence:
             return {}
@@ -1877,41 +2165,52 @@ class HybridBrain:
         """Obtiene instancia del navegador CDP sigiloso"""
         return self.cdp_browser
 
-    def record_learning_session(self, url: str, success: bool, patterns: List[str],
-                                                              improvements: Dict[str, Any] = None):
+    def record_learning_session(
+        self,
+        url: str,
+        success: bool,
+        patterns: List[str],
+        improvements: Dict[str, Any] = None,
+    ):
         """Registra una sesión de aprendizaje en el orquestador"""
         if not self.learning_orchestrator:
             return
 
         try:
-            self.learning_orchestrator.record_session(url, success, patterns, improvements or {})
+            self.learning_orchestrator.record_session(
+                url, success, patterns, improvements or {}
+            )
         except Exception as e:
             logger.warning(f"Failed to record learning session: {e}")
 
     # 🧠 Neural Brain Integration Methods
 
-    def _process_with_legacy_systems(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_with_legacy_systems(
+        self, event_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Procesa con sistemas legacy (Brain A + B)"""
 
         # Process with Simple Brain (IA-A)
-        if 'url' in event_data:
+        if "url" in event_data:
             from urllib.parse import urlparse
-            domain = urlparse(event_data['url']).netloc
+
+            domain = urlparse(event_data["url"]).netloc
         else:
-            domain = 'unknown'
+            domain = "unknown"
 
         # Create experience event for Simple Brain
-        from .brain import ExperienceEvent
         from datetime import datetime, timezone
 
+        from .brain import ExperienceEvent
+
         exp_event = ExperienceEvent(
-            event_type=event_data.get('event_type', 'scraping'),
-            url=event_data.get('url', ''),
-            success=event_data.get('success', True),
-            data_extracted=len(str(event_data.get('data_extracted', {}))),
-            processing_time=event_data.get('processing_time', 0.0),
-            error_message=event_data.get('error_message'),
-            timestamp=datetime.now(timezone.utc)
+            event_type=event_data.get("event_type", "scraping"),
+            url=event_data.get("url", ""),
+            success=event_data.get("success", True),
+            data_extracted=len(str(event_data.get("data_extracted", {}))),
+            processing_time=event_data.get("processing_time", 0.0),
+            error_message=event_data.get("error_message"),
+            timestamp=datetime.now(timezone.utc),
         )
 
         brain_a_response = self.simple_brain.record_experience(exp_event)
@@ -1923,22 +2222,24 @@ class HybridBrain:
             start_time=datetime.now(),
             domain=domain,
             pages_scraped=1,
-            success_rate=1.0 if event_data.get('success', True) else 0.0,
-            avg_response_time=event_data.get('processing_time', 0.0),
-            errors_encountered=0 if event_data.get('success', True) else 1,
-            data_extracted=event_data.get('data_extracted', {})
+            success_rate=1.0 if event_data.get("success", True) else 0.0,
+            avg_response_time=event_data.get("processing_time", 0.0),
+            errors_encountered=0 if event_data.get("success", True) else 1,
+            data_extracted=event_data.get("data_extracted", {}),
         )
 
         brain_b_response = self.autonomous_brain.record_session(session)
 
         return {
-            'brain_a_response': brain_a_response,
-            'brain_b_response': brain_b_response,
-            'processing_mode': 'legacy_systems',
-            'consciousness_engaged': False
+            "brain_a_response": brain_a_response,
+            "brain_b_response": brain_b_response,
+            "processing_mode": "legacy_systems",
+            "consciousness_engaged": False,
         }
 
-    def _process_with_hybrid_approach(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_with_hybrid_approach(
+        self, event_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Procesa con enfoque híbrido (Neural + Legacy)"""
 
         # Process with unified brain
@@ -1950,9 +2251,11 @@ class HybridBrain:
         # Integrate both approaches
         integrated_response = {
             **neural_response,
-            'legacy_insights': legacy_response,
-            'processing_mode': 'hybrid_neural_legacy',
-            'integration_coherence': self._calculate_integration_coherence(neural_response, legacy_response)
+            "legacy_insights": legacy_response,
+            "processing_mode": "hybrid_neural_legacy",
+            "integration_coherence": self._calculate_integration_coherence(
+                neural_response, legacy_response
+            ),
         }
 
         return integrated_response
@@ -1963,17 +2266,17 @@ class HybridBrain:
         complexity = 0.3  # Base complexity
 
         # URL complexity
-        if 'url' in event_data:
-            url_parts = len(event_data['url'].split('/'))
+        if "url" in event_data:
+            url_parts = len(event_data["url"].split("/"))
             complexity += min(0.3, url_parts * 0.05)
 
         # Data complexity
-        if 'data_extracted' in event_data:
-            data_size = len(str(event_data['data_extracted']))
+        if "data_extracted" in event_data:
+            data_size = len(str(event_data["data_extracted"]))
             complexity += min(0.2, data_size / 1000)
 
         # Error complexity
-        if not event_data.get('success', True):
+        if not event_data.get("success", True):
             complexity += 0.3
 
         return min(1.0, complexity)
@@ -1982,64 +2285,81 @@ class HybridBrain:
         """Estima familiaridad con el tipo de evento"""
 
         # Check domain familiarity in legacy systems
-        if 'url' in event_data:
+        if "url" in event_data:
             from urllib.parse import urlparse
-            domain = urlparse(event_data['url']).netloc
+
+            domain = urlparse(event_data["url"]).netloc
             domain_experience = self.simple_brain.get_domain_experience(domain)
-            return min(1.0, domain_experience.get('total_requests', 0) / 100)
+            return min(1.0, domain_experience.get("total_requests", 0) / 100)
 
         return 0.5
 
-    def _extract_scraping_insights(self, neural_response: Dict[str, Any], event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_scraping_insights(
+        self, neural_response: Dict[str, Any], event_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Extrae insights específicos para scraping del response neural"""
 
         insights = {}
 
         # Emotional insights
-        emotional_state = neural_response.get('emotional_state', {})
-        current_emotion = emotional_state.get('current_emotion', {})
+        emotional_state = neural_response.get("emotional_state", {})
+        current_emotion = emotional_state.get("current_emotion", {})
 
-        if current_emotion.get('emotion') == 'fear':
-            insights['recommendation'] = "Detected fear response - possible anti-bot detection"
-        elif current_emotion.get('emotion') == 'joy':
-            insights['recommendation'] = "Positive emotional response - scraping going well"
+        if current_emotion.get("emotion") == "fear":
+            insights["recommendation"] = (
+                "Detected fear response - possible anti-bot detection"
+            )
+        elif current_emotion.get("emotion") == "joy":
+            insights["recommendation"] = (
+                "Positive emotional response - scraping going well"
+            )
 
         # Memory insights
-        if neural_response.get('memory_encoding'):
-            insights['memory_note'] = "Event stored in episodic memory for future reference"
+        if neural_response.get("memory_encoding"):
+            insights["memory_note"] = (
+                "Event stored in episodic memory for future reference"
+            )
 
         # Reasoning insights
-        reasoning_analysis = neural_response.get('reasoning_analysis', {})
-        if reasoning_analysis.get('overall_confidence', 0) > 0.8:
-            insights['confidence'] = "High confidence in scraping strategy"
-        elif reasoning_analysis.get('overall_confidence', 0) < 0.4:
-            insights['confidence'] = "Low confidence - consider strategy adjustment"
+        reasoning_analysis = neural_response.get("reasoning_analysis", {})
+        if reasoning_analysis.get("overall_confidence", 0) > 0.8:
+            insights["confidence"] = "High confidence in scraping strategy"
+        elif reasoning_analysis.get("overall_confidence", 0) < 0.4:
+            insights["confidence"] = "Low confidence - consider strategy adjustment"
 
         # Metacognitive insights
-        metacog_state = neural_response.get('metacognitive_state', {})
-        if metacog_state.get('cognitive_load', 0) > 0.8:
-            insights['workload'] = "High cognitive load - consider simplifying approach"
+        metacog_state = neural_response.get("metacognitive_state", {})
+        if metacog_state.get("cognitive_load", 0) > 0.8:
+            insights["workload"] = "High cognitive load - consider simplifying approach"
 
         return insights
 
-    def _sync_with_legacy_systems(self, event_data: Dict[str, Any], neural_response: Dict[str, Any]):
+    def _sync_with_legacy_systems(
+        self, event_data: Dict[str, Any], neural_response: Dict[str, Any]
+    ):
         """Sincroniza insights neurales con sistemas legacy"""
 
         # Update Simple Brain with neural insights
-        if hasattr(self.simple_brain, 'update_neural_insights'):
+        if hasattr(self.simple_brain, "update_neural_insights"):
             self.simple_brain.update_neural_insights(event_data, neural_response)
 
         # Update Autonomous Brain with consciousness state
-        if hasattr(self.autonomous_brain, 'update_consciousness_state'):
+        if hasattr(self.autonomous_brain, "update_consciousness_state"):
             consciousness_state = self.unified_brain.get_consciousness_state()
             self.autonomous_brain.update_consciousness_state(consciousness_state)
 
-    def _calculate_integration_coherence(self, neural_response: Dict[str, Any], legacy_response: Dict[str, Any]) -> float:
+    def _calculate_integration_coherence(
+        self, neural_response: Dict[str, Any], legacy_response: Dict[str, Any]
+    ) -> float:
         """Calcula coherencia entre respuestas neural y legacy"""
 
         # Simple coherence measure
-        neural_success = neural_response.get('integrated_response', {}).get('conscious_access', False)
-        legacy_success = legacy_response.get('brain_a_response', {}).get('success', False)
+        neural_success = neural_response.get("integrated_response", {}).get(
+            "conscious_access", False
+        )
+        legacy_success = legacy_response.get("brain_a_response", {}).get(
+            "success", False
+        )
 
         if neural_success == legacy_success:
             return 0.8
@@ -2050,11 +2370,23 @@ class HybridBrain:
         """Obtiene estado completo del cerebro híbrido"""
 
         state = {
-            'integration_mode': self.integration_mode,
-            'consciousness_enabled': self.consciousness_enabled,
-            'unified_brain_state': self.unified_brain.get_consciousness_state() if hasattr(self, 'unified_brain') else {},
-            'legacy_simple_brain_state': self.simple_brain.get_state() if hasattr(self.simple_brain, 'get_state') else {},
-            'legacy_autonomous_brain_state': self.autonomous_brain.get_intelligence_state() if hasattr(self.autonomous_brain, 'get_intelligence_state') else {}
+            "integration_mode": self.integration_mode,
+            "consciousness_enabled": self.consciousness_enabled,
+            "unified_brain_state": (
+                self.unified_brain.get_consciousness_state()
+                if hasattr(self, "unified_brain")
+                else {}
+            ),
+            "legacy_simple_brain_state": (
+                self.simple_brain.get_state()
+                if hasattr(self.simple_brain, "get_state")
+                else {}
+            ),
+            "legacy_autonomous_brain_state": (
+                self.autonomous_brain.get_intelligence_state()
+                if hasattr(self.autonomous_brain, "get_intelligence_state")
+                else {}
+            ),
         }
 
         return state
@@ -2071,7 +2403,7 @@ class HybridBrain:
 
     def set_integration_mode(self, mode: str):
         """Establece modo de integración: 'unified', 'legacy', 'hybrid'"""
-        if mode in ['unified', 'legacy', 'hybrid']:
+        if mode in ["unified", "legacy", "hybrid"]:
             self.integration_mode = mode
             logger.info(f"🧠 Integration mode set to: {mode}")
         else:
@@ -2091,7 +2423,7 @@ class HybridBrain:
             self.curiosity_system = CuriositySystem(
                 brain_instance=self,
                 tui_app=None,  # Se puede conectar después
-                voice_assistant=None  # Se puede conectar después
+                voice_assistant=None,  # Se puede conectar después
             )
 
             logger.info("🧠 Sistema de curiosidad inicializado exitosamente")
@@ -2103,60 +2435,70 @@ class HybridBrain:
     def _initialize_omniscience(self):
         """Inicializa capacidades de observación omnisciente del cerebro"""
         self._project_observers = {
-            'settings': None,
-            'database': None,
-            'logs': None,
-            'code_files': {},
-            'runtime_metrics': {},
-            'network_activity': []
+            "settings": None,
+            "database": None,
+            "logs": None,
+            "code_files": {},
+            "runtime_metrics": {},
+            "network_activity": [],
         }
         self._protection_layer = OmniscientProtectionLayer()
-        logger.info("🧠 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain")
+        logger.info(
+            "🧠 Omniscient observation system initialized - Brain can observe all, but nothing can affect brain"
+        )
 
     def observe_project_state(self) -> Dict[str, Any]:
         """Observa el estado completo del proyecto de manera read-only"""
         try:
             state = {
-                'timestamp': datetime.now(timezone.utc).isoformat(),
-                'observer': 'HybridBrain_Omniscient',
-                'settings_state': self._observe_settings(),
-                'database_state': self._observe_database(),
-                'logs_state': self._observe_logs(),
-                'code_quality': self._observe_code_quality(),
-                'runtime_metrics': self._observe_runtime_metrics(),
-                'network_activity': self._observe_network_activity(),
-                'project_health': self._calculate_project_health()
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "observer": "HybridBrain_Omniscient",
+                "settings_state": self._observe_settings(),
+                "database_state": self._observe_database(),
+                "logs_state": self._observe_logs(),
+                "code_quality": self._observe_code_quality(),
+                "runtime_metrics": self._observe_runtime_metrics(),
+                "network_activity": self._observe_network_activity(),
+                "project_health": self._calculate_project_health(),
             }
 
             # Process observations through neural architecture
             neural_observations = {}
-            if hasattr(self, 'unified_brain') and hasattr(self.unified_brain, 'process_sensory_input'):
+            if hasattr(self, "unified_brain") and hasattr(
+                self.unified_brain, "process_sensory_input"
+            ):
                 try:
-                    neural_observations = self.unified_brain.process_sensory_input({
-                        'type': 'project_observation',
-                        'data': state,
-                        'importance': 0.9,
-                        'complexity': 0.8,
-                        'familiarity': 0.7
-                    })
+                    neural_observations = self.unified_brain.process_sensory_input(
+                        {
+                            "type": "project_observation",
+                            "data": state,
+                            "importance": 0.9,
+                            "complexity": 0.8,
+                            "familiarity": 0.7,
+                        }
+                    )
                 except Exception as inner_e:
                     logger.debug(f"Neural processing skipped: {inner_e}")
 
             return {
-                'raw_observations': state,
-                'neural_analysis': neural_observations,
-                'brain_assessment': self._assess_project_modifications_needed(state)
+                "raw_observations": state,
+                "neural_analysis": neural_observations,
+                "brain_assessment": self._assess_project_modifications_needed(state),
             }
 
         except Exception as e:
             logger.error(f"🧠 Error during omniscient observation: {e}")
             # Retornar estructura consistente para que tests no fallen por clave faltante
             return {
-                'raw_observations': {'error': str(e)},
-                'neural_analysis': {},
-                'brain_assessment': {'modifications_needed': False, 'recommendations': [], 'brain_decision': 'observe_on_error'},
-                'error': str(e),
-                'timestamp': datetime.now(timezone.utc).isoformat()
+                "raw_observations": {"error": str(e)},
+                "neural_analysis": {},
+                "brain_assessment": {
+                    "modifications_needed": False,
+                    "recommendations": [],
+                    "brain_decision": "observe_on_error",
+                },
+                "error": str(e),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
     def _observe_settings(self) -> Dict[str, Any]:
@@ -2166,24 +2508,38 @@ class HybridBrain:
 
             # Extract critical settings for brain analysis
             observed_settings = {
-                'hybrid_brain_enabled': getattr(settings, 'HYBRID_BRAIN_ENABLED', True),
-                'consciousness_enabled': getattr(settings, 'CONSCIOUSNESS_ENABLED', True),
-                'continuous_learning_enabled': getattr(settings, 'CONTINUOUS_LEARNING_ENABLED', True),
-                'intelligence_integration_mode': getattr(settings, 'INTELLIGENCE_INTEGRATION_MODE', 'unified'),
-                'neural_activity_threshold': getattr(settings, 'NEURAL_ACTIVITY_THRESHOLD', 0.6),
-                'concurrency': getattr(settings, 'CONCURRENCY', 5),
-                'robots_enabled': getattr(settings, 'ROBOTS_ENABLED', True),
-                'ethics_checks_enabled': getattr(settings, 'ETHICS_CHECKS_ENABLED', True)
+                "hybrid_brain_enabled": getattr(settings, "HYBRID_BRAIN_ENABLED", True),
+                "consciousness_enabled": getattr(
+                    settings, "CONSCIOUSNESS_ENABLED", True
+                ),
+                "continuous_learning_enabled": getattr(
+                    settings, "CONTINUOUS_LEARNING_ENABLED", True
+                ),
+                "intelligence_integration_mode": getattr(
+                    settings, "INTELLIGENCE_INTEGRATION_MODE", "unified"
+                ),
+                "neural_activity_threshold": getattr(
+                    settings, "NEURAL_ACTIVITY_THRESHOLD", 0.6
+                ),
+                "concurrency": getattr(settings, "CONCURRENCY", 5),
+                "robots_enabled": getattr(settings, "ROBOTS_ENABLED", True),
+                "ethics_checks_enabled": getattr(
+                    settings, "ETHICS_CHECKS_ENABLED", True
+                ),
             }
 
             return {
-                'status': 'observed',
-                'settings': observed_settings,
-                'assessment': 'intelligence_configuration_optimal' if observed_settings['hybrid_brain_enabled'] else 'intelligence_degraded'
+                "status": "observed",
+                "settings": observed_settings,
+                "assessment": (
+                    "intelligence_configuration_optimal"
+                    if observed_settings["hybrid_brain_enabled"]
+                    else "intelligence_degraded"
+                ),
             }
 
         except Exception as e:
-            return {'status': 'error', 'error': str(e)}
+            return {"status": "error", "error": str(e)}
 
     def _observe_database(self) -> Dict[str, Any]:
         """Observa estado de la base de datos (read-only)"""
@@ -2196,9 +2552,9 @@ class HybridBrain:
 
             # Gather metrics without modifying data
             observation = {
-                'tables_exist': True,  # Basic check
-                'estimated_records': 'unknown',  # Safe default
-                'last_activity': 'unknown'
+                "tables_exist": True,  # Basic check
+                "estimated_records": "unknown",  # Safe default
+                "last_activity": "unknown",
             }
 
             # Try safe read operations
@@ -2206,22 +2562,28 @@ class HybridBrain:
                 # This is a safe read operation
                 stats = db_observer.get_stats()
                 if stats:
-                    observation.update({
-                        'total_urls': stats.get('total_urls', 0),
-                        'successful_scrapes': stats.get('successful_scrapes', 0),
-                        'failed_scrapes': stats.get('failed_scrapes', 0)
-                    })
+                    observation.update(
+                        {
+                            "total_urls": stats.get("total_urls", 0),
+                            "successful_scrapes": stats.get("successful_scrapes", 0),
+                            "failed_scrapes": stats.get("failed_scrapes", 0),
+                        }
+                    )
             except Exception:
                 pass  # Fail silently for read-only observation
 
             return {
-                'status': 'observed',
-                'database_metrics': observation,
-                'assessment': 'database_healthy' if observation.get('total_urls', 0) > 0 else 'database_empty'
+                "status": "observed",
+                "database_metrics": observation,
+                "assessment": (
+                    "database_healthy"
+                    if observation.get("total_urls", 0) > 0
+                    else "database_empty"
+                ),
             }
 
         except Exception as e:
-            return {'status': 'error', 'error': str(e)}
+            return {"status": "error", "error": str(e)}
 
     def _observe_logs(self) -> Dict[str, Any]:
         """Observa logs del sistema (read-only)"""
@@ -2231,143 +2593,167 @@ class HybridBrain:
 
             if os.path.exists(logs_dir):
                 for file in os.listdir(logs_dir):
-                    if file.endswith('.log'):
+                    if file.endswith(".log"):
                         file_path = os.path.join(logs_dir, file)
                         try:
                             stat = os.stat(file_path)
-                            log_files.append({
-                                'file': file,
-                                'size': stat.st_size,
-                                'modified': stat.st_mtime
-                            })
+                            log_files.append(
+                                {
+                                    "file": file,
+                                    "size": stat.st_size,
+                                    "modified": stat.st_mtime,
+                                }
+                            )
                         except Exception:
                             continue
 
             return {
-                'status': 'observed',
-                'log_files': log_files,
-                'assessment': 'logs_active' if log_files else 'logs_inactive'
+                "status": "observed",
+                "log_files": log_files,
+                "assessment": "logs_active" if log_files else "logs_inactive",
             }
 
         except Exception as e:
-            return {'status': 'error', 'error': str(e)}
+            return {"status": "error", "error": str(e)}
 
     def _observe_code_quality(self) -> Dict[str, Any]:
         """Observa calidad del código (read-only)"""
         try:
             src_dir = "src"
             code_metrics = {
-                'python_files': 0,
-                'total_lines': 0,
-                'intelligence_files': 0
+                "python_files": 0,
+                "total_lines": 0,
+                "intelligence_files": 0,
             }
 
             if os.path.exists(src_dir):
                 for root, dirs, files in os.walk(src_dir):
                     for file in files:
-                        if file.endswith('.py'):
-                            code_metrics['python_files'] += 1
-                            if 'intelligence' in root:
-                                code_metrics['intelligence_files'] += 1
+                        if file.endswith(".py"):
+                            code_metrics["python_files"] += 1
+                            if "intelligence" in root:
+                                code_metrics["intelligence_files"] += 1
 
                             # Count lines safely
                             try:
-                                with open(os.path.join(root, file), 'r', encoding='utf-8') as f:
-                                    code_metrics['total_lines'] += sum(1 for _ in f)
+                                with open(
+                                    os.path.join(root, file), "r", encoding="utf-8"
+                                ) as f:
+                                    code_metrics["total_lines"] += sum(1 for _ in f)
                             except Exception:
                                 continue
 
             return {
-                'status': 'observed',
-                'code_metrics': code_metrics,
-                'assessment': 'codebase_intelligent' if code_metrics['intelligence_files'] > 5 else 'codebase_basic'
+                "status": "observed",
+                "code_metrics": code_metrics,
+                "assessment": (
+                    "codebase_intelligent"
+                    if code_metrics["intelligence_files"] > 5
+                    else "codebase_basic"
+                ),
             }
 
         except Exception as e:
-            return {'status': 'error', 'error': str(e)}
+            return {"status": "error", "error": str(e)}
 
     def _observe_runtime_metrics(self) -> Dict[str, Any]:
         """Observa métricas de tiempo de ejecución"""
         return {
-            'status': 'observed',
-            'metrics': {
-                'memory_usage': 'unknown',
-                'cpu_usage': 'unknown',
-                'active_threads': threading.active_count()
+            "status": "observed",
+            "metrics": {
+                "memory_usage": "unknown",
+                "cpu_usage": "unknown",
+                "active_threads": threading.active_count(),
             },
-            'assessment': 'runtime_stable'
+            "assessment": "runtime_stable",
         }
 
     def _observe_network_activity(self) -> Dict[str, Any]:
         """Observa actividad de red (si está disponible)"""
         return {
-            'status': 'observed',
-            'network_metrics': {
-                'recent_requests': 'unknown',
-                'success_rate': 'unknown'
+            "status": "observed",
+            "network_metrics": {
+                "recent_requests": "unknown",
+                "success_rate": "unknown",
             },
-            'assessment': 'network_activity_unknown'
+            "assessment": "network_activity_unknown",
         }
 
     def _calculate_project_health(self) -> Dict[str, Any]:
         """Calcula salud general del proyecto basada en observaciones"""
         return {
-            'overall_health': 'optimal',
-            'intelligence_status': 'active',
-            'recommendations': []
+            "overall_health": "optimal",
+            "intelligence_status": "active",
+            "recommendations": [],
         }
 
-    def _assess_project_modifications_needed(self, observations: Dict[str, Any]) -> Dict[str, Any]:
+    def _assess_project_modifications_needed(
+        self, observations: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Evalúa si el cerebro necesita modificar algo en el proyecto"""
         recommendations = []
 
         # Check if intelligence is properly configured
-        settings_state = observations.get('settings_state', {})
-        if settings_state.get('assessment') == 'intelligence_degraded':
-            recommendations.append({
-                'type': 'settings_modification',
-                'priority': 'high',
-                'description': 'Intelligence configuration needs optimization',
-                'suggested_action': 'enable_full_intelligence'
-            })
+        settings_state = observations.get("settings_state", {})
+        if settings_state.get("assessment") == "intelligence_degraded":
+            recommendations.append(
+                {
+                    "type": "settings_modification",
+                    "priority": "high",
+                    "description": "Intelligence configuration needs optimization",
+                    "suggested_action": "enable_full_intelligence",
+                }
+            )
 
         # Check database health
-        db_state = observations.get('database_state', {})
-        if db_state.get('assessment') == 'database_empty':
-            recommendations.append({
-                'type': 'database_initialization',
-                'priority': 'medium',
-                'description': 'Database appears empty or inactive',
-                'suggested_action': 'initialize_baseline_data'
-            })
+        db_state = observations.get("database_state", {})
+        if db_state.get("assessment") == "database_empty":
+            recommendations.append(
+                {
+                    "type": "database_initialization",
+                    "priority": "medium",
+                    "description": "Database appears empty or inactive",
+                    "suggested_action": "initialize_baseline_data",
+                }
+            )
 
         return {
-            'modifications_needed': len(recommendations) > 0,
-            'recommendations': recommendations,
-            'brain_decision': 'observe_and_adapt' if recommendations else 'maintain_current_state'
+            "modifications_needed": len(recommendations) > 0,
+            "recommendations": recommendations,
+            "brain_decision": (
+                "observe_and_adapt" if recommendations else "maintain_current_state"
+            ),
         }
 
     def make_autonomous_decision(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Toma decisiones autónomas basadas en el contexto"""
         # Procesar a través de la arquitectura neural
-        neural_decision = self.unified_brain.process_sensory_input({
-            'type': 'autonomous_decision_context',
-            'data': context,
-            'importance': 0.95,
-            'complexity': 0.8,
-            'familiarity': 0.6
-        }) if hasattr(self, 'unified_brain') else {}
+        neural_decision = (
+            self.unified_brain.process_sensory_input(
+                {
+                    "type": "autonomous_decision_context",
+                    "data": context,
+                    "importance": 0.95,
+                    "complexity": 0.8,
+                    "familiarity": 0.6,
+                }
+            )
+            if hasattr(self, "unified_brain")
+            else {}
+        )
 
         # El cerebro evalúa si debe actuar
-        consciousness_active = neural_decision.get('integrated_response', {}).get('conscious_access', False)
+        consciousness_active = neural_decision.get("integrated_response", {}).get(
+            "conscious_access", False
+        )
 
         decision = {
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'consciousness_engaged': consciousness_active,
-            'decision_type': 'autonomous_evaluation',
-            'context_assessment': self._assess_decision_context(context),
-            'neural_analysis': neural_decision,
-            'action_taken': 'observation_and_learning'
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "consciousness_engaged": consciousness_active,
+            "decision_type": "autonomous_evaluation",
+            "context_assessment": self._assess_decision_context(context),
+            "neural_analysis": neural_decision,
+            "action_taken": "observation_and_learning",
         }
 
         logger.info(f"🧠 Brain autonomous decision: {decision['action_taken']}")
@@ -2376,130 +2762,150 @@ class HybridBrain:
     def _assess_decision_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Evalúa el contexto para tomar decisiones"""
         return {
-            'context_complexity': 'medium',
-            'risk_assessment': 'low',
-            'potential_impact': 'positive',
-            'brain_confidence': 0.8,
-            'recommended_approach': 'observe_and_adapt'
+            "context_complexity": "medium",
+            "risk_assessment": "low",
+            "potential_impact": "positive",
+            "brain_confidence": 0.8,
+            "recommended_approach": "observe_and_adapt",
         }
 
     # ============================================================================
     # CAPA DE PROTECCIÓN DEL CEREBRO
     # ============================================================================
 
+
 class OmniscientProtectionLayer:
     """Capa de protección que impide que código externo modifique el cerebro"""
 
     def __init__(self):
         self.protected_attributes = [
-            'unified_brain', 'simple_brain', 'autonomous_brain',
-            'neural_brain', 'emotional_brain', 'metacognitive_brain',
-            'advanced_memory', 'advanced_reasoning', 'consciousness_enabled',
-            'integration_mode', '_project_observers'
+            "unified_brain",
+            "simple_brain",
+            "autonomous_brain",
+            "neural_brain",
+            "emotional_brain",
+            "metacognitive_brain",
+            "advanced_memory",
+            "advanced_reasoning",
+            "consciousness_enabled",
+            "integration_mode",
+            "_project_observers",
         ]
         self.modification_attempts = []
 
     def protect_brain_state(self, brain_instance):
         """Protege el estado del cerebro de modificaciones externas"""
         # Implementación futura: interceptores de modificación
-        pass
 
     def log_modification_attempt(self, attribute: str, caller: str):
         """Registra intentos de modificación externa"""
-        self.modification_attempts.append({
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'attribute': attribute,
-            'caller': caller,
-            'action': 'blocked'
-        })
+        self.modification_attempts.append(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "attribute": attribute,
+                "caller": caller,
+                "action": "blocked",
+            }
+        )
 
     # ============================================================================
     # CAPACIDADES DE MODIFICACIÓN CONTROLADA DEL CEREBRO
     # El cerebro puede modificar el proyecto cuando lo considera necesario
     # ============================================================================
 
-    def apply_intelligent_modifications(self, observations: Dict[str, Any]) -> Dict[str, Any]:
+    def apply_intelligent_modifications(
+        self, observations: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Aplica modificaciones inteligentes basadas en observaciones"""
-        if not hasattr(self, '_protection_layer'):
-            return {'error': 'Protection layer not initialized'}
+        if not hasattr(self, "_protection_layer"):
+            return {"error": "Protection layer not initialized"}
 
-        assessment = observations.get('brain_assessment', {})
-        recommendations = assessment.get('recommendations', [])
+        assessment = observations.get("brain_assessment", {})
+        recommendations = assessment.get("recommendations", [])
 
         applied_modifications = []
         errors = []
 
         for recommendation in recommendations:
             try:
-                if recommendation['type'] == 'settings_modification':
+                if recommendation["type"] == "settings_modification":
                     result = self._modify_settings_intelligently(recommendation)
                     applied_modifications.append(result)
-                elif recommendation['type'] == 'database_initialization':
+                elif recommendation["type"] == "database_initialization":
                     result = self._initialize_database_intelligently(recommendation)
                     applied_modifications.append(result)
                 # Más tipos de modificaciones pueden añadirse aquí
 
             except Exception as e:
-                errors.append({
-                    'recommendation': recommendation,
-                    'error': str(e)
-                })
+                errors.append({"recommendation": recommendation, "error": str(e)})
 
         return {
-            'modifications_applied': applied_modifications,
-            'errors': errors,
-            'brain_state': 'active_modification_mode',
-            'timestamp': datetime.now(timezone.utc).isoformat()
+            "modifications_applied": applied_modifications,
+            "errors": errors,
+            "brain_state": "active_modification_mode",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-    def _modify_settings_intelligently(self, recommendation: Dict[str, Any]) -> Dict[str, Any]:
+    def _modify_settings_intelligently(
+        self, recommendation: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Modifica configuraciones de manera inteligente"""
-        logger.info(f"🧠 Brain considers settings modification: {recommendation['description']}")
+        logger.info(
+            f"🧠 Brain considers settings modification: {recommendation['description']}"
+        )
 
         # El cerebro evalúa si la modificación es necesaria
-        if recommendation['suggested_action'] == 'enable_full_intelligence':
+        if recommendation["suggested_action"] == "enable_full_intelligence":
             # Verificar que la inteligencia esté correctamente configurada
             modifications = {
-                'action': 'settings_verification',
-                'description': 'Verified intelligence configuration is optimal',
-                'result': 'no_changes_needed'
+                "action": "settings_verification",
+                "description": "Verified intelligence configuration is optimal",
+                "result": "no_changes_needed",
             }
 
-            logger.info("🧠 Brain verified: intelligence configuration is already optimal")
+            logger.info(
+                "🧠 Brain verified: intelligence configuration is already optimal"
+            )
             return modifications
 
         return {
-            'action': 'settings_modification',
-            'description': 'Settings modification evaluated',
-            'result': 'deferred_for_safety'
+            "action": "settings_modification",
+            "description": "Settings modification evaluated",
+            "result": "deferred_for_safety",
         }
 
-    def _initialize_database_intelligently(self, recommendation: Dict[str, Any]) -> Dict[str, Any]:
+    def _initialize_database_intelligently(
+        self, recommendation: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Inicializa base de datos de manera inteligente"""
-        logger.info(f"🧠 Brain considers database initialization: {recommendation['description']}")
+        logger.info(
+            f"🧠 Brain considers database initialization: {recommendation['description']}"
+        )
 
         return {
-            'action': 'database_assessment',
-            'description': 'Database state assessed and deemed acceptable for current operations',
-            'result': 'monitoring_continued'
+            "action": "database_assessment",
+            "description": "Database state assessed and deemed acceptable for current operations",
+            "result": "monitoring_continued",
         }
 
     def get_brain_modification_history(self) -> List[Dict[str, Any]]:
         """Obtiene historial de modificaciones realizadas por el cerebro"""
-        if not hasattr(self, '_modification_history'):
+        if not hasattr(self, "_modification_history"):
             self._modification_history = []
         return self._modification_history
 
     def _log_brain_action(self, action: Dict[str, Any]):
         """Registra acciones del cerebro"""
-        if not hasattr(self, '_modification_history'):
+        if not hasattr(self, "_modification_history"):
             self._modification_history = []
 
-        self._modification_history.append({
-            **action,
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'brain_state': self.get_brain_state()
-        })
+        self._modification_history.append(
+            {
+                **action,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "brain_state": self.get_brain_state(),
+            }
+        )
 
         # Mantener solo las últimas 100 acciones
         if len(self._modification_history) > 100:
@@ -2507,12 +2913,12 @@ class OmniscientProtectionLayer:
 
     def _start_continuous_monitoring(self):
         """Inicia monitoreo continuo del proyecto"""
-        if not hasattr(self, '_monitoring_active'):
+        if not hasattr(self, "_monitoring_active"):
             self._monitoring_active = True
             self._monitoring_thread = threading.Thread(
                 target=self._continuous_monitoring_loop,
                 daemon=True,
-                name="BrainOmniscientMonitor"
+                name="BrainOmniscientMonitor",
             )
             self._monitoring_thread.start()
             logger.info("🧠 Brain continuous monitoring thread started")
@@ -2521,32 +2927,42 @@ class OmniscientProtectionLayer:
         """Loop de monitoreo continuo que ejecuta en thread separado"""
         monitoring_interval = 30  # segundos
 
-        while getattr(self, '_monitoring_active', False):
+        while getattr(self, "_monitoring_active", False):
             try:
                 # Observación omnisciente del proyecto
                 observations = self.observe_project_state()
 
                 # El cerebro evalúa si hay algo que requiere atención
-                assessment = observations.get('brain_assessment', {})
-                if assessment.get('modifications_needed', False):
+                assessment = observations.get("brain_assessment", {})
+                if assessment.get("modifications_needed", False):
                     # Log de actividad de monitoreo
-                    logger.info(f"🧠 Brain monitoring detected {len(assessment.get('recommendations', []))} issues requiring attention")
+                    logger.info(
+                        f"🧠 Brain monitoring detected {len(assessment.get('recommendations', []))} issues requiring attention"
+                    )
 
                     # El cerebro puede decidir actuar de manera autónoma
-                    decision = self.make_autonomous_decision({
-                        'context': 'continuous_monitoring',
-                        'observations': observations,
-                        'monitoring_cycle': True
-                    })
-
-                    self._log_brain_action({
-                        'action_type': 'continuous_monitoring_decision',
-                        'decision': decision,
-                        'observations_summary': {
-                            'health': observations.get('raw_observations', {}).get('project_health', {}),
-                            'recommendations_count': len(assessment.get('recommendations', []))
+                    decision = self.make_autonomous_decision(
+                        {
+                            "context": "continuous_monitoring",
+                            "observations": observations,
+                            "monitoring_cycle": True,
                         }
-                    })
+                    )
+
+                    self._log_brain_action(
+                        {
+                            "action_type": "continuous_monitoring_decision",
+                            "decision": decision,
+                            "observations_summary": {
+                                "health": observations.get("raw_observations", {}).get(
+                                    "project_health", {}
+                                ),
+                                "recommendations_count": len(
+                                    assessment.get("recommendations", [])
+                                ),
+                            },
+                        }
+                    )
 
                 time.sleep(monitoring_interval)
 
@@ -2562,7 +2978,7 @@ class OmniscientProtectionLayer:
     # Legacy compatibility methods
     def record_experience(self, event: Any) -> Dict[str, Any]:
         """Método de compatibilidad con Brain A"""
-        if hasattr(event, '__dict__'):
+        if hasattr(event, "__dict__"):
             event_data = event.__dict__
         else:
             event_data = event
@@ -2571,17 +2987,17 @@ class OmniscientProtectionLayer:
 
     def record_session(self, session: Any) -> Dict[str, Any]:
         """Método de compatibilidad con Brain B"""
-        if hasattr(session, '__dict__'):
+        if hasattr(session, "__dict__"):
             session_data = session.__dict__
         else:
             session_data = session
 
         event_data = {
-            'event_type': 'scraping_session',
-            'domain': session_data.get('domain', 'unknown'),
-            'success': session_data.get('success_rate', 0) > 0.5,
-            'data_extracted': session_data.get('data_extracted', {}),
-            'processing_time': session_data.get('avg_response_time', 0)
+            "event_type": "scraping_session",
+            "domain": session_data.get("domain", "unknown"),
+            "success": session_data.get("success_rate", 0) > 0.5,
+            "data_extracted": session_data.get("data_extracted", {}),
+            "processing_time": session_data.get("avg_response_time", 0),
         }
 
         return self.process_scraping_event(event_data)
@@ -2597,8 +3013,10 @@ class OmniscientProtectionLayer:
             logger.warning(f"Cross-session pattern analysis failed: {e}")
             return {}
 
+
 # Singleton para uso global
 _hybrid_brain_instance = None
+
 
 def get_hybrid_brain() -> HybridBrain:
     """Obtiene la instancia singleton del HybridBrain"""

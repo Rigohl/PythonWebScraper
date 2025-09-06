@@ -14,14 +14,12 @@ the scraper resilient in offline environments and simplifies testing.
 from __future__ import annotations
 
 import logging
-import re
-from typing import Any, Optional, Type, TypeVar
+from typing import Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
-from .adapters.llm_adapter import LLMAdapter, OpenAIAdapter, OfflineLLMAdapter
+from .adapters.llm_adapter import LLMAdapter, OfflineLLMAdapter, OpenAIAdapter
 from .settings import settings
-
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +43,7 @@ class LLMExtractor:
         elif settings.LLM_API_KEY and not settings.OFFLINE_MODE:
             try:
                 self.adapter = OpenAIAdapter(
-                    api_key=settings.LLM_API_KEY,
-                    model=settings.LLM_MODEL
+                    api_key=settings.LLM_API_KEY, model=settings.LLM_MODEL
                 )
                 logger.info("LLMExtractor: adaptador OpenAI inicializado.")
             except Exception as e:  # pragma: no cover - unexpected init failures

@@ -10,13 +10,12 @@ Basado en investigación exhaustiva de herramientas cutting-edge:
 
 import random
 import time
-import json
-import base64
-from typing import Dict, List, Optional, Any
-from selenium.webdriver.common.by import By
+from typing import Any, Dict, List
+
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
-import numpy as np
+from selenium.webdriver.common.by import By
+
 
 class AdvancedAntiDetection:
     """
@@ -25,11 +24,11 @@ class AdvancedAntiDetection:
 
     def __init__(self):
         self.stealth_techniques = {
-            'scrapling': self._init_scrapling_techniques,
-            'seleniumbase': self._init_seleniumbase_techniques,
-            'undetected': self._init_undetected_techniques,
-            'pydoll': self._init_pydoll_techniques,
-            'browser_use': self._init_browser_use_techniques
+            "scrapling": self._init_scrapling_techniques,
+            "seleniumbase": self._init_seleniumbase_techniques,
+            "undetected": self._init_undetected_techniques,
+            "pydoll": self._init_pydoll_techniques,
+            "browser_use": self._init_browser_use_techniques,
         }
 
         self.fingerprint_data = self._generate_fingerprint_data()
@@ -38,88 +37,96 @@ class AdvancedAntiDetection:
     def _init_scrapling_techniques(self) -> Dict[str, Any]:
         """Técnicas de Scrapling StealthyFetcher"""
         return {
-            'camoufox_browser': True,
-            'cloudflare_solver': True,
-            'canvas_noise_injection': True,
-            'webgl_control': True,
-            'browser_fingerprint_spoofing': True,
-            'geoip_matching': True,
-            'os_randomization': True,
-            'user_agent_rotation': True
+            "camoufox_browser": True,
+            "cloudflare_solver": True,
+            "canvas_noise_injection": True,
+            "webgl_control": True,
+            "browser_fingerprint_spoofing": True,
+            "geoip_matching": True,
+            "os_randomization": True,
+            "user_agent_rotation": True,
         }
 
     def _init_seleniumbase_uc_techniques(self) -> Dict[str, Any]:
         """Técnicas de SeleniumBase UC (Undetected) mode"""
         return {
-            'pyautogui_captcha_bypass': True,
-            'stealth_arguments': [
-                '--disable-notifications',
-                '--excludeSwitches=enable-automation',
-                '--useAutomationExtension=false',
-                '--disable-blink-features=AutomationControlled'
+            "pyautogui_captcha_bypass": True,
+            "stealth_arguments": [
+                "--disable-notifications",
+                "--excludeSwitches=enable-automation",
+                "--useAutomationExtension=false",
+                "--disable-blink-features=AutomationControlled",
             ],
-            'cdp_mode': True,
-            'undetected_mode': True,
-            'anti_detection_args': [
-                '--disable-web-security',
-                '--disable-features=VizDisplayCompositor',
-                '--disable-ipc-flooding-protection'
-            ]
+            "cdp_mode": True,
+            "undetected_mode": True,
+            "anti_detection_args": [
+                "--disable-web-security",
+                "--disable-features=VizDisplayCompositor",
+                "--disable-ipc-flooding-protection",
+            ],
         }
 
     def _init_undetected_techniques(self) -> Dict[str, Any]:
         """Técnicas de undetected-chromedriver"""
         return {
-            'navigator_webdriver_patch': True,
-            'user_agent_manipulation': True,
-            'headless_configuration': True,
-            'chrome_runtime_simulation': True,
-            'webdriver_property_removal': True,
-            'automation_flags_hiding': True
+            "navigator_webdriver_patch": True,
+            "user_agent_manipulation": True,
+            "headless_configuration": True,
+            "chrome_runtime_simulation": True,
+            "webdriver_property_removal": True,
+            "automation_flags_hiding": True,
         }
 
     def _init_pydoll_techniques(self) -> Dict[str, Any]:
         """Técnicas de Pydoll (CDP directo)"""
         return {
-            'zero_webdrivers': True,
-            'direct_cdp': True,
-            'cloudflare_bypass_native': True,
-            'humanized_interactions': True,
-            'network_interception': True,
-            'browser_context_requests': True
+            "zero_webdrivers": True,
+            "direct_cdp": True,
+            "cloudflare_bypass_native": True,
+            "humanized_interactions": True,
+            "network_interception": True,
+            "browser_context_requests": True,
         }
 
     def _init_browser_use_techniques(self) -> Dict[str, Any]:
         """Técnicas de Browser-Use (AI agents)"""
         return {
-            'ai_agents': True,
-            'computer_vision_automation': True,
-            'llm_cv_integration': True,
-            'intelligent_element_detection': True,
-            'context_aware_actions': True
+            "ai_agents": True,
+            "computer_vision_automation": True,
+            "llm_cv_integration": True,
+            "intelligent_element_detection": True,
+            "context_aware_actions": True,
         }
 
     def _generate_fingerprint_data(self) -> Dict[str, Any]:
         """Genera datos de fingerprint realistas"""
         screen_resolutions = [
-            (1920, 1080), (1366, 768), (1536, 864), (1440, 900),
-            (1280, 720), (1600, 900), (2560, 1440), (1920, 1200)
+            (1920, 1080),
+            (1366, 768),
+            (1536, 864),
+            (1440, 900),
+            (1280, 720),
+            (1600, 900),
+            (2560, 1440),
+            (1920, 1200),
         ]
 
         user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         ]
 
         return {
-            'screen_resolution': random.choice(screen_resolutions),
-            'user_agent': random.choice(user_agents),
-            'timezone': random.choice(['America/New_York', 'Europe/London', 'Asia/Tokyo']),
-            'language': random.choice(['en-US', 'en-GB', 'es-ES']),
-            'platform': random.choice(['Win32', 'MacIntel', 'Linux x86_64']),
-            'webgl_vendor': random.choice(['Google Inc.', 'NVIDIA Corporation', 'AMD']),
-            'hardware_concurrency': random.choice([4, 8, 12, 16])
+            "screen_resolution": random.choice(screen_resolutions),
+            "user_agent": random.choice(user_agents),
+            "timezone": random.choice(
+                ["America/New_York", "Europe/London", "Asia/Tokyo"]
+            ),
+            "language": random.choice(["en-US", "en-GB", "es-ES"]),
+            "platform": random.choice(["Win32", "MacIntel", "Linux x86_64"]),
+            "webgl_vendor": random.choice(["Google Inc.", "NVIDIA Corporation", "AMD"]),
+            "hardware_concurrency": random.choice([4, 8, 12, 16]),
         }
 
     def configure_stealth_options(self, options: Options) -> Options:
@@ -127,33 +134,33 @@ class AdvancedAntiDetection:
 
         # Scrapling-inspired arguments
         stealth_args = [
-            '--disable-blink-features=AutomationControlled',
-            '--excludeSwitches=enable-automation',
-            '--useAutomationExtension=false',
-            '--disable-web-security',
-            '--disable-features=VizDisplayCompositor',
-            '--disable-ipc-flooding-protection',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding',
-            '--disable-field-trial-config',
-            '--disable-back-forward-cache',
-            '--disable-background-networking',
-            '--disable-background-timer-throttling',
-            '--disable-component-extensions-with-background-pages',
-            '--disable-default-apps',
-            '--disable-extensions',
-            '--disable-hang-monitor',
-            '--disable-prompt-on-repost',
-            '--disable-sync',
-            '--metrics-recording-only',
-            '--no-first-run',
-            '--safebrowsing-disable-auto-update',
-            '--password-store=basic',
-            '--use-mock-keychain',
-            '--disable-dev-shm-usage',
-            '--no-sandbox',
-            '--disable-gpu',
-            '--remote-debugging-port=0'
+            "--disable-blink-features=AutomationControlled",
+            "--excludeSwitches=enable-automation",
+            "--useAutomationExtension=false",
+            "--disable-web-security",
+            "--disable-features=VizDisplayCompositor",
+            "--disable-ipc-flooding-protection",
+            "--disable-backgrounding-occluded-windows",
+            "--disable-renderer-backgrounding",
+            "--disable-field-trial-config",
+            "--disable-back-forward-cache",
+            "--disable-background-networking",
+            "--disable-background-timer-throttling",
+            "--disable-component-extensions-with-background-pages",
+            "--disable-default-apps",
+            "--disable-extensions",
+            "--disable-hang-monitor",
+            "--disable-prompt-on-repost",
+            "--disable-sync",
+            "--metrics-recording-only",
+            "--no-first-run",
+            "--safebrowsing-disable-auto-update",
+            "--password-store=basic",
+            "--use-mock-keychain",
+            "--disable-dev-shm-usage",
+            "--no-sandbox",
+            "--disable-gpu",
+            "--remote-debugging-port=0",
         ]
 
         for arg in stealth_args:
@@ -163,7 +170,7 @@ class AdvancedAntiDetection:
         options.add_argument(f"--user-agent={self.fingerprint_data['user_agent']}")
 
         # Screen resolution
-        width, height = self.fingerprint_data['screen_resolution']
+        width, height = self.fingerprint_data["screen_resolution"]
         options.add_argument(f"--window-size={width},{height}")
 
         # Preferences for maximum stealth
@@ -173,18 +180,14 @@ class AdvancedAntiDetection:
                 "geolocation": 2,
                 "media_stream": 2,
             },
-            "profile.managed_default_content_settings": {
-                "images": 2
-            },
-            "profile.default_content_settings": {
-                "popups": 0
-            },
+            "profile.managed_default_content_settings": {"images": 2},
+            "profile.default_content_settings": {"popups": 0},
             "credentials_enable_service": False,
-            "profile.password_manager_enabled": False
+            "profile.password_manager_enabled": False,
         }
         options.add_experimental_option("prefs", prefs)
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option('useAutomationExtension', False)
+        options.add_experimental_option("useAutomationExtension", False)
 
         return options
 
@@ -249,12 +252,14 @@ class AdvancedAntiDetection:
         scripts = [script_webdriver, script_navigator, script_canvas, script_webgl]
         for script in scripts:
             try:
-                driver.execute_cdp_cmd('Runtime.evaluate', {'expression': script})
+                driver.execute_cdp_cmd("Runtime.evaluate", {"expression": script})
             except:
                 # Fallback to regular JavaScript execution
                 driver.execute_script(script)
 
-    def create_human_delay(self, min_delay: float = 0.5, max_delay: float = 2.0) -> None:
+    def create_human_delay(
+        self, min_delay: float = 0.5, max_delay: float = 2.0
+    ) -> None:
         """Crea delays humanizados (técnica Pydoll)"""
         delay = random.uniform(min_delay, max_delay)
         time.sleep(delay)
@@ -280,7 +285,7 @@ class AdvancedAntiDetection:
             element.send_keys(char)
             # Delay variable entre caracteres
             delay = random.uniform(0.05, 0.15)
-            if char == ' ':
+            if char == " ":
                 delay *= 2  # Pausas más largas en espacios
             time.sleep(delay)
 
@@ -292,7 +297,7 @@ class AdvancedAntiDetection:
             "#captcha",
             ".captcha",
             "iframe[src*='hcaptcha']",
-            ".h-captcha"
+            ".h-captcha",
         ]
 
         for selector in captcha_selectors:
@@ -307,11 +312,11 @@ class AdvancedAntiDetection:
 
     def _handle_captcha(self, driver, element, selector_type: str) -> bool:
         """Maneja diferentes tipos de CAPTCHA"""
-        if 'recaptcha' in selector_type:
+        if "recaptcha" in selector_type:
             return self._handle_recaptcha(driver, element)
-        elif 'turnstile' in selector_type or 'cf-turnstile' in selector_type:
+        elif "turnstile" in selector_type or "cf-turnstile" in selector_type:
             return self._handle_cloudflare_turnstile(driver, element)
-        elif 'hcaptcha' in selector_type:
+        elif "hcaptcha" in selector_type:
             return self._handle_hcaptcha(driver, element)
 
         return False
@@ -323,7 +328,9 @@ class AdvancedAntiDetection:
             driver.switch_to.frame(element)
 
             # Click on checkbox
-            checkbox = driver.find_element(By.CSS_SELECTOR, ".recaptcha-checkbox-border")
+            checkbox = driver.find_element(
+                By.CSS_SELECTOR, ".recaptcha-checkbox-border"
+            )
             self.humanized_click(driver, checkbox)
 
             # Wait for potential challenge
@@ -380,7 +387,7 @@ class AdvancedAntiDetection:
                 ".cf-turnstile",
                 "#challenge-form",
                 ".challenge-running",
-                "body[class*='cf-']"
+                "body[class*='cf-']",
             ]
 
             for selector in cf_selectors:
@@ -415,10 +422,22 @@ class HumanBehaviorSimulator:
     def _generate_scroll_patterns(self) -> List[Dict]:
         """Genera patrones de scroll realistas"""
         return [
-            {'direction': 'down', 'distance': random.randint(100, 300), 'speed': 'slow'},
-            {'direction': 'down', 'distance': random.randint(500, 800), 'speed': 'medium'},
-            {'direction': 'up', 'distance': random.randint(50, 150), 'speed': 'fast'},
-            {'direction': 'down', 'distance': random.randint(200, 400), 'speed': 'slow'}
+            {
+                "direction": "down",
+                "distance": random.randint(100, 300),
+                "speed": "slow",
+            },
+            {
+                "direction": "down",
+                "distance": random.randint(500, 800),
+                "speed": "medium",
+            },
+            {"direction": "up", "distance": random.randint(50, 150), "speed": "fast"},
+            {
+                "direction": "down",
+                "distance": random.randint(200, 400),
+                "speed": "slow",
+            },
         ]
 
     def simulate_reading(self, content_length: int) -> float:
@@ -447,17 +466,17 @@ class HumanBehaviorSimulator:
     def simulate_scroll_behavior(self, driver) -> None:
         """Simula comportamiento de scroll realista"""
         for pattern in random.sample(self.scroll_patterns, random.randint(2, 4)):
-            if pattern['direction'] == 'down':
-                scroll_amount = pattern['distance']
+            if pattern["direction"] == "down":
+                scroll_amount = pattern["distance"]
             else:
-                scroll_amount = -pattern['distance']
+                scroll_amount = -pattern["distance"]
 
             driver.execute_script(f"window.scrollBy(0, {scroll_amount});")
 
             # Delay based on speed
-            if pattern['speed'] == 'slow':
+            if pattern["speed"] == "slow":
                 time.sleep(random.uniform(1, 3))
-            elif pattern['speed'] == 'medium':
+            elif pattern["speed"] == "medium":
                 time.sleep(random.uniform(0.5, 1.5))
             else:  # fast
                 time.sleep(random.uniform(0.1, 0.5))

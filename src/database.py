@@ -15,7 +15,6 @@ existing callers will continue to work.
 from __future__ import annotations
 
 import json
-import os
 import logging
 import os
 from datetime import datetime, timezone
@@ -117,15 +116,19 @@ class DatabaseManager:
 
                 # Pages table: index on content_hash, normalized_content_hash and url
                 with self.db.engine.begin() as conn:  # type: ignore[attr-defined]
-                    conn.execute(text(
-                        "CREATE INDEX IF NOT EXISTS idx_pages_content_hash ON pages(content_hash);"
-                    ))
-                    conn.execute(text(
-                        "CREATE INDEX IF NOT EXISTS idx_pages_normalized_content_hash ON pages(normalized_content_hash);"
-                    ))
-                    conn.execute(text(
-                        "CREATE INDEX IF NOT EXISTS idx_pages_url ON pages(url);"
-                    ))
+                    conn.execute(
+                        text(
+                            "CREATE INDEX IF NOT EXISTS idx_pages_content_hash ON pages(content_hash);"
+                        )
+                    )
+                    conn.execute(
+                        text(
+                            "CREATE INDEX IF NOT EXISTS idx_pages_normalized_content_hash ON pages(normalized_content_hash);"
+                        )
+                    )
+                    conn.execute(
+                        text("CREATE INDEX IF NOT EXISTS idx_pages_url ON pages(url);")
+                    )
         except Exception as e:
             logger.debug(f"_ensure_indexes failed: {e}")
 
@@ -193,10 +196,13 @@ class DatabaseManager:
         logger.info(f"Saving result for URL: {result.url} (status={result.status})")
         try:
             import os as _os
+
             if "PYTEST_CURRENT_TEST" in _os.environ:
                 # Lightweight debug line to help diagnose why no SUCCESS rows exported in CLI test
                 clen = len(result.content_text) if result.content_text else 0
-                logger.warning(f"[DEBUG] save_result url={result.url} status={result.status} content_len={clen}")
+                logger.warning(
+                    f"[DEBUG] save_result url={result.url} status={result.status} content_len={clen}"
+                )
         except Exception:
             pass
 
@@ -237,13 +243,17 @@ class DatabaseManager:
             try:
                 existing_row = self.table.find_one(url=result.url)
                 if existing_row:
-                    data['id'] = existing_row['id']
-                    self.table.update(data, ['id'])
+                    data["id"] = existing_row["id"]
+                    self.table.update(data, ["id"])
                 else:
                     self.table.insert(data)
-                logger.info(f"Resultado para {result.url} guardado usando insert/update fallback.")
+                logger.info(
+                    f"Resultado para {result.url} guardado usando insert/update fallback."
+                )
             except Exception as e2:
-                logger.error(f"Error crítico guardando resultado para {result.url}: {e2}")
+                logger.error(
+                    f"Error crítico guardando resultado para {result.url}: {e2}"
+                )
                 raise
 
         # Race condition check: if multiple rows with same hash appeared, keep first
@@ -262,8 +272,8 @@ class DatabaseManager:
         normalized_hash = None
         try:
             if result.content_text:
-                import re
                 import hashlib
+                import re
 
                 normalized_text = result.content_text.lower()
                 words = set(re.findall(r"\w+", normalized_text))
@@ -272,15 +282,20 @@ class DatabaseManager:
                     normalized_hash = hashlib.sha256(
                         " ".join(sorted(words)).encode("utf-8")
                     ).hexdigest()
-                    logger.debug(f"Computed normalized hash for {result.url}: {normalized_hash}")
+                    logger.debug(
+                        f"Computed normalized hash for {result.url}: {normalized_hash}"
+                    )
         except Exception as e:
             logger.debug(f"Error computing normalized hash: {e}")
 
         return normalized_hash
 
-    def _check_fuzzy_duplicates(self, result: ScrapeResult, normalized_hash: str) -> None:
+    def _check_fuzzy_duplicates(
+        self, result: ScrapeResult, normalized_hash: str
+    ) -> None:
         """Check for fuzzy duplicates using Jaccard similarity."""
         import re
+
         try:
             text_content = result.content_text or ""
             if not text_content:
@@ -293,9 +308,12 @@ class DatabaseManager:
             scan_limit = getattr(settings, "DUP_SCAN_LIMIT", 500)
             try:
                 from sqlalchemy import text as _sql_text
-                rows_iter = self.db.query(_sql_text(
-                    f"SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT {scan_limit}"
-                ))
+
+                rows_iter = self.db.query(
+                    _sql_text(
+                        f"SELECT url, content_text FROM pages ORDER BY scraped_at DESC LIMIT {scan_limit}"
+                    )
+                )
             except Exception:
                 rows_iter = list(self.table.limit(scan_limit))
 
@@ -349,7 +367,9 @@ class DatabaseManager:
         # Fallback to lexicographic order
         return a if a < b else b
 
-    def _prepare_result_data(self, result: ScrapeResult, normalized_hash: Optional[str] = None) -> dict:
+    def _prepare_result_data(
+        self, result: ScrapeResult, normalized_hash: Optional[str] = None
+    ) -> dict:
         """Prepare result data for database insertion with proper JSON serialization."""
         data = result.model_dump(mode="json")
 
@@ -363,14 +383,18 @@ class DatabaseManager:
 
         try:
             if data.get("extracted_data") is not None:
-                data["extracted_data"] = json.dumps(data["extracted_data"], ensure_ascii=False)
+                data["extracted_data"] = json.dumps(
+                    data["extracted_data"], ensure_ascii=False
+                )
         except (TypeError, ValueError) as e:
             logger.warning(f"Error serializing extracted_data: {e}")
             data["extracted_data"] = None
 
         try:
             if data.get("healing_events") is not None:
-                data["healing_events"] = json.dumps(data["healing_events"], ensure_ascii=False)
+                data["healing_events"] = json.dumps(
+                    data["healing_events"], ensure_ascii=False
+                )
         except (TypeError, ValueError) as e:
             logger.warning(f"Error serializing healing_events: {e}")
             data["healing_events"] = "[]"
@@ -412,7 +436,9 @@ class DatabaseManager:
                 try:
                     self.table.update(data, ["url"])
                 except Exception as e:
-                    logger.warning(f"Could not update duplicate status for {result.url}: {e}")
+                    logger.warning(
+                        f"Could not update duplicate status for {result.url}: {e}"
+                    )
 
             # Confirm save with logging
             try:
@@ -460,8 +486,12 @@ class DatabaseManager:
         try:
             if "PYTEST_CURRENT_TEST" in os.environ:
                 success_count = len(list(self.table.find(status="SUCCESS")))
-                logger.warning(f"[DEBUG] SUCCESS rows before export attempt: {success_count}")
-                results_iterator = self.table.find(status="SUCCESS")  # recreate iterator after consumption
+                logger.warning(
+                    f"[DEBUG] SUCCESS rows before export attempt: {success_count}"
+                )
+                results_iterator = self.table.find(
+                    status="SUCCESS"
+                )  # recreate iterator after consumption
         except Exception:
             pass
         first = next(results_iterator, None)
@@ -518,16 +548,20 @@ class DatabaseManager:
 
         results = self.list_results()
         if not results:
-            logger.warning("No hay datos para exportar a Markdown. No se creará ningún archivo.")
+            logger.warning(
+                "No hay datos para exportar a Markdown. No se creará ningún archivo."
+            )
             return
 
         from collections import Counter
+
         status_counter = Counter(r.get("status", "UNKNOWN") for r in results)
         domain_counter = Counter()
         for r in results:
             url = r.get("url") or ""
             try:
                 from urllib.parse import urlparse as _urlparse
+
                 net = _urlparse(url).netloc
                 if net:
                     domain_counter[net] += 1
@@ -538,12 +572,15 @@ class DatabaseManager:
         def _parse_dt(row):
             val = row.get("scraped_at")
             return val or ""
+
         recent = sorted(results, key=_parse_dt, reverse=True)[:10]
 
         # Build markdown
         lines: list[str] = []
         lines.append("# Informe de Scraping (Markdown Export)\n")
-        lines.append(f"Generado: {__import__('datetime').datetime.utcnow().isoformat()}Z\n")
+        lines.append(
+            f"Generado: {__import__('datetime').datetime.utcnow().isoformat()}Z\n"
+        )
         lines.append("## Resumen de Estados")
         for status, count in sorted(status_counter.items()):
             lines.append(f"- **{status}**: {count}")
@@ -554,7 +591,9 @@ class DatabaseManager:
 
         lines.append("\n## Páginas Recientes (10)")
         for r in recent:
-            lines.append(f"- {r.get('scraped_at','?')} | {r.get('status')} | {r.get('url')}")
+            lines.append(
+                f"- {r.get('scraped_at','?')} | {r.get('status')} | {r.get('url')}"
+            )
 
         # SUCCESS table
         success_rows = [r for r in results if r.get("status") == "SUCCESS"]
@@ -570,7 +609,11 @@ class DatabaseManager:
                         extracted = json.loads(extracted)
                     except Exception:
                         extracted = {"raw": extracted[:40]}
-                extracted_keys = ",".join(list(extracted.keys())[:6]) if isinstance(extracted, dict) else "-"
+                extracted_keys = (
+                    ",".join(list(extracted.keys())[:6])
+                    if isinstance(extracted, dict)
+                    else "-"
+                )
                 content = (r.get("content_text") or "").replace("\n", " ")
                 if len(content) > 120:
                     content = content[:117] + "..."
@@ -618,14 +661,16 @@ class DatabaseManager:
         # This avoids loading the entire table into memory.
         # Updated to use SQLAlchemy 2.0 compatible syntax.
         try:
-            from sqlalchemy import or_, text
+            from sqlalchemy import text
 
             # Use raw SQL to avoid SQLAlchemy compatibility issues
-            sql_query = text("""
+            sql_query = text(
+                """
                 SELECT * FROM pages
                 WHERE LOWER(title) LIKE LOWER(:pattern)
                    OR LOWER(content_text) LIKE LOWER(:pattern)
-            """)
+            """
+            )
 
             pattern = f"%{query}%"
             rows = self.db.query(sql_query, pattern=pattern)
@@ -643,7 +688,10 @@ class DatabaseManager:
                 else:
                     # Si el previo no es DUPLICATE y este sí, ignoramos este; si previo es DUPLICATE y este no, reemplazamos
                     existing = unique_by_hash[ch]
-                    if existing.get("status") == "DUPLICATE" and r.get("status") != "DUPLICATE":
+                    if (
+                        existing.get("status") == "DUPLICATE"
+                        and r.get("status") != "DUPLICATE"
+                    ):
                         unique_by_hash[ch] = r
             return list(unique_by_hash.values())
         except Exception as e:
@@ -652,9 +700,12 @@ class DatabaseManager:
             all_results = self.list_results()
             query_lower = query.lower()
             return [
-                result for result in all_results
-                if (result.get("title", "").lower().find(query_lower) >= 0 or
-                    result.get("content_text", "").lower().find(query_lower) >= 0)
+                result
+                for result in all_results
+                if (
+                    result.get("title", "").lower().find(query_lower) >= 0
+                    or result.get("content_text", "").lower().find(query_lower) >= 0
+                )
             ]
 
     # ------------------------------------------------------------------

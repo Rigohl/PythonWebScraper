@@ -30,11 +30,11 @@ Operadores soportados: eq, ne, gt, gte, lt, lte, in, contains, pattern
 
 from __future__ import annotations
 
-import re
-from typing import List, Dict, Any, Optional, Union
-from dataclasses import dataclass, asdict
 import json
+import re
+from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass
@@ -55,7 +55,7 @@ class RuleCondition:
 
     def _extract_metric(self, data: Dict[str, Any], metric: str) -> Any:
         """Extrae valor anidado usando dot notation."""
-        keys = metric.split('.')
+        keys = metric.split(".")
         current = data
         for key in keys:
             if isinstance(current, dict) and key in current:
@@ -67,23 +67,23 @@ class RuleCondition:
     def _apply_operator(self, actual: Any, operator: str, expected: Any) -> bool:
         """Aplica operador de comparación."""
         try:
-            if operator == 'eq':
+            if operator == "eq":
                 return actual == expected
-            elif operator == 'ne':
+            elif operator == "ne":
                 return actual != expected
-            elif operator == 'gt':
+            elif operator == "gt":
                 return float(actual) > float(expected)
-            elif operator == 'gte':
+            elif operator == "gte":
                 return float(actual) >= float(expected)
-            elif operator == 'lt':
+            elif operator == "lt":
                 return float(actual) < float(expected)
-            elif operator == 'lte':
+            elif operator == "lte":
                 return float(actual) <= float(expected)
-            elif operator == 'in':
+            elif operator == "in":
                 return actual in expected
-            elif operator == 'contains':
+            elif operator == "contains":
                 return str(expected) in str(actual)
-            elif operator == 'pattern':
+            elif operator == "pattern":
                 return bool(re.search(str(expected), str(actual)))
             else:
                 return False
@@ -102,11 +102,11 @@ class RuleAction:
     def execute(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Ejecuta acción usando datos de contexto."""
         result = {
-            'type': self.type,
-            'category': self.category,
-            'severity': self.severity,
-            'message': self.template.format(**data) if self.template else "",
-            'data': data
+            "type": self.type,
+            "category": self.category,
+            "severity": self.severity,
+            "message": self.template.format(**data) if self.template else "",
+            "data": data,
         }
         if self.params:
             result.update(self.params)
@@ -129,25 +129,25 @@ class Rule:
 
         if self.condition.evaluate(data):
             result = self.action.execute(data)
-            result['rule_id'] = self.id
-            result['priority'] = self.priority
+            result["rule_id"] = self.id
+            result["priority"] = self.priority
             return result
         return None
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Rule':
+    def from_dict(cls, data: Dict[str, Any]) -> "Rule":
         """Crea regla desde diccionario."""
-        condition_data = data['condition']
-        action_data = data['action']
-        metadata = data.get('metadata', {})
+        condition_data = data["condition"]
+        action_data = data["action"]
+        metadata = data.get("metadata", {})
 
         return cls(
-            id=data['id'],
+            id=data["id"],
             condition=RuleCondition(**condition_data),
             action=RuleAction(**action_data),
-            priority=metadata.get('priority', 50),
-            enabled=metadata.get('enabled', True),
-            description=metadata.get('description', '')
+            priority=metadata.get("priority", 50),
+            enabled=metadata.get("enabled", True),
+            description=metadata.get("description", ""),
         )
 
 
@@ -165,99 +165,95 @@ class RuleEngine:
         default_rules = [
             {
                 "id": "high_error_rate_backoff",
-                "condition": {
-                    "metric": "error_rate",
-                    "operator": "gte",
-                    "value": 0.5
-                },
+                "condition": {"metric": "error_rate", "operator": "gte", "value": 0.5},
                 "action": {
                     "type": "suggest",
                     "category": "stability",
                     "severity": "high",
-                    "template": "Aplicar backoff adaptativo en {domain}: error_rate {error_rate:.2f}"
+                    "template": "Aplicar backoff adaptativo en {domain}: error_rate {error_rate:.2f}",
                 },
                 "metadata": {
                     "priority": 90,
                     "enabled": True,
-                    "description": "Detectar dominios con alta tasa de error"
-                }
+                    "description": "Detectar dominios con alta tasa de error",
+                },
             },
             {
                 "id": "structural_drift_high",
                 "condition": {
                     "metric": "structure_drift_score",
                     "operator": "gte",
-                    "value": 0.45
+                    "value": 0.45,
                 },
                 "action": {
                     "type": "suggest",
                     "category": "extraction",
                     "severity": "high",
-                    "template": "Alto drift estructural en {domain}: score {structure_drift_score:.2f}"
+                    "template": "Alto drift estructural en {domain}: score {structure_drift_score:.2f}",
                 },
                 "metadata": {
                     "priority": 85,
                     "enabled": True,
-                    "description": "Detectar cambios estructurales significativos"
-                }
+                    "description": "Detectar cambios estructurales significativos",
+                },
             },
             {
                 "id": "slow_domain_optimization",
                 "condition": {
                     "metric": "response_time_ratio",
                     "operator": "gte",
-                    "value": 1.8
+                    "value": 1.8,
                 },
                 "action": {
                     "type": "suggest",
                     "category": "performance",
                     "severity": "medium",
-                    "template": "Optimizar dominio lento {domain}: {response_time:.2f}s vs global {global_avg:.2f}s"
+                    "template": "Optimizar dominio lento {domain}: {response_time:.2f}s vs global {global_avg:.2f}s",
                 },
                 "metadata": {
                     "priority": 70,
                     "enabled": True,
-                    "description": "Identificar dominios con latencia elevada"
-                }
+                    "description": "Identificar dominios con latencia elevada",
+                },
             },
             {
                 "id": "healing_dependency_high",
                 "condition": {
                     "metric": "healing_ratio",
                     "operator": "gte",
-                    "value": 0.25
+                    "value": 0.25,
                 },
                 "action": {
                     "type": "suggest",
                     "category": "resilience",
                     "severity": "high",
-                    "template": "Reducir dependencia de healing en {domain}: ratio {healing_ratio:.2f}"
+                    "template": "Reducir dependencia de healing en {domain}: ratio {healing_ratio:.2f}",
                 },
                 "metadata": {
                     "priority": 80,
                     "enabled": True,
-                    "description": "Detectar exceso de healing aplicado"
-                }
+                    "description": "Detectar exceso de healing aplicado",
+                },
             },
             {
                 "id": "schedule_optimization_opportunity",
                 "condition": {
                     "metric": "hour_success_gain",
                     "operator": "gte",
-                    "value": 0.25
+                    "value": 0.25,
                 },
                 "action": {
                     "type": "suggest",
                     "category": "scheduling",
                     "severity": "medium",
-                    "template": "Optimizar horario para {domain}: ganancia {hour_success_gain:.2f} en hora {best_hour}"
+                    "template": "Optimizar horario para {domain}: ganancia {hour_success_gain:.2f} en hora {best_hour}",
                 },
                 "metadata": {
                     "priority": 60,
                     "enabled": True,
-                    "description": "Detectar oportunidades de optimización horaria"
-                }
-            }
+                    "description": "Detectar oportunidades de optimización horaria",
+                },
+            },
         ]
 
         for rule_data in default_rules:
@@ -270,10 +266,10 @@ class RuleEngine:
             return
 
         try:
-            with open(self.rules_path, 'r', encoding='utf-8') as f:
+            with open(self.rules_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            for rule_data in data.get('rules', []):
+            for rule_data in data.get("rules", []):
                 rule = Rule.from_dict(rule_data)
                 self.rules[rule.id] = rule
 
@@ -293,7 +289,7 @@ class RuleEngine:
                 results.append(result)
 
         # Ordenar por prioridad
-        return sorted(results, key=lambda x: x['priority'], reverse=True)
+        return sorted(results, key=lambda x: x["priority"], reverse=True)
 
     def add_rule(self, rule: Rule):
         """Añade nueva regla."""
@@ -315,27 +311,31 @@ class RuleEngine:
 
             # Solo guardar reglas no-default (las que no están hardcoded)
             default_ids = {
-                "high_error_rate_backoff", "structural_drift_high",
-                "slow_domain_optimization", "healing_dependency_high",
-                "schedule_optimization_opportunity"
+                "high_error_rate_backoff",
+                "structural_drift_high",
+                "slow_domain_optimization",
+                "healing_dependency_high",
+                "schedule_optimization_opportunity",
             }
 
             custom_rules = []
             for rule in self.rules.values():
                 if rule.id not in default_ids:
-                    custom_rules.append({
-                        'id': rule.id,
-                        'condition': asdict(rule.condition),
-                        'action': asdict(rule.action),
-                        'metadata': {
-                            'priority': rule.priority,
-                            'enabled': rule.enabled,
-                            'description': rule.description
+                    custom_rules.append(
+                        {
+                            "id": rule.id,
+                            "condition": asdict(rule.condition),
+                            "action": asdict(rule.action),
+                            "metadata": {
+                                "priority": rule.priority,
+                                "enabled": rule.enabled,
+                                "description": rule.description,
+                            },
                         }
-                    })
+                    )
 
-            with open(self.rules_path, 'w', encoding='utf-8') as f:
-                json.dump({'rules': custom_rules}, f, indent=2, ensure_ascii=False)
+            with open(self.rules_path, "w", encoding="utf-8") as f:
+                json.dump({"rules": custom_rules}, f, indent=2, ensure_ascii=False)
 
         except Exception:
             pass
@@ -350,11 +350,11 @@ class RuleEngine:
             categories[cat] = categories.get(cat, 0) + 1
 
         return {
-            'total_rules': len(self.rules),
-            'enabled_rules': enabled_count,
-            'categories': categories,
-            'rule_ids': list(self.rules.keys())
+            "total_rules": len(self.rules),
+            "enabled_rules": enabled_count,
+            "categories": categories,
+            "rule_ids": list(self.rules.keys()),
         }
 
 
-__all__ = ['RuleEngine', 'Rule', 'RuleCondition', 'RuleAction']
+__all__ = ["RuleEngine", "Rule", "RuleCondition", "RuleAction"]

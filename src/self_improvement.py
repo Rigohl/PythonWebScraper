@@ -7,6 +7,6 @@ def simulate_improvements(simulation_output_dir: str) -> str:
         os.makedirs(simulation_output_dir)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     diff_file = os.path.join(simulation_output_dir, f"improvement_diff_{timestamp}.txt")
-    with open(diff_file, 'w', encoding='utf-8') as f:
+    with open(diff_file, "w", encoding="utf-8") as f:
         f.write("-- Diff simulated improvements --")
     return diff_file

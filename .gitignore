@@ -9,4 +9,4 @@ __pycache__/
 
 # Scripts locales
 *.bat
-*.sh
+*.sh"logs/scraper_run.log"  

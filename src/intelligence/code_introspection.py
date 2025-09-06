@@ -1,11 +1,13 @@
 import ast
 import os
 
+
 class CodeIntrospectionEngine:
     """
     Engine para introspección del propio código: analiza la estructura de archivos,
     módulos, clases, funciones e imports para dotar de autoconciencia al cerebro.
     """
+
     def __init__(self, code_dir: str):
         self.code_dir = code_dir
         self.structure = {}
@@ -16,7 +18,7 @@ class CodeIntrospectionEngine:
         """
         for root, dirs, files in os.walk(self.code_dir):
             for filename in files:
-                if filename.endswith('.py'):
+                if filename.endswith(".py"):
                     path = os.path.join(root, filename)
                     parsed = self._parse_file(path)
                     if parsed is not None:
@@ -28,14 +30,18 @@ class CodeIntrospectionEngine:
         Parse a single Python file y extrae nombres de clases, funciones e imports.
         """
         try:
-            with open(path, 'r', encoding='utf-8') as f:
+            with open(path, "r", encoding="utf-8") as f:
                 source = f.read()
             tree = ast.parse(source, filename=path)
         except Exception:
             return None
 
-        classes = [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
-        functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+        classes = [
+            node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
+        ]
+        functions = [
+            node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
+        ]
         imports = []
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -45,7 +51,7 @@ class CodeIntrospectionEngine:
                 imports.append(node.module)
 
         return {
-            'classes': classes,
-            'functions': functions,
-            'imports': list(set(imports))
+            "classes": classes,
+            "functions": functions,
+            "imports": list(set(imports)),
         }

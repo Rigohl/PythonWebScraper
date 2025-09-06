@@ -6,13 +6,14 @@ curiosity system. It supports both FAISS (when available) and SQLite fallback
 for storing and retrieving text embeddings.
 """
 
+import asyncio
+import json
 import logging
 import sqlite3
-import json
-import asyncio
-from typing import List, Optional, Dict, Any, Tuple
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 
 try:
@@ -21,8 +22,8 @@ try:
 except ImportError:
     FAISS_AVAILABLE = False
 
-from .embedding_adapter import EmbeddingResult
 from .. import settings
+from .embedding_adapter import EmbeddingResult
 
 logger = logging.getLogger(__name__)
 

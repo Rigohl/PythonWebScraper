@@ -3,25 +3,28 @@
 import logging
 import sys
 import types
-from pathlib import Path
-from typing import Any, Dict, Optional, Type, cast
+from typing import Dict, Optional, cast
+
 from .scrapers.base import BaseScraper
 
 logger = logging.getLogger(__name__)
+
 
 class ScraperRegistry:
     """Registry for managing scraper instances and their modules."""
 
     _instance = None
 
-    def __new__(cls) -> 'ScraperRegistry':
+    def __new__(cls) -> "ScraperRegistry":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.scrapers: Dict[str, BaseScraper] = {}
             cls._instance.scraper_modules: Dict[str, types.ModuleType] = {}
         return cls._instance
 
-    def register_scraper(self, name: str, scraper: BaseScraper, module: Optional[types.ModuleType] = None) -> None:
+    def register_scraper(
+        self, name: str, scraper: BaseScraper, module: Optional[types.ModuleType] = None
+    ) -> None:
         """Register a scraper instance and its module."""
         self.scrapers[name] = scraper
         if module:
@@ -45,9 +48,11 @@ class ScraperRegistry:
             scraper_class = None
             for item_name in dir(reloaded_module):
                 item = getattr(reloaded_module, item_name)
-                if (isinstance(item, type) and
-                    issubclass(item, BaseScraper) and
-                    item != BaseScraper):
+                if (
+                    isinstance(item, type)
+                    and issubclass(item, BaseScraper)
+                    and item != BaseScraper
+                ):
                     scraper_class = item
                     break
 
@@ -69,7 +74,8 @@ class ScraperRegistry:
             logger.error(f"Error reloading scraper {name}: {e}")
             return None
 
+
 def reload_module(module_name: str) -> types.ModuleType:
     """Reload a module by name, handling imports correctly."""
     module = sys.modules[module_name]
-    return cast(types.ModuleType, __import__(module_name, fromlist=['*']))
+    return cast(types.ModuleType, __import__(module_name, fromlist=["*"]))

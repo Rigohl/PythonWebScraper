@@ -10,6 +10,7 @@ Este módulo implementa sistemas de memoria inspirados en neurociencia cognitiva
 - Interferencia y Olvido: modelos realistas de pérdida de memoria
 """
 
+import hashlib
 import json
 import logging
 import math
@@ -17,13 +18,12 @@ import statistics
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple, Set
+from datetime import datetime
 from enum import Enum
-import hashlib
-import pickle
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 logger = logging.getLogger(__name__)
+
 
 class MemoryType(Enum):
     EPISODIC = "episodic"
@@ -31,15 +31,18 @@ class MemoryType(Enum):
     WORKING = "working"
     PROCEDURAL = "procedural"
 
+
 class ConsolidationState(Enum):
-    ACTIVE = "active"           # En memoria de trabajo
+    ACTIVE = "active"  # En memoria de trabajo
     CONSOLIDATING = "consolidating"  # En proceso de consolidación
-    CONSOLIDATED = "consolidated"    # En memoria a largo plazo
-    FORGOTTEN = "forgotten"     # Olvidado por decay o interferencia
+    CONSOLIDATED = "consolidated"  # En memoria a largo plazo
+    FORGOTTEN = "forgotten"  # Olvidado por decay o interferencia
+
 
 @dataclass
 class MemoryTrace:
     """Rastro de memoria individual con metadatos neurológicos"""
+
     content: Dict[str, Any]
     memory_type: MemoryType
     encoding_time: float
@@ -52,7 +55,7 @@ class MemoryTrace:
     decay_rate: float = 0.95  # Rate de olvido por día
     interference_resistance: float = 0.5
     emotional_valence: float = 0.0  # -1 (negativo) a 1 (positivo)
-    arousal_level: float = 0.5      # 0 (calm) a 1 (excited)
+    arousal_level: float = 0.5  # 0 (calm) a 1 (excited)
 
     # Contexto episódico
     spatial_context: Optional[str] = None
@@ -66,7 +69,9 @@ class MemoryTrace:
     def get_memory_id(self) -> str:
         """Genera ID único para la memoria"""
         content_str = str(sorted(self.content.items()))
-        return hashlib.md5(f"{content_str}_{self.encoding_time}".encode()).hexdigest()[:12]
+        return hashlib.md5(f"{content_str}_{self.encoding_time}".encode()).hexdigest()[
+            :12
+        ]
 
     def update_access(self):
         """Actualiza metadatos cuando se accede a la memoria"""
@@ -102,15 +107,15 @@ class MemoryTrace:
             ConsolidationState.ACTIVE: 0.0,
             ConsolidationState.CONSOLIDATING: 0.2,
             ConsolidationState.CONSOLIDATED: 0.5,
-            ConsolidationState.FORGOTTEN: -1.0
+            ConsolidationState.FORGOTTEN: -1.0,
         }[self.consolidation_state]
 
         retrieval_strength = (
-            base_decay *
-            (1 + frequency_boost * 0.1) *
-            (1 + emotional_boost * 0.3) *
-            self.synaptic_strength +
-            consolidation_bonus
+            base_decay
+            * (1 + frequency_boost * 0.1)
+            * (1 + emotional_boost * 0.3)
+            * self.synaptic_strength
+            + consolidation_bonus
         )
 
         return max(0.0, min(1.0, retrieval_strength))
@@ -119,9 +124,11 @@ class MemoryTrace:
         """Determina si la memoria debe ser olvidada"""
         return self.calculate_retrieval_strength() < forgetting_threshold
 
+
 @dataclass
 class Episode:
     """Episodio específico en memoria episódica"""
+
     event_description: str
     participants: List[str]
     location: str
@@ -145,23 +152,28 @@ class Episode:
                 "location": self.location,
                 "outcome": self.outcome,
                 "details": self.details,
-                "vividness": self.vividness
+                "vividness": self.vividness,
             },
             memory_type=MemoryType.EPISODIC,
             encoding_time=self.timestamp,
             last_access=self.timestamp,
             spatial_context=self.location,
             temporal_context=datetime.fromtimestamp(self.timestamp).isoformat(),
-            retrieval_cues=set([
-                self.event_description.lower(),
-                self.location.lower(),
-                self.outcome.lower()
-            ] + [p.lower() for p in self.participants])
+            retrieval_cues=set(
+                [
+                    self.event_description.lower(),
+                    self.location.lower(),
+                    self.outcome.lower(),
+                ]
+                + [p.lower() for p in self.participants]
+            ),
         )
+
 
 @dataclass
 class Concept:
     """Concepto en memoria semántica"""
+
     name: str
     definition: str
     category: str
@@ -184,17 +196,17 @@ class Concept:
                 "properties": self.properties,
                 "relationships": self.relationships,
                 "abstractness": self.abstractness,
-                "typicality": self.typicality
+                "typicality": self.typicality,
             },
             memory_type=MemoryType.SEMANTIC,
             encoding_time=time.time(),
             last_access=time.time(),
-            retrieval_cues=set([
-                self.name.lower(),
-                self.category.lower(),
-                self.definition.lower()
-            ] + list(self.properties.keys()))
+            retrieval_cues=set(
+                [self.name.lower(), self.category.lower(), self.definition.lower()]
+                + list(self.properties.keys())
+            ),
         )
+
 
 class WorkingMemory:
     """Memoria de trabajo con capacidad limitada (7±2 elementos)"""
@@ -213,12 +225,14 @@ class WorkingMemory:
         if len(self.buffer) >= self.capacity:
             self._remove_least_attended()
 
-        self.buffer.append({
-            'id': item_id,
-            'content': item,
-            'entry_time': time.time(),
-            'priority': priority
-        })
+        self.buffer.append(
+            {
+                "id": item_id,
+                "content": item,
+                "entry_time": time.time(),
+                "priority": priority,
+            }
+        )
 
         self.attention_weights[item_id] = priority
 
@@ -228,27 +242,29 @@ class WorkingMemory:
             return
 
         least_attended_idx = 0
-        min_attention = float('inf')
+        min_attention = float("inf")
 
         for i, item in enumerate(self.buffer):
-            attention = self.attention_weights.get(item['id'], 0)
+            attention = self.attention_weights.get(item["id"], 0)
             if attention < min_attention:
                 min_attention = attention
                 least_attended_idx = i
 
         removed_item = self.buffer[least_attended_idx]
         del self.buffer[least_attended_idx]
-        self.attention_weights.pop(removed_item['id'], None)
+        self.attention_weights.pop(removed_item["id"], None)
 
     def rehearse(self, item_id: str):
         """Ensaya un item para mantenerlo activo"""
         self.rehearsal_items.add(item_id)
         if item_id in self.attention_weights:
-            self.attention_weights[item_id] = min(1.0, self.attention_weights[item_id] + 0.1)
+            self.attention_weights[item_id] = min(
+                1.0, self.attention_weights[item_id] + 0.1
+            )
 
     def get_active_items(self) -> List[Dict[str, Any]]:
         """Obtiene items actualmente en memoria de trabajo"""
-        return [item['content'] for item in self.buffer]
+        return [item["content"] for item in self.buffer]
 
     def decay_attention(self, decay_rate: float = 0.95):
         """Aplica decay atencional a items no ensayados"""
@@ -266,10 +282,11 @@ class WorkingMemory:
     def _remove_item_by_id(self, item_id: str):
         """Remueve item específico por ID"""
         for i, item in enumerate(self.buffer):
-            if item['id'] == item_id:
+            if item["id"] == item_id:
                 del self.buffer[i]
                 break
         self.attention_weights.pop(item_id, None)
+
 
 class ConsolidationEngine:
     """Motor de consolidación de memoria"""
@@ -278,20 +295,17 @@ class ConsolidationEngine:
         self.consolidation_rules = {
             # Memorias con alta valencia emocional se consolidan más rápido
             "emotional_priority": lambda trace: abs(trace.emotional_valence) > 0.7,
-
             # Memorias accedidas frecuentemente se consolidan
             "frequency_priority": lambda trace: trace.access_count > 3,
-
             # Memorias recientes con alta arousal
             "recency_arousal": lambda trace: (
                 time.time() - trace.encoding_time < 3600 and trace.arousal_level > 0.8
             ),
-
             # Memorias semánticas importantes
             "semantic_importance": lambda trace: (
-                trace.memory_type == MemoryType.SEMANTIC and
-                trace.synaptic_strength > 0.8
-            )
+                trace.memory_type == MemoryType.SEMANTIC
+                and trace.synaptic_strength > 0.8
+            ),
         }
 
         self.consolidation_queue: List[str] = []
@@ -300,7 +314,10 @@ class ConsolidationEngine:
         """Determina si una memoria debe ser consolidada"""
 
         # No consolidar si ya está consolidada o olvidada
-        if memory_trace.consolidation_state in [ConsolidationState.CONSOLIDATED, ConsolidationState.FORGOTTEN]:
+        if memory_trace.consolidation_state in [
+            ConsolidationState.CONSOLIDATED,
+            ConsolidationState.FORGOTTEN,
+        ]:
             return False
 
         # Aplicar reglas de consolidación
@@ -319,7 +336,9 @@ class ConsolidationEngine:
         """Consolida una memoria (simulando transferencia hippocampo -> cortex)"""
 
         # Aumentar resistencia a interferencia
-        memory_trace.interference_resistance = min(1.0, memory_trace.interference_resistance + 0.3)
+        memory_trace.interference_resistance = min(
+            1.0, memory_trace.interference_resistance + 0.3
+        )
 
         # Reducir decay rate (memorias consolidadas duran más)
         memory_trace.decay_rate = min(0.99, memory_trace.decay_rate + 0.05)
@@ -333,6 +352,7 @@ class ConsolidationEngine:
         logger.debug(f"Memory consolidated: {memory_trace.get_memory_id()}")
 
         return memory_trace
+
 
 class AdvancedMemorySystem:
     """Sistema de memoria avanzado con múltiples subsistemas"""
@@ -419,7 +439,9 @@ class AdvancedMemorySystem:
 
         return memory_id
 
-    def retrieve_by_cue(self, cue: str, memory_type: MemoryType = None, limit: int = 10) -> List[Tuple[MemoryTrace, float]]:
+    def retrieve_by_cue(
+        self, cue: str, memory_type: MemoryType = None, limit: int = 10
+    ) -> List[Tuple[MemoryTrace, float]]:
         """Recupera memorias usando cue de recuperación"""
 
         cue_lower = cue.lower()
@@ -459,7 +481,9 @@ class AdvancedMemorySystem:
 
         return retrieved_memories[:limit]
 
-    def retrieve_by_context(self, spatial_context: str = None, temporal_context: str = None, limit: int = 10) -> List[Tuple[MemoryTrace, float]]:
+    def retrieve_by_context(
+        self, spatial_context: str = None, temporal_context: str = None, limit: int = 10
+    ) -> List[Tuple[MemoryTrace, float]]:
         """Recupera memorias episódicas por contexto espacial/temporal"""
 
         retrieved_memories = []
@@ -487,7 +511,9 @@ class AdvancedMemorySystem:
         retrieved_memories.sort(key=lambda x: x[1], reverse=True)
         return retrieved_memories[:limit]
 
-    def associative_retrieval(self, seed_memory_id: str, association_strength: float = 0.3) -> List[Tuple[MemoryTrace, float]]:
+    def associative_retrieval(
+        self, seed_memory_id: str, association_strength: float = 0.3
+    ) -> List[Tuple[MemoryTrace, float]]:
         """Recuperación asociativa basada en memoria semilla"""
 
         # Obtener memoria semilla
@@ -512,7 +538,9 @@ class AdvancedMemorySystem:
                 continue
 
             # Calcular fuerza de asociación
-            association_score = self._calculate_association_strength(seed_memory, related_memory)
+            association_score = self._calculate_association_strength(
+                seed_memory, related_memory
+            )
 
             if association_score >= association_strength:
                 retrieval_strength = related_memory.calculate_retrieval_strength()
@@ -528,8 +556,12 @@ class AdvancedMemorySystem:
                     continue
 
                 # Calcular overlap de cues de recuperación
-                cue_overlap = len(seed_memory.retrieval_cues & memory_trace.retrieval_cues)
-                total_cues = len(seed_memory.retrieval_cues | memory_trace.retrieval_cues)
+                cue_overlap = len(
+                    seed_memory.retrieval_cues & memory_trace.retrieval_cues
+                )
+                total_cues = len(
+                    seed_memory.retrieval_cues | memory_trace.retrieval_cues
+                )
 
                 if total_cues > 0:
                     overlap_score = cue_overlap / total_cues
@@ -586,7 +618,9 @@ class AdvancedMemorySystem:
         self.total_memories_forgotten += forgotten_count
 
         if consolidated_count > 0 or forgotten_count > 0:
-            logger.debug(f"Consolidation cycle: {consolidated_count} consolidated, {forgotten_count} forgotten")
+            logger.debug(
+                f"Consolidation cycle: {consolidated_count} consolidated, {forgotten_count} forgotten"
+            )
 
     def _update_indices(self, memory_trace: MemoryTrace, memory_id: str):
         """Actualiza índices de búsqueda"""
@@ -596,12 +630,14 @@ class AdvancedMemorySystem:
             self.cue_index[cue].add(memory_id)
 
         # Índice temporal
-        time_key = datetime.fromtimestamp(memory_trace.encoding_time).strftime("%Y-%m-%d")
+        time_key = datetime.fromtimestamp(memory_trace.encoding_time).strftime(
+            "%Y-%m-%d"
+        )
         self.temporal_index[time_key].append(memory_id)
 
         # Índice por categoría
         if memory_trace.memory_type == MemoryType.SEMANTIC:
-            category = memory_trace.content.get('category', 'unknown')
+            category = memory_trace.content.get("category", "unknown")
             self.category_index[category].add(memory_id)
 
     def _remove_from_indices(self, memory_trace: MemoryTrace, memory_id: str):
@@ -612,13 +648,15 @@ class AdvancedMemorySystem:
             self.cue_index[cue].discard(memory_id)
 
         # Remover de índice temporal
-        time_key = datetime.fromtimestamp(memory_trace.encoding_time).strftime("%Y-%m-%d")
+        time_key = datetime.fromtimestamp(memory_trace.encoding_time).strftime(
+            "%Y-%m-%d"
+        )
         if memory_id in self.temporal_index[time_key]:
             self.temporal_index[time_key].remove(memory_id)
 
         # Remover de índice de categoría
         if memory_trace.memory_type == MemoryType.SEMANTIC:
-            category = memory_trace.content.get('category', 'unknown')
+            category = memory_trace.content.get("category", "unknown")
             self.category_index[category].discard(memory_id)
 
     def _calculate_cue_relevance(self, cue: str, memory_trace: MemoryTrace) -> float:
@@ -628,15 +666,20 @@ class AdvancedMemorySystem:
             return 1.0
 
         # Buscar matches parciales
-        partial_matches = sum(1 for existing_cue in memory_trace.retrieval_cues
-                            if cue in existing_cue or existing_cue in cue)
+        partial_matches = sum(
+            1
+            for existing_cue in memory_trace.retrieval_cues
+            if cue in existing_cue or existing_cue in cue
+        )
 
         if partial_matches > 0:
             return 0.7 * (partial_matches / len(memory_trace.retrieval_cues))
 
         return 0.0
 
-    def _calculate_association_strength(self, memory1: MemoryTrace, memory2: MemoryTrace) -> float:
+    def _calculate_association_strength(
+        self, memory1: MemoryTrace, memory2: MemoryTrace
+    ) -> float:
         """Calcula fuerza de asociación entre dos memorias"""
 
         # Temporal proximity (memorias codificadas cerca en tiempo)
@@ -649,13 +692,15 @@ class AdvancedMemorySystem:
         semantic_similarity = cue_overlap / total_cues if total_cues > 0 else 0
 
         # Emotional similarity
-        emotional_similarity = 1 - abs(memory1.emotional_valence - memory2.emotional_valence) / 2
+        emotional_similarity = (
+            1 - abs(memory1.emotional_valence - memory2.emotional_valence) / 2
+        )
 
         # Weighted combination
         association_strength = (
-            temporal_similarity * 0.3 +
-            semantic_similarity * 0.5 +
-            emotional_similarity * 0.2
+            temporal_similarity * 0.3
+            + semantic_similarity * 0.5
+            + emotional_similarity * 0.2
         )
 
         return association_strength
@@ -668,9 +713,13 @@ class AdvancedMemorySystem:
         total_working = len(self.working_memory.buffer)
 
         # Calcular fuerza promedio de recuperación
-        all_memories = list(self.episodic_memory.values()) + list(self.semantic_memory.values())
+        all_memories = list(self.episodic_memory.values()) + list(
+            self.semantic_memory.values()
+        )
         if all_memories:
-            avg_retrieval_strength = statistics.mean([m.calculate_retrieval_strength() for m in all_memories])
+            avg_retrieval_strength = statistics.mean(
+                [m.calculate_retrieval_strength() for m in all_memories]
+            )
         else:
             avg_retrieval_strength = 0.0
 
@@ -679,34 +728,35 @@ class AdvancedMemorySystem:
             ConsolidationState.ACTIVE: 0,
             ConsolidationState.CONSOLIDATING: 0,
             ConsolidationState.CONSOLIDATED: 0,
-            ConsolidationState.FORGOTTEN: 0
+            ConsolidationState.FORGOTTEN: 0,
         }
 
         for memory in all_memories:
             consolidation_stats[memory.consolidation_state] += 1
 
         return {
-            'total_memories': total_episodic + total_semantic,
-            'episodic_memories': total_episodic,
-            'semantic_memories': total_semantic,
-            'working_memory_items': total_working,
-            'total_encoded': self.total_memories_encoded,
-            'total_forgotten': self.total_memories_forgotten,
-            'average_retrieval_strength': avg_retrieval_strength,
-            'consolidation_state': dict(consolidation_stats),
-            'cue_index_size': len(self.cue_index),
-            'memory_efficiency': 1 - (self.total_memories_forgotten / max(1, self.total_memories_encoded))
+            "total_memories": total_episodic + total_semantic,
+            "episodic_memories": total_episodic,
+            "semantic_memories": total_semantic,
+            "working_memory_items": total_working,
+            "total_encoded": self.total_memories_encoded,
+            "total_forgotten": self.total_memories_forgotten,
+            "average_retrieval_strength": avg_retrieval_strength,
+            "consolidation_state": dict(consolidation_stats),
+            "cue_index_size": len(self.cue_index),
+            "memory_efficiency": 1
+            - (self.total_memories_forgotten / max(1, self.total_memories_encoded)),
         }
 
     def _load_persistent_state(self):
         """Carga estado persistido del sistema de memoria"""
         try:
-            with open(self.persist_path, 'r', encoding='utf-8') as f:
+            with open(self.persist_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             # Reconstruir memorias (simplificado)
-            self.total_memories_encoded = data.get('total_encoded', 0)
-            self.total_memories_forgotten = data.get('total_forgotten', 0)
+            self.total_memories_encoded = data.get("total_encoded", 0)
+            self.total_memories_forgotten = data.get("total_forgotten", 0)
 
             logger.info(f"Memory state loaded from {self.persist_path}")
 
@@ -721,19 +771,20 @@ class AdvancedMemorySystem:
             stats = self.get_memory_statistics()
 
             data = {
-                'timestamp': time.time(),
-                'total_encoded': self.total_memories_encoded,
-                'total_forgotten': self.total_memories_forgotten,
-                'statistics': stats
+                "timestamp": time.time(),
+                "total_encoded": self.total_memories_encoded,
+                "total_forgotten": self.total_memories_forgotten,
+                "statistics": stats,
             }
 
-            with open(self.persist_path, 'w', encoding='utf-8') as f:
+            with open(self.persist_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             logger.debug(f"Memory state saved to {self.persist_path}")
 
         except Exception as e:
             logger.error(f"Failed to save memory state: {e}")
+
 
 # Función de fábrica
 def create_advanced_memory_system() -> AdvancedMemorySystem:

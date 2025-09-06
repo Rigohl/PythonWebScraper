@@ -14,65 +14,89 @@ Este módulo implementa capacidades metacognitivas inspiradas en psicología cog
 
 import json
 import logging
-import math
 import statistics
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple, Set, Callable
 from enum import Enum
-import numpy as np
+from typing import Any, Dict, List, Optional, Tuple
+
 
 logger = logging.getLogger(__name__)
 
+
 class MetacognitiveProcess(Enum):
-    MONITORING = "monitoring"           # Monitoreo de procesos cognitivos
-    CONTROL = "control"                # Control de estrategias cognitivas
-    EVALUATION = "evaluation"          # Evaluación de resultados
-    PLANNING = "planning"              # Planificación de estrategias
-    REFLECTION = "reflection"          # Reflexión sobre experiencias
+    MONITORING = "monitoring"  # Monitoreo de procesos cognitivos
+    CONTROL = "control"  # Control de estrategias cognitivas
+    EVALUATION = "evaluation"  # Evaluación de resultados
+    PLANNING = "planning"  # Planificación de estrategias
+    REFLECTION = "reflection"  # Reflexión sobre experiencias
+
 
 class ConfidenceLevel(Enum):
-    VERY_LOW = "very_low"              # 0.0-0.2
-    LOW = "low"                        # 0.2-0.4
-    MODERATE = "moderate"              # 0.4-0.6
-    HIGH = "high"                      # 0.6-0.8
-    VERY_HIGH = "very_high"            # 0.8-1.0
+    VERY_LOW = "very_low"  # 0.0-0.2
+    LOW = "low"  # 0.2-0.4
+    MODERATE = "moderate"  # 0.4-0.6
+    HIGH = "high"  # 0.6-0.8
+    VERY_HIGH = "very_high"  # 0.8-1.0
+
 
 class CognitiveStrategy(Enum):
-    SYSTEMATIC_SEARCH = "systematic_search"         # Búsqueda sistemática
-    HEURISTIC_SEARCH = "heuristic_search"          # Búsqueda heurística
-    ANALOGICAL_REASONING = "analogical_reasoning"   # Razonamiento analógico
-    CASE_BASED_REASONING = "case_based_reasoning"   # Razonamiento basado en casos
-    TRIAL_AND_ERROR = "trial_and_error"            # Ensayo y error
-    DECOMPOSITION = "decomposition"                 # Descomposición de problemas
-    ABSTRACTION = "abstraction"                     # Abstracción
-    PATTERN_MATCHING = "pattern_matching"           # Reconocimiento de patrones
+    SYSTEMATIC_SEARCH = "systematic_search"  # Búsqueda sistemática
+    HEURISTIC_SEARCH = "heuristic_search"  # Búsqueda heurística
+    ANALOGICAL_REASONING = "analogical_reasoning"  # Razonamiento analógico
+    CASE_BASED_REASONING = "case_based_reasoning"  # Razonamiento basado en casos
+    TRIAL_AND_ERROR = "trial_and_error"  # Ensayo y error
+    DECOMPOSITION = "decomposition"  # Descomposición de problemas
+    ABSTRACTION = "abstraction"  # Abstracción
+    PATTERN_MATCHING = "pattern_matching"  # Reconocimiento de patrones
+
 
 @dataclass
 class MetacognitiveKnowledge:
     """Conocimiento metacognitivo sobre los propios procesos cognitivos"""
 
     # Meta-memoria: conocimiento sobre la propia memoria
-    memory_strengths: Dict[str, float] = field(default_factory=dict)  # Fortalezas de memoria por dominio
-    memory_weaknesses: Dict[str, float] = field(default_factory=dict)  # Debilidades de memoria
-    forgetting_patterns: Dict[str, List[float]] = field(default_factory=dict)  # Patrones de olvido
+    memory_strengths: Dict[str, float] = field(
+        default_factory=dict
+    )  # Fortalezas de memoria por dominio
+    memory_weaknesses: Dict[str, float] = field(
+        default_factory=dict
+    )  # Debilidades de memoria
+    forgetting_patterns: Dict[str, List[float]] = field(
+        default_factory=dict
+    )  # Patrones de olvido
 
     # Meta-razonamiento: conocimiento sobre el propio razonamiento
-    reasoning_preferences: Dict[str, float] = field(default_factory=dict)  # Preferencias de razonamiento
+    reasoning_preferences: Dict[str, float] = field(
+        default_factory=dict
+    )  # Preferencias de razonamiento
     reasoning_biases: Dict[str, float] = field(default_factory=dict)  # Sesgos conocidos
-    reasoning_accuracy: Dict[str, List[float]] = field(default_factory=dict)  # Precisión por tipo
+    reasoning_accuracy: Dict[str, List[float]] = field(
+        default_factory=dict
+    )  # Precisión por tipo
 
     # Meta-aprendizaje: conocimiento sobre el propio aprendizaje
-    learning_styles: Dict[str, float] = field(default_factory=dict)  # Estilos de aprendizaje
-    optimal_conditions: Dict[str, Any] = field(default_factory=dict)  # Condiciones óptimas
-    learning_curves: Dict[str, List[float]] = field(default_factory=dict)  # Curvas de aprendizaje
+    learning_styles: Dict[str, float] = field(
+        default_factory=dict
+    )  # Estilos de aprendizaje
+    optimal_conditions: Dict[str, Any] = field(
+        default_factory=dict
+    )  # Condiciones óptimas
+    learning_curves: Dict[str, List[float]] = field(
+        default_factory=dict
+    )  # Curvas de aprendizaje
 
     # Auto-conocimiento general
-    cognitive_capacity: Dict[str, float] = field(default_factory=dict)  # Capacidades cognitivas
-    attention_patterns: Dict[str, float] = field(default_factory=dict)  # Patrones atencionales
-    motivation_factors: Dict[str, float] = field(default_factory=dict)  # Factores motivacionales
+    cognitive_capacity: Dict[str, float] = field(
+        default_factory=dict
+    )  # Capacidades cognitivas
+    attention_patterns: Dict[str, float] = field(
+        default_factory=dict
+    )  # Patrones atencionales
+    motivation_factors: Dict[str, float] = field(
+        default_factory=dict
+    )  # Factores motivacionales
 
     def update_memory_knowledge(self, domain: str, performance: float, task_type: str):
         """Actualiza conocimiento sobre memoria"""
@@ -81,7 +105,9 @@ class MetacognitiveKnowledge:
 
         # Actualizar con learning rate adaptativo
         learning_rate = 0.1
-        self.memory_strengths[domain] += learning_rate * (performance - self.memory_strengths[domain])
+        self.memory_strengths[domain] += learning_rate * (
+            performance - self.memory_strengths[domain]
+        )
 
         # Registrar patrones de olvido
         if domain not in self.forgetting_patterns:
@@ -92,7 +118,9 @@ class MetacognitiveKnowledge:
         if len(self.forgetting_patterns[domain]) > 20:
             self.forgetting_patterns[domain] = self.forgetting_patterns[domain][-20:]
 
-    def update_reasoning_knowledge(self, reasoning_type: str, accuracy: float, confidence: float):
+    def update_reasoning_knowledge(
+        self, reasoning_type: str, accuracy: float, confidence: float
+    ):
         """Actualiza conocimiento sobre razonamiento"""
         if reasoning_type not in self.reasoning_accuracy:
             self.reasoning_accuracy[reasoning_type] = []
@@ -101,7 +129,9 @@ class MetacognitiveKnowledge:
 
         # Calcular calibración (qué tan bien calibrada está la confianza)
         if len(self.reasoning_accuracy[reasoning_type]) > 5:
-            recent_accuracy = statistics.mean(self.reasoning_accuracy[reasoning_type][-5:])
+            recent_accuracy = statistics.mean(
+                self.reasoning_accuracy[reasoning_type][-5:]
+            )
             calibration_error = abs(confidence - recent_accuracy)
 
             # Actualizar preferencias basado en calibración
@@ -109,13 +139,17 @@ class MetacognitiveKnowledge:
                 self.reasoning_preferences[reasoning_type] = 0.5
 
             if calibration_error < 0.2:  # Bien calibrado
-                self.reasoning_preferences[reasoning_type] = min(1.0,
-                    self.reasoning_preferences[reasoning_type] + 0.05)
+                self.reasoning_preferences[reasoning_type] = min(
+                    1.0, self.reasoning_preferences[reasoning_type] + 0.05
+                )
             else:  # Mal calibrado
-                self.reasoning_preferences[reasoning_type] = max(0.1,
-                    self.reasoning_preferences[reasoning_type] - 0.05)
+                self.reasoning_preferences[reasoning_type] = max(
+                    0.1, self.reasoning_preferences[reasoning_type] - 0.05
+                )
 
-    def update_learning_knowledge(self, domain: str, learning_rate: float, conditions: Dict[str, Any]):
+    def update_learning_knowledge(
+        self, domain: str, learning_rate: float, conditions: Dict[str, Any]
+    ):
         """Actualiza conocimiento sobre aprendizaje"""
         if domain not in self.learning_curves:
             self.learning_curves[domain] = []
@@ -133,9 +167,11 @@ class MetacognitiveKnowledge:
                         current = self.optimal_conditions[domain].get(key, value)
                         self.optimal_conditions[domain][key] = (current + value) / 2
 
+
 @dataclass
 class MetacognitiveMonitor:
     """Monitor de procesos cognitivos en tiempo real"""
+
     current_strategy: Optional[CognitiveStrategy] = None
     strategy_start_time: float = 0.0
     strategy_effectiveness: float = 0.5
@@ -153,23 +189,29 @@ class MetacognitiveMonitor:
     # Historia de monitoreo
     monitoring_log: List[Dict[str, Any]] = field(default_factory=list)
 
-    def start_monitoring(self, strategy: CognitiveStrategy, task_context: Dict[str, Any]):
+    def start_monitoring(
+        self, strategy: CognitiveStrategy, task_context: Dict[str, Any]
+    ):
         """Inicia monitoreo de una estrategia cognitiva"""
         self.current_strategy = strategy
         self.strategy_start_time = time.time()
         self.errors_detected = 0
         self.corrections_made = 0
 
-        self.monitoring_log.append({
-            "timestamp": self.strategy_start_time,
-            "event": "strategy_started",
-            "strategy": strategy.value,
-            "context": task_context,
-            "cognitive_load": self.cognitive_load,
-            "attention_focus": self.attention_focus
-        })
+        self.monitoring_log.append(
+            {
+                "timestamp": self.strategy_start_time,
+                "event": "strategy_started",
+                "strategy": strategy.value,
+                "context": task_context,
+                "cognitive_load": self.cognitive_load,
+                "attention_focus": self.attention_focus,
+            }
+        )
 
-    def detect_cognitive_conflict(self, reasoning_outputs: List[Dict[str, Any]]) -> bool:
+    def detect_cognitive_conflict(
+        self, reasoning_outputs: List[Dict[str, Any]]
+    ) -> bool:
         """Detecta conflictos en procesos de razonamiento"""
         if len(reasoning_outputs) < 2:
             return False
@@ -191,7 +233,9 @@ class MetacognitiveMonitor:
 
         return False
 
-    def assess_strategy_effectiveness(self, performance_metrics: Dict[str, float]) -> float:
+    def assess_strategy_effectiveness(
+        self, performance_metrics: Dict[str, float]
+    ) -> float:
         """Evalúa efectividad de la estrategia actual"""
         if not self.current_strategy:
             return 0.5
@@ -207,13 +251,18 @@ class MetacognitiveMonitor:
         # Beneficio por correcciones
         correction_bonus = self.corrections_made * 0.05
 
-        effectiveness = (accuracy * 0.5 + speed * 0.3 + confidence * 0.2) - error_penalty + correction_bonus
+        effectiveness = (
+            (accuracy * 0.5 + speed * 0.3 + confidence * 0.2)
+            - error_penalty
+            + correction_bonus
+        )
         self.strategy_effectiveness = max(0.0, min(1.0, effectiveness))
 
         return self.strategy_effectiveness
 
-    def update_cognitive_load(self, task_complexity: float, time_pressure: float,
-                            working_memory_usage: float):
+    def update_cognitive_load(
+        self, task_complexity: float, time_pressure: float, working_memory_usage: float
+    ):
         """Actualiza estimación de carga cognitiva"""
         # Modelo simple de carga cognitiva
         complexity_load = task_complexity * 0.4
@@ -232,11 +281,17 @@ class MetacognitiveMonitor:
         elif self.cognitive_load < 0.3:
             self.attention_focus = min(1.0, self.attention_focus + 0.05)
 
+
 @dataclass
 class MetacognitiveController:
     """Controlador de estrategias metacognitivas"""
-    available_strategies: Dict[CognitiveStrategy, Dict[str, Any]] = field(default_factory=dict)
-    strategy_success_history: Dict[CognitiveStrategy, List[float]] = field(default_factory=dict)
+
+    available_strategies: Dict[CognitiveStrategy, Dict[str, Any]] = field(
+        default_factory=dict
+    )
+    strategy_success_history: Dict[CognitiveStrategy, List[float]] = field(
+        default_factory=dict
+    )
     strategy_preferences: Dict[CognitiveStrategy, float] = field(default_factory=dict)
 
     def __post_init__(self):
@@ -247,37 +302,38 @@ class MetacognitiveController:
                 "best_for": ["complex_problems", "high_accuracy_needed"],
                 "cognitive_cost": 0.8,
                 "time_cost": 0.9,
-                "accuracy_potential": 0.9
+                "accuracy_potential": 0.9,
             },
             CognitiveStrategy.HEURISTIC_SEARCH: {
                 "description": "Búsqueda basada en heurísticas",
                 "best_for": ["time_pressure", "familiar_problems"],
                 "cognitive_cost": 0.4,
                 "time_cost": 0.3,
-                "accuracy_potential": 0.7
+                "accuracy_potential": 0.7,
             },
             CognitiveStrategy.ANALOGICAL_REASONING: {
                 "description": "Razonamiento por analogía",
                 "best_for": ["novel_problems", "pattern_recognition"],
                 "cognitive_cost": 0.6,
                 "time_cost": 0.5,
-                "accuracy_potential": 0.8
+                "accuracy_potential": 0.8,
             },
             CognitiveStrategy.DECOMPOSITION: {
                 "description": "Descomposición en subproblemas",
                 "best_for": ["complex_problems", "systematic_approach"],
                 "cognitive_cost": 0.7,
                 "time_cost": 0.7,
-                "accuracy_potential": 0.85
-            }
+                "accuracy_potential": 0.85,
+            },
         }
 
         # Inicializar preferencias neutras
         for strategy in self.available_strategies:
             self.strategy_preferences[strategy] = 0.5
 
-    def select_strategy(self, task_context: Dict[str, Any],
-                       cognitive_state: Dict[str, float]) -> CognitiveStrategy:
+    def select_strategy(
+        self, task_context: Dict[str, Any], cognitive_state: Dict[str, float]
+    ) -> CognitiveStrategy:
         """Selecciona estrategia óptima basada en contexto y estado"""
 
         task_type = task_context.get("type", "general")
@@ -297,8 +353,10 @@ class MetacognitiveController:
             score += self.strategy_preferences.get(strategy, 0.5) * 0.3
 
             # Ajustar por contexto
-            if complexity > 0.7 and strategy in [CognitiveStrategy.SYSTEMATIC_SEARCH,
-                                                CognitiveStrategy.DECOMPOSITION]:
+            if complexity > 0.7 and strategy in [
+                CognitiveStrategy.SYSTEMATIC_SEARCH,
+                CognitiveStrategy.DECOMPOSITION,
+            ]:
                 score += 0.3
 
             if time_pressure > 0.7 and properties["time_cost"] < 0.5:
@@ -314,12 +372,17 @@ class MetacognitiveController:
             if cognitive_load > 0.8 and properties["cognitive_cost"] > 0.7:
                 score -= 0.4  # Evitar estrategias costosas cuando hay alta carga
 
-            if attention_focus < 0.5 and strategy == CognitiveStrategy.SYSTEMATIC_SEARCH:
+            if (
+                attention_focus < 0.5
+                and strategy == CognitiveStrategy.SYSTEMATIC_SEARCH
+            ):
                 score -= 0.3  # Evitar estrategias que requieren mucho foco
 
             # Bonus por éxito histórico
             if strategy in self.strategy_success_history:
-                recent_success = statistics.mean(self.strategy_success_history[strategy][-5:])
+                recent_success = statistics.mean(
+                    self.strategy_success_history[strategy][-5:]
+                )
                 score += recent_success * 0.2
 
             strategy_scores[strategy] = max(0.0, score)
@@ -338,18 +401,26 @@ class MetacognitiveController:
 
         # Mantener solo últimos 20 registros
         if len(self.strategy_success_history[strategy]) > 20:
-            self.strategy_success_history[strategy] = self.strategy_success_history[strategy][-20:]
+            self.strategy_success_history[strategy] = self.strategy_success_history[
+                strategy
+            ][-20:]
 
         # Actualizar preferencias
         if success_rate > 0.7:
-            self.strategy_preferences[strategy] = min(1.0,
-                self.strategy_preferences[strategy] + 0.05)
+            self.strategy_preferences[strategy] = min(
+                1.0, self.strategy_preferences[strategy] + 0.05
+            )
         elif success_rate < 0.3:
-            self.strategy_preferences[strategy] = max(0.1,
-                self.strategy_preferences[strategy] - 0.05)
+            self.strategy_preferences[strategy] = max(
+                0.1, self.strategy_preferences[strategy] - 0.05
+            )
 
-    def should_switch_strategy(self, current_performance: Dict[str, float],
-                             time_elapsed: float, target_performance: Dict[str, float]) -> bool:
+    def should_switch_strategy(
+        self,
+        current_performance: Dict[str, float],
+        time_elapsed: float,
+        target_performance: Dict[str, float],
+    ) -> bool:
         """Determina si debe cambiar de estrategia"""
 
         # Tiempo mínimo antes de considerar cambio
@@ -357,8 +428,12 @@ class MetacognitiveController:
             return False
 
         # Compara performance actual vs objetivo
-        accuracy_gap = target_performance.get("accuracy", 0.8) - current_performance.get("accuracy", 0.5)
-        speed_gap = target_performance.get("speed", 0.7) - current_performance.get("speed", 0.5)
+        accuracy_gap = target_performance.get(
+            "accuracy", 0.8
+        ) - current_performance.get("accuracy", 0.5)
+        speed_gap = target_performance.get("speed", 0.7) - current_performance.get(
+            "speed", 0.5
+        )
 
         # Switch si hay grandes gaps
         if accuracy_gap > 0.3 or speed_gap > 0.3:
@@ -369,15 +444,21 @@ class MetacognitiveController:
 
         return False
 
+
 class ConfidenceCalibrator:
     """Calibra la confianza metacognitiva"""
 
     def __init__(self):
-        self.calibration_history: Dict[str, List[Tuple[float, float]]] = defaultdict(list)  # (confidence, actual)
-        self.domain_calibrations: Dict[str, float] = {}  # Factor de calibración por dominio
+        self.calibration_history: Dict[str, List[Tuple[float, float]]] = defaultdict(
+            list
+        )  # (confidence, actual)
+        self.domain_calibrations: Dict[str, float] = (
+            {}
+        )  # Factor de calibración por dominio
 
-    def calibrate_confidence(self, raw_confidence: float, domain: str,
-                           context: Dict[str, Any] = None) -> float:
+    def calibrate_confidence(
+        self, raw_confidence: float, domain: str, context: Dict[str, Any] = None
+    ) -> float:
         """Calibra confianza cruda basada en historial"""
 
         if domain not in self.domain_calibrations:
@@ -393,11 +474,14 @@ class ConfidenceCalibrator:
 
         return max(0.0, min(1.0, calibrated))
 
-    def update_calibration(self, domain: str, predicted_confidence: float,
-                          actual_performance: float):
+    def update_calibration(
+        self, domain: str, predicted_confidence: float, actual_performance: float
+    ):
         """Actualiza calibración basada en resultado real"""
 
-        self.calibration_history[domain].append((predicted_confidence, actual_performance))
+        self.calibration_history[domain].append(
+            (predicted_confidence, actual_performance)
+        )
 
         # Mantener solo últimos 50 registros
         if len(self.calibration_history[domain]) > 50:
@@ -431,6 +515,7 @@ class ConfidenceCalibrator:
         else:
             return ConfidenceLevel.VERY_HIGH
 
+
 class SelfReflectionEngine:
     """Motor de auto-reflexión y metacognición"""
 
@@ -439,8 +524,10 @@ class SelfReflectionEngine:
             "performance_drop": lambda metrics: metrics.get("accuracy", 1.0) < 0.6,
             "high_uncertainty": lambda metrics: metrics.get("confidence", 1.0) < 0.4,
             "repeated_errors": lambda metrics: metrics.get("error_rate", 0.0) > 0.3,
-            "strategy_ineffective": lambda metrics: metrics.get("strategy_success", 1.0) < 0.5,
-            "time_limit_approaching": lambda metrics: metrics.get("time_remaining", 1.0) < 0.2
+            "strategy_ineffective": lambda metrics: metrics.get("strategy_success", 1.0)
+            < 0.5,
+            "time_limit_approaching": lambda metrics: metrics.get("time_remaining", 1.0)
+            < 0.2,
         }
 
         self.reflection_outcomes: List[Dict[str, Any]] = []
@@ -456,9 +543,12 @@ class SelfReflectionEngine:
 
         return triggered_reasons
 
-    def reflect_on_performance(self, task_context: Dict[str, Any],
-                             performance_metrics: Dict[str, float],
-                             cognitive_state: Dict[str, Any]) -> Dict[str, Any]:
+    def reflect_on_performance(
+        self,
+        task_context: Dict[str, Any],
+        performance_metrics: Dict[str, float],
+        cognitive_state: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """Realiza reflexión sobre performance"""
 
         reflection = {
@@ -468,7 +558,7 @@ class SelfReflectionEngine:
             "performance_metrics": performance_metrics,
             "cognitive_state": cognitive_state,
             "insights": [],
-            "recommendations": []
+            "recommendations": [],
         }
 
         # Generar insights basados en patrones
@@ -479,38 +569,61 @@ class SelfReflectionEngine:
         # Insight sobre calibración
         if abs(confidence - accuracy) > 0.3:
             if confidence > accuracy:
-                reflection["insights"].append("Showing overconfidence - predicted better performance than achieved")
-                reflection["recommendations"].append("Be more conservative in confidence estimates")
+                reflection["insights"].append(
+                    "Showing overconfidence - predicted better performance than achieved"
+                )
+                reflection["recommendations"].append(
+                    "Be more conservative in confidence estimates"
+                )
             else:
-                reflection["insights"].append("Showing underconfidence - achieved better than expected")
-                reflection["recommendations"].append("Trust in abilities more, increase confidence")
+                reflection["insights"].append(
+                    "Showing underconfidence - achieved better than expected"
+                )
+                reflection["recommendations"].append(
+                    "Trust in abilities more, increase confidence"
+                )
 
         # Insight sobre velocidad vs precisión
         if speed > 0.8 and accuracy < 0.6:
-            reflection["insights"].append("High speed but low accuracy - may be rushing")
+            reflection["insights"].append(
+                "High speed but low accuracy - may be rushing"
+            )
             reflection["recommendations"].append("Slow down and focus on accuracy")
         elif speed < 0.4 and accuracy > 0.8:
-            reflection["insights"].append("High accuracy but low speed - may be overthinking")
-            reflection["recommendations"].append("Trust initial judgments more, increase speed")
+            reflection["insights"].append(
+                "High accuracy but low speed - may be overthinking"
+            )
+            reflection["recommendations"].append(
+                "Trust initial judgments more, increase speed"
+            )
 
         # Insight sobre carga cognitiva
         cognitive_load = cognitive_state.get("cognitive_load", 0.5)
         if cognitive_load > 0.8 and accuracy < 0.6:
-            reflection["insights"].append("High cognitive load correlating with poor performance")
-            reflection["recommendations"].append("Use simpler strategies or take breaks")
+            reflection["insights"].append(
+                "High cognitive load correlating with poor performance"
+            )
+            reflection["recommendations"].append(
+                "Use simpler strategies or take breaks"
+            )
 
         # Insight sobre estrategia
         current_strategy = cognitive_state.get("current_strategy")
         if current_strategy and performance_metrics.get("strategy_success", 1.0) < 0.5:
-            reflection["insights"].append(f"Current strategy '{current_strategy}' showing poor results")
-            reflection["recommendations"].append("Consider switching to alternative strategy")
+            reflection["insights"].append(
+                f"Current strategy '{current_strategy}' showing poor results"
+            )
+            reflection["recommendations"].append(
+                "Consider switching to alternative strategy"
+            )
 
         self.reflection_outcomes.append(reflection)
 
         return reflection
 
-    def reflect_on_learning(self, learning_context: Dict[str, Any],
-                          learning_outcomes: Dict[str, float]) -> Dict[str, Any]:
+    def reflect_on_learning(
+        self, learning_context: Dict[str, Any], learning_outcomes: Dict[str, float]
+    ) -> Dict[str, Any]:
         """Reflexión sobre procesos de aprendizaje"""
 
         reflection = {
@@ -519,7 +632,7 @@ class SelfReflectionEngine:
             "context": learning_context,
             "outcomes": learning_outcomes,
             "insights": [],
-            "learning_recommendations": []
+            "learning_recommendations": [],
         }
 
         learning_rate = learning_outcomes.get("learning_rate", 0.5)
@@ -529,20 +642,31 @@ class SelfReflectionEngine:
         # Insights sobre aprendizaje
         if learning_rate > 0.8:
             reflection["insights"].append("Fast learner in this domain")
-            reflection["learning_recommendations"].append("Can handle more complex material")
+            reflection["learning_recommendations"].append(
+                "Can handle more complex material"
+            )
         elif learning_rate < 0.3:
             reflection["insights"].append("Slow learning in this domain")
-            reflection["learning_recommendations"].append("Break down material into smaller chunks")
+            reflection["learning_recommendations"].append(
+                "Break down material into smaller chunks"
+            )
 
         if retention_rate < 0.5:
             reflection["insights"].append("Poor retention - forgetting quickly")
-            reflection["learning_recommendations"].append("Increase practice frequency and use spaced repetition")
+            reflection["learning_recommendations"].append(
+                "Increase practice frequency and use spaced repetition"
+            )
 
         if transfer_ability < 0.4:
-            reflection["insights"].append("Difficulty transferring knowledge to new situations")
-            reflection["learning_recommendations"].append("Practice with more varied examples")
+            reflection["insights"].append(
+                "Difficulty transferring knowledge to new situations"
+            )
+            reflection["learning_recommendations"].append(
+                "Practice with more varied examples"
+            )
 
         return reflection
+
 
 class MetacognitiveBrain:
     """Sistema central de metacognición"""
@@ -563,7 +687,7 @@ class MetacognitiveBrain:
             "cognitive_control": 0.6,
             "strategy_flexibility": 0.8,
             "confidence_calibration": 0.5,
-            "reflection_depth": 0.6
+            "reflection_depth": 0.6,
         }
 
         # Historia metacognitiva
@@ -575,7 +699,9 @@ class MetacognitiveBrain:
 
         logger.info("🤔 Metacognitive Brain System initialized")
 
-    def initiate_metacognitive_cycle(self, task_context: Dict[str, Any]) -> Dict[str, Any]:
+    def initiate_metacognitive_cycle(
+        self, task_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Inicia un ciclo metacognitivo completo"""
 
         cycle_start = time.time()
@@ -584,10 +710,12 @@ class MetacognitiveBrain:
         cognitive_state = {
             "cognitive_load": self.monitor.cognitive_load,
             "attention_focus": self.monitor.attention_focus,
-            "processing_speed": self.monitor.processing_speed
+            "processing_speed": self.monitor.processing_speed,
         }
 
-        selected_strategy = self.controller.select_strategy(task_context, cognitive_state)
+        selected_strategy = self.controller.select_strategy(
+            task_context, cognitive_state
+        )
 
         # 2. MONITORING: Iniciar monitoreo
         self.monitor.start_monitoring(selected_strategy, task_context)
@@ -598,7 +726,7 @@ class MetacognitiveBrain:
             "task_context": task_context,
             "selected_strategy": selected_strategy.value,
             "cognitive_state": cognitive_state.copy(),
-            "metacognitive_state": self.current_metacognitive_state.copy()
+            "metacognitive_state": self.current_metacognitive_state.copy(),
         }
 
         self.metacognitive_episodes.append(episode)
@@ -607,31 +735,38 @@ class MetacognitiveBrain:
             "selected_strategy": selected_strategy,
             "cognitive_state": cognitive_state,
             "monitoring_active": True,
-            "cycle_id": len(self.metacognitive_episodes)
+            "cycle_id": len(self.metacognitive_episodes),
         }
 
-    def monitor_cognitive_process(self, process_outputs: List[Dict[str, Any]],
-                                performance_metrics: Dict[str, float]) -> Dict[str, Any]:
+    def monitor_cognitive_process(
+        self,
+        process_outputs: List[Dict[str, Any]],
+        performance_metrics: Dict[str, float],
+    ) -> Dict[str, Any]:
         """Monitorea proceso cognitivo en curso"""
 
         # Detectar conflictos cognitivos
         conflict_detected = self.monitor.detect_cognitive_conflict(process_outputs)
 
         # Evaluar efectividad de estrategia
-        strategy_effectiveness = self.monitor.assess_strategy_effectiveness(performance_metrics)
+        strategy_effectiveness = self.monitor.assess_strategy_effectiveness(
+            performance_metrics
+        )
 
         # Actualizar carga cognitiva
         task_complexity = performance_metrics.get("complexity", 0.5)
         time_pressure = performance_metrics.get("time_pressure", 0.5)
         working_memory_usage = performance_metrics.get("memory_usage", 0.5)
 
-        self.monitor.update_cognitive_load(task_complexity, time_pressure, working_memory_usage)
+        self.monitor.update_cognitive_load(
+            task_complexity, time_pressure, working_memory_usage
+        )
 
         # Determinar si necesita intervención
         needs_intervention = (
-            conflict_detected or
-            strategy_effectiveness < 0.4 or
-            self.monitor.cognitive_load > 0.9
+            conflict_detected
+            or strategy_effectiveness < 0.4
+            or self.monitor.cognitive_load > 0.9
         )
 
         monitoring_result = {
@@ -641,31 +776,36 @@ class MetacognitiveBrain:
             "attention_focus": self.monitor.attention_focus,
             "needs_intervention": needs_intervention,
             "errors_detected": self.monitor.errors_detected,
-            "corrections_made": self.monitor.corrections_made
+            "corrections_made": self.monitor.corrections_made,
         }
 
         # Log del monitoreo
-        self.monitor.monitoring_log.append({
-            "timestamp": time.time(),
-            "event": "monitoring_update",
-            "result": monitoring_result
-        })
+        self.monitor.monitoring_log.append(
+            {
+                "timestamp": time.time(),
+                "event": "monitoring_update",
+                "result": monitoring_result,
+            }
+        )
 
         return monitoring_result
 
-    def metacognitive_control(self, monitoring_result: Dict[str, Any],
-                            task_context: Dict[str, Any]) -> Dict[str, Any]:
+    def metacognitive_control(
+        self, monitoring_result: Dict[str, Any], task_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Ejerce control metacognitivo basado en monitoreo"""
 
         control_actions = []
 
         # Control por conflicto cognitivo
         if monitoring_result["conflict_detected"]:
-            control_actions.append({
-                "type": "conflict_resolution",
-                "action": "increase_deliberation",
-                "rationale": "Cognitive conflict detected, need more careful analysis"
-            })
+            control_actions.append(
+                {
+                    "type": "conflict_resolution",
+                    "action": "increase_deliberation",
+                    "rationale": "Cognitive conflict detected, need more careful analysis",
+                }
+            )
 
             # Incrementar foco atencional
             self.monitor.attention_focus = min(1.0, self.monitor.attention_focus + 0.1)
@@ -674,23 +814,33 @@ class MetacognitiveBrain:
         if monitoring_result["strategy_effectiveness"] < 0.4:
             # Considerar cambio de estrategia
             time_elapsed = time.time() - self.monitor.strategy_start_time
-            target_performance = task_context.get("target_performance", {"accuracy": 0.8, "speed": 0.7})
-            current_performance = {"accuracy": monitoring_result["strategy_effectiveness"]}
+            target_performance = task_context.get(
+                "target_performance", {"accuracy": 0.8, "speed": 0.7}
+            )
+            current_performance = {
+                "accuracy": monitoring_result["strategy_effectiveness"]
+            }
 
-            if self.controller.should_switch_strategy(current_performance, time_elapsed, target_performance):
+            if self.controller.should_switch_strategy(
+                current_performance, time_elapsed, target_performance
+            ):
                 cognitive_state = {
                     "cognitive_load": monitoring_result["cognitive_load"],
                     "attention_focus": monitoring_result["attention_focus"],
-                    "processing_speed": self.monitor.processing_speed
+                    "processing_speed": self.monitor.processing_speed,
                 }
 
-                new_strategy = self.controller.select_strategy(task_context, cognitive_state)
+                new_strategy = self.controller.select_strategy(
+                    task_context, cognitive_state
+                )
 
-                control_actions.append({
-                    "type": "strategy_switch",
-                    "action": f"switch_to_{new_strategy.value}",
-                    "rationale": f"Current strategy ineffective ({monitoring_result['strategy_effectiveness']:.2f})"
-                })
+                control_actions.append(
+                    {
+                        "type": "strategy_switch",
+                        "action": f"switch_to_{new_strategy.value}",
+                        "rationale": f"Current strategy ineffective ({monitoring_result['strategy_effectiveness']:.2f})",
+                    }
+                )
 
                 # Actualizar monitor
                 self.monitor.strategy_switches += 1
@@ -698,27 +848,32 @@ class MetacognitiveBrain:
 
         # Control por alta carga cognitiva
         if monitoring_result["cognitive_load"] > 0.8:
-            control_actions.append({
-                "type": "load_management",
-                "action": "simplify_approach",
-                "rationale": f"High cognitive load ({monitoring_result['cognitive_load']:.2f})"
-            })
+            control_actions.append(
+                {
+                    "type": "load_management",
+                    "action": "simplify_approach",
+                    "rationale": f"High cognitive load ({monitoring_result['cognitive_load']:.2f})",
+                }
+            )
 
         # Control por baja atención
         if monitoring_result["attention_focus"] < 0.5:
-            control_actions.append({
-                "type": "attention_regulation",
-                "action": "refocus_attention",
-                "rationale": f"Low attention focus ({monitoring_result['attention_focus']:.2f})"
-            })
+            control_actions.append(
+                {
+                    "type": "attention_regulation",
+                    "action": "refocus_attention",
+                    "rationale": f"Low attention focus ({monitoring_result['attention_focus']:.2f})",
+                }
+            )
 
         return {
             "control_actions": control_actions,
-            "metacognitive_state_updated": len(control_actions) > 0
+            "metacognitive_state_updated": len(control_actions) > 0,
         }
 
-    def calibrate_confidence(self, confidence_estimate: float, domain: str,
-                           context: Dict[str, Any] = None) -> Tuple[float, ConfidenceLevel]:
+    def calibrate_confidence(
+        self, confidence_estimate: float, domain: str, context: Dict[str, Any] = None
+    ) -> Tuple[float, ConfidenceLevel]:
         """Calibra estimación de confianza"""
 
         calibrated_confidence = self.calibrator.calibrate_confidence(
@@ -744,7 +899,9 @@ class MetacognitiveBrain:
 
         # Actualizar conocimiento de razonamiento
         if "reasoning" in task_type.lower():
-            self.knowledge.update_reasoning_knowledge(task_type, performance, confidence)
+            self.knowledge.update_reasoning_knowledge(
+                task_type, performance, confidence
+            )
 
         # Actualizar conocimiento de aprendizaje
         learning_rate = learning_episode.get("learning_rate", 0.5)
@@ -762,7 +919,9 @@ class MetacognitiveBrain:
         # Actualizar calibración de confianza
         self.calibrator.update_calibration(domain, confidence, performance)
 
-    def trigger_self_reflection(self, reflection_context: Dict[str, Any]) -> Dict[str, Any]:
+    def trigger_self_reflection(
+        self, reflection_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Desencadena proceso de auto-reflexión"""
 
         task_context = reflection_context.get("task_context", {})
@@ -795,13 +954,13 @@ class MetacognitiveBrain:
                 "trigger_reasons": should_reflect_reasons,
                 "performance_reflection": performance_reflection,
                 "learning_reflection": learning_reflection,
-                "updated_metacognitive_state": self.current_metacognitive_state
+                "updated_metacognitive_state": self.current_metacognitive_state,
             }
 
         else:
             return {
                 "reflection_triggered": False,
-                "reason": "No reflection triggers met"
+                "reason": "No reflection triggers met",
             }
 
     def _update_metacognitive_state_from_reflection(self, reflection: Dict[str, Any]):
@@ -812,48 +971,56 @@ class MetacognitiveBrain:
 
         # Actualizar self-awareness basado en insights
         if len(insights) > 2:  # Muchos insights = alta awareness
-            self.current_metacognitive_state["self_awareness_level"] = min(1.0,
-                self.current_metacognitive_state["self_awareness_level"] + 0.05)
+            self.current_metacognitive_state["self_awareness_level"] = min(
+                1.0, self.current_metacognitive_state["self_awareness_level"] + 0.05
+            )
 
         # Actualizar control cognitivo basado en recomendaciones
         if len(recommendations) > 0:
-            self.current_metacognitive_state["cognitive_control"] = min(1.0,
-                self.current_metacognitive_state["cognitive_control"] + 0.03)
+            self.current_metacognitive_state["cognitive_control"] = min(
+                1.0, self.current_metacognitive_state["cognitive_control"] + 0.03
+            )
 
         # Actualizar flexibilidad de estrategia si hay recomendaciones de cambio
         strategy_change_recs = [r for r in recommendations if "strategy" in r.lower()]
         if strategy_change_recs:
-            self.current_metacognitive_state["strategy_flexibility"] = min(1.0,
-                self.current_metacognitive_state["strategy_flexibility"] + 0.05)
+            self.current_metacognitive_state["strategy_flexibility"] = min(
+                1.0, self.current_metacognitive_state["strategy_flexibility"] + 0.05
+            )
 
         # Actualizar profundidad de reflexión
         reflection_depth = len(insights) + len(recommendations)
         if reflection_depth > 3:
-            self.current_metacognitive_state["reflection_depth"] = min(1.0,
-                self.current_metacognitive_state["reflection_depth"] + 0.05)
+            self.current_metacognitive_state["reflection_depth"] = min(
+                1.0, self.current_metacognitive_state["reflection_depth"] + 0.05
+            )
 
     def get_metacognitive_status(self) -> Dict[str, Any]:
         """Obtiene estado completo del sistema metacognitivo"""
 
         return {
             "metacognitive_state": self.current_metacognitive_state,
-            "current_strategy": self.monitor.current_strategy.value if self.monitor.current_strategy else None,
+            "current_strategy": (
+                self.monitor.current_strategy.value
+                if self.monitor.current_strategy
+                else None
+            ),
             "cognitive_load": self.monitor.cognitive_load,
             "attention_focus": self.monitor.attention_focus,
             "strategy_effectiveness": self.monitor.strategy_effectiveness,
             "knowledge_summary": {
                 "memory_domains": len(self.knowledge.memory_strengths),
                 "reasoning_types": len(self.knowledge.reasoning_accuracy),
-                "learning_domains": len(self.knowledge.learning_curves)
+                "learning_domains": len(self.knowledge.learning_curves),
             },
             "recent_reflections": len(self.reflector.reflection_outcomes),
-            "calibration_domains": len(self.calibrator.domain_calibrations)
+            "calibration_domains": len(self.calibrator.domain_calibrations),
         }
 
     def _load_metacognitive_state(self):
         """Carga estado metacognitivo persistido"""
         try:
-            with open(self.persist_path, 'r', encoding='utf-8') as f:
+            with open(self.persist_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             # Restaurar estado metacognitivo
@@ -887,16 +1054,17 @@ class MetacognitiveBrain:
                     for strategy, preference in self.controller.strategy_preferences.items()
                 },
                 "calibration_factors": self.calibrator.domain_calibrations,
-                "recent_episodes": list(self.metacognitive_episodes)[-10:]
+                "recent_episodes": list(self.metacognitive_episodes)[-10:],
             }
 
-            with open(self.persist_path, 'w', encoding='utf-8') as f:
+            with open(self.persist_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             logger.debug(f"Metacognitive state saved to {self.persist_path}")
 
         except Exception as e:
             logger.error(f"Failed to save metacognitive state: {e}")
+
 
 # Función de fábrica
 def create_metacognitive_brain() -> MetacognitiveBrain:

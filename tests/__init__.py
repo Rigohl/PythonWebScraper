@@ -24,7 +24,6 @@ MÉTRICAS:
 """
 
 # Permitir importaciones relativas
-from .fixtures_inteligentes import *
 
 """
 Tests eliminados por petición del usuario.

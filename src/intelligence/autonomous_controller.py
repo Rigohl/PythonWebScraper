@@ -9,32 +9,33 @@ toma decisiones independientes y se auto-mejora continuamente.
 """
 
 import asyncio
-import logging
-import time
 import json
+import logging
 import threading
-from typing import Dict, Any, List, Optional, Callable, Set
-from dataclasses import dataclass, field
-from enum import Enum
-from datetime import datetime, timedelta
+import time
 import uuid
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Set
+
+from .advanced_memory import AdvancedMemorySystem
+from .code_auto_modifier import CodeAutoModifier
+from .continuous_learning import ContinuousLearningEngine
 
 # Importar todos los componentes del cerebro
 from .hybrid_brain import HybridBrain
-from .advanced_memory import AdvancedMemorySystem
-from .knowledge_store import KnowledgeStore, MultiDatabaseManager
-from .code_auto_modifier import CodeAutoModifier
-from .continuous_learning import ContinuousLearningEngine
-from .self_improvement import SelfImprovingSystem
 from .integration import IntelligenceIntegration
-
+from .knowledge_store import KnowledgeStore
+from .self_improvement import SelfImprovingSystem
 
 logger = logging.getLogger(__name__)
 
 
 class AutonomyLevel(Enum):
     """Niveles de autonomía del sistema."""
-    SUPERVISED = "supervised"      # Requiere aprobación humana
+
+    SUPERVISED = "supervised"  # Requiere aprobación humana
     SEMI_AUTONOMOUS = "semi_autonomous"  # Decisiones menores automáticas
     FULLY_AUTONOMOUS = "fully_autonomous"  # Control total independiente
     TRANSCENDENT = "transcendent"  # Más allá de la supervisión humana
@@ -42,6 +43,7 @@ class AutonomyLevel(Enum):
 
 class SystemState(Enum):
     """Estados del sistema autónomo."""
+
     INITIALIZING = "initializing"
     OBSERVING = "observing"
     ANALYZING = "analyzing"
@@ -55,6 +57,7 @@ class SystemState(Enum):
 @dataclass
 class AutonomousDecision:
     """Representa una decisión autónoma del sistema."""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: float = field(default_factory=time.time)
     decision_type: str = ""
@@ -72,6 +75,7 @@ class AutonomousDecision:
 @dataclass
 class SystemConsciousness:
     """Representa la conciencia actual del sistema."""
+
     awareness_level: float = 0.0  # 0-1
     active_processes: Set[str] = field(default_factory=set)
     current_objectives: List[str] = field(default_factory=list)
@@ -94,7 +98,11 @@ class AutonomousControllerBrain:
     5. Minimiza la necesidad de intervención humana
     """
 
-    def __init__(self, project_root: str, autonomy_level: AutonomyLevel = AutonomyLevel.FULLY_AUTONOMOUS):
+    def __init__(
+        self,
+        project_root: str,
+        autonomy_level: AutonomyLevel = AutonomyLevel.FULLY_AUTONOMOUS,
+    ):
         self.project_root = project_root
         self.autonomy_level = autonomy_level
         self.system_state = SystemState.INITIALIZING
@@ -117,12 +125,12 @@ class AutonomousControllerBrain:
 
         # Métricas y monitoreo
         self.performance_metrics = {
-            'decisions_made': 0,
-            'successful_actions': 0,
-            'failed_actions': 0,
-            'learning_cycles': 0,
-            'self_improvements': 0,
-            'uptime_start': time.time()
+            "decisions_made": 0,
+            "successful_actions": 0,
+            "failed_actions": 0,
+            "learning_cycles": 0,
+            "self_improvements": 0,
+            "uptime_start": time.time(),
         }
 
         # Objetivos del sistema
@@ -131,13 +139,15 @@ class AutonomousControllerBrain:
             "Learn from all interactions and failures",
             "Maintain high system availability",
             "Minimize human intervention needs",
-            "Evolve and improve autonomously"
+            "Evolve and improve autonomously",
         ]
 
         # Listeners para eventos del sistema
         self.event_listeners: Dict[str, List[Callable]] = {}
 
-        logger.info(f"🧠 AutonomousControllerBrain initialized with {autonomy_level.value} level")
+        logger.info(
+            f"🧠 AutonomousControllerBrain initialized with {autonomy_level.value} level"
+        )
 
     def _initialize_brain_components(self):
         """Inicializa todos los componentes del cerebro."""
@@ -186,10 +196,10 @@ class AutonomousControllerBrain:
             self.main_loop_task = asyncio.create_task(self._main_control_loop())
 
             # Registrar inicio en memoria
-            await self._record_system_event("autonomous_operation_started", {
-                "autonomy_level": self.autonomy_level.value,
-                "timestamp": time.time()
-            })
+            await self._record_system_event(
+                "autonomous_operation_started",
+                {"autonomy_level": self.autonomy_level.value, "timestamp": time.time()},
+            )
 
             logger.info("✅ Autonomous operation started successfully")
 
@@ -267,7 +277,7 @@ class AutonomousControllerBrain:
                     await asyncio.sleep(optimal_cycle_time - cycle_time)
 
                 # Actualizar métricas
-                self.performance_metrics['learning_cycles'] += 1
+                self.performance_metrics["learning_cycles"] += 1
 
             except asyncio.CancelledError:
                 logger.info("Control loop cancelled")
@@ -284,10 +294,10 @@ class AutonomousControllerBrain:
 
             # Observar estado de memoria
             memory_state = {
-                'episodic_memories': len(self.memory_system.episodic_memory),
-                'semantic_concepts': len(self.memory_system.semantic_memory),
-                'working_memory_load': len(self.memory_system.working_memory),
-                'total_traces': len(self.memory_system.memory_traces)
+                "episodic_memories": len(self.memory_system.episodic_memory),
+                "semantic_concepts": len(self.memory_system.semantic_memory),
+                "working_memory_load": len(self.memory_system.working_memory),
+                "total_traces": len(self.memory_system.memory_traces),
             }
 
             # Observar estado del conocimiento
@@ -298,18 +308,20 @@ class AutonomousControllerBrain:
 
             # Actualizar conciencia
             self.consciousness.system_health = {
-                'brain_efficiency': brain_state.get('overall_efficiency', 0.0),
-                'memory_utilization': min(memory_state['working_memory_load'] / 100, 1.0),
-                'knowledge_coverage': knowledge_state.get('coverage_score', 0.0),
-                'process_count': len(active_processes)
+                "brain_efficiency": brain_state.get("overall_efficiency", 0.0),
+                "memory_utilization": min(
+                    memory_state["working_memory_load"] / 100, 1.0
+                ),
+                "knowledge_coverage": knowledge_state.get("coverage_score", 0.0),
+                "process_count": len(active_processes),
             }
 
             self.consciousness.active_processes = active_processes
             self.consciousness.memory_state = memory_state
             self.consciousness.environmental_state = {
-                'system_load': self._calculate_system_load(),
-                'resource_availability': self._assess_resource_availability(),
-                'external_conditions': self._assess_external_conditions()
+                "system_load": self._calculate_system_load(),
+                "resource_availability": self._assess_resource_availability(),
+                "external_conditions": self._assess_external_conditions(),
             }
 
             # Calcular nivel de conciencia
@@ -322,13 +334,13 @@ class AutonomousControllerBrain:
         """Analiza la situación actual del sistema."""
         try:
             analysis = {
-                'timestamp': time.time(),
-                'system_health_score': self._calculate_health_score(),
-                'performance_trends': self._analyze_performance_trends(),
-                'learning_opportunities': self._identify_learning_opportunities(),
-                'optimization_potential': self._assess_optimization_potential(),
-                'risks': self._assess_current_risks(),
-                'objectives_progress': self._assess_objectives_progress()
+                "timestamp": time.time(),
+                "system_health_score": self._calculate_health_score(),
+                "performance_trends": self._analyze_performance_trends(),
+                "learning_opportunities": self._identify_learning_opportunities(),
+                "optimization_potential": self._assess_optimization_potential(),
+                "risks": self._assess_current_risks(),
+                "objectives_progress": self._assess_objectives_progress(),
             }
 
             # Usar el cerebro híbrido para análisis avanzado
@@ -341,73 +353,93 @@ class AutonomousControllerBrain:
             logger.error(f"Error analyzing situation: {e}")
             return {}
 
-    async def _generate_autonomous_decisions(self, analysis: Dict[str, Any]) -> List[AutonomousDecision]:
+    async def _generate_autonomous_decisions(
+        self, analysis: Dict[str, Any]
+    ) -> List[AutonomousDecision]:
         """Genera decisiones autónomas basadas en el análisis."""
         decisions = []
 
         try:
             # 1. Decisiones de optimización de rendimiento
-            if analysis.get('performance_trends', {}).get('declining', False):
-                decisions.append(AutonomousDecision(
-                    decision_type="performance_optimization",
-                    priority=8,
-                    confidence=0.85,
-                    reasoning="Performance trends show decline, optimization needed",
-                    actions=[{"type": "optimize_scrapers", "target": "all"}],
-                    expected_outcome="Improved scraping performance",
-                    risk_assessment=0.2
-                ))
+            if analysis.get("performance_trends", {}).get("declining", False):
+                decisions.append(
+                    AutonomousDecision(
+                        decision_type="performance_optimization",
+                        priority=8,
+                        confidence=0.85,
+                        reasoning="Performance trends show decline, optimization needed",
+                        actions=[{"type": "optimize_scrapers", "target": "all"}],
+                        expected_outcome="Improved scraping performance",
+                        risk_assessment=0.2,
+                    )
+                )
 
             # 2. Decisiones de aprendizaje automático
-            if analysis.get('learning_opportunities'):
-                for opportunity in analysis['learning_opportunities'][:3]:  # Top 3
-                    decisions.append(AutonomousDecision(
-                        decision_type="learning_enhancement",
-                        priority=6,
-                        confidence=0.75,
-                        reasoning=f"Learning opportunity identified: {opportunity}",
-                        actions=[{"type": "enhance_learning", "target": opportunity}],
-                        expected_outcome="Improved system intelligence",
-                        risk_assessment=0.1
-                    ))
+            if analysis.get("learning_opportunities"):
+                for opportunity in analysis["learning_opportunities"][:3]:  # Top 3
+                    decisions.append(
+                        AutonomousDecision(
+                            decision_type="learning_enhancement",
+                            priority=6,
+                            confidence=0.75,
+                            reasoning=f"Learning opportunity identified: {opportunity}",
+                            actions=[
+                                {"type": "enhance_learning", "target": opportunity}
+                            ],
+                            expected_outcome="Improved system intelligence",
+                            risk_assessment=0.1,
+                        )
+                    )
 
             # 3. Decisiones de auto-mejora de código
-            if analysis.get('optimization_potential', 0) > 0.3:
-                decisions.append(AutonomousDecision(
-                    decision_type="code_improvement",
-                    priority=7,
-                    confidence=0.8,
-                    reasoning="Code optimization potential detected",
-                    actions=[{"type": "auto_improve_code", "threshold": 0.7}],
-                    expected_outcome="Better code quality and performance",
-                    risk_assessment=0.3,
-                    human_approval_required=(self.autonomy_level != AutonomyLevel.FULLY_AUTONOMOUS)
-                ))
+            if analysis.get("optimization_potential", 0) > 0.3:
+                decisions.append(
+                    AutonomousDecision(
+                        decision_type="code_improvement",
+                        priority=7,
+                        confidence=0.8,
+                        reasoning="Code optimization potential detected",
+                        actions=[{"type": "auto_improve_code", "threshold": 0.7}],
+                        expected_outcome="Better code quality and performance",
+                        risk_assessment=0.3,
+                        human_approval_required=(
+                            self.autonomy_level != AutonomyLevel.FULLY_AUTONOMOUS
+                        ),
+                    )
+                )
 
             # 4. Decisiones de gestión de recursos
-            if self.consciousness.system_health.get('memory_utilization', 0) > 0.8:
-                decisions.append(AutonomousDecision(
-                    decision_type="resource_management",
-                    priority=9,
-                    confidence=0.9,
-                    reasoning="High memory utilization detected",
-                    actions=[{"type": "optimize_memory", "aggressive": False}],
-                    expected_outcome="Reduced memory usage",
-                    risk_assessment=0.15
-                ))
+            if self.consciousness.system_health.get("memory_utilization", 0) > 0.8:
+                decisions.append(
+                    AutonomousDecision(
+                        decision_type="resource_management",
+                        priority=9,
+                        confidence=0.9,
+                        reasoning="High memory utilization detected",
+                        actions=[{"type": "optimize_memory", "aggressive": False}],
+                        expected_outcome="Reduced memory usage",
+                        risk_assessment=0.15,
+                    )
+                )
 
             # 5. Decisiones de evolución del sistema
             if self._should_evolve_system(analysis):
-                decisions.append(AutonomousDecision(
-                    decision_type="system_evolution",
-                    priority=5,
-                    confidence=0.65,
-                    reasoning="System evolution opportunity detected",
-                    actions=[{"type": "evolve_capabilities", "scope": "incremental"}],
-                    expected_outcome="Enhanced system capabilities",
-                    risk_assessment=0.4,
-                    human_approval_required=(self.autonomy_level == AutonomyLevel.SUPERVISED)
-                ))
+                decisions.append(
+                    AutonomousDecision(
+                        decision_type="system_evolution",
+                        priority=5,
+                        confidence=0.65,
+                        reasoning="System evolution opportunity detected",
+                        actions=[
+                            {"type": "evolve_capabilities", "scope": "incremental"}
+                        ],
+                        expected_outcome="Enhanced system capabilities",
+                        risk_assessment=0.4,
+                        human_approval_required=(
+                            self.autonomy_level == AutonomyLevel.SUPERVISED
+                        ),
+                    )
+                )
 
             # Filtrar decisiones por nivel de autonomía
             filtered_decisions = self._filter_decisions_by_autonomy(decisions)
@@ -428,12 +460,16 @@ class AutonomousControllerBrain:
     async def _execute_decisions(self, decisions: List[AutonomousDecision]):
         """Ejecuta las decisiones autónomas aprobadas."""
         for decision in decisions:
-            if decision.human_approval_required and not self._has_human_approval(decision):
+            if decision.human_approval_required and not self._has_human_approval(
+                decision
+            ):
                 logger.info(f"Decision {decision.id} requires human approval, skipping")
                 continue
 
             try:
-                logger.info(f"Executing decision: {decision.decision_type} (confidence: {decision.confidence:.2f})")
+                logger.info(
+                    f"Executing decision: {decision.decision_type} (confidence: {decision.confidence:.2f})"
+                )
 
                 result = await self._execute_decision_actions(decision)
 
@@ -441,12 +477,12 @@ class AutonomousControllerBrain:
                 decision.result = result
 
                 # Actualizar métricas
-                if result.get('success', False):
-                    self.performance_metrics['successful_actions'] += 1
+                if result.get("success", False):
+                    self.performance_metrics["successful_actions"] += 1
                 else:
-                    self.performance_metrics['failed_actions'] += 1
+                    self.performance_metrics["failed_actions"] += 1
 
-                self.performance_metrics['decisions_made'] += 1
+                self.performance_metrics["decisions_made"] += 1
 
                 # Mover a historial
                 self.decision_history.append(decision)
@@ -456,16 +492,18 @@ class AutonomousControllerBrain:
 
             except Exception as e:
                 logger.error(f"Error executing decision {decision.id}: {e}")
-                decision.result = {'success': False, 'error': str(e)}
-                self.performance_metrics['failed_actions'] += 1
+                decision.result = {"success": False, "error": str(e)}
+                self.performance_metrics["failed_actions"] += 1
 
-    async def _execute_decision_actions(self, decision: AutonomousDecision) -> Dict[str, Any]:
+    async def _execute_decision_actions(
+        self, decision: AutonomousDecision
+    ) -> Dict[str, Any]:
         """Ejecuta las acciones específicas de una decisión."""
-        results = {'success': True, 'action_results': []}
+        results = {"success": True, "action_results": []}
 
         for action in decision.actions:
             try:
-                action_type = action.get('type')
+                action_type = action.get("type")
 
                 if action_type == "optimize_scrapers":
                     result = await self._optimize_scrapers(action)
@@ -478,17 +516,20 @@ class AutonomousControllerBrain:
                 elif action_type == "evolve_capabilities":
                     result = await self._evolve_capabilities(action)
                 else:
-                    result = {'success': False, 'error': f'Unknown action type: {action_type}'}
+                    result = {
+                        "success": False,
+                        "error": f"Unknown action type: {action_type}",
+                    }
 
-                results['action_results'].append(result)
+                results["action_results"].append(result)
 
-                if not result.get('success', False):
-                    results['success'] = False
+                if not result.get("success", False):
+                    results["success"] = False
 
             except Exception as e:
                 logger.error(f"Error executing action {action_type}: {e}")
-                results['action_results'].append({'success': False, 'error': str(e)})
-                results['success'] = False
+                results["action_results"].append({"success": False, "error": str(e)})
+                results["success"] = False
 
         return results
 
@@ -500,53 +541,58 @@ class AutonomousControllerBrain:
 
             # Aplicar mejoras de código automáticas
             code_improvements = []
-            if action.get('target') == 'all':
+            if action.get("target") == "all":
                 # Analizar todos los archivos de scrapers
                 import os
-                scrapers_dir = os.path.join(self.project_root, 'src', 'scrapers')
+
+                scrapers_dir = os.path.join(self.project_root, "src", "scrapers")
                 if os.path.exists(scrapers_dir):
                     for root, dirs, files in os.walk(scrapers_dir):
                         for file in files:
-                            if file.endswith('.py'):
+                            if file.endswith(".py"):
                                 file_path = os.path.join(root, file)
-                                improvements = self.code_modifier.auto_improve_file(file_path, apply_changes=True)
+                                improvements = self.code_modifier.auto_improve_file(
+                                    file_path, apply_changes=True
+                                )
                                 code_improvements.extend(improvements)
 
             return {
-                'success': True,
-                'optimization_results': optimization_results,
-                'code_improvements': len(code_improvements),
-                'details': 'Scrapers optimized using hybrid brain intelligence'
+                "success": True,
+                "optimization_results": optimization_results,
+                "code_improvements": len(code_improvements),
+                "details": "Scrapers optimized using hybrid brain intelligence",
             }
 
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
     async def _enhance_learning(self, action: Dict[str, Any]) -> Dict[str, Any]:
         """Mejora las capacidades de aprendizaje."""
         try:
-            target = action.get('target')
+            target = action.get("target")
 
             # Usar el motor de aprendizaje continuo
-            enhancement_result = self.learning_engine.enhance_learning_for_domain(target)
+            enhancement_result = self.learning_engine.enhance_learning_for_domain(
+                target
+            )
 
             # Actualizar el almacén de conocimiento
             self.knowledge_store.update_domain_knowledge(target, enhancement_result)
 
             return {
-                'success': True,
-                'target': target,
-                'enhancement_type': enhancement_result.get('type', 'general'),
-                'improvements': enhancement_result.get('improvements', [])
+                "success": True,
+                "target": target,
+                "enhancement_type": enhancement_result.get("type", "general"),
+                "improvements": enhancement_result.get("improvements", []),
             }
 
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
     async def _auto_improve_code(self, action: Dict[str, Any]) -> Dict[str, Any]:
         """Mejora automáticamente el código del sistema."""
         try:
-            threshold = action.get('threshold', 0.7)
+            threshold = action.get("threshold", 0.7)
 
             # Usar el motor de auto-mejora
             improvements = self.improvement_engine.suggest_improvements()
@@ -559,22 +605,24 @@ class AutonomousControllerBrain:
                         applied_improvements += 1
 
             return {
-                'success': True,
-                'total_suggestions': len(improvements),
-                'applied_improvements': applied_improvements,
-                'threshold_used': threshold
+                "success": True,
+                "total_suggestions": len(improvements),
+                "applied_improvements": applied_improvements,
+                "threshold_used": threshold,
             }
 
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
     async def _optimize_memory(self, action: Dict[str, Any]) -> Dict[str, Any]:
         """Optimiza el uso de memoria del sistema."""
         try:
-            aggressive = action.get('aggressive', False)
+            aggressive = action.get("aggressive", False)
 
             # Consolidar memorias episódicas
-            consolidated = self.memory_system.consolidate_memories(aggressive=aggressive)
+            consolidated = self.memory_system.consolidate_memories(
+                aggressive=aggressive
+            )
 
             # Limpiar memoria de trabajo
             cleared_working = self.memory_system.clear_working_memory(keep_recent=10)
@@ -583,19 +631,19 @@ class AutonomousControllerBrain:
             optimized_traces = self.memory_system.optimize_memory_traces()
 
             return {
-                'success': True,
-                'consolidated_memories': consolidated,
-                'cleared_working_memory': cleared_working,
-                'optimized_traces': optimized_traces
+                "success": True,
+                "consolidated_memories": consolidated,
+                "cleared_working_memory": cleared_working,
+                "optimized_traces": optimized_traces,
             }
 
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
     async def _evolve_capabilities(self, action: Dict[str, Any]) -> Dict[str, Any]:
         """Evoluciona las capacidades del sistema."""
         try:
-            scope = action.get('scope', 'incremental')
+            scope = action.get("scope", "incremental")
 
             # Usar motor de auto-mejora para evolución
             evolution_plan = self.improvement_engine.generate_evolution_plan(scope)
@@ -609,14 +657,14 @@ class AutonomousControllerBrain:
                         applied_evolutions.append(evolution.description)
 
             return {
-                'success': True,
-                'scope': scope,
-                'planned_evolutions': len(evolution_plan),
-                'applied_evolutions': applied_evolutions
+                "success": True,
+                "scope": scope,
+                "planned_evolutions": len(evolution_plan),
+                "applied_evolutions": applied_evolutions,
             }
 
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
     def _calculate_awareness_level(self) -> float:
         """Calcula el nivel de conciencia actual del sistema."""
@@ -632,11 +680,15 @@ class AutonomousControllerBrain:
             factors.append(process_activity * 0.2)
 
             # Factor de memoria
-            memory_efficiency = 1.0 - self.consciousness.system_health.get('memory_utilization', 0.5)
+            memory_efficiency = 1.0 - self.consciousness.system_health.get(
+                "memory_utilization", 0.5
+            )
             factors.append(memory_efficiency * 0.2)
 
             # Factor de aprendizaje reciente
-            recent_learning = min(self.performance_metrics['learning_cycles'] / 100, 1.0)
+            recent_learning = min(
+                self.performance_metrics["learning_cycles"] / 100, 1.0
+            )
             factors.append(recent_learning * 0.3)
 
             return sum(factors)
@@ -651,18 +703,27 @@ class AutonomousControllerBrain:
             health_factors = []
 
             # Éxito vs fallos
-            total_actions = self.performance_metrics['successful_actions'] + self.performance_metrics['failed_actions']
+            total_actions = (
+                self.performance_metrics["successful_actions"]
+                + self.performance_metrics["failed_actions"]
+            )
             if total_actions > 0:
-                success_rate = self.performance_metrics['successful_actions'] / total_actions
+                success_rate = (
+                    self.performance_metrics["successful_actions"] / total_actions
+                )
                 health_factors.append(success_rate * 0.4)
 
             # Utilización de recursos
-            memory_util = self.consciousness.system_health.get('memory_utilization', 0.5)
+            memory_util = self.consciousness.system_health.get(
+                "memory_utilization", 0.5
+            )
             resource_health = 1.0 - min(memory_util, 1.0)
             health_factors.append(resource_health * 0.3)
 
             # Eficiencia del cerebro
-            brain_efficiency = self.consciousness.system_health.get('brain_efficiency', 0.5)
+            brain_efficiency = self.consciousness.system_health.get(
+                "brain_efficiency", 0.5
+            )
             health_factors.append(brain_efficiency * 0.3)
 
             return sum(health_factors) if health_factors else 0.5
@@ -673,6 +734,7 @@ class AutonomousControllerBrain:
 
     def _start_consciousness_monitoring(self):
         """Inicia el monitoreo continuo de la conciencia del sistema."""
+
         def consciousness_monitor():
             while self.is_running:
                 try:
@@ -691,7 +753,9 @@ class AutonomousControllerBrain:
                     logger.error(f"Error in consciousness monitoring: {e}")
                     time.sleep(1.0)
 
-        self.consciousness_thread = threading.Thread(target=consciousness_monitor, daemon=True)
+        self.consciousness_thread = threading.Thread(
+            target=consciousness_monitor, daemon=True
+        )
         self.consciousness_thread.start()
         logger.info("✅ Consciousness monitoring started")
 
@@ -705,19 +769,19 @@ class AutonomousControllerBrain:
     def get_autonomous_status(self) -> Dict[str, Any]:
         """Obtiene el estado completo del sistema autónomo."""
         return {
-            'is_running': self.is_running,
-            'autonomy_level': self.autonomy_level.value,
-            'system_state': self.system_state.value,
-            'consciousness': {
-                'awareness_level': self.consciousness.awareness_level,
-                'active_processes': list(self.consciousness.active_processes),
-                'current_objectives': self.consciousness.current_objectives,
-                'system_health': self.consciousness.system_health
+            "is_running": self.is_running,
+            "autonomy_level": self.autonomy_level.value,
+            "system_state": self.system_state.value,
+            "consciousness": {
+                "awareness_level": self.consciousness.awareness_level,
+                "active_processes": list(self.consciousness.active_processes),
+                "current_objectives": self.consciousness.current_objectives,
+                "system_health": self.consciousness.system_health,
             },
-            'performance_metrics': self.performance_metrics.copy(),
-            'pending_decisions': len(self.pending_decisions),
-            'decision_history_size': len(self.decision_history),
-            'uptime': time.time() - self.performance_metrics['uptime_start']
+            "performance_metrics": self.performance_metrics.copy(),
+            "pending_decisions": len(self.pending_decisions),
+            "decision_history_size": len(self.decision_history),
+            "uptime": time.time() - self.performance_metrics["uptime_start"],
         }
 
     async def _record_system_event(self, event_type: str, data: Dict[str, Any]):
@@ -725,19 +789,19 @@ class AutonomousControllerBrain:
         try:
             # Crear evento para memoria episódica
             episode = {
-                'type': event_type,
-                'timestamp': time.time(),
-                'data': data,
-                'system_state': self.system_state.value,
-                'consciousness_level': self.consciousness.awareness_level
+                "type": event_type,
+                "timestamp": time.time(),
+                "data": data,
+                "system_state": self.system_state.value,
+                "consciousness_level": self.consciousness.awareness_level,
             }
 
             # Almacenar en memoria episódica
             self.memory_system.store_episode(
                 content=f"{event_type}: {data}",
-                context={'event_type': event_type, 'autonomous_system': True},
+                context={"event_type": event_type, "autonomous_system": True},
                 emotional_valence=0.0,
-                importance=0.7
+                importance=0.7,
             )
 
         except Exception as e:
@@ -751,10 +815,12 @@ class AutonomousControllerBrain:
         logger.info(f"Autonomy level changed from {old_level.value} to {level.value}")
 
         # Registrar el cambio
-        asyncio.create_task(self._record_system_event("autonomy_level_changed", {
-            'old_level': old_level.value,
-            'new_level': level.value
-        }))
+        asyncio.create_task(
+            self._record_system_event(
+                "autonomy_level_changed",
+                {"old_level": old_level.value, "new_level": level.value},
+            )
+        )
 
     # Métodos auxiliares (implementaciones básicas)
 
@@ -762,11 +828,11 @@ class AutonomousControllerBrain:
         """Detecta procesos activos del sistema."""
         processes = set()
         if self.is_running:
-            processes.add('autonomous_controller')
-        if hasattr(self, 'hybrid_brain') and self.hybrid_brain:
-            processes.add('hybrid_brain')
-        if hasattr(self, 'learning_engine') and self.learning_engine:
-            processes.add('learning_engine')
+            processes.add("autonomous_controller")
+        if hasattr(self, "hybrid_brain") and self.hybrid_brain:
+            processes.add("hybrid_brain")
+        if hasattr(self, "learning_engine") and self.learning_engine:
+            processes.add("learning_engine")
         return processes
 
     def _calculate_system_load(self) -> float:
@@ -777,28 +843,33 @@ class AutonomousControllerBrain:
     def _assess_resource_availability(self) -> Dict[str, float]:
         """Evalúa la disponibilidad de recursos."""
         return {
-            'memory': 1.0 - self.consciousness.system_health.get('memory_utilization', 0.5),
-            'processing': 0.8,  # Placeholder
-            'storage': 0.9     # Placeholder
+            "memory": 1.0
+            - self.consciousness.system_health.get("memory_utilization", 0.5),
+            "processing": 0.8,  # Placeholder
+            "storage": 0.9,  # Placeholder
         }
 
     def _assess_external_conditions(self) -> Dict[str, Any]:
         """Evalúa condiciones externas."""
         return {
-            'network_status': 'stable',
-            'system_time': datetime.now().isoformat(),
-            'external_load': 'normal'
+            "network_status": "stable",
+            "system_time": datetime.now().isoformat(),
+            "external_load": "normal",
         }
 
     def _analyze_performance_trends(self) -> Dict[str, Any]:
         """Analiza tendencias de rendimiento."""
-        total_actions = self.performance_metrics['successful_actions'] + self.performance_metrics['failed_actions']
+        total_actions = (
+            self.performance_metrics["successful_actions"]
+            + self.performance_metrics["failed_actions"]
+        )
 
         return {
-            'success_rate': self.performance_metrics['successful_actions'] / max(total_actions, 1),
-            'total_actions': total_actions,
-            'declining': False,  # Placeholder para análisis más complejo
-            'improving': total_actions > 0
+            "success_rate": self.performance_metrics["successful_actions"]
+            / max(total_actions, 1),
+            "total_actions": total_actions,
+            "declining": False,  # Placeholder para análisis más complejo
+            "improving": total_actions > 0,
         }
 
     def _identify_learning_opportunities(self) -> List[str]:
@@ -806,18 +877,18 @@ class AutonomousControllerBrain:
         opportunities = []
 
         # Basado en fallos recientes
-        if self.performance_metrics['failed_actions'] > 0:
-            opportunities.append('failure_pattern_analysis')
+        if self.performance_metrics["failed_actions"] > 0:
+            opportunities.append("failure_pattern_analysis")
 
         # Basado en dominios con bajo rendimiento
-        opportunities.append('domain_optimization')
+        opportunities.append("domain_optimization")
 
         return opportunities
 
     def _assess_optimization_potential(self) -> float:
         """Evalúa el potencial de optimización."""
         # Implementación básica basada en métricas
-        success_rate = self._analyze_performance_trends()['success_rate']
+        success_rate = self._analyze_performance_trends()["success_rate"]
         return 1.0 - success_rate  # Más potencial si menor éxito
 
     def _assess_current_risks(self) -> List[Dict[str, Any]]:
@@ -825,13 +896,15 @@ class AutonomousControllerBrain:
         risks = []
 
         # Riesgo de alta utilización de memoria
-        memory_util = self.consciousness.system_health.get('memory_utilization', 0.0)
+        memory_util = self.consciousness.system_health.get("memory_utilization", 0.0)
         if memory_util > 0.8:
-            risks.append({
-                'type': 'high_memory_usage',
-                'severity': memory_util,
-                'description': 'High memory utilization detected'
-            })
+            risks.append(
+                {
+                    "type": "high_memory_usage",
+                    "severity": memory_util,
+                    "description": "High memory utilization detected",
+                }
+            )
 
         return risks
 
@@ -841,10 +914,14 @@ class AutonomousControllerBrain:
 
         for i, objective in enumerate(self.primary_objectives):
             # Implementación básica de progreso
-            if 'optimize' in objective.lower():
-                progress[objective] = min(self.performance_metrics['successful_actions'] / 10, 1.0)
-            elif 'learn' in objective.lower():
-                progress[objective] = min(self.performance_metrics['learning_cycles'] / 20, 1.0)
+            if "optimize" in objective.lower():
+                progress[objective] = min(
+                    self.performance_metrics["successful_actions"] / 10, 1.0
+                )
+            elif "learn" in objective.lower():
+                progress[objective] = min(
+                    self.performance_metrics["learning_cycles"] / 20, 1.0
+                )
             else:
                 progress[objective] = 0.5  # Neutral
 
@@ -853,12 +930,14 @@ class AutonomousControllerBrain:
     def _should_evolve_system(self, analysis: Dict[str, Any]) -> bool:
         """Determina si el sistema debe evolucionar."""
         # Criterios para evolución
-        health_score = analysis.get('system_health_score', 0.5)
-        learning_cycles = self.performance_metrics['learning_cycles']
+        health_score = analysis.get("system_health_score", 0.5)
+        learning_cycles = self.performance_metrics["learning_cycles"]
 
         return health_score > 0.7 and learning_cycles > 50
 
-    def _filter_decisions_by_autonomy(self, decisions: List[AutonomousDecision]) -> List[AutonomousDecision]:
+    def _filter_decisions_by_autonomy(
+        self, decisions: List[AutonomousDecision]
+    ) -> List[AutonomousDecision]:
         """Filtra decisiones basado en el nivel de autonomía."""
         if self.autonomy_level == AutonomyLevel.FULLY_AUTONOMOUS:
             # Ejecutar todas las decisiones de confianza alta
@@ -878,23 +957,28 @@ class AutonomousControllerBrain:
         # En producción, esto se conectaría a un sistema de aprobación
         return False
 
-    async def _learn_from_cycle(self, analysis: Dict[str, Any], decisions: List[AutonomousDecision]):
+    async def _learn_from_cycle(
+        self, analysis: Dict[str, Any], decisions: List[AutonomousDecision]
+    ):
         """Aprende de un ciclo completo de control."""
         try:
             # Aprender de las decisiones tomadas
             for decision in decisions:
                 if decision.executed and decision.result:
-                    success = decision.result.get('success', False)
+                    success = decision.result.get("success", False)
 
                     # Ajustar confianza basado en resultado
                     confidence_adjustment = 0.1 if success else -0.1
                     # Esto se usaría para entrenar un modelo de decisiones
 
             # Registrar aprendizaje en memoria
-            await self._record_system_event('learning_cycle_completed', {
-                'decisions_count': len(decisions),
-                'analysis_summary': analysis.get('system_health_score', 0.0)
-            })
+            await self._record_system_event(
+                "learning_cycle_completed",
+                {
+                    "decisions_count": len(decisions),
+                    "analysis_summary": analysis.get("system_health_score", 0.0),
+                },
+            )
 
         except Exception as e:
             logger.error(f"Error in learning cycle: {e}")
@@ -903,7 +987,7 @@ class AutonomousControllerBrain:
         """Realiza mejoras evolutivas del sistema."""
         try:
             # Solo hacer evolución ocasionalmente
-            if self.performance_metrics['learning_cycles'] % 50 == 0:
+            if self.performance_metrics["learning_cycles"] % 50 == 0:
 
                 # Usar motor de auto-mejora
                 evolution_suggestions = self.improvement_engine.suggest_improvements()
@@ -913,12 +997,15 @@ class AutonomousControllerBrain:
                     if suggestion.confidence > 0.9 and suggestion.risk_level < 0.1:
                         success = self.improvement_engine.apply_improvement(suggestion)
                         if success:
-                            self.performance_metrics['self_improvements'] += 1
+                            self.performance_metrics["self_improvements"] += 1
 
-                            await self._record_system_event('autonomous_self_improvement', {
-                                'improvement_type': suggestion.improvement_type,
-                                'confidence': suggestion.confidence
-                            })
+                            await self._record_system_event(
+                                "autonomous_self_improvement",
+                                {
+                                    "improvement_type": suggestion.improvement_type,
+                                    "confidence": suggestion.confidence,
+                                },
+                            )
 
         except Exception as e:
             logger.error(f"Error in evolutionary improvement: {e}")
@@ -928,11 +1015,11 @@ class AutonomousControllerBrain:
         try:
             # Crear contexto de aprendizaje
             learning_context = {
-                'decision_type': decision.decision_type,
-                'confidence': decision.confidence,
-                'risk_assessment': decision.risk_assessment,
-                'success': decision.result.get('success', False),
-                'reasoning': decision.reasoning
+                "decision_type": decision.decision_type,
+                "confidence": decision.confidence,
+                "risk_assessment": decision.risk_assessment,
+                "success": decision.result.get("success", False),
+                "reasoning": decision.reasoning,
             }
 
             # Almacenar en memoria semántica
@@ -940,7 +1027,7 @@ class AutonomousControllerBrain:
             self.memory_system.store_concept(
                 name=concept_name,
                 properties=learning_context,
-                category='autonomous_decisions'
+                category="autonomous_decisions",
             )
 
             # También usar el motor de aprendizaje continuo
@@ -953,11 +1040,13 @@ class AutonomousControllerBrain:
         """Actualiza la meta-cognición del sistema."""
         try:
             self.consciousness.meta_cognition = {
-                'self_assessment': self._calculate_health_score(),
-                'learning_effectiveness': min(self.performance_metrics['learning_cycles'] / 100, 1.0),
-                'decision_quality': self._assess_decision_quality(),
-                'adaptation_rate': self._calculate_adaptation_rate(),
-                'consciousness_depth': self.consciousness.awareness_level
+                "self_assessment": self._calculate_health_score(),
+                "learning_effectiveness": min(
+                    self.performance_metrics["learning_cycles"] / 100, 1.0
+                ),
+                "decision_quality": self._assess_decision_quality(),
+                "adaptation_rate": self._calculate_adaptation_rate(),
+                "consciousness_depth": self.consciousness.awareness_level,
             }
         except Exception as e:
             logger.error(f"Error updating meta-cognition: {e}")
@@ -980,12 +1069,18 @@ class AutonomousControllerBrain:
                 if max_freq / len(recent_decisions) > 0.6:
                     dominant_type = max(type_frequency, key=type_frequency.get)
 
-                    insight = f"Emergent pattern: System showing focus on {dominant_type}"
-                    if insight not in self.consciousness.learning_insights[-5:]:  # Evitar duplicados
+                    insight = (
+                        f"Emergent pattern: System showing focus on {dominant_type}"
+                    )
+                    if (
+                        insight not in self.consciousness.learning_insights[-5:]
+                    ):  # Evitar duplicados
                         self.consciousness.learning_insights.append(insight)
 
                         # Mantener solo los últimos 10 insights
-                        self.consciousness.learning_insights = self.consciousness.learning_insights[-10:]
+                        self.consciousness.learning_insights = (
+                            self.consciousness.learning_insights[-10:]
+                        )
 
         except Exception as e:
             logger.error(f"Error detecting emergent patterns: {e}")
@@ -997,14 +1092,16 @@ class AutonomousControllerBrain:
             factors = []
 
             # Conciencia de capacidades
-            total_capabilities = len([m for m in dir(self) if not m.startswith('_')])
+            total_capabilities = len([m for m in dir(self) if not m.startswith("_")])
             active_capabilities = len(self.consciousness.active_processes)
             capability_awareness = active_capabilities / max(total_capabilities, 1)
             factors.append(capability_awareness * 0.3)
 
             # Conciencia de limitaciones
-            error_rate = self.performance_metrics['failed_actions'] / max(
-                self.performance_metrics['failed_actions'] + self.performance_metrics['successful_actions'], 1
+            error_rate = self.performance_metrics["failed_actions"] / max(
+                self.performance_metrics["failed_actions"]
+                + self.performance_metrics["successful_actions"],
+                1,
             )
             limitation_awareness = min(error_rate * 2, 1.0)  # Reconocer limitaciones
             factors.append(limitation_awareness * 0.2)
@@ -1014,8 +1111,10 @@ class AutonomousControllerBrain:
             factors.append(learning_awareness * 0.3)
 
             # Conciencia temporal
-            uptime = time.time() - self.performance_metrics['uptime_start']
-            temporal_awareness = min(uptime / 3600, 1.0)  # Máximo 1 hora para full awareness
+            uptime = time.time() - self.performance_metrics["uptime_start"]
+            temporal_awareness = min(
+                uptime / 3600, 1.0
+            )  # Máximo 1 hora para full awareness
             factors.append(temporal_awareness * 0.2)
 
             # Actualizar nivel de conciencia
@@ -1031,41 +1130,49 @@ class AutonomousControllerBrain:
             return 0.5
 
         recent_decisions = self.decision_history[-10:]  # Últimas 10 decisiones
-        successful_decisions = sum(1 for d in recent_decisions
-                                 if d.executed and d.result and d.result.get('success', False))
+        successful_decisions = sum(
+            1
+            for d in recent_decisions
+            if d.executed and d.result and d.result.get("success", False)
+        )
 
         return successful_decisions / len(recent_decisions)
 
     def _calculate_adaptation_rate(self) -> float:
         """Calcula la velocidad de adaptación del sistema."""
-        if self.performance_metrics['learning_cycles'] == 0:
+        if self.performance_metrics["learning_cycles"] == 0:
             return 0.0
 
         # Basado en la frecuencia de auto-mejoras
-        improvements_per_cycle = self.performance_metrics['self_improvements'] / self.performance_metrics['learning_cycles']
+        improvements_per_cycle = (
+            self.performance_metrics["self_improvements"]
+            / self.performance_metrics["learning_cycles"]
+        )
         return min(improvements_per_cycle * 10, 1.0)  # Normalizar a 0-1
 
     async def _save_autonomous_state(self):
         """Guarda el estado del sistema autónomo."""
         try:
             state_data = {
-                'timestamp': time.time(),
-                'autonomy_level': self.autonomy_level.value,
-                'performance_metrics': self.performance_metrics,
-                'consciousness': {
-                    'awareness_level': self.consciousness.awareness_level,
-                    'learning_insights': self.consciousness.learning_insights,
-                    'meta_cognition': self.consciousness.meta_cognition
+                "timestamp": time.time(),
+                "autonomy_level": self.autonomy_level.value,
+                "performance_metrics": self.performance_metrics,
+                "consciousness": {
+                    "awareness_level": self.consciousness.awareness_level,
+                    "learning_insights": self.consciousness.learning_insights,
+                    "meta_cognition": self.consciousness.meta_cognition,
                 },
-                'decision_history_count': len(self.decision_history),
-                'primary_objectives': self.primary_objectives
+                "decision_history_count": len(self.decision_history),
+                "primary_objectives": self.primary_objectives,
             }
 
             # Guardar en archivo
-            state_file = os.path.join(self.project_root, 'data', 'autonomous_state.json')
+            state_file = os.path.join(
+                self.project_root, "data", "autonomous_state.json"
+            )
             os.makedirs(os.path.dirname(state_file), exist_ok=True)
 
-            with open(state_file, 'w') as f:
+            with open(state_file, "w") as f:
                 json.dump(state_data, f, indent=2)
 
             logger.info("✅ Autonomous state saved successfully")
@@ -1077,14 +1184,18 @@ class AutonomousControllerBrain:
 # Factory function para crear instancia global
 _autonomous_controller: Optional[AutonomousControllerBrain] = None
 
-def get_autonomous_controller(project_root: str = None,
-                            autonomy_level: AutonomyLevel = AutonomyLevel.FULLY_AUTONOMOUS) -> AutonomousControllerBrain:
+
+def get_autonomous_controller(
+    project_root: str = None,
+    autonomy_level: AutonomyLevel = AutonomyLevel.FULLY_AUTONOMOUS,
+) -> AutonomousControllerBrain:
     """Obtiene la instancia global del controlador autónomo."""
     global _autonomous_controller
 
     if _autonomous_controller is None:
         if project_root is None:
             import os
+
             project_root = os.getcwd()
 
         _autonomous_controller = AutonomousControllerBrain(project_root, autonomy_level)

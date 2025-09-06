@@ -6,10 +6,11 @@ embedding models. It serves as a bridge between the curiosity system and
 the existing LLM infrastructure.
 """
 
-import logging
 import asyncio
-from typing import List, Optional, Dict, Any
+import logging
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 
 try:
@@ -19,8 +20,8 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
 
-from ..adapters.llm_adapter import LLMAdapter
 from .. import settings
+from ..adapters.llm_adapter import LLMAdapter
 
 logger = logging.getLogger(__name__)
 

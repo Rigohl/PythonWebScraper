@@ -80,7 +80,6 @@ class ScrapingEnv(Env):
 
     def render(self, mode: str = "human") -> None:
         """Render the environment. Required by gymnasium interface."""
-        pass
 
     def close(self) -> None:
         """Optional cleanup hook. Mirrors gymnasium Env.close()."""

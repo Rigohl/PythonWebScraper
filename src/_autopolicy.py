@@ -57,9 +57,7 @@ def load_policy() -> dict:
         os.getenv("SCRAPER_CONCURRENCY", default_settings.get("concurrency", 4))
     )
     default_settings["request_delay_ms"] = int(
-        os.getenv(
-            "SCRAPER_DELAY_MS", default_settings.get("request_delay_ms", 300)
-        )
+        os.getenv("SCRAPER_DELAY_MS", default_settings.get("request_delay_ms", 300))
     )
     default_settings["timeout_s"] = float(
         os.getenv("SCRAPER_TIMEOUT_S", default_settings.get("timeout_s", 30))
@@ -87,9 +85,7 @@ class RateLimiter:
 
     def _delay_ms_for(self, host: str) -> int:
         host_policy = self.policy.get("per_host", {}).get(host, {})
-        default_delay = self.policy.get("default", {}).get(
-            "request_delay_ms", 0
-        )
+        default_delay = self.policy.get("default", {}).get("request_delay_ms", 0)
         delay = host_policy.get("request_delay_ms", default_delay)
         return int(delay)
 
@@ -177,9 +173,7 @@ class MetricsLogger:
         with self._lock:
             self._rows.append(row)
         try:
-            with (self.logdir / "metrics.jsonl").open(
-                "a", encoding="utf-8"
-            ) as f:
+            with (self.logdir / "metrics.jsonl").open("a", encoding="utf-8") as f:
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
         except IOError as e:
             logger.error(f"No se pudo escribir en el log de métricas: {e}")
@@ -205,9 +199,7 @@ class MetricsLogger:
         def percentile(p: float) -> float:
             if not latencies:
                 return 0.0
-            index = max(
-                0, min(len(latencies) - 1, int(p * len(latencies)) - 1)
-            )
+            index = max(0, min(len(latencies) - 1, int(p * len(latencies)) - 1))
             return float(latencies[index])
 
         return {
@@ -229,9 +221,7 @@ class MetricsLogger:
             (art / "metrics.json").write_text(
                 json.dumps(summary_data, indent=2), encoding="utf-8"
             )
-            logger.info(
-                f"Resumen de métricas guardado en {art / 'metrics.json'}"
-            )
+            logger.info(f"Resumen de métricas guardado en {art / 'metrics.json'}")
         except IOError as e:
             logger.error(f"No se pudo guardar el resumen de métricas: {e}")
 
@@ -271,9 +261,7 @@ def fetch(
                 raise ConnectionError(f"Bad status code: {status}")
             elif _HAVE_URLLIB:
                 req = urllib.request.Request(url, headers=final_headers)
-                with urllib.request.urlopen(
-                    req, timeout=retrier.timeout_s
-                ) as r:
+                with urllib.request.urlopen(req, timeout=retrier.timeout_s) as r:
                     status = getattr(r, "status", 200)
                     content = r.read()
                     content_len = len(content or b"")
@@ -319,9 +307,7 @@ def fetch(
                 )
                 time.sleep(retrier.backoff(attempt))
                 continue
-            logger.error(
-                f"Fallo al obtener {url} tras {attempt + 1} intentos."
-            )
+            logger.error(f"Fallo al obtener {url} tras {attempt + 1} intentos.")
             return None
 
 
@@ -331,9 +317,7 @@ def build_runtime():
     return pol, RateLimiter(pol), Retrier(pol), MetricsLogger()
 
 
-def map_concurrent(
-    items: List[Any], fn: Callable, max_workers: int
-) -> List[Any]:
+def map_concurrent(items: List[Any], fn: Callable, max_workers: int) -> List[Any]:
     """Ejecuta una función sobre una lista de ítems de forma concurrente."""
     results = []
     with ThreadPoolExecutor(max_workers=max_workers) as ex:

@@ -14,7 +14,6 @@ from typing import Any, Dict, Iterable, List, Sequence
 
 from .user_agent_manager import UserAgentManager
 
-
 # Common screen resolutions (copy to avoid accidental mutation elsewhere)
 DEFAULT_VIEWPORTS: List[Dict[str, int]] = [
     {"width": 1920, "height": 1080},
@@ -57,7 +56,9 @@ class FingerprintManager:
             raise ValueError("Se debe proporcionar un UserAgentManager.")
 
         self.user_agent_manager = user_agent_manager
-        self.viewports: List[Dict[str, int]] = list(viewports) if viewports is not None else list(DEFAULT_VIEWPORTS)
+        self.viewports: List[Dict[str, int]] = (
+            list(viewports) if viewports is not None else list(DEFAULT_VIEWPORTS)
+        )
         if not self.viewports:
             raise ValueError("La lista de viewports no puede estar vacía.")
 
@@ -108,4 +109,6 @@ class FingerprintManager:
                 "navigator.deviceMemory": self._random.choice([4, 8]),
             }
 
-            return Fingerprint(user_agent=user_agent, viewport=viewport, js_overrides=js_overrides)
+            return Fingerprint(
+                user_agent=user_agent, viewport=viewport, js_overrides=js_overrides
+            )

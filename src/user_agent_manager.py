@@ -67,7 +67,9 @@ class UserAgentManager:
         with self._lock:
             self._clean_expired_blocks()
             if self.available_user_agents:
-                self._rotation_index = (self._rotation_index + 1) % len(self.available_user_agents)
+                self._rotation_index = (self._rotation_index + 1) % len(
+                    self.available_user_agents
+                )
                 return self.available_user_agents[self._rotation_index]
 
             # Fallback to original list when all are blocked
@@ -98,7 +100,10 @@ class UserAgentManager:
         with self._lock:
             if user_agent in self.blocked_user_agents:
                 self.blocked_user_agents.pop(user_agent, None)
-                if user_agent in self.user_agents and user_agent not in self.available_user_agents:
+                if (
+                    user_agent in self.user_agents
+                    and user_agent not in self.available_user_agents
+                ):
                     self.available_user_agents.append(user_agent)
 
     def is_blocked(self, user_agent: str) -> bool:

@@ -9,16 +9,23 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Type, TypeVar
+from typing import Type, TypeVar
 
 from pydantic import BaseModel
 
 try:
     import instructor  # type: ignore
-    from openai import OpenAI, APIError, APITimeoutError, APIConnectionError  # type: ignore
+    from openai import (  # type: ignore
+        APIConnectionError,
+        APIError,
+        APITimeoutError,
+        OpenAI,
+    )
+
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
+
     # Definir excepciones mínimas para cuando OpenAI no esté disponible
     class APIError(Exception):  # type: ignore
         pass
@@ -28,6 +35,7 @@ except ImportError:
 
     class APIConnectionError(Exception):  # type: ignore
         pass
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,22 +48,20 @@ class LLMAdapter(ABC):
     @abstractmethod
     async def clean_text(self, text: str) -> str:
         """Limpiar texto usando LLM."""
-        pass
 
     @abstractmethod
-    async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
+    async def extract_structured_data(
+        self, html_content: str, response_model: Type[T]
+    ) -> T:
         """Extraer datos estructurados usando LLM."""
-        pass
 
     @abstractmethod
     async def summarize_content(self, text_content: str, max_words: int = 100) -> str:
         """Resumir contenido usando LLM."""
-        pass
 
     @abstractmethod
     def extract_sync(self, html_content: str, response_model: Type[T]) -> T:
         """Método síncrono legacy para compatibilidad con tests."""
-        pass
 
 
 class OpenAIAdapter(LLMAdapter):
@@ -63,7 +69,9 @@ class OpenAIAdapter(LLMAdapter):
 
     def __init__(self, api_key: str, model: str = "gpt-3.5-turbo") -> None:
         if not OPENAI_AVAILABLE:
-            raise RuntimeError("OpenAI no está disponible. Instale con: pip install openai instructor")
+            raise RuntimeError(
+                "OpenAI no está disponible. Instale con: pip install openai instructor"
+            )
 
         self.model = model
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -107,7 +115,9 @@ class OpenAIAdapter(LLMAdapter):
             self.logger.error(f"Error inesperado en limpieza de texto: {e}")
             return text
 
-    async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
+    async def extract_structured_data(
+        self, html_content: str, response_model: Type[T]
+    ) -> T:
         """Extraer datos estructurados usando OpenAI."""
         try:
             response = await self.client.chat.completions.create(
@@ -124,10 +134,14 @@ class OpenAIAdapter(LLMAdapter):
                     {"role": "user", "content": html_content},
                 ],
             )
-            self.logger.info(f"Extracción estructurada completada para {response_model.__name__}")
+            self.logger.info(
+                f"Extracción estructurada completada para {response_model.__name__}"
+            )
             return response
         except (APIError, APITimeoutError, APIConnectionError) as e:
-            self.logger.warning(f"Error en API de OpenAI para extracción estructurada: {e}")
+            self.logger.warning(
+                f"Error en API de OpenAI para extracción estructurada: {e}"
+            )
             return response_model()
         except Exception as e:
             self.logger.error(f"Error inesperado en extracción estructurada: {e}")
@@ -160,11 +174,13 @@ class OpenAIAdapter(LLMAdapter):
             self.logger.warning(f"Error en API de OpenAI para resumen: {e}")
             # Fallback: primeras palabras
             import re
+
             words = re.split(r"\s+", text_content)
             return " ".join(words[:max_words])
         except Exception as e:
             self.logger.error(f"Error inesperado en resumen: {e}")
             import re
+
             words = re.split(r"\s+", text_content)
             return " ".join(words[:max_words])
 
@@ -195,16 +211,20 @@ class OfflineLLMAdapter(LLMAdapter):
         """Limpieza básica sin LLM."""
         # Limpieza simple: remover exceso de espacios
         import re
-        cleaned = re.sub(r'\s+', ' ', text.strip())
+
+        cleaned = re.sub(r"\s+", " ", text.strip())
         return cleaned
 
-    async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
+    async def extract_structured_data(
+        self, html_content: str, response_model: Type[T]
+    ) -> T:
         """Crear instancia vacía del modelo."""
         return response_model()
 
     async def summarize_content(self, text_content: str, max_words: int = 100) -> str:
         """Resumen simple: primeras palabras."""
         import re
+
         words = re.split(r"\s+", text_content)
         return " ".join(words[:max_words])
 
@@ -232,7 +252,9 @@ class OfflineLLMAdapter(LLMAdapter):
         try:
             return response_model.model_construct(**values)
         except Exception:
-            return response_model(**{k: v for k, v in values.items() if v not in (None,)})
+            return response_model(
+                **{k: v for k, v in values.items() if v not in (None,)}
+            )
 
 
 class MockLLMAdapter(LLMAdapter):
@@ -247,7 +269,9 @@ class MockLLMAdapter(LLMAdapter):
         self.call_count += 1
         return self.mock_responses.get("clean_text", f"cleaned: {text}")
 
-    async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
+    async def extract_structured_data(
+        self, html_content: str, response_model: Type[T]
+    ) -> T:
         """Mock de extracción estructurada."""
         self.call_count += 1
         if "extract_data" in self.mock_responses:
@@ -257,7 +281,9 @@ class MockLLMAdapter(LLMAdapter):
     async def summarize_content(self, text_content: str, max_words: int = 100) -> str:
         """Mock de resumen."""
         self.call_count += 1
-        return self.mock_responses.get("summarize", f"summary of {text_content[:50]}...")
+        return self.mock_responses.get(
+            "summarize", f"summary of {text_content[:50]}..."
+        )
 
     def extract_sync(self, html_content: str, response_model: Type[T]) -> T:
         """Mock síncrono."""

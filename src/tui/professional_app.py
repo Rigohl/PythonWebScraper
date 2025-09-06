@@ -1,36 +1,44 @@
 # src/tui/professional_app.py
 
-from textual.app import App, ComposeResult
-from textual.containers import Container, Grid, Horizontal, Vertical, VerticalScroll
-from textual.widgets import (
-    Header, Footer, TabbedContent, TabPane, Button, Input, Label,
-    Checkbox, ProgressBar, Static, DataTable, Switch, RadioSet,
-    RadioButton, ListView, ListItem, Tree, Collapsible,
-    LoadingIndicator, Digits, RichLog
-)
-from textual.reactive import reactive
-from textual.binding import Binding
-from textual.message import Message
-from textual.worker import get_current_worker
-from textual import events
-from rich.console import Console
-from rich.table import Table
-from rich.text import Text
-from rich.panel import Panel
-from rich.align import Align
-from rich import box
-from datetime import datetime
 import asyncio
 import logging
-import json
-from typing import Dict, Any, List, Optional
+from datetime import datetime
+from typing import List, Optional
+
+from rich.console import Console
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.containers import Container, Grid, Horizontal, Vertical
+from textual.message import Message
+from textual.reactive import reactive
+from textual.widgets import (
+    Button,
+    Checkbox,
+    DataTable,
+    Digits,
+    Footer,
+    Header,
+    Input,
+    Label,
+    ListView,
+    ProgressBar,
+    RadioButton,
+    RadioSet,
+    RichLog,
+    Static,
+    Switch,
+    TabbedContent,
+    TabPane,
+)
 
 from ..intelligence import language_utils
 from ..intelligence.hybrid_brain import HybridBrain
 from ..intelligence.intent_recognizer import IntentRecognizer, IntentType
 
+
 class ChatOverlay(Static):
     """Overlay flotante de chat persistente (bilingüe)."""
+
     DEFAULT_CSS = """
     ChatOverlay {
         layer: overlay;
@@ -97,14 +105,10 @@ class ChatOverlay(Static):
         log.write(f"[yellow][IA-EN][/]: {en}")
 
 
-from .dashboard_widgets import (
-    ProfessionalMetricsPanel, IntelligenceControlCenter, AdvancedOperationsPanel,
-    RealTimeMonitor, DomainIntelligencePanel, AIAssistantInterface, SystemStatusBar
-)
-from ..runner import run_crawler
 from .. import settings
 
 logger = logging.getLogger(__name__)
+
 
 class WebScraperProfessionalApp(App):
     """
@@ -126,17 +130,14 @@ class WebScraperProfessionalApp(App):
         Binding("f3", "quick_start", "Quick Start", show=True),
         Binding("f4", "ai_assistant", "Asistente IA", show=True),
         Binding("f9", "toggle_chat", "Chat", show=True),
-
         # Controles de scraping
         Binding("ctrl+s", "start_scraping", "Iniciar", show=True),
         Binding("ctrl+t", "stop_scraping", "Detener", show=True),
         Binding("ctrl+p", "pause_resume", "Pausar/Reanudar", show=True),
-
         # Visualización
         Binding("ctrl+l", "toggle_logs", "Logs", show=False),
         Binding("ctrl+m", "toggle_metrics", "Métricas", show=False),
         Binding("ctrl+i", "toggle_intelligence", "Inteligencia", show=False),
-
         # Sistema
         Binding("ctrl+r", "refresh_data", "Actualizar", show=False),
         Binding("ctrl+q", "quit", "Salir", show=True),
@@ -216,7 +217,9 @@ class WebScraperProfessionalApp(App):
 
                         with Container(classes="kpi-card success-kpi"):
                             yield Label("✅ Tasa de Éxito", classes="kpi-title")
-                            yield Digits("100.0%", id="kpi_success", classes="kpi-number")
+                            yield Digits(
+                                "100.0%", id="kpi_success", classes="kpi-number"
+                            )
                             yield Label("Promedio global", classes="kpi-subtitle")
 
                         with Container(classes="kpi-card brain-kpi"):
@@ -229,30 +232,69 @@ class WebScraperProfessionalApp(App):
                     with Horizontal(classes="charts-row"):
                         # Panel de progreso actual
                         with Container(classes="progress-panel"):
-                            yield Label("[bold cyan]📈 Progreso Actual[/]", classes="panel-title")
-                            yield ProgressBar(total=100, progress=0, id="main_progress",
-                                            show_percentage=True, show_eta=True)
-                            yield Label("Esperando inicio...", id="progress_status", classes="status-text")
+                            yield Label(
+                                "[bold cyan]📈 Progreso Actual[/]",
+                                classes="panel-title",
+                            )
+                            yield ProgressBar(
+                                total=100,
+                                progress=0,
+                                id="main_progress",
+                                show_percentage=True,
+                                show_eta=True,
+                            )
+                            yield Label(
+                                "Esperando inicio...",
+                                id="progress_status",
+                                classes="status-text",
+                            )
 
                         # Panel de inteligencia
                         with Container(classes="intelligence-panel"):
-                            yield Label("[bold magenta]🧠 Estado de IA[/]", classes="panel-title")
-                            yield Label("[green]● HybridBrain ACTIVO[/]", id="brain_status", classes="status-text")
-                            yield Label("🔄 Aprendizaje Continuo: ON", classes="status-text")
+                            yield Label(
+                                "[bold magenta]🧠 Estado de IA[/]",
+                                classes="panel-title",
+                            )
+                            yield Label(
+                                "[green]● HybridBrain ACTIVO[/]",
+                                id="brain_status",
+                                classes="status-text",
+                            )
+                            yield Label(
+                                "🔄 Aprendizaje Continuo: ON", classes="status-text"
+                            )
                             yield Label("🛠️ Auto-Reparación: ON", classes="status-text")
 
                 # Sección inferior: Controles rápidos
                 with Container(classes="quick-actions-section"):
-                    yield Label("[bold yellow]⚡ Acciones Rápidas[/]", classes="section-title")
+                    yield Label(
+                        "[bold yellow]⚡ Acciones Rápidas[/]", classes="section-title"
+                    )
                     with Horizontal(classes="quick-buttons-row"):
-                        yield Button("🚀 Inicio Rápido", variant="primary", id="quick_start_btn",
-                                   classes="quick-action-btn")
-                        yield Button("📊 Ver Estadísticas", variant="success", id="view_stats_btn",
-                                   classes="quick-action-btn")
-                        yield Button("🔧 Auto-Configurar", variant="warning", id="auto_config_btn",
-                                   classes="quick-action-btn")
-                        yield Button("🧠 Brain Snapshot", variant="default", id="brain_snapshot_btn",
-                                   classes="quick-action-btn")
+                        yield Button(
+                            "🚀 Inicio Rápido",
+                            variant="primary",
+                            id="quick_start_btn",
+                            classes="quick-action-btn",
+                        )
+                        yield Button(
+                            "📊 Ver Estadísticas",
+                            variant="success",
+                            id="view_stats_btn",
+                            classes="quick-action-btn",
+                        )
+                        yield Button(
+                            "🔧 Auto-Configurar",
+                            variant="warning",
+                            id="auto_config_btn",
+                            classes="quick-action-btn",
+                        )
+                        yield Button(
+                            "🧠 Brain Snapshot",
+                            variant="default",
+                            id="brain_snapshot_btn",
+                            classes="quick-action-btn",
+                        )
 
         # No explicit return needed
 
@@ -263,46 +305,91 @@ class WebScraperProfessionalApp(App):
 
                 # Panel de configuración
                 with Container(classes="config-panel"):
-                    yield Label("[bold green]🕷️ Configuración de Scraping[/]", classes="panel-title")
+                    yield Label(
+                        "[bold green]🕷️ Configuración de Scraping[/]",
+                        classes="panel-title",
+                    )
 
                     with Vertical(classes="config-form"):
                         yield Label("URL de Inicio:", classes="field-label")
-                        yield Input(placeholder="https://books.toscrape.com/",
-                                  id="start_url_input", classes="url-input")
+                        yield Input(
+                            placeholder="https://books.toscrape.com/",
+                            id="start_url_input",
+                            classes="url-input",
+                        )
 
                         yield Label("Concurrencia:", classes="field-label")
-                        yield Input(value=str(settings.CONCURRENCY),
-                                  id="concurrency_input", classes="number-input")
+                        yield Input(
+                            value=str(settings.CONCURRENCY),
+                            id="concurrency_input",
+                            classes="number-input",
+                        )
 
                         with Horizontal(classes="checkboxes-row"):
-                            yield Checkbox("Respetar robots.txt", value=True, id="robots_check")
-                            yield Checkbox("Verificaciones éticas", value=True, id="ethics_check")
-                            yield Checkbox("Modo stealth", value=False, id="stealth_check")
+                            yield Checkbox(
+                                "Respetar robots.txt", value=True, id="robots_check"
+                            )
+                            yield Checkbox(
+                                "Verificaciones éticas", value=True, id="ethics_check"
+                            )
+                            yield Checkbox(
+                                "Modo stealth", value=False, id="stealth_check"
+                            )
 
                         with Horizontal(classes="ai-checkboxes-row"):
-                            yield Checkbox("Usar IA Híbrida", value=True, id="hybrid_ai_check")
-                            yield Checkbox("Agente RL", value=False, id="rl_agent_check")
-                            yield Checkbox("LLM Enhancement", value=True, id="llm_check")
+                            yield Checkbox(
+                                "Usar IA Híbrida", value=True, id="hybrid_ai_check"
+                            )
+                            yield Checkbox(
+                                "Agente RL", value=False, id="rl_agent_check"
+                            )
+                            yield Checkbox(
+                                "LLM Enhancement", value=True, id="llm_check"
+                            )
 
                 # Panel de controles
                 with Container(classes="controls-panel"):
                     yield Label("[bold blue]🎮 Controles[/]", classes="panel-title")
 
                     with Vertical(classes="control-buttons"):
-                        yield Button("🚀 INICIAR SCRAPING", variant="primary",
-                                   id="start_scraping_btn", classes="control-btn")
-                        yield Button("⏸️ PAUSAR", variant="warning",
-                                   id="pause_scraping_btn", classes="control-btn", disabled=True)
-                        yield Button("⏹️ DETENER", variant="error",
-                                   id="stop_scraping_btn", classes="control-btn", disabled=True)
-                        yield Button("🔄 REINICIAR", variant="default",
-                                   id="restart_scraping_btn", classes="control-btn")
+                        yield Button(
+                            "🚀 INICIAR SCRAPING",
+                            variant="primary",
+                            id="start_scraping_btn",
+                            classes="control-btn",
+                        )
+                        yield Button(
+                            "⏸️ PAUSAR",
+                            variant="warning",
+                            id="pause_scraping_btn",
+                            classes="control-btn",
+                            disabled=True,
+                        )
+                        yield Button(
+                            "⏹️ DETENER",
+                            variant="error",
+                            id="stop_scraping_btn",
+                            classes="control-btn",
+                            disabled=True,
+                        )
+                        yield Button(
+                            "🔄 REINICIAR",
+                            variant="default",
+                            id="restart_scraping_btn",
+                            classes="control-btn",
+                        )
 
                 # Panel de estado en tiempo real
                 with Container(classes="status-panel"):
-                    yield Label("[bold cyan]📡 Estado en Tiempo Real[/]", classes="panel-title")
-                    yield RichLog(highlight=True, markup=True, id="realtime_log",
-                                classes="realtime-log")
+                    yield Label(
+                        "[bold cyan]📡 Estado en Tiempo Real[/]", classes="panel-title"
+                    )
+                    yield RichLog(
+                        highlight=True,
+                        markup=True,
+                        id="realtime_log",
+                        classes="realtime-log",
+                    )
 
     # No explicit return needed
 
@@ -313,50 +400,104 @@ class WebScraperProfessionalApp(App):
 
                 # Panel de control de IA
                 with Container(classes="ai-control-panel"):
-                    yield Label("[bold magenta]🧠 Control de Inteligencia Artificial[/]", classes="panel-title")
+                    yield Label(
+                        "[bold magenta]🧠 Control de Inteligencia Artificial[/]",
+                        classes="panel-title",
+                    )
 
                     with Vertical(classes="ai-controls"):
                         yield Label("Modo de Operación:", classes="field-label")
                         with RadioSet(id="ai_mode_radio"):
-                            yield RadioButton("HybridBrain (IA-A + IA-B)", value=True, id="hybrid_mode")
+                            yield RadioButton(
+                                "HybridBrain (IA-A + IA-B)",
+                                value=True,
+                                id="hybrid_mode",
+                            )
                             yield RadioButton("Neural Brain Only", id="neural_mode")
                             yield RadioButton("Legacy Mode", id="legacy_mode")
 
                         with Horizontal(classes="ai-toggles"):
-                            yield Switch(value=True, id="consciousness_switch", classes="ai-switch")
-                            yield Label("Procesamiento Consciente", classes="switch-label")
+                            yield Switch(
+                                value=True,
+                                id="consciousness_switch",
+                                classes="ai-switch",
+                            )
+                            yield Label(
+                                "Procesamiento Consciente", classes="switch-label"
+                            )
 
                         with Horizontal(classes="ai-toggles"):
-                            yield Switch(value=True, id="learning_switch", classes="ai-switch")
+                            yield Switch(
+                                value=True, id="learning_switch", classes="ai-switch"
+                            )
                             yield Label("Aprendizaje Continuo", classes="switch-label")
 
                         with Horizontal(classes="ai-toggles"):
-                            yield Switch(value=True, id="repair_switch", classes="ai-switch")
+                            yield Switch(
+                                value=True, id="repair_switch", classes="ai-switch"
+                            )
                             yield Label("Auto-Reparación", classes="switch-label")
 
                 # Panel de métricas de IA
                 with Container(classes="ai-metrics-panel"):
-                    yield Label("[bold yellow]📊 Métricas de Inteligencia[/]", classes="panel-title")
+                    yield Label(
+                        "[bold yellow]📊 Métricas de Inteligencia[/]",
+                        classes="panel-title",
+                    )
 
                     with Vertical(classes="ai-metrics"):
-                        yield Label("Sesiones de Aprendizaje: 0", id="learning_sessions", classes="metric-item")
-                        yield Label("Patrones Detectados: 0", id="patterns_detected", classes="metric-item")
-                        yield Label("Efectividad IA: 0%", id="ai_effectiveness", classes="metric-item")
-                        yield Label("Sugerencias Generadas: 0", id="suggestions_generated", classes="metric-item")
+                        yield Label(
+                            "Sesiones de Aprendizaje: 0",
+                            id="learning_sessions",
+                            classes="metric-item",
+                        )
+                        yield Label(
+                            "Patrones Detectados: 0",
+                            id="patterns_detected",
+                            classes="metric-item",
+                        )
+                        yield Label(
+                            "Efectividad IA: 0%",
+                            id="ai_effectiveness",
+                            classes="metric-item",
+                        )
+                        yield Label(
+                            "Sugerencias Generadas: 0",
+                            id="suggestions_generated",
+                            classes="metric-item",
+                        )
 
                 # Panel de acciones de IA
                 with Container(classes="ai-actions-panel"):
-                    yield Label("[bold purple]🤖 Acciones de IA[/]", classes="panel-title")
+                    yield Label(
+                        "[bold purple]🤖 Acciones de IA[/]", classes="panel-title"
+                    )
 
                     with Vertical(classes="ai-action-buttons"):
-                        yield Button("🔍 Análisis Inteligente", variant="primary",
-                                   id="ai_analyze_btn", classes="ai-action-btn")
-                        yield Button("🛠️ Ejecutar Auto-Reparación", variant="success",
-                                   id="ai_repair_btn", classes="ai-action-btn")
-                        yield Button("📸 Brain Snapshot", variant="warning",
-                                   id="brain_snapshot_action_btn", classes="ai-action-btn")
-                        yield Button("📚 Consultar Knowledge Base", variant="default",
-                                   id="query_kb_btn", classes="ai-action-btn")
+                        yield Button(
+                            "🔍 Análisis Inteligente",
+                            variant="primary",
+                            id="ai_analyze_btn",
+                            classes="ai-action-btn",
+                        )
+                        yield Button(
+                            "🛠️ Ejecutar Auto-Reparación",
+                            variant="success",
+                            id="ai_repair_btn",
+                            classes="ai-action-btn",
+                        )
+                        yield Button(
+                            "📸 Brain Snapshot",
+                            variant="warning",
+                            id="brain_snapshot_action_btn",
+                            classes="ai-action-btn",
+                        )
+                        yield Button(
+                            "📚 Consultar Knowledge Base",
+                            variant="default",
+                            id="query_kb_btn",
+                            classes="ai-action-btn",
+                        )
 
     # No explicit return needed
 
@@ -367,22 +508,36 @@ class WebScraperProfessionalApp(App):
 
                 # Panel de estadísticas por dominio
                 with Container(classes="domain-stats-panel"):
-                    yield Label("[bold blue]🌐 Estadísticas por Dominio[/]", classes="panel-title")
+                    yield Label(
+                        "[bold blue]🌐 Estadísticas por Dominio[/]",
+                        classes="panel-title",
+                    )
                     yield DataTable(id="domain_stats_table", classes="domain-table")
 
                 # Panel de alertas
                 with Container(classes="alerts-panel"):
-                    yield Label("[bold red]⚠️ Alertas del Sistema[/]", classes="panel-title")
+                    yield Label(
+                        "[bold red]⚠️ Alertas del Sistema[/]", classes="panel-title"
+                    )
                     yield ListView(id="alerts_list", classes="alerts-list")
 
                 # Panel de rendimiento
                 with Container(classes="performance-panel"):
-                    yield Label("[bold green]📈 Rendimiento del Sistema[/]", classes="panel-title")
+                    yield Label(
+                        "[bold green]📈 Rendimiento del Sistema[/]",
+                        classes="panel-title",
+                    )
                     with Vertical(classes="performance-metrics"):
                         yield Label("CPU: 0%", id="cpu_usage", classes="perf-metric")
-                        yield Label("Memoria: 0 MB", id="memory_usage", classes="perf-metric")
-                        yield Label("Red: 0 KB/s", id="network_usage", classes="perf-metric")
-                        yield Label("Disco: 0 MB", id="disk_usage", classes="perf-metric")
+                        yield Label(
+                            "Memoria: 0 MB", id="memory_usage", classes="perf-metric"
+                        )
+                        yield Label(
+                            "Red: 0 KB/s", id="network_usage", classes="perf-metric"
+                        )
+                        yield Label(
+                            "Disco: 0 MB", id="disk_usage", classes="perf-metric"
+                        )
 
     # No explicit return needed
 
@@ -393,38 +548,77 @@ class WebScraperProfessionalApp(App):
 
                 # Panel de formatos de exportación
                 with Container(classes="export-formats-panel"):
-                    yield Label("[bold cyan]📤 Formatos de Exportación[/]", classes="panel-title")
+                    yield Label(
+                        "[bold cyan]📤 Formatos de Exportación[/]",
+                        classes="panel-title",
+                    )
 
                     with Vertical(classes="format-checkboxes"):
-                        yield Checkbox("CSV (Comma Separated Values)", value=True, id="csv_export")
-                        yield Checkbox("JSON (JavaScript Object Notation)", value=True, id="json_export")
+                        yield Checkbox(
+                            "CSV (Comma Separated Values)", value=True, id="csv_export"
+                        )
+                        yield Checkbox(
+                            "JSON (JavaScript Object Notation)",
+                            value=True,
+                            id="json_export",
+                        )
                         yield Checkbox("Markdown (.md)", value=False, id="md_export")
                         yield Checkbox("Excel (.xlsx)", value=False, id="xlsx_export")
                         yield Checkbox("Word (.docx)", value=False, id="docx_export")
 
                 # Panel de opciones de reporte
                 with Container(classes="report-options-panel"):
-                    yield Label("[bold yellow]📋 Opciones de Reporte[/]", classes="panel-title")
+                    yield Label(
+                        "[bold yellow]📋 Opciones de Reporte[/]", classes="panel-title"
+                    )
 
                     with Vertical(classes="report-checkboxes"):
-                        yield Checkbox("Incluir métricas de rendimiento", value=True, id="perf_metrics")
-                        yield Checkbox("Incluir análisis de IA", value=True, id="ai_analysis")
-                        yield Checkbox("Incluir estadísticas por dominio", value=True, id="domain_stats")
-                        yield Checkbox("Incluir logs detallados", value=False, id="detailed_logs")
+                        yield Checkbox(
+                            "Incluir métricas de rendimiento",
+                            value=True,
+                            id="perf_metrics",
+                        )
+                        yield Checkbox(
+                            "Incluir análisis de IA", value=True, id="ai_analysis"
+                        )
+                        yield Checkbox(
+                            "Incluir estadísticas por dominio",
+                            value=True,
+                            id="domain_stats",
+                        )
+                        yield Checkbox(
+                            "Incluir logs detallados", value=False, id="detailed_logs"
+                        )
 
                 # Panel de acciones de exportación
                 with Container(classes="export-actions-panel"):
                     yield Label("[bold green]🚀 Acciones[/]", classes="panel-title")
 
                     with Vertical(classes="export-buttons"):
-                        yield Button("📊 Generar Reporte Completo", variant="primary",
-                                   id="generate_report_btn", classes="export-btn")
-                        yield Button("💾 Exportar Datos Actuales", variant="success",
-                                   id="export_current_btn", classes="export-btn")
-                        yield Button("📈 Reporte de IA", variant="warning",
-                                   id="ai_report_btn", classes="export-btn")
-                        yield Button("🗂️ Abrir Carpeta de Exportación", variant="default",
-                                   id="open_exports_btn", classes="export-btn")
+                        yield Button(
+                            "📊 Generar Reporte Completo",
+                            variant="primary",
+                            id="generate_report_btn",
+                            classes="export-btn",
+                        )
+                        yield Button(
+                            "💾 Exportar Datos Actuales",
+                            variant="success",
+                            id="export_current_btn",
+                            classes="export-btn",
+                        )
+                        yield Button(
+                            "📈 Reporte de IA",
+                            variant="warning",
+                            id="ai_report_btn",
+                            classes="export-btn",
+                        )
+                        yield Button(
+                            "🗂️ Abrir Carpeta de Exportación",
+                            variant="default",
+                            id="open_exports_btn",
+                            classes="export-btn",
+                        )
 
     # No explicit return needed
 
@@ -435,43 +629,72 @@ class WebScraperProfessionalApp(App):
 
                 # Panel de configuración del sistema
                 with Container(classes="system-config-panel"):
-                    yield Label("[bold red]⚙️ Configuración del Sistema[/]", classes="panel-title")
+                    yield Label(
+                        "[bold red]⚙️ Configuración del Sistema[/]",
+                        classes="panel-title",
+                    )
 
                     with Vertical(classes="system-settings"):
                         yield Label("Workers Concurrentes:", classes="field-label")
-                        yield Input(value="8", id="workers_config", classes="number-input")
+                        yield Input(
+                            value="8", id="workers_config", classes="number-input"
+                        )
 
                         yield Label("Timeout (segundos):", classes="field-label")
-                        yield Input(value="30", id="timeout_config", classes="number-input")
+                        yield Input(
+                            value="30", id="timeout_config", classes="number-input"
+                        )
 
                         yield Label("Max Retries:", classes="field-label")
-                        yield Input(value="3", id="retries_config", classes="number-input")
+                        yield Input(
+                            value="3", id="retries_config", classes="number-input"
+                        )
 
                 # Panel de configuración de IA
                 with Container(classes="ai-config-panel"):
-                    yield Label("[bold purple]🧠 Configuración de IA[/]", classes="panel-title")
+                    yield Label(
+                        "[bold purple]🧠 Configuración de IA[/]", classes="panel-title"
+                    )
 
                     with Vertical(classes="ai-settings"):
                         yield Label("Frecuencia de Sync IA:", classes="field-label")
-                        yield Input(value="50", id="ia_sync_config", classes="number-input")
+                        yield Input(
+                            value="50", id="ia_sync_config", classes="number-input"
+                        )
 
                         yield Label("Umbral de Confianza:", classes="field-label")
-                        yield Input(value="0.8", id="confidence_config", classes="number-input")
+                        yield Input(
+                            value="0.8", id="confidence_config", classes="number-input"
+                        )
 
                         yield Checkbox("Modo Debug IA", value=False, id="ai_debug")
-                        yield Checkbox("Logging Detallado", value=False, id="verbose_logging")
+                        yield Checkbox(
+                            "Logging Detallado", value=False, id="verbose_logging"
+                        )
 
                 # Panel de acciones de configuración
                 with Container(classes="config-actions-panel"):
                     yield Label("[bold green]💾 Acciones[/]", classes="panel-title")
 
                     with Vertical(classes="config-buttons"):
-                        yield Button("💾 Guardar Configuración", variant="primary",
-                                   id="save_config_btn", classes="config-btn")
-                        yield Button("🔄 Restaurar Defaults", variant="warning",
-                                   id="restore_defaults_btn", classes="config-btn")
-                        yield Button("📋 Exportar Config", variant="default",
-                                   id="export_config_btn", classes="config-btn")
+                        yield Button(
+                            "💾 Guardar Configuración",
+                            variant="primary",
+                            id="save_config_btn",
+                            classes="config-btn",
+                        )
+                        yield Button(
+                            "🔄 Restaurar Defaults",
+                            variant="warning",
+                            id="restore_defaults_btn",
+                            classes="config-btn",
+                        )
+                        yield Button(
+                            "📋 Exportar Config",
+                            variant="default",
+                            id="export_config_btn",
+                            classes="config-btn",
+                        )
 
     # No explicit return needed
 
@@ -495,7 +718,9 @@ class WebScraperProfessionalApp(App):
                 # Inicio de inicialización temprana del cerebro
                 log = overlay.query_one("#chat_log", RichLog)
                 log.write("[bold green]💬 Chat listo. Bilingüe activado.[/]")
-                log.write("[dim]Inicializando HybridBrain... (esto puede tardar unos segundos)[/]")
+                log.write(
+                    "[dim]Inicializando HybridBrain... (esto puede tardar unos segundos)[/]"
+                )
 
                 # Iniciar el cerebro en segundo plano para no bloquear la UI
                 async def init_brain_background():
@@ -517,7 +742,7 @@ class WebScraperProfessionalApp(App):
             log = overlay.query_one("#chat_log", RichLog)
 
             # Comandos (prefijo /)
-            if user_text.startswith('/'):
+            if user_text.startswith("/"):
                 await self._process_chat_command(user_text[1:], overlay, log)
                 return
 
@@ -534,46 +759,76 @@ class WebScraperProfessionalApp(App):
                 # Preparar mensaje sobre la intención detectada
                 if intent.type == IntentType.SEARCH:
                     query = intent.parameters.get("query", "")
-                    intent_prefix_es = f"[bold blue]Detectada intención:[/] búsqueda de \"{query}\"\n\n"
-                    intent_prefix_en = f"[bold blue]Intent detected:[/] search for \"{query}\"\n\n"
+                    intent_prefix_es = (
+                        f'[bold blue]Detectada intención:[/] búsqueda de "{query}"\n\n'
+                    )
+                    intent_prefix_en = (
+                        f'[bold blue]Intent detected:[/] search for "{query}"\n\n'
+                    )
                     # Simular comando /kb
                     if query:
-                        await self._process_chat_command(f"kb {query}", overlay, log, show_cmd=False)
+                        await self._process_chat_command(
+                            f"kb {query}", overlay, log, show_cmd=False
+                        )
 
                 elif intent.type == IntentType.CRAWL:
                     url = intent.parameters.get("url", "")
-                    intent_prefix_es = f"[bold green]Detectada intención:[/] iniciar scraping\n\n"
-                    intent_prefix_en = f"[bold green]Intent detected:[/] start crawling\n\n"
+                    intent_prefix_es = (
+                        f"[bold green]Detectada intención:[/] iniciar scraping\n\n"
+                    )
+                    intent_prefix_en = (
+                        f"[bold green]Intent detected:[/] start crawling\n\n"
+                    )
                     # Simular comando /crawl
                     if url:
-                        await self._process_chat_command(f"crawl {url}", overlay, log, show_cmd=False)
+                        await self._process_chat_command(
+                            f"crawl {url}", overlay, log, show_cmd=False
+                        )
 
                 elif intent.type == IntentType.KNOWLEDGE:
                     topic = intent.parameters.get("topic", "")
-                    intent_prefix_es = f"[bold yellow]Detectada intención:[/] consulta sobre \"{topic}\"\n\n"
-                    intent_prefix_en = f"[bold yellow]Intent detected:[/] query about \"{topic}\"\n\n"
+                    intent_prefix_es = f'[bold yellow]Detectada intención:[/] consulta sobre "{topic}"\n\n'
+                    intent_prefix_en = (
+                        f'[bold yellow]Intent detected:[/] query about "{topic}"\n\n'
+                    )
                     # Simular comando /kb
                     if topic:
-                        await self._process_chat_command(f"kb {topic}", overlay, log, show_cmd=False)
+                        await self._process_chat_command(
+                            f"kb {topic}", overlay, log, show_cmd=False
+                        )
 
                 elif intent.type == IntentType.SNAPSHOT:
-                    intent_prefix_es = f"[bold purple]Detectada intención:[/] generar snapshot\n\n"
-                    intent_prefix_en = f"[bold purple]Intent detected:[/] generate snapshot\n\n"
+                    intent_prefix_es = (
+                        f"[bold purple]Detectada intención:[/] generar snapshot\n\n"
+                    )
+                    intent_prefix_en = (
+                        f"[bold purple]Intent detected:[/] generate snapshot\n\n"
+                    )
                     # Simular comando /snapshot
-                    await self._process_chat_command("snapshot", overlay, log, show_cmd=False)
+                    await self._process_chat_command(
+                        "snapshot", overlay, log, show_cmd=False
+                    )
 
                 elif intent.type == IntentType.STATUS:
-                    intent_prefix_es = f"[bold cyan]Detectada intención:[/] consulta de estado\n\n"
-                    intent_prefix_en = f"[bold cyan]Intent detected:[/] status query\n\n"
+                    intent_prefix_es = (
+                        f"[bold cyan]Detectada intención:[/] consulta de estado\n\n"
+                    )
+                    intent_prefix_en = (
+                        f"[bold cyan]Intent detected:[/] status query\n\n"
+                    )
                     # Simular comando /status
-                    await self._process_chat_command("status", overlay, log, show_cmd=False)
+                    await self._process_chat_command(
+                        "status", overlay, log, show_cmd=False
+                    )
 
                 elif intent.type == IntentType.EDIT:
                     file = intent.parameters.get("file", "")
                     old_content = intent.parameters.get("old_content", "")
                     new_content = intent.parameters.get("new_content", "")
 
-                    intent_prefix_es = f"[bold orange]Detectada intención:[/] editar archivo"
+                    intent_prefix_es = (
+                        f"[bold orange]Detectada intención:[/] editar archivo"
+                    )
                     intent_prefix_en = f"[bold orange]Intent detected:[/] edit file"
 
                     if file:
@@ -590,7 +845,9 @@ class WebScraperProfessionalApp(App):
                     command = intent.parameters.get("command", "")
 
                     intent_prefix_es = f"[bold magenta]Detectada intención:[/] ejecutar comando en terminal"
-                    intent_prefix_en = f"[bold magenta]Intent detected:[/] execute terminal command"
+                    intent_prefix_en = (
+                        f"[bold magenta]Intent detected:[/] execute terminal command"
+                    )
 
                     if command:
                         intent_prefix_es += f" '{command}'"
@@ -603,7 +860,9 @@ class WebScraperProfessionalApp(App):
                     await self._process_terminal_intent(command, log)
 
             # Preprocesar texto y enriquecer
-            lang, enriched_es, enriched_en = language_utils.enrich_text_bilingual(user_text)
+            lang, enriched_es, enriched_en = language_utils.enrich_text_bilingual(
+                user_text
+            )
 
             # Añadir prefijo de intención a las respuestas
             enriched_es = intent_prefix_es + enriched_es
@@ -619,13 +878,15 @@ class WebScraperProfessionalApp(App):
                 try:
                     # Primero intentamos consulta al cerebro para respuesta semántica
                     brain_response = None
-                    if hasattr(self._brain, 'get_response') and callable(getattr(self._brain, 'get_response')):
+                    if hasattr(self._brain, "get_response") and callable(
+                        getattr(self._brain, "get_response")
+                    ):
                         try:
                             brain_response = self._brain.get_response(user_text)
                             if brain_response:
                                 # Si el cerebro tiene una respuesta directa, la usamos
-                                enriched_es = brain_response.get('es', enriched_es)
-                                enriched_en = brain_response.get('en', enriched_en)
+                                enriched_es = brain_response.get("es", enriched_es)
+                                enriched_en = brain_response.get("en", enriched_en)
                         except Exception:
                             # Si falla, seguimos con el flujo normal
                             pass
@@ -634,15 +895,26 @@ class WebScraperProfessionalApp(App):
                     kb_results = self._brain.query_knowledge_base(user_text)
                     if kb_results:
                         for idx, r in enumerate(kb_results[:5], start=1):
-                            title = r.get('title') or r.get('id','') or 'sin_titulo'
-                            content = r.get('content', '')[:50] + '...' if r.get('content') else ''
+                            title = r.get("title") or r.get("id", "") or "sin_titulo"
+                            content = (
+                                r.get("content", "")[:50] + "..."
+                                if r.get("content")
+                                else ""
+                            )
                             numbered_lines_es.append(f"[bold]{idx}.[/] {title}")
                             numbered_lines_en.append(f"[bold]{idx}.[/] {title}")
-                        kb_summary_es = "\n\n[bold green]Coincidencias en KB:[/]\n" + "\n".join(numbered_lines_es)
-                        kb_summary_en = "\n\n[bold yellow]KB Matches:[/]\n" + "\n".join(numbered_lines_en)
+                        kb_summary_es = (
+                            "\n\n[bold green]Coincidencias en KB:[/]\n"
+                            + "\n".join(numbered_lines_es)
+                        )
+                        kb_summary_en = "\n\n[bold yellow]KB Matches:[/]\n" + "\n".join(
+                            numbered_lines_en
+                        )
                     else:
                         kb_summary_es = "\n\n[dim]Sin resultados relevantes en la base de conocimiento[/]"
-                        kb_summary_en = "\n\n[dim]No relevant results in knowledge base[/]"
+                        kb_summary_en = (
+                            "\n\n[dim]No relevant results in knowledge base[/]"
+                        )
                 except Exception as kb_e:
                     kb_summary_es = f"\n\n[red]Error consultando KB: {kb_e}[/]"
                     kb_summary_en = f"\n\n[red]Error querying KB: {kb_e}[/]"
@@ -676,7 +948,9 @@ class WebScraperProfessionalApp(App):
             return
 
         if log:
-            log.write("[dim]Inicializando HybridBrain... (esto puede tomar un momento)[/]")
+            log.write(
+                "[dim]Inicializando HybridBrain... (esto puede tomar un momento)[/]"
+            )
 
         try:
             # Inicializar en segundo plano
@@ -703,7 +977,13 @@ class WebScraperProfessionalApp(App):
             logger.error(f"Error inicializando HybridBrain: {e}")
             self._brain = None
 
-    async def _process_chat_command(self, command_text: str, overlay: ChatOverlay, log: RichLog, show_cmd: bool = True):
+    async def _process_chat_command(
+        self,
+        command_text: str,
+        overlay: ChatOverlay,
+        log: RichLog,
+        show_cmd: bool = True,
+    ):
         """Procesa comandos del chat con diversos prefijos '/'."""
         parts = command_text.strip().split(maxsplit=1)
         cmd = parts[0].lower()
@@ -729,7 +1009,7 @@ class WebScraperProfessionalApp(App):
                 "[cyan]/brain[/] - Estado del cerebro y métricas",
                 "[cyan]/config[/] - Muestra/modifica configuración",
                 "[cyan]/clear[/] - Limpia el chat",
-                "[cyan]/help[/] - Muestra esta ayuda"
+                "[cyan]/help[/] - Muestra esta ayuda",
             ]
             log.write("\n".join(commands))
             return
@@ -750,13 +1030,17 @@ class WebScraperProfessionalApp(App):
             return
 
         if cmd in ("status", "estado"):
-            active = "[bold green]ACTIVO[/]" if self.scraping_active else "[red]INACTIVO[/]"
+            active = (
+                "[bold green]ACTIVO[/]" if self.scraping_active else "[red]INACTIVO[/]"
+            )
             log.write(f"[cyan]📊 Estado scraping: {active}")
             log.write(f"[cyan]📈 URLs procesadas: {self.total_urls_processed}")
-            if self.scraping_active and hasattr(self, 'start_time'):
+            if self.scraping_active and hasattr(self, "start_time"):
                 elapsed = datetime.now() - self.start_time if self.start_time else None
                 if elapsed:
-                    log.write(f"[cyan]⏱️ Tiempo activo: {elapsed.total_seconds():.0f} segundos")
+                    log.write(
+                        f"[cyan]⏱️ Tiempo activo: {elapsed.total_seconds():.0f} segundos"
+                    )
             return
 
         # Comandos de conocimiento
@@ -772,8 +1056,12 @@ class WebScraperProfessionalApp(App):
                     if results:
                         lines = ["[bold magenta]📚 Resultados encontrados:[/]"]
                         for i, r in enumerate(results[:8], 1):
-                            title = r.get('title') or r.get('id','') or 'sin_titulo'
-                            content_preview = r.get('content', '')[:50] + '...' if r.get('content') else ''
+                            title = r.get("title") or r.get("id", "") or "sin_titulo"
+                            content_preview = (
+                                r.get("content", "")[:50] + "..."
+                                if r.get("content")
+                                else ""
+                            )
                             lines.append(f"[bold cyan]{i}.[/] {title}")
                             if content_preview:
                                 lines.append(f"   [dim]{content_preview}[/]")
@@ -791,9 +1079,13 @@ class WebScraperProfessionalApp(App):
             if self._brain:
                 try:
                     log.write("[dim]Generando snapshot del cerebro...[/]")
-                    snapshot = self._brain.get_snapshot() if hasattr(self._brain, 'get_snapshot') else {}
-                    summary = snapshot.get('meta', {}).get('summary', 'Snapshot listo')
-                    stats = snapshot.get('stats', {})
+                    snapshot = (
+                        self._brain.get_snapshot()
+                        if hasattr(self._brain, "get_snapshot")
+                        else {}
+                    )
+                    summary = snapshot.get("meta", {}).get("summary", "Snapshot listo")
+                    stats = snapshot.get("stats", {})
 
                     lines = ["[bold green]🧠 BRAIN SNAPSHOT[/]"]
                     lines.append(f"[cyan]📝 Resumen: {summary}[/]")
@@ -813,7 +1105,7 @@ class WebScraperProfessionalApp(App):
 
         # Comandos de edición
         if cmd in ("edit", "editar"):
-            parts = arg.split(' ', 1)
+            parts = arg.split(" ", 1)
             if not parts:
                 log.write("[red]⛔ Uso: /edit <archivo> <contenido>[/]")
                 return
@@ -839,7 +1131,9 @@ class WebScraperProfessionalApp(App):
             return
 
         if cmd in ("crear", "create", "nueva"):
-            log.write(f"[yellow]⚠️ Creación de tareas '{arg}' será implementada próximamente[/]")
+            log.write(
+                f"[yellow]⚠️ Creación de tareas '{arg}' será implementada próximamente[/]"
+            )
             return
 
         if cmd == "config":
@@ -848,7 +1142,7 @@ class WebScraperProfessionalApp(App):
                 "[bold cyan]⚙️ CONFIGURACIÓN ACTUAL[/]",
                 f"• Cerebro: {'[green]Activo[/]' if self._brain else '[red]Inactivo[/]'}",
                 f"• Scraping: {'[green]Activo[/]' if self.scraping_active else '[red]Inactivo[/]'}",
-                f"• Mode: {getattr(self, 'current_mode', 'dashboard')}"
+                f"• Mode: {getattr(self, 'current_mode', 'dashboard')}",
             ]
             log.write("\n".join(config_lines))
             return
@@ -858,7 +1152,7 @@ class WebScraperProfessionalApp(App):
             brain_status = "INICIALIZADO" if self._brain else "NO INICIALIZADO"
             brain_lines = [
                 "[bold magenta]🧠 ESTADO DEL CEREBRO[/]",
-                f"Estado: {brain_status}"
+                f"Estado: {brain_status}",
             ]
 
             if self._brain:
@@ -885,11 +1179,13 @@ class WebScraperProfessionalApp(App):
             table.add_columns("Dominio", "URLs", "Éxito %", "Velocidad", "IA Score")
 
             # Datos de ejemplo
-            table.add_rows([
-                ("books.toscrape.com", "0", "0%", "0/min", "-"),
-                ("quotes.toscrape.com", "0", "0%", "0/min", "-"),
-                ("Pending...", "0", "0%", "0/min", "-")
-            ])
+            table.add_rows(
+                [
+                    ("books.toscrape.com", "0", "0%", "0/min", "-"),
+                    ("quotes.toscrape.com", "0", "0%", "0/min", "-"),
+                    ("Pending...", "0", "0%", "0/min", "-"),
+                ]
+            )
         except Exception as e:
             logger.error(f"Error initializing domain table: {e}")
 
@@ -916,7 +1212,9 @@ class WebScraperProfessionalApp(App):
             # Actualizar UI (si los elementos existen)
             try:
                 self.query_one("#cpu_usage", Label).update(f"CPU: {cpu_percent:.1f}%")
-                self.query_one("#memory_usage", Label).update(f"Memoria: {memory.used // (1024*1024)} MB")
+                self.query_one("#memory_usage", Label).update(
+                    f"Memoria: {memory.used // (1024*1024)} MB"
+                )
             except:
                 pass  # Elementos no existen aún
 
@@ -928,7 +1226,6 @@ class WebScraperProfessionalApp(App):
 
     def on_system_update(self, message):
         """Maneja actualizaciones del sistema"""
-        pass
 
     # Acciones de teclado
     def action_show_help(self) -> None:
@@ -977,8 +1274,7 @@ class WebScraperProfessionalApp(App):
 
             # Iniciar worker
             self.scraper_worker = self.run_worker(
-                self._scraping_worker(start_url, concurrency),
-                name="ScrapingWorker"
+                self._scraping_worker(start_url, concurrency), name="ScrapingWorker"
             )
 
         except Exception as e:
@@ -1013,17 +1309,23 @@ class WebScraperProfessionalApp(App):
 
                 # Actualizar métricas
                 self.total_urls_processed = i + 1
-                self.current_speed = (i + 1) / max((datetime.now() - self.start_time).total_seconds() / 60, 0.1)
+                self.current_speed = (i + 1) / max(
+                    (datetime.now() - self.start_time).total_seconds() / 60, 0.1
+                )
 
                 # Actualizar UI
-                self.query_one("#kpi_urls", Digits).update(str(self.total_urls_processed))
+                self.query_one("#kpi_urls", Digits).update(
+                    str(self.total_urls_processed)
+                )
                 self.query_one("#kpi_speed", Digits).update(f"{self.current_speed:.1f}")
                 self.query_one("#main_progress", ProgressBar).update(progress=i + 1)
 
                 # Log progreso
                 if i % 10 == 0:
                     log = self.query_one("#realtime_log", RichLog)
-                    log.write(f"[cyan]📊 Procesadas {i + 1} URLs - Velocidad: {self.current_speed:.1f}/min[/]")
+                    log.write(
+                        f"[cyan]📊 Procesadas {i + 1} URLs - Velocidad: {self.current_speed:.1f}/min[/]"
+                    )
 
             # Completado
             log = self.query_one("#realtime_log", RichLog)

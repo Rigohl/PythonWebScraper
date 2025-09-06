@@ -49,17 +49,14 @@ class EmbeddingAdapter(ABC):
     @abstractmethod
     def encode(self, text: str) -> List[float]:
         """Codifica texto a vector"""
-        pass
 
     @abstractmethod
     def similarity(self, vec1: List[float], vec2: List[float]) -> float:
         """Calcula similitud coseno entre dos vectores"""
-        pass
 
     @abstractmethod
     def is_available(self) -> bool:
         """Verifica si el adaptador está disponible"""
-        pass
 
 
 class TFIDFEmbeddingAdapter(EmbeddingAdapter):
@@ -169,32 +166,40 @@ class VectorStore:
         """Inicializa la base de datos"""
         if self._conn is not None:
             conn = self._conn
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS vectors (
                     id TEXT PRIMARY KEY,
                     vector TEXT NOT NULL,
                     timestamp REAL,
                     metadata TEXT
                 )
-            """)
-            conn.execute("""
+            """
+            )
+            conn.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_timestamp ON vectors(timestamp)
-            """)
+            """
+            )
             conn.commit()
         else:
             db_path = self._internal_db_path if self._own_temp_db else self.db_path
             with sqlite3.connect(db_path) as conn:
-                conn.execute("""
+                conn.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS vectors (
                         id TEXT PRIMARY KEY,
                         vector TEXT NOT NULL,
                         timestamp REAL,
                         metadata TEXT
                     )
-                """)
-                conn.execute("""
+                """
+                )
+                conn.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_timestamp ON vectors(timestamp)
-                """)
+                """
+                )
 
     def store(self, entry_id: str, vector: List[float], metadata: Dict[str, Any]):
         """Almacena vector"""
@@ -660,7 +665,6 @@ class CuriositySystem:
         """Analiza patrones en las detecciones de curiosidad"""
         # Placeholder para análisis avanzado de patrones
         # Podría detectar tendencias, dominios frecuentes, etc.
-        pass
 
     def get_curiosity_stats(self) -> Dict[str, Any]:
         """Obtiene estadísticas del sistema de curiosidad"""

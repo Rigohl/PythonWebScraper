@@ -10,14 +10,14 @@ Este módulo implementa capacidades de:
 Inspirado en investigación de sistemas autónomos y Chain-of-Thought reasoning.
 """
 
-import logging
-import json
 import ast
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+import json
+import logging
+import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import re
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

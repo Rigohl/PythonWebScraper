@@ -16,6 +16,7 @@ Interfaz pública:
 
 No lanza excepciones sin envolver: re-lanza RuntimeError con mensaje estable.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -24,6 +25,7 @@ from typing import Any, Optional
 
 try:
     import httpx  # type: ignore
+
     HTTPX_AVAILABLE = True
 except ImportError:  # pragma: no cover - entorno sin dependencia
     HTTPX_AVAILABLE = False
@@ -35,7 +37,9 @@ logger = logging.getLogger(__name__)
 class HttpxAdapter:
     def __init__(self, client: Optional["httpx.AsyncClient"] = None) -> None:  # type: ignore[name-defined]
         if not HTTPX_AVAILABLE:
-            raise RuntimeError("httpx no está disponible. Instale con: pip install httpx")
+            raise RuntimeError(
+                "httpx no está disponible. Instale con: pip install httpx"
+            )
         self._own_client = client is None
         self.client = client or httpx.AsyncClient(timeout=None, follow_redirects=True)
 
@@ -47,7 +51,13 @@ class HttpxAdapter:
         max_retries: int = 2,
         backoff_base: float = 0.5,
     ) -> str:
-        response = await self._request("GET", url, timeout=timeout, max_retries=max_retries, backoff_base=backoff_base)
+        response = await self._request(
+            "GET",
+            url,
+            timeout=timeout,
+            max_retries=max_retries,
+            backoff_base=backoff_base,
+        )
         return response.text
 
     async def fetch_json(
@@ -58,7 +68,13 @@ class HttpxAdapter:
         max_retries: int = 2,
         backoff_base: float = 0.5,
     ) -> Any:
-        response = await self._request("GET", url, timeout=timeout, max_retries=max_retries, backoff_base=backoff_base)
+        response = await self._request(
+            "GET",
+            url,
+            timeout=timeout,
+            max_retries=max_retries,
+            backoff_base=backoff_base,
+        )
         try:
             return response.json()
         except Exception as e:  # noqa: BLE001
@@ -94,7 +110,7 @@ class HttpxAdapter:
                     msg = f"Fallo HTTP tras {attempt+1} intentos para {url}: {exc}"  # noqa: E501
                     logger.warning(msg)
                     raise RuntimeError(msg) from exc
-                sleep_for = backoff_base * (2 ** attempt)
+                sleep_for = backoff_base * (2**attempt)
                 await asyncio.sleep(sleep_for)
                 attempt += 1
         # Debe haberse devuelto o lanzado antes; este return es defensivo

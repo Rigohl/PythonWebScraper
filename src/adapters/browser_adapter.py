@@ -38,49 +38,40 @@ class BrowserAdapter(ABC):
         self, url: str, wait_until: str = "domcontentloaded", timeout: int = 30000
     ) -> Optional[Dict[str, Any]]:
         """Navegar a una URL y retornar información de respuesta."""
-        pass
 
     @abstractmethod
     async def get_content(self) -> str:
         """Obtener el contenido HTML de la página actual."""
-        pass
 
     @abstractmethod
     async def wait_for_load_state(
         self, state: str = "networkidle", timeout: int = 15000
     ) -> None:
         """Esperar a que la página esté en el estado especificado."""
-        pass
 
     @abstractmethod
     async def screenshot(self) -> bytes:
         """Tomar una captura de pantalla de la página actual."""
-        pass
 
     @abstractmethod
     async def get_cookies(self) -> List[Dict[str, Any]]:
         """Obtener cookies de la página actual."""
-        pass
 
     @abstractmethod
     async def set_cookies(self, cookies: List[Dict[str, Any]]) -> None:
         """Establecer cookies en la página actual."""
-        pass
 
     @abstractmethod
     def add_response_listener(self, handler) -> None:
         """Agregar un listener para interceptar respuestas."""
-        pass
 
     @abstractmethod
     def remove_response_listener(self, handler) -> None:
         """Remover un listener de respuestas."""
-        pass
 
     @abstractmethod
     def get_current_url(self) -> str:
         """Obtener la URL actual."""
-        pass
 
 
 class PlaywrightAdapter(BrowserAdapter):
@@ -268,7 +259,6 @@ class MockBrowserAdapter(BrowserAdapter):
         self, state: str = "networkidle", timeout: int = 15000
     ) -> None:
         """Mock wait."""
-        pass
 
     async def screenshot(self) -> bytes:
         """Mock screenshot."""

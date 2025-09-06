@@ -1,10 +1,12 @@
 import importlib
-import os
 import inspect
-from typing import Dict, Any, List, Callable, Optional
+import os
+from typing import Any, Dict, List, Optional
+
 
 class BrainPlugin:
     """Base class for brain plugins."""
+
     name = "base"
     version = "0.1"
     capabilities: List[str] = []
@@ -18,8 +20,10 @@ class BrainPlugin:
     def periodic_tick(self) -> Optional[Dict[str, Any]]:
         return None
 
+
 class PluginManager:
     """Dynamic plugin discovery and execution for brain extensibility."""
+
     def __init__(self, plugins_dir: str):
         self.plugins_dir = plugins_dir
         self.plugins: List[BrainPlugin] = []
@@ -28,10 +32,14 @@ class PluginManager:
         if not os.path.isdir(self.plugins_dir):
             return
         for fname in os.listdir(self.plugins_dir):
-            if not fname.endswith('.py') or fname.startswith('_'):
+            if not fname.endswith(".py") or fname.startswith("_"):
                 continue
             mod_name = fname[:-3]
-            full_module = f"src.intelligence.plugins.{mod_name}" if self.plugins_dir.endswith('plugins') else mod_name
+            full_module = (
+                f"src.intelligence.plugins.{mod_name}"
+                if self.plugins_dir.endswith("plugins")
+                else mod_name
+            )
             try:
                 module = importlib.import_module(f"intelligence.plugins.{mod_name}")
                 for _, obj in inspect.getmembers(module, inspect.isclass):
@@ -54,7 +62,7 @@ class PluginManager:
             try:
                 res = p.analyze_event(event)
                 if res:
-                    outputs.append({'plugin': p.name, 'result': res})
+                    outputs.append({"plugin": p.name, "result": res})
             except Exception:
                 continue
         return outputs
@@ -65,7 +73,7 @@ class PluginManager:
             try:
                 res = p.periodic_tick()
                 if res:
-                    outputs.append({'plugin': p.name, 'result': res})
+                    outputs.append({"plugin": p.name, "result": res})
             except Exception:
                 continue
         return outputs

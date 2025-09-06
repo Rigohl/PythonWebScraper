@@ -391,7 +391,8 @@ class ScrapingOrchestrator:
         for i in range(len(segment_tuple) - settings.REPETITIVE_PATH_THRESHOLD):
             sub_sequence = segment_tuple[i : i + settings.REPETITIVE_PATH_THRESHOLD]
             next_sequence = segment_tuple[
-                i + settings.REPETITIVE_PATH_THRESHOLD : i
+                i
+                + settings.REPETITIVE_PATH_THRESHOLD : i
                 + 2 * settings.REPETITIVE_PATH_THRESHOLD
             ]
             if sub_sequence == next_sequence:
@@ -602,9 +603,11 @@ class ScrapingOrchestrator:
                             # HybridBrain style interface
                             context = {
                                 "response_time": result.response_time,
-                                "error_type": ("network" if result.retryable else None)
-                                if result.status in ("FAILED", "RETRY")
-                                else None,
+                                "error_type": (
+                                    ("network" if result.retryable else None)
+                                    if result.status in ("FAILED", "RETRY")
+                                    else None
+                                ),
                             }
                             getattr(self.brain, "record_scraping_result")(
                                 result, context
@@ -614,12 +617,14 @@ class ScrapingOrchestrator:
                             self.brain.record_event(
                                 ExperienceEvent(
                                     url=result.url,
-                                    status="SUCCESS"
-                                    if result.status == "SUCCESS"
-                                    else (
-                                        "ERROR"
-                                        if result.status in ("FAILED",)
-                                        else result.status
+                                    status=(
+                                        "SUCCESS"
+                                        if result.status == "SUCCESS"
+                                        else (
+                                            "ERROR"
+                                            if result.status in ("FAILED",)
+                                            else result.status
+                                        )
                                     ),
                                     response_time=result.response_time,
                                     content_length=len(result.content_text or ""),
@@ -630,9 +635,11 @@ class ScrapingOrchestrator:
                                         if result.extracted_data
                                         else None
                                     ),
-                                    error_type=("network" if result.retryable else None)
-                                    if result.status in ("FAILED", "RETRY")
-                                    else None,
+                                    error_type=(
+                                        ("network" if result.retryable else None)
+                                        if result.status in ("FAILED", "RETRY")
+                                        else None
+                                    ),
                                 )
                             )
                     except Exception as e:  # pragma: no cover

@@ -1,16 +1,29 @@
 import logging
 import os
+
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit,
-    QPushButton, QTextEdit, QLabel, QSpinBox, QCheckBox, QStatusBar, QGroupBox,
-    QSizePolicy
+    QApplication,
+    QCheckBox,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QPushButton,
+    QSizePolicy,
+    QSpinBox,
+    QStatusBar,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
 
-from .log_handler import QtLogSignalEmitter, QtLogHandler
-from .controller import ScraperController, ScraperConfig
+from .controller import ScraperConfig, ScraperController
+from .log_handler import QtLogHandler, QtLogSignalEmitter
 from .robot_widget import RobotFaceWidget
 
 logger = logging.getLogger(__name__)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -29,7 +42,9 @@ class MainWindow(QMainWindow):
 
         # Robot face
         self.robot = RobotFaceWidget()
-        self.robot.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.robot.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
+        )
         top_panel.addWidget(self.robot, 2)
 
         # Control box
@@ -93,7 +108,9 @@ class MainWindow(QMainWindow):
 
         # Attach logging handler (only once)
         self.qt_handler = QtLogHandler(self.log_emitter)
-        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(name)s | %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+        )
         self.qt_handler.setFormatter(formatter)
         logging.getLogger().addHandler(self.qt_handler)
 
@@ -111,7 +128,7 @@ class MainWindow(QMainWindow):
     def _labeled(self, label: str, widget: QWidget) -> QWidget:
         box = QWidget()
         lay = QVBoxLayout(box)
-        lay.setContentsMargins(0,0,0,0)
+        lay.setContentsMargins(0, 0, 0, 0)
         lab = QLabel(label)
         lab.setStyleSheet("color:#4dd0e1;font-weight:bold;")
         lay.addWidget(lab)
@@ -126,8 +143,8 @@ class MainWindow(QMainWindow):
 
     def _load_styles(self):
         try:
-            qss_path = os.path.join(os.path.dirname(__file__), 'styles.qss')
-            with open(qss_path, 'r', encoding='utf-8') as f:
+            qss_path = os.path.join(os.path.dirname(__file__), "styles.qss")
+            with open(qss_path, "r", encoding="utf-8") as f:
                 self.setStyleSheet(f.read())
         except Exception:
             pass
@@ -137,7 +154,7 @@ class MainWindow(QMainWindow):
         if not urls_text:
             self._append_log("WARNING", "GUI", "No URLs provided")
             return
-        urls = [u.strip() for u in urls_text.split(',') if u.strip()]
+        urls = [u.strip() for u in urls_text.split(",") if u.strip()]
         cfg = ScraperConfig(
             start_urls=urls,
             concurrency=self.concurrency_spin.value(),
@@ -155,7 +172,9 @@ class MainWindow(QMainWindow):
         self.stop_btn.setEnabled(False)
 
     def _append_log(self, level: str, name: str, message: str):
-        self.log_edit.append(f"<span style='color:#7ec9d9;'>[{level}]</span> <b>{name}</b>: {message}")
+        self.log_edit.append(
+            f"<span style='color:#7ec9d9;'>[{level}]</span> <b>{name}</b>: {message}"
+        )
         self.log_edit.moveCursor(self.log_edit.textCursor().MoveOperation.End)
 
     def _on_status(self, status: str):
@@ -167,7 +186,7 @@ class MainWindow(QMainWindow):
             lines = []
             for k, v in stats.items():
                 lines.append(f"{k}: {v}")
-            self.stats_edit.setPlainText('\n'.join(lines))
+            self.stats_edit.setPlainText("\n".join(lines))
         except Exception:
             pass
 
@@ -177,10 +196,12 @@ class MainWindow(QMainWindow):
 
 def run_gui():
     import sys
+
     app = QApplication(sys.argv)
     win = MainWindow()
     win.show()
     sys.exit(app.exec())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     run_gui()

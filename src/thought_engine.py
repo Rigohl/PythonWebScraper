@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
+
 @dataclass
 class Thought:
     content: str
     score: float
+
 
 class ThoughtManager:
     def __init__(self):

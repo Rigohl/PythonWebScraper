@@ -43,6 +43,7 @@ Persistence:
 Thread Safety:
 - Uses BrainPersistence layer for safe concurrent access
 """
+
 from __future__ import annotations
 
 import logging
@@ -59,13 +60,20 @@ from .brain_persistence import BrainPersistence
 
 # Default file paths for persistence
 BRAIN_DB_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "brain.db")
-BRAIN_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "brain_config.json")
-BRAIN_STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "brain_state.json")
+BRAIN_CONFIG_FILE = os.path.join(
+    os.path.dirname(__file__), "..", "..", "data", "brain_config.json"
+)
+BRAIN_STATE_FILE = os.path.join(
+    os.path.dirname(__file__), "..", "..", "data", "brain_state.json"
+)
 # Ensure BRAIN_STATE_FILE is always available
 try:
     BRAIN_STATE_FILE
 except NameError:
-    BRAIN_STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "brain_state.json")
+    BRAIN_STATE_FILE = os.path.join(
+        os.path.dirname(__file__), "..", "..", "data", "brain_state.json"
+    )
+
 
 @dataclass
 class ExperienceEvent:
@@ -78,6 +86,7 @@ class ExperienceEvent:
     domain: Optional[str] = None
     extracted_fields: Optional[int] = None
     error_type: Optional[str] = None
+
 
 class Brain:
     def __init__(
@@ -93,16 +102,18 @@ class Brain:
         self.persistence = BrainPersistence(db_path, config_path)
         self.max_recent = max_recent
         self.recent_events: Deque[ExperienceEvent] = deque(maxlen=max_recent)
-        self.domain_stats: Dict[str, Dict[str, Any]] = defaultdict(lambda: {
-            "visits": 0,
-            "success": 0,
-            "errors": 0,
-            "duplicates": 0,
-            "total_new_links": 0,
-            "total_content_length": 0,
-            "extractions": 0,
-            "response_time_sum": 0.0,
-        })
+        self.domain_stats: Dict[str, Dict[str, Any]] = defaultdict(
+            lambda: {
+                "visits": 0,
+                "success": 0,
+                "errors": 0,
+                "duplicates": 0,
+                "total_new_links": 0,
+                "total_content_length": 0,
+                "extractions": 0,
+                "response_time_sum": 0.0,
+            }
+        )
         self.error_type_freq: Dict[str, int] = defaultdict(int)
         self._dirty = False
         self._load_state()
@@ -124,7 +135,11 @@ class Brain:
             # Load error frequencies from SQLite
             self.error_type_freq.update(self.persistence.load_error_frequencies())
 
-            logger.info("Brain state loaded: %d recent events, %d domains", len(self.recent_events), len(self.domain_stats))
+            logger.info(
+                "Brain state loaded: %d recent events, %d domains",
+                len(self.recent_events),
+                len(self.domain_stats),
+            )
         except Exception as e:
             logger.warning(f"Could not load brain state: {e}")
 
@@ -214,9 +229,11 @@ class Brain:
 
     def domain_priority(self, domain: str) -> float:
         # Composite scoring; tunable weights
-        return (self.domain_success_rate(domain) * 0.6 + self.link_yield(domain) * 0.4)
+        return self.domain_success_rate(domain) * 0.6 + self.link_yield(domain) * 0.4
 
-    def should_backoff(self, domain: str, error_threshold: float = 0.5, min_visits: int = 5) -> bool:
+    def should_backoff(
+        self, domain: str, error_threshold: float = 0.5, min_visits: int = 5
+    ) -> bool:
         s = self.domain_stats.get(domain)
         if not s or s["visits"] < min_visits:
             return False
@@ -227,7 +244,9 @@ class Brain:
         scored.sort(reverse=True)
         return [d for _, d in scored[:limit]]
 
-    def recent_error_spike(self, domain: str, window: int = 20, spike_ratio: float = 0.6) -> bool:
+    def recent_error_spike(
+        self, domain: str, window: int = 20, spike_ratio: float = 0.6
+    ) -> bool:
         # Look at last N events for that domain
         errors = 0
         total = 0
@@ -248,6 +267,7 @@ class Brain:
     def _extract_domain(self, url: str) -> str:
         try:
             from urllib.parse import urlparse
+
             return urlparse(url).netloc
         except Exception:
             return ""
@@ -259,7 +279,8 @@ class Brain:
             "top_domains": self.top_domains(),
             "error_type_freq": self.error_type_freq,
             "recent_events": [asdict(e) for e in list(self.recent_events)[-20:]],
-            "total_events": len(self.recent_events)
+            "total_events": len(self.recent_events),
         }
+
 
 __all__ = ["Brain", "ExperienceEvent"]

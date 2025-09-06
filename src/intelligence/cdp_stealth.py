@@ -6,12 +6,12 @@ Máxima velocidad y stealth
 
 import asyncio
 import json
-import websockets
-import aiohttp
 import random
-import time
-from typing import Dict, List, Optional, Any, Callable
-import uuid
+from typing import Callable, Dict, List
+
+import aiohttp
+import websockets
+
 
 class CDPClient:
     """Cliente CDP directo para comunicación sin WebDriver"""
@@ -35,35 +35,31 @@ class CDPClient:
         async for message in self.websocket:
             data = json.loads(message)
 
-            if 'id' in data and data['id'] in self.callbacks:
+            if "id" in data and data["id"] in self.callbacks:
                 # Response to a command
-                callback = self.callbacks.pop(data['id'])
-                callback['future'].set_result(data)
-            elif 'method' in data:
+                callback = self.callbacks.pop(data["id"])
+                callback["future"].set_result(data)
+            elif "method" in data:
                 # Event notification
                 await self._handle_event(data)
 
     async def _handle_event(self, event_data: Dict):
         """Maneja eventos CDP"""
-        method = event_data['method']
+        method = event_data["method"]
         if method in self.event_handlers:
             for handler in self.event_handlers[method]:
                 try:
-                    await handler(event_data['params'])
+                    await handler(event_data["params"])
                 except Exception as e:
                     print(f"Error in event handler for {method}: {e}")
 
     async def send_command(self, method: str, params: Dict = None) -> Dict:
         """Envía comando CDP y espera respuesta"""
         self.message_id += 1
-        message = {
-            'id': self.message_id,
-            'method': method,
-            'params': params or {}
-        }
+        message = {"id": self.message_id, "method": method, "params": params or {}}
 
         future = asyncio.Future()
-        self.callbacks[self.message_id] = {'future': future}
+        self.callbacks[self.message_id] = {"future": future}
 
         await self.websocket.send(json.dumps(message))
 
@@ -102,16 +98,16 @@ class StealthCDPTab:
             return
 
         # Enable required CDP domains
-        await self.cdp.send_command('Runtime.enable')
-        await self.cdp.send_command('Page.enable')
-        await self.cdp.send_command('Network.enable')
-        await self.cdp.send_command('DOM.enable')
+        await self.cdp.send_command("Runtime.enable")
+        await self.cdp.send_command("Page.enable")
+        await self.cdp.send_command("Network.enable")
+        await self.cdp.send_command("DOM.enable")
 
         # Inject stealth scripts
         await self._inject_stealth_scripts()
 
         # Setup cloudflare detection
-        self.cdp.on('Page.loadEventFired', self._handle_page_load)
+        self.cdp.on("Page.loadEventFired", self._handle_page_load)
 
         self.stealth_enabled = True
 
@@ -126,9 +122,9 @@ class StealthCDPTab:
         });
         """
 
-        await self.cdp.send_command('Runtime.evaluate', {
-            'expression': webdriver_script
-        })
+        await self.cdp.send_command(
+            "Runtime.evaluate", {"expression": webdriver_script}
+        )
 
         # Spoof navigator properties
         navigator_script = """
@@ -153,9 +149,9 @@ class StealthCDPTab:
         });
         """
 
-        await self.cdp.send_command('Runtime.evaluate', {
-            'expression': navigator_script
-        })
+        await self.cdp.send_command(
+            "Runtime.evaluate", {"expression": navigator_script}
+        )
 
         # Canvas fingerprint protection
         canvas_script = """
@@ -184,9 +180,7 @@ class StealthCDPTab:
         };
         """
 
-        await self.cdp.send_command('Runtime.evaluate', {
-            'expression': canvas_script
-        })
+        await self.cdp.send_command("Runtime.evaluate", {"expression": canvas_script})
 
         # WebGL fingerprint protection
         webgl_script = """
@@ -204,9 +198,7 @@ class StealthCDPTab:
         };
         """
 
-        await self.cdp.send_command('Runtime.evaluate', {
-            'expression': webgl_script
-        })
+        await self.cdp.send_command("Runtime.evaluate", {"expression": webgl_script})
 
     async def _handle_page_load(self, params: Dict):
         """Maneja eventos de carga de página para detectar Cloudflare"""
@@ -218,12 +210,11 @@ class StealthCDPTab:
         })()
         """
 
-        result = await self.cdp.send_command('Runtime.evaluate', {
-            'expression': cloudflare_check,
-            'returnByValue': True
-        })
+        result = await self.cdp.send_command(
+            "Runtime.evaluate", {"expression": cloudflare_check, "returnByValue": True}
+        )
 
-        if result.get('result', {}).get('value'):
+        if result.get("result", {}).get("value"):
             await self._handle_cloudflare_challenge()
 
     async def _handle_cloudflare_challenge(self):
@@ -261,18 +252,17 @@ class StealthCDPTab:
         })()
         """
 
-        result = await self.cdp.send_command('Runtime.evaluate', {
-            'expression': turnstile_script,
-            'returnByValue': True
-        })
+        result = await self.cdp.send_command(
+            "Runtime.evaluate", {"expression": turnstile_script, "returnByValue": True}
+        )
 
-        if result.get('result', {}).get('value'):
+        if result.get("result", {}).get("value"):
             print("Cloudflare turnstile clicked, waiting for verification...")
             await asyncio.sleep(5)
 
     async def navigate(self, url: str):
         """Navega a una URL"""
-        await self.cdp.send_command('Page.navigate', {'url': url})
+        await self.cdp.send_command("Page.navigate", {"url": url})
 
         # Wait for load event
         load_event = asyncio.Future()
@@ -280,7 +270,7 @@ class StealthCDPTab:
         async def on_load(params):
             load_event.set_result(True)
 
-        self.cdp.on('Page.loadEventFired', on_load)
+        self.cdp.on("Page.loadEventFired", on_load)
 
         try:
             await asyncio.wait_for(load_event, timeout=30)
@@ -306,44 +296,47 @@ class StealthCDPTab:
         }})()
         """
 
-        result = await self.cdp.send_command('Runtime.evaluate', {
-            'expression': find_script,
-            'returnByValue': True
-        })
+        result = await self.cdp.send_command(
+            "Runtime.evaluate", {"expression": find_script, "returnByValue": True}
+        )
 
-        element_data = result.get('result', {}).get('value', {})
+        element_data = result.get("result", {}).get("value", {})
 
-        if element_data.get('found'):
+        if element_data.get("found"):
             # Add human-like randomness
-            x = element_data['x'] + random.uniform(-5, 5)
-            y = element_data['y'] + random.uniform(-5, 5)
+            x = element_data["x"] + random.uniform(-5, 5)
+            y = element_data["y"] + random.uniform(-5, 5)
 
             # Simulate mouse movement and click
-            await self.cdp.send_command('Input.dispatchMouseEvent', {
-                'type': 'mouseMoved',
-                'x': x,
-                'y': y
-            })
+            await self.cdp.send_command(
+                "Input.dispatchMouseEvent", {"type": "mouseMoved", "x": x, "y": y}
+            )
 
             await asyncio.sleep(random.uniform(0.1, 0.3))
 
-            await self.cdp.send_command('Input.dispatchMouseEvent', {
-                'type': 'mousePressed',
-                'x': x,
-                'y': y,
-                'button': 'left',
-                'clickCount': 1
-            })
+            await self.cdp.send_command(
+                "Input.dispatchMouseEvent",
+                {
+                    "type": "mousePressed",
+                    "x": x,
+                    "y": y,
+                    "button": "left",
+                    "clickCount": 1,
+                },
+            )
 
             await asyncio.sleep(random.uniform(0.05, 0.15))
 
-            await self.cdp.send_command('Input.dispatchMouseEvent', {
-                'type': 'mouseReleased',
-                'x': x,
-                'y': y,
-                'button': 'left',
-                'clickCount': 1
-            })
+            await self.cdp.send_command(
+                "Input.dispatchMouseEvent",
+                {
+                    "type": "mouseReleased",
+                    "x": x,
+                    "y": y,
+                    "button": "left",
+                    "clickCount": 1,
+                },
+            )
 
             return True
 
@@ -352,61 +345,59 @@ class StealthCDPTab:
     async def type_text(self, text: str, humanized: bool = True):
         """Escribe texto con timing humanizado"""
         for char in text:
-            await self.cdp.send_command('Input.dispatchKeyEvent', {
-                'type': 'char',
-                'text': char
-            })
+            await self.cdp.send_command(
+                "Input.dispatchKeyEvent", {"type": "char", "text": char}
+            )
 
             if humanized:
                 # Variable delay between characters
                 delay = random.uniform(0.05, 0.15)
-                if char == ' ':
+                if char == " ":
                     delay *= 2  # Longer pause for spaces
                 await asyncio.sleep(delay)
 
     async def get_content(self) -> str:
         """Obtiene contenido de la página"""
-        result = await self.cdp.send_command('Runtime.evaluate', {
-            'expression': 'document.documentElement.outerHTML',
-            'returnByValue': True
-        })
+        result = await self.cdp.send_command(
+            "Runtime.evaluate",
+            {"expression": "document.documentElement.outerHTML", "returnByValue": True},
+        )
 
-        return result.get('result', {}).get('value', '')
+        return result.get("result", {}).get("value", "")
 
     async def execute_script(self, script: str):
         """Ejecuta JavaScript y retorna resultado"""
-        result = await self.cdp.send_command('Runtime.evaluate', {
-            'expression': script,
-            'returnByValue': True
-        })
+        result = await self.cdp.send_command(
+            "Runtime.evaluate", {"expression": script, "returnByValue": True}
+        )
 
-        return result.get('result', {}).get('value')
+        return result.get("result", {}).get("value")
 
     async def intercept_requests(self, patterns: List[str] = None):
         """Intercepts network requests for analysis"""
-        await self.cdp.send_command('Fetch.enable', {
-            'patterns': [{'urlPattern': pattern} for pattern in (patterns or ['*'])]
-        })
+        await self.cdp.send_command(
+            "Fetch.enable",
+            {"patterns": [{"urlPattern": pattern} for pattern in (patterns or ["*"])]},
+        )
 
         # Handler for intercepted requests
         async def handle_request(params):
-            request_id = params['requestId']
+            request_id = params["requestId"]
 
             # Continue request (can be modified here)
-            await self.cdp.send_command('Fetch.continueRequest', {
-                'requestId': request_id
-            })
+            await self.cdp.send_command(
+                "Fetch.continueRequest", {"requestId": request_id}
+            )
 
-        self.cdp.on('Fetch.requestPaused', handle_request)
+        self.cdp.on("Fetch.requestPaused", handle_request)
 
     async def take_screenshot(self) -> str:
         """Toma screenshot en base64"""
-        result = await self.cdp.send_command('Page.captureScreenshot', {
-            'format': 'png',
-            'quality': 80
-        })
+        result = await self.cdp.send_command(
+            "Page.captureScreenshot", {"format": "png", "quality": 80}
+        )
 
-        return result.get('result', {}).get('data', '')
+        return result.get("result", {}).get("data", "")
 
 
 class StealthCDPBrowser:
@@ -419,36 +410,36 @@ class StealthCDPBrowser:
 
     async def launch(self, headless: bool = True, debug_port: int = 9222):
         """Lanza browser con CDP habilitado"""
-        import subprocess
         import platform
+        import subprocess
 
         # Chrome arguments for maximum stealth
         args = [
-            '--remote-debugging-port=' + str(debug_port),
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-gpu',
-            '--disable-web-security',
-            '--disable-features=VizDisplayCompositor',
-            '--disable-blink-features=AutomationControlled',
-            '--exclude-switches=enable-automation',
-            '--use-automation-extension=false',
-            '--disable-extensions',
-            '--disable-plugins',
-            '--disable-images',
-            '--disable-default-apps',
-            '--disable-background-networking',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding'
+            "--remote-debugging-port=" + str(debug_port),
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+            "--disable-accelerated-2d-canvas",
+            "--no-first-run",
+            "--no-zygote",
+            "--disable-gpu",
+            "--disable-web-security",
+            "--disable-features=VizDisplayCompositor",
+            "--disable-blink-features=AutomationControlled",
+            "--exclude-switches=enable-automation",
+            "--use-automation-extension=false",
+            "--disable-extensions",
+            "--disable-plugins",
+            "--disable-images",
+            "--disable-default-apps",
+            "--disable-background-networking",
+            "--disable-background-timer-throttling",
+            "--disable-backgrounding-occluded-windows",
+            "--disable-renderer-backgrounding",
         ]
 
         if headless:
-            args.append('--headless')
+            args.append("--headless")
 
         # Platform-specific Chrome path
         system = platform.system()
@@ -477,20 +468,20 @@ class StealthCDPBrowser:
         """Conecta al CDP WebSocket"""
         # Get WebSocket URL
         async with aiohttp.ClientSession() as session:
-            async with session.get(f'http://localhost:{port}/json') as response:
+            async with session.get(f"http://localhost:{port}/json") as response:
                 targets = await response.json()
 
                 # Find page target
                 page_target = None
                 for target in targets:
-                    if target['type'] == 'page':
+                    if target["type"] == "page":
                         page_target = target
                         break
 
                 if not page_target:
                     raise Exception("No page target found")
 
-                ws_url = page_target['webSocketDebuggerUrl']
+                ws_url = page_target["webSocketDebuggerUrl"]
 
         # Connect to WebSocket
         self.cdp_client = CDPClient(ws_url)

@@ -1,26 +1,29 @@
 # src/tui/dashboard_widgets.py
 
+from datetime import datetime
+from typing import Any, Dict
+
 from textual.app import ComposeResult
 from textual.containers import Container, Grid, Horizontal, Vertical
-from textual.widgets import (
-    Label, ProgressBar, Static, DataTable, Sparkline, Digits,
-    Collapsible, TabbedContent, TabPane, Button, Header, Footer,
-    RichLog, Tree, ListView, ListItem, LoadingIndicator, Switch,
-    RadioSet, RadioButton, Checkbox
-)
 from textual.reactive import reactive
-from textual.message import Message
-from rich.text import Text
-from rich.console import Console
-from rich.table import Table
-from rich.progress import Progress, BarColumn, TextColumn
-from rich.panel import Panel
-from rich.align import Align
-from rich.layout import Layout
-from rich import box
-from datetime import datetime
-import json
-from typing import Dict, Any, List, Optional
+from textual.widgets import (
+    Button,
+    Checkbox,
+    DataTable,
+    Digits,
+    Label,
+    ListView,
+    ProgressBar,
+    RadioButton,
+    RadioSet,
+    RichLog,
+    Sparkline,
+    Static,
+    Switch,
+    TabbedContent,
+    TabPane,
+)
+
 
 class ProfessionalMetricsPanel(Static):
     """Panel de métricas profesional con indicadores avanzados"""
@@ -57,13 +60,22 @@ class ProfessionalMetricsPanel(Static):
 
         # Actualizar KPIs
         if "urls_processed" in data:
-            self.query_one("#urls_processed", Digits).update(str(data["urls_processed"]))
+            self.query_one("#urls_processed", Digits).update(
+                str(data["urls_processed"])
+            )
         if "processing_speed" in data:
-            self.query_one("#processing_speed", Digits).update(f"{data['processing_speed']:.1f}")
+            self.query_one("#processing_speed", Digits).update(
+                f"{data['processing_speed']:.1f}"
+            )
         if "success_rate" in data:
-            self.query_one("#success_rate", Digits).update(f"{data['success_rate']:.1f}%")
+            self.query_one("#success_rate", Digits).update(
+                f"{data['success_rate']:.1f}%"
+            )
         if "data_extracted" in data:
-            self.query_one("#data_extracted", Digits).update(str(data["data_extracted"]))
+            self.query_one("#data_extracted", Digits).update(
+                str(data["data_extracted"])
+            )
+
 
 class IntelligenceControlCenter(Static):
     """Centro de control de inteligencia con monitoreo avanzado"""
@@ -75,63 +87,100 @@ class IntelligenceControlCenter(Static):
 
     def compose(self) -> ComposeResult:
         with Container(classes="intelligence-center"):
-            yield Label("[bold magenta]🧠 Centro de Inteligencia Artificial[/]", classes="panel-title")
+            yield Label(
+                "[bold magenta]🧠 Centro de Inteligencia Artificial[/]",
+                classes="panel-title",
+            )
 
             with Grid(classes="intelligence-grid"):
                 # Estado del cerebro
                 with Container(classes="brain-status-container"):
-                    yield Label("[dim]Estado del HybridBrain[/]", classes="status-label")
+                    yield Label(
+                        "[dim]Estado del HybridBrain[/]", classes="status-label"
+                    )
                     yield Switch(value=True, id="brain_toggle", classes="brain-switch")
-                    yield Label("[green]● ACTIVO[/]", id="brain_status", classes="status-indicator")
+                    yield Label(
+                        "[green]● ACTIVO[/]",
+                        id="brain_status",
+                        classes="status-indicator",
+                    )
 
                 # Modo de IA
                 with Container(classes="ai-mode-container"):
                     yield Label("[dim]Modo de Inteligencia[/]", classes="mode-label")
                     with RadioSet(id="ai_mode_selector", classes="mode-selector"):
-                        yield RadioButton("Hybrid (IA-A + IA-B)", value=True, id="mode_hybrid")
+                        yield RadioButton(
+                            "Hybrid (IA-A + IA-B)", value=True, id="mode_hybrid"
+                        )
                         yield RadioButton("Neural Only", id="mode_neural")
                         yield RadioButton("Legacy", id="mode_legacy")
 
                 # Métricas de IA
                 with Container(classes="ai-metrics-container"):
-                    yield Label("[dim]Aprendizaje Autónomo[/]", classes="learning-label")
-                    yield ProgressBar(total=100, progress=75, id="learning_progress",
-                                    show_eta=False, show_percentage=True)
-                    yield Label("[dim]Sesiones: 127 | Patrones: 45 | Efectividad: 94.2%[/]",
-                              id="learning_stats", classes="learning-details")
+                    yield Label(
+                        "[dim]Aprendizaje Autónomo[/]", classes="learning-label"
+                    )
+                    yield ProgressBar(
+                        total=100,
+                        progress=75,
+                        id="learning_progress",
+                        show_eta=False,
+                        show_percentage=True,
+                    )
+                    yield Label(
+                        "[dim]Sesiones: 127 | Patrones: 45 | Efectividad: 94.2%[/]",
+                        id="learning_stats",
+                        classes="learning-details",
+                    )
+
 
 class AdvancedOperationsPanel(Static):
     """Panel de operaciones avanzadas"""
 
     def compose(self) -> ComposeResult:
         with Container(classes="operations-panel"):
-            yield Label("[bold yellow]⚙️ Operaciones Avanzadas[/]", classes="panel-title")
+            yield Label(
+                "[bold yellow]⚙️ Operaciones Avanzadas[/]", classes="panel-title"
+            )
 
             with TabbedContent(initial="scraping-tab", classes="ops-tabs"):
                 with TabPane("🕷️ Scraping", id="scraping-tab"):
                     with Vertical(classes="scraping-controls"):
-                        yield Label("[dim]Configuración de Scraping[/]", classes="section-label")
-                        yield Checkbox("Respeto robots.txt", value=True, id="robots_check")
-                        yield Checkbox("Verificaciones éticas", value=True, id="ethics_check")
+                        yield Label(
+                            "[dim]Configuración de Scraping[/]", classes="section-label"
+                        )
+                        yield Checkbox(
+                            "Respeto robots.txt", value=True, id="robots_check"
+                        )
+                        yield Checkbox(
+                            "Verificaciones éticas", value=True, id="ethics_check"
+                        )
                         yield Checkbox("Modo stealth", value=False, id="stealth_check")
                         yield Checkbox("Auto-healing", value=True, id="healing_check")
 
                 with TabPane("🤖 IA/ML", id="ai-tab"):
                     with Vertical(classes="ai-controls"):
-                        yield Label("[dim]Configuración de IA[/]", classes="section-label")
+                        yield Label(
+                            "[dim]Configuración de IA[/]", classes="section-label"
+                        )
                         yield Checkbox("LLM Enhancement", value=True, id="llm_check")
                         yield Checkbox("RL Agent", value=False, id="rl_check")
-                        yield Checkbox("Continuous Learning", value=True, id="learning_check")
+                        yield Checkbox(
+                            "Continuous Learning", value=True, id="learning_check"
+                        )
                         yield Checkbox("Self-Repair", value=True, id="repair_check")
 
                 with TabPane("📊 Exportación", id="export-tab"):
                     with Vertical(classes="export-controls"):
-                        yield Label("[dim]Formatos de Exportación[/]", classes="section-label")
+                        yield Label(
+                            "[dim]Formatos de Exportación[/]", classes="section-label"
+                        )
                         yield Checkbox("CSV", value=True, id="csv_check")
                         yield Checkbox("JSON", value=True, id="json_check")
                         yield Checkbox("Markdown", value=False, id="md_check")
                         yield Checkbox("Excel (.xlsx)", value=False, id="xlsx_check")
                         yield Checkbox("Word (.docx)", value=False, id="docx_check")
+
 
 class RealTimeMonitor(Static):
     """Monitor en tiempo real con logs y alertas"""
@@ -142,31 +191,49 @@ class RealTimeMonitor(Static):
 
     def compose(self) -> ComposeResult:
         with Container(classes="monitor-panel"):
-            yield Label("[bold green]📡 Monitor en Tiempo Real[/]", classes="panel-title")
+            yield Label(
+                "[bold green]📡 Monitor en Tiempo Real[/]", classes="panel-title"
+            )
 
             with TabbedContent(initial="activity-tab", classes="monitor-tabs"):
                 with TabPane("🔄 Actividad", id="activity-tab"):
-                    yield RichLog(highlight=True, markup=True, id="activity_log",
-                                classes="activity-log")
+                    yield RichLog(
+                        highlight=True,
+                        markup=True,
+                        id="activity_log",
+                        classes="activity-log",
+                    )
 
                 with TabPane("⚠️ Alertas", id="alerts-tab"):
                     yield ListView(id="alerts_list", classes="alerts-list")
 
                 with TabPane("📈 Gráficos", id="charts-tab"):
                     with Vertical(classes="charts-container"):
-                        yield Label("[dim]Rendimiento por Minuto[/]", classes="chart-label")
-                        yield Sparkline(data=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                      id="performance_sparkline", classes="performance-chart")
+                        yield Label(
+                            "[dim]Rendimiento por Minuto[/]", classes="chart-label"
+                        )
+                        yield Sparkline(
+                            data=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                            id="performance_sparkline",
+                            classes="performance-chart",
+                        )
                         yield Label("[dim]Uso de Memoria[/]", classes="chart-label")
-                        yield ProgressBar(total=100, progress=45, id="memory_usage",
-                                        show_percentage=True)
+                        yield ProgressBar(
+                            total=100,
+                            progress=45,
+                            id="memory_usage",
+                            show_percentage=True,
+                        )
+
 
 class DomainIntelligencePanel(Static):
     """Panel de inteligencia por dominio"""
 
     def compose(self) -> ComposeResult:
         with Container(classes="domain-panel"):
-            yield Label("[bold blue]🌐 Inteligencia de Dominios[/]", classes="panel-title")
+            yield Label(
+                "[bold blue]🌐 Inteligencia de Dominios[/]", classes="panel-title"
+            )
 
             with Container(classes="domain-content"):
                 yield DataTable(id="domain_table", classes="domain-table")
@@ -176,12 +243,15 @@ class DomainIntelligencePanel(Static):
                 table.add_columns("Dominio", "URLs", "Éxito %", "Patrones", "IA Score")
 
                 # Datos de ejemplo
-                table.add_rows([
-                    ("books.toscrape.com", "1,247", "98.5%", "12", "A+"),
-                    ("quotes.toscrape.com", "892", "95.2%", "8", "A"),
-                    ("scrape.center", "456", "87.1%", "5", "B+"),
-                    ("example.com", "123", "92.3%", "3", "B"),
-                ])
+                table.add_rows(
+                    [
+                        ("books.toscrape.com", "1,247", "98.5%", "12", "A+"),
+                        ("quotes.toscrape.com", "892", "95.2%", "8", "A"),
+                        ("scrape.center", "456", "87.1%", "5", "B+"),
+                        ("example.com", "123", "92.3%", "3", "B"),
+                    ]
+                )
+
 
 class AIAssistantInterface(Static):
     """Interfaz del asistente de IA integrado"""
@@ -191,29 +261,56 @@ class AIAssistantInterface(Static):
             yield Label("[bold purple]🤖 Asistente de IA[/]", classes="panel-title")
 
             with Vertical(classes="assistant-content"):
-                yield Label("[dim]Estado: Conectado y listo[/]", classes="assistant-status")
+                yield Label(
+                    "[dim]Estado: Conectado y listo[/]", classes="assistant-status"
+                )
 
                 with Container(classes="assistant-actions"):
-                    yield Button("🔍 Análisis Inteligente", variant="primary",
-                               id="ai_analyze", classes="assistant-button")
-                    yield Button("🛠️ Auto-Reparación", variant="success",
-                               id="ai_repair", classes="assistant-button")
-                    yield Button("📊 Generar Reporte", variant="warning",
-                               id="ai_report", classes="assistant-button")
-                    yield Button("🧠 Brain Snapshot", variant="default",
-                               id="ai_snapshot", classes="assistant-button")
+                    yield Button(
+                        "🔍 Análisis Inteligente",
+                        variant="primary",
+                        id="ai_analyze",
+                        classes="assistant-button",
+                    )
+                    yield Button(
+                        "🛠️ Auto-Reparación",
+                        variant="success",
+                        id="ai_repair",
+                        classes="assistant-button",
+                    )
+                    yield Button(
+                        "📊 Generar Reporte",
+                        variant="warning",
+                        id="ai_report",
+                        classes="assistant-button",
+                    )
+                    yield Button(
+                        "🧠 Brain Snapshot",
+                        variant="default",
+                        id="ai_snapshot",
+                        classes="assistant-button",
+                    )
+
 
 class SystemStatusBar(Static):
     """Barra de estado del sistema"""
 
     def compose(self) -> ComposeResult:
         with Horizontal(classes="status-bar"):
-            yield Label("[green]●[/] Sistema: OPERATIVO", id="system_status", classes="status-item")
+            yield Label(
+                "[green]●[/] Sistema: OPERATIVO",
+                id="system_status",
+                classes="status-item",
+            )
             yield Label("🧠 Brain: HÍBRIDO", id="brain_mode", classes="status-item")
             yield Label("🔄 Workers: 8/8", id="workers_status", classes="status-item")
             yield Label("📊 DB: CONECTADA", id="db_status", classes="status-item")
-            yield Label(f"⏰ {datetime.now().strftime('%H:%M:%S')}",
-                       id="current_time", classes="status-item")
+            yield Label(
+                f"⏰ {datetime.now().strftime('%H:%M:%S')}",
+                id="current_time",
+                classes="status-item",
+            )
+
 
 class ProfessionalDashboard(Container):
     """Dashboard principal profesional que integra todos los widgets"""

@@ -1,8 +1,11 @@
 import logging
-from PyQt6.QtCore import pyqtSignal, QObject
+
+from PyQt6.QtCore import QObject, pyqtSignal
+
 
 class QtLogSignalEmitter(QObject):
     log_record = pyqtSignal(str, str, str)  # level, name, message
+
 
 class QtLogHandler(logging.Handler):
     def __init__(self, emitter: QtLogSignalEmitter):

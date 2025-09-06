@@ -8,17 +8,17 @@ This module detects novel content by combining multiple signals:
 - Temporal novelty (recency-based)
 """
 
+import asyncio
+import hashlib
 import logging
 import re
-import asyncio
-from typing import List, Optional, Dict, Any, Set
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import hashlib
+from typing import Any, Dict, List, Optional, Set
 
-from .embedding_adapter import EmbeddingAdapter, EmbeddingResult
-from .vector_store import VectorStore, VectorSearchResult
 from .. import settings
+from .embedding_adapter import EmbeddingAdapter, EmbeddingResult
+from .vector_store import VectorSearchResult, VectorStore
 
 logger = logging.getLogger(__name__)
 

@@ -2,19 +2,20 @@
 
 import asyncio
 import logging
-import os
 from pathlib import Path
 from typing import Optional
+
+from watchdog.events import FileModifiedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler, FileModifiedEvent
 
 from .hot_reload import ScraperRegistry
 from .orchestrator import ScrapingOrchestrator
 
 logger = logging.getLogger(__name__)
 
+
 class ScraperWatcher(FileSystemEventHandler):
-    def __init__(self, orchestrator: 'HotReloadOrchestrator'):
+    def __init__(self, orchestrator: "HotReloadOrchestrator"):
         self.orchestrator = orchestrator
         self.registry = ScraperRegistry()
 
@@ -22,21 +23,22 @@ class ScraperWatcher(FileSystemEventHandler):
         if not isinstance(event, FileModifiedEvent):
             return
 
-        if not event.src_path.endswith('.py'):
+        if not event.src_path.endswith(".py"):
             return
 
         # Check if this is a scraper module
         file_path = Path(event.src_path)
-        if not any('scrapers' in parent.name for parent in file_path.parents):
+        if not any("scrapers" in parent.name for parent in file_path.parents):
             return
 
         # Get scraper name from file path
         scraper_name = file_path.stem
-        if scraper_name == '__init__' or scraper_name == 'base':
+        if scraper_name == "__init__" or scraper_name == "base":
             return
 
         logger.info(f"Detected changes in scraper module: {scraper_name}")
         asyncio.create_task(self.orchestrator.reload_scraper(scraper_name))
+
 
 class HotReloadOrchestrator(ScrapingOrchestrator):
     def __init__(self, *args, **kwargs):
@@ -51,7 +53,7 @@ class HotReloadOrchestrator(ScrapingOrchestrator):
             return
 
         # Setup file watcher
-        scrapers_dir = Path(__file__).parent / 'scrapers'
+        scrapers_dir = Path(__file__).parent / "scrapers"
         self.watcher = ScraperWatcher(self)
         self.observer = Observer()
         self.observer.schedule(self.watcher, str(scrapers_dir), recursive=True)
@@ -77,7 +79,7 @@ class HotReloadOrchestrator(ScrapingOrchestrator):
 
             # Update any existing scraper instances
             # This is safe because the scraper interface ensures compatibility
-            if hasattr(self, 'scraper') and isinstance(self.scraper, type(new_scraper)):
+            if hasattr(self, "scraper") and isinstance(self.scraper, type(new_scraper)):
                 self.scraper = new_scraper
                 logger.info(f"Updated active scraper instance: {scraper_name}")
 

@@ -1,5 +1,7 @@
-from ..plugin_manager import BrainPlugin
 import time
+
+from ..plugin_manager import BrainPlugin
+
 
 class StrategyOptimizerPlugin(BrainPlugin):
     name = "strategy_optimizer"
@@ -14,16 +16,21 @@ class StrategyOptimizerPlugin(BrainPlugin):
         if time.time() - self.last_eval < 600:
             return None
         self.last_eval = time.time()
-        if not hasattr(self.brain, 'strategy_history') or not self.brain.strategy_history:
+        if (
+            not hasattr(self.brain, "strategy_history")
+            or not self.brain.strategy_history
+        ):
             return None
         # Simple heuristic: promote goals with higher confidence
-        avg_conf = sum(s['confidence'] for s in self.brain.strategy_history) / len(self.brain.strategy_history)
-        high = [s for s in self.brain.strategy_history if s['confidence'] >= avg_conf]
+        avg_conf = sum(s["confidence"] for s in self.brain.strategy_history) / len(
+            self.brain.strategy_history
+        )
+        high = [s for s in self.brain.strategy_history if s["confidence"] >= avg_conf]
         suggestion = None
         if high:
             suggestion = {
-                'promote_goal': high[-1]['goal'],
-                'avg_conf': avg_conf,
-                'candidate_conf': high[-1]['confidence']
+                "promote_goal": high[-1]["goal"],
+                "avg_conf": avg_conf,
+                "candidate_conf": high[-1]["confidence"],
             }
         return suggestion

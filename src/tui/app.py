@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-import asyncio
 
 from textual.app import App, ComposeResult
 from textual.containers import Container, Grid, Vertical
@@ -15,20 +14,20 @@ from textual.widgets import (
     Label,
     Log,
     ProgressBar,
+    Static,
     TabbedContent,
     TabPane,
-    Static,
 )
 from textual.worker import Worker, WorkerState
 
-from ..runner import setup_logging
-from ..runner import run_crawler
+from ..runner import run_crawler, setup_logging
 from ..settings import settings
 from .ui_prefs import load_prefs, save_prefs
 
 # Importaciones para AI Assistant
 try:
     from ..ai_assistant_integrator import AIAssistantIntegrator
+
     AI_ASSISTANT_AVAILABLE = True
 except ImportError:
     AI_ASSISTANT_AVAILABLE = False
@@ -157,10 +156,10 @@ class LiveStats(Container):
     def _apply_updates(self):
         """Aplica las actualizaciones a la UI como un solo lote."""
         try:
-            total = self._current_stats['processed'] or 1
-            success = self._current_stats['SUCCESS']
-            failed = self._current_stats['FAILED']
-            retry = self._current_stats['RETRY']
+            total = self._current_stats["processed"] or 1
+            success = self._current_stats["SUCCESS"]
+            failed = self._current_stats["FAILED"]
+            retry = self._current_stats["RETRY"]
             success_rate = success / total
             fail_rate = failed / total
             retry_rate = retry / total
@@ -223,7 +222,9 @@ class DomainStats(Container):
     def compose(self) -> ComposeResult:
         table = DataTable(classes="domain-stats-table")
         # Textual < 0.50 no soporta kwarg 'headers'; añadimos columnas manualmente
-        table.add_columns("Dominio", "Backoff", "Scraped", "Baja Calidad", "Vacío", "Fallos")
+        table.add_columns(
+            "Dominio", "Backoff", "Scraped", "Baja Calidad", "Vacío", "Fallos"
+        )
         yield table
         self.border_title = "Métricas por Dominio"
 
@@ -234,6 +235,7 @@ class DomainStats(Container):
 
         # Limitar la frecuencia de actualización a máximo una vez cada 0.5 segundos
         import time
+
         current_time = time.time()
         if current_time - self._last_update_time < 0.5 and not self._update_scheduled:
             self._update_scheduled = True
@@ -245,6 +247,7 @@ class DomainStats(Container):
     def _apply_updates(self):
         """Actualiza la tabla con las métricas más recientes."""
         import time
+
         try:
             table = self.query_one(DataTable)
             table.clear()
@@ -252,10 +255,10 @@ class DomainStats(Container):
             # Crear filas en lote para evitar múltiples refrescos
             rows = []
             for domain, metrics in self._current_metrics.items():
-                backoff = metrics.get('current_backoff_factor', 0)
-                failed = metrics.get('failed', 0)
-                low_q = metrics.get('low_quality', 0)
-                scraped = metrics.get('total_scraped', 0)
+                backoff = metrics.get("current_backoff_factor", 0)
+                failed = metrics.get("failed", 0)
+                low_q = metrics.get("low_quality", 0)
+                scraped = metrics.get("total_scraped", 0)
                 # Derivar ratios
                 fail_rate = (failed / scraped) if scraped else 0
                 low_rate = (low_q / scraped) if scraped else 0
@@ -268,12 +271,22 @@ class DomainStats(Container):
                     else:
                         return f"[green]{val}[/]"
 
-                backoff_txt = f"[yellow]{backoff:.2f}[/]" if backoff > 2 else f"[green]{backoff:.2f}[/]"
+                backoff_txt = (
+                    f"[yellow]{backoff:.2f}[/]"
+                    if backoff > 2
+                    else f"[green]{backoff:.2f}[/]"
+                )
                 scraped_txt = f"{scraped}"
                 low_txt = colorize(low_q, low_rate)
-                empty_txt = f"[yellow]{metrics.get('empty', 0)}[/]" if metrics.get('empty', 0) > 0 else "0"
+                empty_txt = (
+                    f"[yellow]{metrics.get('empty', 0)}[/]"
+                    if metrics.get("empty", 0) > 0
+                    else "0"
+                )
                 failed_txt = colorize(failed, fail_rate)
-                rows.append((domain, backoff_txt, scraped_txt, low_txt, empty_txt, failed_txt))
+                rows.append(
+                    (domain, backoff_txt, scraped_txt, low_txt, empty_txt, failed_txt)
+                )
 
             # Agregar todas las filas de una vez
             for row in rows:
@@ -297,7 +310,9 @@ class BrainStats(Container):
 
     def compose(self) -> ComposeResult:
         table = DataTable(classes="brain-stats-table", id="brain_stats_table")
-        table.add_columns("Dominio", "Visitas", "Éxito%", "Error%", "LinkYield", "Prioridad")
+        table.add_columns(
+            "Dominio", "Visitas", "Éxito%", "Error%", "LinkYield", "Prioridad"
+        )
         yield table
         yield Log(id="brain_recent_events", highlight=False)
         self.border_title = "Brain"
@@ -323,18 +338,21 @@ class BrainStats(Container):
             error_rate = (stats.get("errors", 0) / visits) if visits else 0
             link_yield = (stats.get("total_new_links", 0) / visits) if visits else 0
             priority = success_rate * 0.6 + link_yield * 0.4
+
             def rate_color(r):
                 if r >= 0.8:
-                    return 'green'
+                    return "green"
                 if r >= 0.5:
-                    return 'yellow'
-                return 'red'
+                    return "yellow"
+                return "red"
+
             def yield_color(y):
                 if y >= 1.5:
-                    return 'green'
+                    return "green"
                 if y >= 0.5:
-                    return 'yellow'
-                return 'red'
+                    return "yellow"
+                return "red"
+
             sr_txt = f"[{rate_color(success_rate)}]{success_rate:.2f}[/]"
             er_txt = f"[{rate_color(error_rate)}]{error_rate:.2f}[/]"
             ly_txt = f"[{yield_color(link_yield)}]{link_yield:.2f}[/]"
@@ -346,7 +364,9 @@ class BrainStats(Container):
         log = self.query_one("#brain_recent_events", Log)
         log.clear()
         for ev in recent_events[-10:]:
-            log.write(f"{ev.get('status')} | {ev.get('domain')} | links={ev.get('new_links')} rt={ev.get('response_time')}")
+            log.write(
+                f"{ev.get('status')} | {ev.get('domain')} | links={ev.get('new_links')} rt={ev.get('response_time')}"
+            )
 
     def reset(self):
         try:
@@ -367,11 +387,13 @@ class IntelligenceStats(Container):
             "avg_success_rate": 0.0,
             "patterns_identified": 0,
             "strategies_optimized": 0,
-            "last_learning": "Nunca"
+            "last_learning": "Nunca",
         }
 
     def compose(self) -> ComposeResult:
-        yield Static("🧠 Sistema de Inteligencia Autónoma", classes="intelligence-title")
+        yield Static(
+            "🧠 Sistema de Inteligencia Autónoma", classes="intelligence-title"
+        )
         table = DataTable(classes="intelligence-table")
         table.add_columns("Métrica", "Valor")
         yield table
@@ -390,9 +412,15 @@ class IntelligenceStats(Container):
         rows = [
             ("Dominios Aprendidos", self._intelligence_data["domains_learned"]),
             ("Sesiones de Scraping", self._intelligence_data["total_sessions"]),
-            ("Tasa de Éxito Promedio", f"{self._intelligence_data['avg_success_rate']:.1%}"),
+            (
+                "Tasa de Éxito Promedio",
+                f"{self._intelligence_data['avg_success_rate']:.1%}",
+            ),
             ("Patrones Identificados", self._intelligence_data["patterns_identified"]),
-            ("Estrategias Optimizadas", self._intelligence_data["strategies_optimized"]),
+            (
+                "Estrategias Optimizadas",
+                self._intelligence_data["strategies_optimized"],
+            ),
             ("Último Aprendizaje", self._intelligence_data["last_learning"]),
         ]
 
@@ -407,7 +435,7 @@ class IntelligenceStats(Container):
             "avg_success_rate": 0.0,
             "patterns_identified": 0,
             "strategies_optimized": 0,
-            "last_learning": "Nunca"
+            "last_learning": "Nunca",
         }
         self._refresh_display()
 
@@ -527,16 +555,33 @@ class ScraperTUIApp(App):
                         yield Checkbox("Usar Agente RL (WIP)", value=False, id="use_rl")
                     with TabPane("🤖 AI Assistant", id="ai-tab"):
                         yield Label("🔍 Búsqueda Inteligente:")
-                        yield Input(placeholder="Buscar información sobre...", id="ai_search_topic")
+                        yield Input(
+                            placeholder="Buscar información sobre...",
+                            id="ai_search_topic",
+                        )
                         yield Button("Buscar", variant="primary", id="ai_search_button")
                         yield Label("📄 Generar Documentos:")
                         with Container(id="doc-format-container"):
                             yield Checkbox("Markdown", value=True, id="format_md")
-                            yield Checkbox("Word (.docx)", value=False, id="format_docx")
-                            yield Checkbox("Excel (.xlsx)", value=False, id="format_xlsx")
-                            yield Checkbox("PowerPoint (.pptx)", value=False, id="format_pptx")
-                        yield Button("🎤 Iniciar Chat por Voz", variant="success", id="voice_chat_button")
-                        yield Button("📋 Ver Historial", variant="default", id="ai_history_button")
+                            yield Checkbox(
+                                "Word (.docx)", value=False, id="format_docx"
+                            )
+                            yield Checkbox(
+                                "Excel (.xlsx)", value=False, id="format_xlsx"
+                            )
+                            yield Checkbox(
+                                "PowerPoint (.pptx)", value=False, id="format_pptx"
+                            )
+                        yield Button(
+                            "🎤 Iniciar Chat por Voz",
+                            variant="success",
+                            id="voice_chat_button",
+                        )
+                        yield Button(
+                            "📋 Ver Historial",
+                            variant="default",
+                            id="ai_history_button",
+                        )
                         yield Static("Estado AI: No inicializado", id="ai_status")
                     with TabPane("Estadísticas", id="stats-tab"):
                         yield LiveStats()
@@ -622,7 +667,9 @@ class ScraperTUIApp(App):
         if AI_ASSISTANT_AVAILABLE:
             self.call_later(self.initialize_ai_assistant)
         else:
-            self.query_one("#ai_status").update("Estado AI: Dependencias no disponibles")
+            self.query_one("#ai_status").update(
+                "Estado AI: Dependencias no disponibles"
+            )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Maneja los clics de los botones."""
@@ -753,27 +800,36 @@ class ScraperTUIApp(App):
 
         parts: list[str] = []
         parts.append("[bold green]Scraper PRO Inteligente[/]")
-        parts.append("🤖 Robots:" + ("[green]ON[/]" if settings.ROBOTS_ENABLED else "[red]OFF[/]"))
-        parts.append("⚖ Ética:" + ("[green]ON[/]" if settings.ETHICS_CHECKS_ENABLED else "[yellow]OFF[/]"))
-        parts.append("📡 Offline:" + ("[yellow]ON[/]" if settings.OFFLINE_MODE else "[green]OFF[/]"))
+        parts.append(
+            "🤖 Robots:"
+            + ("[green]ON[/]" if settings.ROBOTS_ENABLED else "[red]OFF[/]")
+        )
+        parts.append(
+            "⚖ Ética:"
+            + ("[green]ON[/]" if settings.ETHICS_CHECKS_ENABLED else "[yellow]OFF[/]")
+        )
+        parts.append(
+            "📡 Offline:"
+            + ("[yellow]ON[/]" if settings.OFFLINE_MODE else "[green]OFF[/]")
+        )
         try:
             rl_enabled = self.query_one("#use_rl", Checkbox).value
         except Exception:
             rl_enabled = False
         parts.append("🧪 RL:" + ("[green]ON[/]" if rl_enabled else "[grey]OFF[/]"))
         try:
-            processed = self.live_stats_data.get('processed', 0)
-            success = self.live_stats_data.get('SUCCESS', 0)
-            failed = self.live_stats_data.get('FAILED', 0)
+            processed = self.live_stats_data.get("processed", 0)
+            success = self.live_stats_data.get("SUCCESS", 0)
+            failed = self.live_stats_data.get("FAILED", 0)
             if processed > 0:
                 rate = success / processed
                 fail_rate = failed / processed
                 if rate >= 0.8:
-                    color = 'green'
+                    color = "green"
                 elif rate >= 0.5:
-                    color = 'yellow'
+                    color = "yellow"
                 else:
-                    color = 'red'
+                    color = "red"
                 parts.append(f"🎯 Éxito:[bold {color}]{rate:.0%}[/]")
                 if fail_rate >= 0.4:
                     parts.append(f"⚠ [bold red]Fallas {fail_rate:.0%}[/]")
@@ -783,15 +839,15 @@ class ScraperTUIApp(App):
         try:
             max_backoff = 0
             for m in self.domain_metrics.values():
-                bf = m.get('current_backoff_factor', 0)
+                bf = m.get("current_backoff_factor", 0)
                 if bf > max_backoff:
                     max_backoff = bf
             if max_backoff > 2:
                 parts.append(f"⏳ Backoff:[bold yellow]{max_backoff:.1f}x[/]")
         except Exception:
             pass
-        if getattr(self, '_paused', False):
-            parts.append('[bold yellow]PAUSADO[/]')
+        if getattr(self, "_paused", False):
+            parts.append("[bold yellow]PAUSADO[/]")
         banner.update("  |  ".join(parts))
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
@@ -846,8 +902,11 @@ class ScraperTUIApp(App):
 
         # Programar actualización de UI si no hay una programada ya
         import time
+
         current_time = time.time()
-        if not self._ui_update_scheduled and (current_time - self._last_update_time > self._ui_update_interval):
+        if not self._ui_update_scheduled and (
+            current_time - self._last_update_time > self._ui_update_interval
+        ):
             self._last_update_time = current_time
             self._update_ui_now()
         elif not self._ui_update_scheduled:
@@ -856,7 +915,9 @@ class ScraperTUIApp(App):
 
         # Actualizar barra de progreso basada en processed/(processed+queue)
         try:
-            total_est = self.live_stats_data["processed"] + self.live_stats_data["queue_size"]
+            total_est = (
+                self.live_stats_data["processed"] + self.live_stats_data["queue_size"]
+            )
             if total_est > 0:
                 ratio = self.live_stats_data["processed"] / total_est
                 progress_bar = self.query_one(ProgressBar)
@@ -872,6 +933,7 @@ class ScraperTUIApp(App):
             total = processed or 1
             success_rate = success / total
             from time import time
+
             if not hasattr(self, "_start_time"):
                 self._start_time = time()
             elapsed = max(time() - self._start_time, 0.001)
@@ -884,7 +946,9 @@ class ScraperTUIApp(App):
                 rate_color = "yellow"
             else:
                 rate_color = "red"
-            paused_flag = " [yellow][PAUSADO][/]" if getattr(self, '_paused', False) else ""
+            paused_flag = (
+                " [yellow][PAUSADO][/]" if getattr(self, "_paused", False) else ""
+            )
             self.query_one("#status_bar", Label).update(
                 f"Status: {processed} ok=[{rate_color}]{success}[/] fail={failed} rate=[bold {rate_color}]{success_rate:.0%}[/] TPS={throughput:.2f} t={mm:02d}:{ss:02d}{paused_flag}"
             )
@@ -911,6 +975,7 @@ class ScraperTUIApp(App):
         finally:
             self._ui_update_scheduled = False
             import time
+
             self._last_update_time = time.time()
 
     def _update_progress_and_labels(self):
@@ -1001,6 +1066,7 @@ class ScraperTUIApp(App):
         # Reiniciar cronómetro de sesión
         try:
             from time import time as _now
+
             self._start_time = _now()
         except Exception:
             pass
@@ -1035,9 +1101,7 @@ class ScraperTUIApp(App):
             if event.state == WorkerState.SUCCESS:
                 logging.info("El proceso de crawling ha finalizado con éxito.")
                 self.query_one(ProgressBar).update(total=100, progress=100)
-                self.query_one("#stats_label").update(
-                    "¡Crawling completado!"
-                )
+                self.query_one("#stats_label").update("¡Crawling completado!")
                 try:
                     self.query_one("#stage_label").update("[green]Completed — 100%[/]")
                 except Exception:
@@ -1063,7 +1127,9 @@ class ScraperTUIApp(App):
                     "[bold red]Error durante el crawling.[/]"
                 )
                 try:
-                    self.query_one("#stage_label").update("[red]Error during crawling[/]")
+                    self.query_one("#stage_label").update(
+                        "[red]Error during crawling[/]"
+                    )
                 except Exception:
                     pass
                 self.show_toast("Error durante el crawling", "error", 5.0)
@@ -1125,7 +1191,9 @@ class ScraperTUIApp(App):
     async def initialize_ai_assistant(self) -> None:
         """Inicializa el AI Assistant de forma asíncrona."""
         if not AI_ASSISTANT_AVAILABLE:
-            self.show_toast("AI Assistant no disponible - dependencias faltantes", "warning", 5.0)
+            self.show_toast(
+                "AI Assistant no disponible - dependencias faltantes", "warning", 5.0
+            )
             self.query_one("#ai_status").update("Estado AI: No disponible")
             return
 
@@ -1137,7 +1205,7 @@ class ScraperTUIApp(App):
             self.ai_worker = self.run_worker(
                 self.ai_initialization_worker(),
                 name="ai_initialization",
-                description="Inicializando AI Assistant"
+                description="Inicializando AI Assistant",
             )
 
         except Exception as e:
@@ -1151,35 +1219,39 @@ class ScraperTUIApp(App):
             if self.ai_assistant:
                 init_result = await self.ai_assistant.initialize_system()
 
-                if init_result['status'] in ['success', 'partial']:
+                if init_result["status"] in ["success", "partial"]:
                     self.ai_initialized = True
-                    active_components = sum(1 for status in init_result['components'].values()
-                                          if status == 'success')
+                    active_components = sum(
+                        1
+                        for status in init_result["components"].values()
+                        if status == "success"
+                    )
                     self.call_from_thread(
                         self.query_one("#ai_status").update,
-                        f"Estado AI: Activo ({active_components}/4 componentes)"
+                        f"Estado AI: Activo ({active_components}/4 componentes)",
                     )
                     self.call_from_thread(
                         self.show_toast,
                         f"AI Assistant inicializado: {active_components}/4 componentes activos",
-                        "success", 4.0
+                        "success",
+                        4.0,
                     )
                 else:
                     self.call_from_thread(
                         self.query_one("#ai_status").update,
-                        "Estado AI: Error en inicialización"
+                        "Estado AI: Error en inicialización",
                     )
                     self.call_from_thread(
                         self.show_toast,
                         "Error inicializando AI Assistant",
-                        "error", 5.0
+                        "error",
+                        5.0,
                     )
 
         except Exception as e:
             logging.error(f"Error en worker de inicialización AI: {e}")
             self.call_from_thread(
-                self.query_one("#ai_status").update,
-                "Estado AI: Error"
+                self.query_one("#ai_status").update, "Estado AI: Error"
             )
 
     def action_ai_search(self) -> None:
@@ -1199,26 +1271,28 @@ class ScraperTUIApp(App):
         # Obtener formatos seleccionados
         selected_formats = []
         if self.query_one("#format_md", Checkbox).value:
-            selected_formats.append('md')
+            selected_formats.append("md")
         if self.query_one("#format_docx", Checkbox).value:
-            selected_formats.append('docx')
+            selected_formats.append("docx")
         if self.query_one("#format_xlsx", Checkbox).value:
-            selected_formats.append('xlsx')
+            selected_formats.append("xlsx")
         if self.query_one("#format_pptx", Checkbox).value:
-            selected_formats.append('pptx')
+            selected_formats.append("pptx")
 
         if not selected_formats:
-            selected_formats = ['md']  # Por defecto markdown
+            selected_formats = ["md"]  # Por defecto markdown
 
         # Ejecutar búsqueda en worker
         self.ai_worker = self.run_worker(
             self.ai_search_worker(topic, selected_formats),
             name="ai_search",
-            description=f"Buscando: {topic}"
+            description=f"Buscando: {topic}",
         )
 
         self.show_toast(f"Iniciando búsqueda sobre: {topic}", "info", 3.0)
-        logging.info(f"AI: Iniciando búsqueda sobre '{topic}' con formatos {selected_formats}")
+        logging.info(
+            f"AI: Iniciando búsqueda sobre '{topic}' con formatos {selected_formats}"
+        )
 
     async def ai_search_worker(self, topic: str, formats: list) -> None:
         """Worker para realizar búsqueda inteligente."""
@@ -1229,18 +1303,19 @@ class ScraperTUIApp(App):
             # Procesar solicitud con el AI Assistant
             request = f"Busca información detallada sobre {topic} y genera documentos en formatos {', '.join(formats)}"
 
-            result = await self.ai_assistant.process_user_request(request, 'text')
+            result = await self.ai_assistant.process_user_request(request, "text")
 
-            if result['status'] == 'completed':
-                final_response = result.get('final_response', {})
-                summary = final_response.get('summary', 'Búsqueda completada')
-                artifacts = final_response.get('artifacts_generated', [])
+            if result["status"] == "completed":
+                final_response = result.get("final_response", {})
+                summary = final_response.get("summary", "Búsqueda completada")
+                artifacts = final_response.get("artifacts_generated", [])
 
                 # Mostrar resultados en UI
                 self.call_from_thread(
                     self.show_toast,
                     f"Búsqueda completada: {len(artifacts)} documentos generados",
-                    "success", 5.0
+                    "success",
+                    5.0,
                 )
 
                 # Log detallado
@@ -1248,23 +1323,21 @@ class ScraperTUIApp(App):
                 logging.info(f"Resumen: {summary[:200]}...")
 
                 for artifact in artifacts:
-                    logging.info(f"Generado: {artifact['format'].upper()} - {artifact['location']}")
+                    logging.info(
+                        f"Generado: {artifact['format'].upper()} - {artifact['location']}"
+                    )
 
             else:
-                error_msg = result.get('error', 'Error desconocido')
+                error_msg = result.get("error", "Error desconocido")
                 self.call_from_thread(
-                    self.show_toast,
-                    f"Error en búsqueda: {error_msg}",
-                    "error", 5.0
+                    self.show_toast, f"Error en búsqueda: {error_msg}", "error", 5.0
                 )
                 logging.error(f"Error en AI Search: {error_msg}")
 
         except Exception as e:
             logging.error(f"Error en worker de búsqueda AI: {e}")
             self.call_from_thread(
-                self.show_toast,
-                f"Error inesperado: {e}",
-                "error", 5.0
+                self.show_toast, f"Error inesperado: {e}", "error", 5.0
             )
 
     def action_voice_chat(self) -> None:
@@ -1277,7 +1350,7 @@ class ScraperTUIApp(App):
         self.ai_worker = self.run_worker(
             self.voice_chat_worker(),
             name="voice_chat",
-            description="Chat por voz activo"
+            description="Chat por voz activo",
         )
 
         self.show_toast("Iniciando chat por voz... Habla ahora", "info", 4.0)
@@ -1291,28 +1364,22 @@ class ScraperTUIApp(App):
 
             conversation_result = await self.ai_assistant.execute_voice_conversation()
 
-            if conversation_result['status'] == 'completed':
+            if conversation_result["status"] == "completed":
                 self.call_from_thread(
-                    self.show_toast,
-                    "Conversación por voz completada",
-                    "success", 3.0
+                    self.show_toast, "Conversación por voz completada", "success", 3.0
                 )
                 logging.info("Conversación por voz completada exitosamente")
             else:
-                error_msg = conversation_result.get('reason', 'Voz no disponible')
+                error_msg = conversation_result.get("reason", "Voz no disponible")
                 self.call_from_thread(
-                    self.show_toast,
-                    f"Chat por voz: {error_msg}",
-                    "warning", 4.0
+                    self.show_toast, f"Chat por voz: {error_msg}", "warning", 4.0
                 )
                 logging.warning(f"Chat por voz no disponible: {error_msg}")
 
         except Exception as e:
             logging.error(f"Error en chat por voz: {e}")
             self.call_from_thread(
-                self.show_toast,
-                f"Error en chat por voz: {e}",
-                "error", 5.0
+                self.show_toast, f"Error en chat por voz: {e}", "error", 5.0
             )
 
     def action_ai_history(self) -> None:
@@ -1330,22 +1397,22 @@ class ScraperTUIApp(App):
 
             # Mostrar historial en el log
             log_widget = self.query_one("#log_view", Log)
-            log_widget.write("\n" + "="*60)
+            log_widget.write("\n" + "=" * 60)
             log_widget.write("[bold cyan]HISTORIAL AI ASSISTANT[/]")
-            log_widget.write("="*60)
+            log_widget.write("=" * 60)
 
             for i, session in enumerate(history, 1):
-                timestamp = session.get('timestamp', 'N/A')
-                request = session.get('request', 'N/A')[:100] + "..."
-                status = session.get('status', 'N/A')
-                components = ', '.join(session.get('components_used', []))
+                timestamp = session.get("timestamp", "N/A")
+                request = session.get("request", "N/A")[:100] + "..."
+                status = session.get("status", "N/A")
+                components = ", ".join(session.get("components_used", []))
 
                 log_widget.write(f"\n[bold]{i}. {timestamp}[/]")
                 log_widget.write(f"   Solicitud: {request}")
                 log_widget.write(f"   Estado: {status}")
                 log_widget.write(f"   Componentes: {components}")
 
-            log_widget.write("="*60 + "\n")
+            log_widget.write("=" * 60 + "\n")
 
             self.show_toast(f"Historial mostrado: {len(history)} sesiones", "info", 3.0)
 

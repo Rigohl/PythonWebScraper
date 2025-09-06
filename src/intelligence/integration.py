@@ -8,19 +8,20 @@ existing functionality. Now supports both Hybrid Brain and legacy systems.
 
 import logging
 import time
-from typing import Dict, Any, Optional, Union
 from functools import wraps
+from typing import Any, Dict, Optional
 
 # Support both hybrid and legacy brain systems
 try:
     from .hybrid_brain import HybridBrain
+
     HYBRID_AVAILABLE = True
 except ImportError:
     HYBRID_AVAILABLE = False
     # Define a placeholder for type hints
     HybridBrain = Any
 
-from .autonomous_brain import get_learning_brain, create_session_from_result
+from .autonomous_brain import create_session_from_result, get_learning_brain
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,9 @@ class IntelligenceIntegration:
         # Initialize brain system
         if brain is not None:
             self.brain = brain
-            self.brain_type = "hybrid" if hasattr(brain, 'simple_brain') else "autonomous"
+            self.brain_type = (
+                "hybrid" if hasattr(brain, "simple_brain") else "autonomous"
+            )
         else:
             # Fallback to autonomous brain
             self.brain = get_learning_brain()
@@ -48,7 +51,9 @@ class IntelligenceIntegration:
         self.enabled = True
         self.performance_tracking = {}
 
-        logger.info(f"🧠 Intelligence integration initialized with {self.brain_type} brain")
+        logger.info(
+            f"🧠 Intelligence integration initialized with {self.brain_type} brain"
+        )
 
     def enhance_configuration(self, domain: str) -> Dict[str, Any]:
         """
@@ -67,10 +72,10 @@ class IntelligenceIntegration:
                 strategy = self.brain.get_optimal_strategy(domain, f"https://{domain}")
                 if strategy:
                     return {
-                        'delay': strategy.request_delay,
-                        'user_agent_pattern': strategy.user_agent_pattern,
-                        'retry_count': strategy.retry_strategy.max_retries,
-                        'timeout': strategy.timeout
+                        "delay": strategy.request_delay,
+                        "user_agent_pattern": strategy.user_agent_pattern,
+                        "retry_count": strategy.retry_strategy.max_retries,
+                        "timeout": strategy.timeout,
                     }
                 return {}
 
@@ -78,7 +83,9 @@ class IntelligenceIntegration:
             logger.error(f"Intelligence configuration error for {domain}: {e}")
             return {}
 
-    def enhance_scraper_config(self, url: str, base_config: Dict[str, Any]) -> Dict[str, Any]:
+    def enhance_scraper_config(
+        self, url: str, base_config: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Enhance scraper configuration with learned intelligence.
 
@@ -89,6 +96,7 @@ class IntelligenceIntegration:
 
         try:
             from urllib.parse import urlparse
+
             domain = urlparse(url).netloc
 
             # Get domain-specific optimizations
@@ -102,22 +110,36 @@ class IntelligenceIntegration:
                 # Apply optimization with confidence check (for legacy compatibility)
                 confidence = optimizations.get("predicted_success_rate", 0.5)
                 if confidence > 0.3:  # Only apply if confident
-                    enhanced_config.update({
-                        "delay": optimizations.get("delay", base_config.get("delay", 1.0)),
-                        "user_agent": optimizations.get("user_agent_pattern", base_config.get("user_agent")),
-                        "max_retries": optimizations.get("retry_count", base_config.get("max_retries", 3)),
-                        "timeout": optimizations.get("timeout", base_config.get("timeout", 15)),
-                    })
+                    enhanced_config.update(
+                        {
+                            "delay": optimizations.get(
+                                "delay", base_config.get("delay", 1.0)
+                            ),
+                            "user_agent": optimizations.get(
+                                "user_agent_pattern", base_config.get("user_agent")
+                            ),
+                            "max_retries": optimizations.get(
+                                "retry_count", base_config.get("max_retries", 3)
+                            ),
+                            "timeout": optimizations.get(
+                                "timeout", base_config.get("timeout", 15)
+                            ),
+                        }
+                    )
 
                     # Add intelligence metadata
                     enhanced_config["_intelligence"] = {
                         "brain_confidence": confidence,
                         "brain_type": self.brain_type,
                         "learned_strategy": True,
-                        "optimization_source": "hybrid" if self.brain_type == "hybrid" else "autonomous"
+                        "optimization_source": (
+                            "hybrid" if self.brain_type == "hybrid" else "autonomous"
+                        ),
                     }
 
-                    logger.info(f"Enhanced config for {domain} with {confidence:.2f} confidence ({self.brain_type} brain)")
+                    logger.info(
+                        f"Enhanced config for {domain} with {confidence:.2f} confidence ({self.brain_type} brain)"
+                    )
 
             return enhanced_config
 
@@ -125,7 +147,9 @@ class IntelligenceIntegration:
             logger.error(f"Error enhancing scraper config: {e}")
             return base_config
 
-    def learn_from_scrape_result(self, result, context: Optional[Dict[str, Any]] = None) -> None:
+    def learn_from_scrape_result(
+        self, result, context: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Learn from a completed scrape result.
 
@@ -167,11 +191,13 @@ class IntelligenceIntegration:
             summary = self.brain.get_intelligence_summary()
 
             # Add integration-specific metrics
-            summary.update({
-                "integration_status": "enabled" if self.enabled else "disabled",
-                "performance_improvements": self._calculate_improvements(),
-                "recommendation": self._get_recommendation()
-            })
+            summary.update(
+                {
+                    "integration_status": "enabled" if self.enabled else "disabled",
+                    "performance_improvements": self._calculate_improvements(),
+                    "recommendation": self._get_recommendation(),
+                }
+            )
 
             return summary
 
@@ -197,15 +223,17 @@ class IntelligenceIntegration:
                 self.performance_tracking[domain] = {
                     "sessions": [],
                     "baseline_success": 0.5,
-                    "current_success": 0.5
+                    "current_success": 0.5,
                 }
 
             tracking = self.performance_tracking[domain]
-            tracking["sessions"].append({
-                "timestamp": session.timestamp,
-                "success": session.success,
-                "response_time": session.response_time
-            })
+            tracking["sessions"].append(
+                {
+                    "timestamp": session.timestamp,
+                    "success": session.success,
+                    "response_time": session.response_time,
+                }
+            )
 
             # Keep only recent sessions (last 50)
             tracking["sessions"] = tracking["sessions"][-50:]
@@ -224,18 +252,26 @@ class IntelligenceIntegration:
 
             for domain, tracking in self.performance_tracking.items():
                 if len(tracking["sessions"]) >= 10:
-                    improvement = tracking["current_success"] - tracking["baseline_success"]
+                    improvement = (
+                        tracking["current_success"] - tracking["baseline_success"]
+                    )
                     improvements[domain] = improvement
 
             if improvements:
                 avg_improvement = sum(improvements.values()) / len(improvements)
                 return {
                     "average_improvement": avg_improvement,
-                    "domains_improved": len([v for v in improvements.values() if v > 0]),
-                    "total_domains": len(improvements)
+                    "domains_improved": len(
+                        [v for v in improvements.values() if v > 0]
+                    ),
+                    "total_domains": len(improvements),
                 }
 
-            return {"average_improvement": 0.0, "domains_improved": 0, "total_domains": 0}
+            return {
+                "average_improvement": 0.0,
+                "domains_improved": 0,
+                "total_domains": 0,
+            }
 
         except Exception as e:
             logger.error(f"Error calculating improvements: {e}")
@@ -273,7 +309,7 @@ class IntelligenceIntegration:
                     "avg_success_rate": 0.0,
                     "patterns_identified": 0,
                     "strategies_optimized": 0,
-                    "last_learning": "Sistema no inicializado"
+                    "last_learning": "Sistema no inicializado",
                 }
 
             if self.brain_type == "hybrid":
@@ -281,22 +317,35 @@ class IntelligenceIntegration:
                 hybrid_stats = self.brain.get_comprehensive_stats()
 
                 return {
-                    "domains_learned": len(hybrid_stats['simple_brain']['domains']),
-                    "total_sessions": hybrid_stats['autonomous_brain']['learning_sessions'],
-                    "avg_success_rate": self._calculate_avg_success_rate(hybrid_stats['simple_brain']['domains']),
-                    "patterns_identified": hybrid_stats['autonomous_brain']['total_patterns'],
-                    "strategies_optimized": hybrid_stats['autonomous_brain']['strategies_optimized'],
+                    "domains_learned": len(hybrid_stats["simple_brain"]["domains"]),
+                    "total_sessions": hybrid_stats["autonomous_brain"][
+                        "learning_sessions"
+                    ],
+                    "avg_success_rate": self._calculate_avg_success_rate(
+                        hybrid_stats["simple_brain"]["domains"]
+                    ),
+                    "patterns_identified": hybrid_stats["autonomous_brain"][
+                        "total_patterns"
+                    ],
+                    "strategies_optimized": hybrid_stats["autonomous_brain"][
+                        "strategies_optimized"
+                    ],
                     "last_learning": self._get_last_learning_time(hybrid_stats),
                     "brain_type": "hybrid",
-                    "top_domains": [d['domain'] for d in hybrid_stats.get('top_performing_domains', [])[:3]],
-                    "learning_insights": hybrid_stats.get('learning_insights', [])
+                    "top_domains": [
+                        d["domain"]
+                        for d in hybrid_stats.get("top_performing_domains", [])[:3]
+                    ],
+                    "learning_insights": hybrid_stats.get("learning_insights", []),
                 }
             else:
                 # Usar métricas del sistema autónomo (legacy)
                 # Obtener estadísticas del cerebro de aprendizaje
                 brain_stats = self.brain.get_domain_intelligence()
                 total_domains = len(brain_stats)
-                total_sessions = sum(stats.total_sessions for stats in brain_stats.values())
+                total_sessions = sum(
+                    stats.total_sessions for stats in brain_stats.values()
+                )
 
                 # Calcular tasa de éxito promedio
                 success_rates = []
@@ -305,35 +354,44 @@ class IntelligenceIntegration:
 
                 for domain_stats in brain_stats.values():
                     if domain_stats.total_sessions > 0:
-                        success_rate = domain_stats.success_count / domain_stats.total_sessions
+                        success_rate = (
+                            domain_stats.success_count / domain_stats.total_sessions
+                        )
                         success_rates.append(success_rate)
                     patterns_count += len(domain_stats.common_patterns)
                     strategies_count += len(domain_stats.optimal_strategies)
 
-                avg_success_rate = sum(success_rates) / len(success_rates) if success_rates else 0.0
+                avg_success_rate = (
+                    sum(success_rates) / len(success_rates) if success_rates else 0.0
+                )
 
                 # Obtener información de la última sesión de seguimiento de rendimiento
                 last_learning = "Nunca"
                 latest_time = 0
                 for tracking in self.performance_tracking.values():
                     if tracking["sessions"]:
-                        last_session_time = max(s["timestamp"] for s in tracking["sessions"])
+                        last_session_time = max(
+                            s["timestamp"] for s in tracking["sessions"]
+                        )
                         if last_session_time > latest_time:
                             latest_time = last_session_time
 
                 if latest_time > 0:
                     import datetime
-                    last_learning = datetime.datetime.fromtimestamp(latest_time).strftime("%H:%M:%S")
+
+                    last_learning = datetime.datetime.fromtimestamp(
+                        latest_time
+                    ).strftime("%H:%M:%S")
 
                 return {
                     "domains_learned": total_domains,
-                "total_sessions": total_sessions,
-                "avg_success_rate": avg_success_rate,
-                "patterns_identified": patterns_count,
-                "strategies_optimized": strategies_count,
-                "last_learning": last_learning,
-                "brain_type": "autonomous"
-            }
+                    "total_sessions": total_sessions,
+                    "avg_success_rate": avg_success_rate,
+                    "patterns_identified": patterns_count,
+                    "strategies_optimized": strategies_count,
+                    "last_learning": last_learning,
+                    "brain_type": "autonomous",
+                }
         except Exception as e:
             logger.error(f"Error getting intelligence metrics: {e}")
             return {
@@ -342,7 +400,7 @@ class IntelligenceIntegration:
                 "avg_success_rate": 0.0,
                 "patterns_identified": 0,
                 "strategies_optimized": 0,
-                "last_learning": f"Error: {str(e)}"
+                "last_learning": f"Error: {str(e)}",
             }
 
     def _calculate_avg_success_rate(self, domains_data: dict) -> float:
@@ -352,8 +410,8 @@ class IntelligenceIntegration:
 
         success_rates = []
         for domain_stats in domains_data.values():
-            visits = domain_stats.get('visits', 0)
-            success = domain_stats.get('success', 0)
+            visits = domain_stats.get("visits", 0)
+            success = domain_stats.get("success", 0)
             if visits > 0:
                 success_rates.append(success / visits)
 
@@ -362,10 +420,12 @@ class IntelligenceIntegration:
     def _get_last_learning_time(self, hybrid_stats: dict) -> str:
         """Obtiene el tiempo del último aprendizaje del sistema híbrido"""
         try:
-            recent_events = hybrid_stats.get('simple_brain', {}).get('recent_events', [])
+            recent_events = hybrid_stats.get("simple_brain", {}).get(
+                "recent_events", []
+            )
             if recent_events:
                 # El último evento del Brain simple
-                return recent_events[-1].get('timestamp', 'Desconocido')
+                return recent_events[-1].get("timestamp", "Desconocido")
             return "Nunca"
         except Exception:
             return "Error al obtener tiempo"
@@ -393,6 +453,7 @@ def intelligent_scraper_decorator(scraper_func):
         # ... scraping logic ...
         return result
     """
+
     @wraps(scraper_func)
     def wrapper(url, config=None, *args, **kwargs):
         integration = get_intelligence_integration()
@@ -413,7 +474,7 @@ def intelligent_scraper_decorator(scraper_func):
                 "response_time": time.time() - start_time,
                 "retry_count": enhanced_config.get("_retry_count", 0),
                 "user_agent": enhanced_config.get("user_agent", ""),
-                "delay_used": enhanced_config.get("delay", 1.0)
+                "delay_used": enhanced_config.get("delay", 1.0),
             }
 
             # Learn from result
@@ -436,7 +497,7 @@ def intelligent_scraper_decorator(scraper_func):
                 "response_time": time.time() - start_time,
                 "retry_count": enhanced_config.get("_retry_count", 0),
                 "user_agent": enhanced_config.get("user_agent", ""),
-                "delay_used": enhanced_config.get("delay", 1.0)
+                "delay_used": enhanced_config.get("delay", 1.0),
             }
 
             integration.learn_from_scrape_result(failure_result, context)
