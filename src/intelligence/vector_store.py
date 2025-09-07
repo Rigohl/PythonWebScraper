@@ -18,6 +18,7 @@ import numpy as np
 
 try:
     import faiss
+
     FAISS_AVAILABLE = True
 except ImportError:
     FAISS_AVAILABLE = False
@@ -27,23 +28,28 @@ from .embedding_adapter import EmbeddingResult
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class VectorSearchResult:
     """Result of a vector similarity search"""
+
     id: str
     text: str
     embedding: List[float]
     similarity: float
     metadata: Dict[str, Any]
 
+
 @dataclass
 class StoredVector:
     """Vector stored in the database"""
+
     id: str
     text: str
     embedding: List[float]
     metadata: Dict[str, Any]
     timestamp: float
+
 
 class VectorStore:
     """
@@ -53,7 +59,9 @@ class VectorStore:
 
     def __init__(self, db_path: Optional[str] = None, use_faiss: bool = True):
         self.db_path = db_path or settings.CURIOSITY_VECTOR_DB_PATH
-        self.use_faiss = use_faiss and FAISS_AVAILABLE and settings.CURIOSITY_VECTOR_STORE_FAISS
+        self.use_faiss = (
+            use_faiss and FAISS_AVAILABLE and settings.CURIOSITY_VECTOR_STORE_FAISS
+        )
         self.dimensions = settings.CURIOSITY_EMBEDDING_DIMENSIONS
 
         # SQLite connection
@@ -68,7 +76,9 @@ class VectorStore:
         if self.use_faiss:
             self._init_faiss()
         else:
-            logger.info("Using SQLite-only vector store (FAISS not available or disabled)")
+            logger.info(
+                "Using SQLite-only vector store (FAISS not available or disabled)"
+            )
 
     def _init_sqlite(self):
         """Initialize SQLite database for vector storage."""
@@ -89,7 +99,8 @@ class VectorStore:
         cursor = self.conn.cursor()
 
         # Main vectors table
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS vectors (
                 id TEXT PRIMARY KEY,
                 text TEXT NOT NULL,
@@ -98,19 +109,24 @@ class VectorStore:
                 timestamp REAL NOT NULL,
                 created_at REAL DEFAULT (strftime('%s', 'now'))
             )
-        ''')
+        """
+        )
 
         # Index for faster timestamp queries
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_vectors_timestamp
             ON vectors(timestamp)
-        ''')
+        """
+        )
 
         # Index for metadata queries
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_vectors_metadata
             ON vectors(metadata)
-        ''')
+        """
+        )
 
         self.conn.commit()
 
@@ -123,7 +139,9 @@ class VectorStore:
             # Load existing vectors into FAISS
             self._load_vectors_to_faiss()
 
-            logger.info(f"FAISS index initialized with {self.faiss_index.ntotal} vectors")
+            logger.info(
+                f"FAISS index initialized with {self.faiss_index.ntotal} vectors"
+            )
         except Exception as e:
             logger.error(f"Failed to initialize FAISS: {e}")
             self.use_faiss = False
@@ -135,7 +153,7 @@ class VectorStore:
 
         try:
             cursor = self.conn.cursor()
-            cursor.execute('SELECT id, embedding FROM vectors ORDER BY timestamp')
+            cursor.execute("SELECT id, embedding FROM vectors ORDER BY timestamp")
 
             vectors = []
             ids = []
@@ -161,8 +179,12 @@ class VectorStore:
             logger.error(f"Failed to load vectors to FAISS: {e}")
             self.use_faiss = False
 
-    async def store_vector(self, vector_id: str, embedding_result: EmbeddingResult,
-                          metadata: Optional[Dict[str, Any]] = None) -> bool:
+    async def store_vector(
+        self,
+        vector_id: str,
+        embedding_result: EmbeddingResult,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> bool:
         """
         Store a vector in the database.
 
@@ -180,11 +202,20 @@ class VectorStore:
             embedding_json = json.dumps(embedding_result.embedding)
 
             cursor = self.conn.cursor()
-            cursor.execute('''
+            cursor.execute(
+                """
                 INSERT OR REPLACE INTO vectors
                 (id, text, embedding, metadata, timestamp)
                 VALUES (?, ?, ?, ?, ?)
-            ''', (vector_id, embedding_result.text, embedding_json, metadata_json, timestamp))
+            """,
+                (
+                    vector_id,
+                    embedding_result.text,
+                    embedding_json,
+                    metadata_json,
+                    timestamp,
+                ),
+            )
 
             self.conn.commit()
 
@@ -216,8 +247,12 @@ class VectorStore:
         except Exception as e:
             logger.error(f"Failed to add vector to FAISS: {e}")
 
-    async def search_similar(self, query_embedding: List[float], limit: int = 10,
-                           threshold: Optional[float] = None) -> List[VectorSearchResult]:
+    async def search_similar(
+        self,
+        query_embedding: List[float],
+        limit: int = 10,
+        threshold: Optional[float] = None,
+    ) -> List[VectorSearchResult]:
         """
         Search for similar vectors using the query embedding.
 
@@ -234,14 +269,17 @@ class VectorStore:
         else:
             return await self._search_sqlite(query_embedding, limit, threshold)
 
-    async def _search_faiss(self, query_embedding: List[float], limit: int,
-                           threshold: Optional[float]) -> List[VectorSearchResult]:
+    async def _search_faiss(
+        self, query_embedding: List[float], limit: int, threshold: Optional[float]
+    ) -> List[VectorSearchResult]:
         """Search using FAISS index."""
         try:
             query_array = np.array([query_embedding], dtype=np.float32)
 
             # Search for similar vectors
-            distances, indices = self.faiss_index.search(query_array, min(limit * 2, self.faiss_index.ntotal))
+            distances, indices = self.faiss_index.search(
+                query_array, min(limit * 2, self.faiss_index.ntotal)
+            )
 
             results = []
             for distance, index in zip(distances[0], indices[0]):
@@ -263,13 +301,15 @@ class VectorStore:
                 if threshold and similarity < threshold:
                     continue
 
-                results.append(VectorSearchResult(
-                    id=stored_vector.id,
-                    text=stored_vector.text,
-                    embedding=stored_vector.embedding,
-                    similarity=similarity,
-                    metadata=stored_vector.metadata
-                ))
+                results.append(
+                    VectorSearchResult(
+                        id=stored_vector.id,
+                        text=stored_vector.text,
+                        embedding=stored_vector.embedding,
+                        similarity=similarity,
+                        metadata=stored_vector.metadata,
+                    )
+                )
 
                 if len(results) >= limit:
                     break
@@ -280,12 +320,13 @@ class VectorStore:
             logger.error(f"FAISS search failed: {e}")
             return await self._search_sqlite(query_embedding, limit, threshold)
 
-    async def _search_sqlite(self, query_embedding: List[float], limit: int,
-                           threshold: Optional[float]) -> List[VectorSearchResult]:
+    async def _search_sqlite(
+        self, query_embedding: List[float], limit: int, threshold: Optional[float]
+    ) -> List[VectorSearchResult]:
         """Fallback search using SQLite (cosine similarity)."""
         try:
             cursor = self.conn.cursor()
-            cursor.execute('SELECT id, text, embedding, metadata FROM vectors')
+            cursor.execute("SELECT id, text, embedding, metadata FROM vectors")
 
             results = []
             for row in cursor.fetchall():
@@ -299,13 +340,15 @@ class VectorStore:
                 if threshold and similarity < threshold:
                     continue
 
-                results.append(VectorSearchResult(
-                    id=vector_id,
-                    text=text,
-                    embedding=stored_embedding,
-                    similarity=similarity,
-                    metadata=metadata
-                ))
+                results.append(
+                    VectorSearchResult(
+                        id=vector_id,
+                        text=text,
+                        embedding=stored_embedding,
+                        similarity=similarity,
+                        metadata=metadata,
+                    )
+                )
 
             # Sort by similarity and limit results
             results.sort(key=lambda x: x.similarity, reverse=True)
@@ -337,8 +380,10 @@ class VectorStore:
         """Get vector data by ID from database."""
         try:
             cursor = self.conn.cursor()
-            cursor.execute('SELECT text, embedding, metadata, timestamp FROM vectors WHERE id = ?',
-                          (vector_id,))
+            cursor.execute(
+                "SELECT text, embedding, metadata, timestamp FROM vectors WHERE id = ?",
+                (vector_id,),
+            )
 
             row = cursor.fetchone()
             if not row:
@@ -353,7 +398,7 @@ class VectorStore:
                 text=text,
                 embedding=embedding,
                 metadata=metadata,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
 
         except Exception as e:
@@ -372,7 +417,7 @@ class VectorStore:
         """
         try:
             cursor = self.conn.cursor()
-            cursor.execute('DELETE FROM vectors WHERE id = ?', (vector_id,))
+            cursor.execute("DELETE FROM vectors WHERE id = ?", (vector_id,))
             self.conn.commit()
 
             # Remove from FAISS if available
@@ -393,7 +438,9 @@ class VectorStore:
         """Get statistics about the vector store."""
         try:
             cursor = self.conn.cursor()
-            cursor.execute('SELECT COUNT(*), MIN(timestamp), MAX(timestamp) FROM vectors')
+            cursor.execute(
+                "SELECT COUNT(*), MIN(timestamp), MAX(timestamp) FROM vectors"
+            )
 
             count, min_time, max_time = cursor.fetchone()
 
@@ -404,7 +451,7 @@ class VectorStore:
                 "dimensions": self.dimensions,
                 "oldest_vector": min_time,
                 "newest_vector": max_time,
-                "db_path": self.db_path
+                "db_path": self.db_path,
             }
 
         except Exception as e:
@@ -420,11 +467,14 @@ class VectorStore:
         # FAISS doesn't need explicit cleanup
         logger.info("Vector store closed")
 
+
 # Global instance
 vector_store = VectorStore()
 
+
 # Factory function
-def create_vector_store(db_path: Optional[str] = None, use_faiss: bool = True) -> VectorStore:
+def create_vector_store(
+    db_path: Optional[str] = None, use_faiss: bool = True
+) -> VectorStore:
     """Create a new VectorStore instance."""
-    return VectorStore(db_path=db_path, use_faiss=use_faiss)</content>
-<parameter name="filePath">c:\Users\DELL\Desktop\PythonWebScraper\src\intelligence\vector_store.py
+    return VectorStore(db_path=db_path, use_faiss=use_faiss)

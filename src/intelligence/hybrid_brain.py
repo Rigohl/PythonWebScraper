@@ -1206,18 +1206,17 @@ class HybridBrain:
                     kb_title = kb_snippet.get("title", "N/A") if kb_snippet else "N/A"
 
                     # Imprimir el aviso en un formato claro y estructurado
-                    logger.info("%s", "\n" + "-" * 25)
-                    logger.info("%s", "🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
-                    logger.info("%s", "-" * 25)
-                    logger.info("Dominio:           %s", domain)
-                    logger.info(
-                        "Síntoma:           Tasa de Error Elevada (%s)",
-                        f"{error_rate:.1%}",
+                    print("\n" + "-" * 25)
+                    print("🧠 AVISO DEL CEREBRO HÍBRIDO 🧠")
+                    print("-" * 25)
+                    print(f"Dominio:           {domain}")
+                    print(
+                        f"Síntoma:           Tasa de Error Elevada ({error_rate:.1%})"
                     )
-                    logger.info("Sugerencia ID:     %s", backoff_suggestion["rule_id"])
-                    logger.info("Recomendación:     %s", backoff_suggestion["message"])
-                    logger.info("Conocimiento Rel.: %s - %s", kb_ref_id, kb_title)
-                    logger.info("%s", "-" * 25 + "\n")
+                    print(f"Sugerencia ID:     {backoff_suggestion['rule_id']}")
+                    print(f"Recomendación:     {backoff_suggestion['message']}")
+                    print(f"Conocimiento Rel.: {kb_ref_id} - {kb_title}")
+                    print("-" * 25 + "\n")
 
         except Exception as e:
             logger.exception(
@@ -2005,20 +2004,19 @@ class HybridBrain:
             results = self.knowledge_base.search(category=category, tags=tags)
             return results[:limit]
         except Exception:
-            logger.exception("Suppressed non-fatal error in hybrid_brain.get_knowledge")
             return []
 
     def query_knowledge_base(self, query: str) -> list[dict[str, Any]]:
         """Searches the knowledge base for a given query."""
+        print(f"Searching knowledge base for: {query}")
         try:
-            logger.debug("Searching knowledge base for: %s", query)
             # Search by category and tags based on the query
             tags = [tag.strip() for tag in query.split(" ")]
             results = self.knowledge_base.search(category=query, tags=tags)
             # Limit results to first 10 if needed
             return results[:10] if len(results) > 10 else results
-        except Exception:
-            logger.exception("Error querying knowledge base for query=%s", query)
+        except Exception as e:
+            logger.error(f"Error querying knowledge base: {e}")
             return []
 
     def reason_about_issue(self, observation: dict[str, Any]) -> dict[str, Any]:

@@ -6,18 +6,23 @@ import inspect
 import json
 import logging
 import os
-from typing import List, Optional
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 import httpx
 from playwright.async_api import async_playwright
 
+from src.intelligence import get_LLMExtractor
+
 from .database import DatabaseManager
 from .intelligence.hybrid_brain import get_hybrid_brain
-from .llm_extractor import LLMExtractor
+
+if TYPE_CHECKING:
+    # Only for type hints; avoid importing RLAgent at runtime to prevent heavy deps during collection
+    pass
+
 from .models.results import ScrapeResult
 from .orchestrator import ScrapingOrchestrator
-from .rl_agent import RLAgent
 from .scrapers.base import BaseScraper
 from .settings import settings
 from .user_agent_manager import UserAgentManager
@@ -37,8 +42,8 @@ class JsonFormatter(logging.Formatter):
 
 
 def setup_logging(
-    log_file_path: Optional[str] = None,
-    tui_handler: Optional[logging.Handler] = None,
+    log_file_path: str | None = None,
+    tui_handler: logging.Handler | None = None,
     level: int = logging.INFO,
 ):
     # Remove existing handlers to ensure idempotent reconfiguration
@@ -78,7 +83,7 @@ logger = logging.getLogger(__name__)
 
 
 async def run_crawler(
-    start_urls: List[str],
+    start_urls: list[str],
     db_path: str = "data/scraper_database.db",
     concurrency: int = 5,
     respect_robots_txt: bool = True,
@@ -106,7 +111,10 @@ async def run_crawler(
     # Initialize dependencies
     db_manager = DatabaseManager(db_path=db_path)
     user_agent_manager = UserAgentManager(user_agents=settings.USER_AGENT_LIST)
-    llm_extractor = LLMExtractor()
+    # Instantiate LLMExtractor via the intelligence package lazy getter so
+    # optional heavy dependencies or API clients aren't imported during test collection.
+    LLMExtractorCls = get_LLMExtractor()
+    llm_extractor = LLMExtractorCls() if LLMExtractorCls else None
 
     # Initialize hot reloader if enabled
     hot_reloader = None
@@ -123,8 +131,17 @@ async def run_crawler(
     # Optionally initialize RL agent
     rl_agent = None
     if use_rl and start_urls:
-        domain = urlparse(start_urls[0]).netloc
-        rl_agent = RLAgent(domain=domain, training_mode=True)
+        # Import RLAgent lazily to avoid pulling heavy dependencies during module import
+        try:
+            from src.intelligence import get_RLAgent
+
+            RLAgentCls = get_RLAgent()
+        except Exception:
+            RLAgentCls = None
+
+        if RLAgentCls:
+            domain = urlparse(start_urls[0]).netloc
+            rl_agent = RLAgentCls(domain=domain, training_mode=True)
 
     # Initialize HybridBrain - Intelligence is always active
     hybrid_brain = get_hybrid_brain()
@@ -244,7 +261,7 @@ async def run_crawler(
                 logger.warning(f"Failed auto Markdown export: {e}")
 
 
-async def discover_and_run_scrapers(urls: List[str], hot_reload: bool = False):
+async def discover_and_run_scrapers(urls: list[str], hot_reload: bool = False):
     """
     Dynamically discovers and runs scrapers from the 'src/scrapers' directory.
 
@@ -256,7 +273,7 @@ async def discover_and_run_scrapers(urls: List[str], hot_reload: bool = False):
         Enable hot reloading of scraper modules, by default False
     """
     scrapers_path = os.path.join(os.path.dirname(__file__), "scrapers")
-    scraper_instances: List[BaseScraper] = []
+    scraper_instances: list[BaseScraper] = []
 
     # Initialize hot reloader if enabled
     hot_reloader = None
@@ -329,7 +346,7 @@ async def discover_and_run_scrapers(urls: List[str], hot_reload: bool = False):
             logger.info("Hot reloader stopped")
 
 
-async def main(urls: List[str], hot_reload: bool = False):
+async def main(urls: list[str], hot_reload: bool = False):
     """
     Main entry point.
 

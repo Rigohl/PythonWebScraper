@@ -50,8 +50,8 @@ import logging
 import os
 from collections import defaultdict, deque
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
-from typing import Any, Deque, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -79,13 +79,13 @@ except NameError:
 class ExperienceEvent:
     url: str
     status: str
-    response_time: Optional[float] = None
-    content_length: Optional[int] = None
-    new_links: Optional[int] = None
-    timestamp: str = datetime.now(timezone.utc).isoformat()
-    domain: Optional[str] = None
-    extracted_fields: Optional[int] = None
-    error_type: Optional[str] = None
+    response_time: float | None = None
+    content_length: int | None = None
+    new_links: int | None = None
+    timestamp: str = datetime.now(UTC).isoformat()
+    domain: str | None = None
+    extracted_fields: int | None = None
+    error_type: str | None = None
 
 
 class Brain:
@@ -93,7 +93,7 @@ class Brain:
         self,
         db_path: str = BRAIN_DB_FILE,
         config_path: str = BRAIN_CONFIG_FILE,
-        state_file: Optional[str] = None,
+        state_file: str | None = None,
         max_recent: int = 500,
         **kwargs,
     ) -> None:
@@ -101,8 +101,8 @@ class Brain:
         self.state_file = state_file or BRAIN_STATE_FILE
         self.persistence = BrainPersistence(db_path, config_path)
         self.max_recent = max_recent
-        self.recent_events: Deque[ExperienceEvent] = deque(maxlen=max_recent)
-        self.domain_stats: Dict[str, Dict[str, Any]] = defaultdict(
+        self.recent_events: deque[ExperienceEvent] = deque(maxlen=max_recent)
+        self.domain_stats: dict[str, dict[str, Any]] = defaultdict(
             lambda: {
                 "visits": 0,
                 "success": 0,
@@ -114,7 +114,7 @@ class Brain:
                 "response_time_sum": 0.0,
             }
         )
-        self.error_type_freq: Dict[str, int] = defaultdict(int)
+        self.error_type_freq: dict[str, int] = defaultdict(int)
         self._dirty = False
         self._load_state()
 
@@ -247,7 +247,7 @@ class Brain:
             return False
         return self.domain_error_rate(domain) >= error_threshold
 
-    def top_domains(self, limit: int = 5) -> List[str]:
+    def top_domains(self, limit: int = 5) -> list[str]:
         scored = [(self.domain_priority(d), d) for d in self.domain_stats.keys()]
         scored.sort(reverse=True)
         return [d for _, d in scored[:limit]]
@@ -281,7 +281,7 @@ class Brain:
             return ""
 
     # Snapshot for external reporting
-    def snapshot(self) -> Dict[str, Any]:
+    def snapshot(self) -> dict[str, Any]:
         return {
             "domains": self.domain_stats,
             "top_domains": self.top_domains(),
@@ -293,7 +293,7 @@ class Brain:
     # ------------------------------------------------------------------
     # Compatibility helpers used by other hybrid systems and tests
     # ------------------------------------------------------------------
-    def get_domain_experience(self, domain: str) -> Dict[str, Any]:
+    def get_domain_experience(self, domain: str) -> dict[str, Any]:
         """Return a small summary of experience for a domain.
 
         Tests sometimes autospec Brain and expect this method to exist and
@@ -307,7 +307,7 @@ class Brain:
             "errors": int(stats.get("errors", 0)),
         }
 
-    def process_scraping_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
+    def process_scraping_event(self, event: dict[str, Any]) -> dict[str, Any]:
         """Lightweight processing hook for compatibility.
 
         The real HybridBrain implements a richer processing pipeline; unit

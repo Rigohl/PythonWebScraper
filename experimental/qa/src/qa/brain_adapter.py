@@ -6,7 +6,7 @@ feature-flag in settings.yaml controls whether commit is allowed.
 
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -86,7 +86,7 @@ class BrainAdapter:
         conn = sqlite3.connect(str(self.db_path))
         cur = conn.cursor()
         # use timezone-aware UTC timestamp to avoid DeprecationWarning
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         cur.execute(
             "INSERT INTO suggestions (type, payload, provenance, status, created_at) VALUES (?, ?, ?, ?, ?)",
             (

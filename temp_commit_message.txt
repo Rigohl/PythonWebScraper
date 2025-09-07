@@ -1,0 +1,10 @@
+feat: Implementa QA CI, GUI, actualizaciones de scraper y refactoriza inteligencia
+
+Este commit introduce actualizaciones significativas en varios módulos:
+- CI/CD: Añade un nuevo workflow de GitHub Actions para pruebas de QA experimentales.
+- Estructura del Proyecto: Actualiza .gitignore para excluir correctamente los archivos generados e incluye el nuevo `experimental/qa` module.
+- GUI: Introduce nuevos componentes de interfaz gráfica para análisis avanzados, exploración del cerebro, historial de aprendizaje y panel de métricas.
+- Scraper: Añade nuevos componentes de scraper, incluyendo un colector de métricas, un procesador secuencial y un nuevo web scraper.
+- Inteligencia: Refactoriza y actualiza `brain.py`, `hybrid_brain.py`, `main.py`, `orchestrator.py` y módulos de inteligencia relacionados.
+- Pruebas: Añade numerosos archivos de prueba nuevos y actualiza los existentes para cubrir nuevas funcionalidades y refactorizaciones.
+- Limpieza: Elimina snapshots de respaldo antiguos y archivos de log del repositorio.

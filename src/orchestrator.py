@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import json
 import logging
@@ -19,12 +21,17 @@ except ImportError:  # pragma: no cover
         return None
 
 
+from typing import TYPE_CHECKING
+
 from .db.database import DatabaseManager
 from .exceptions import NetworkError
 from .frontier_classifier import FrontierClassifier
 from .intelligence.brain import Brain, ExperienceEvent
-from .intelligence.llm_extractor import LLMExtractor
-from .intelligence.rl_agent import RLAgent
+
+if TYPE_CHECKING:
+    # Import only for type checking to avoid importing heavy RL dependencies at runtime
+    from .intelligence.llm_extractor import LLMExtractor
+    from .intelligence.rl_agent import RLAgent
 
 try:  # Hybrid brain (IA-B + IA-A fusion) optional
     from .intelligence.hybrid_brain import HybridBrain

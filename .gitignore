@@ -4,6 +4,12 @@ venv/
 venv_validation/
 
 # Archivos de caché de Python
+# Archivos de entorno virtual
+.venv/
+venv/
+venv_validation/
+
+# Archivos de caché de Python
 __pycache__/
 *.pyc
 .mypy_cache/
@@ -18,7 +24,7 @@ __pycache__/
 flake8_output.txt
 flake8_output2.txt
 
-# Bases de datos
+# Bases de datos and runtime artifacts (keep these ignored)
 *.db
 *.sqlite
 *.sqlite3
@@ -30,3 +36,23 @@ artifacts/
 reports/
 backups/snapshots/
 data/brain_enrichment.json
+
+# Virtualenv scripts
+venv/Scripts/
+
+# --- Allow tracking the experimental QA scaffold sources and tests ---
+# We intentionally keep runtime artifacts (DBs, envs) ignored, but allow the
+# experimental source, tests, docs and lightweight assets to be committed so
+# teams can review and CI can run the experimental test-suite.
+!experimental/qa/
+!experimental/qa/src/
+!experimental/qa/src/**
+!experimental/qa/tests/
+!experimental/qa/tests/**
+!experimental/qa/cli.py
+!experimental/qa/tui.py
+!experimental/qa/README.md
+!experimental/qa/requirements-qa.txt
+!experimental/qa/settings.yaml
+!experimental/qa/data/
+!experimental/qa/data/**

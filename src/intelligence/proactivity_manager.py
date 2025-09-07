@@ -19,23 +19,29 @@ from .novelty_detector import NoveltyAnalysis
 
 logger = logging.getLogger(__name__)
 
+
 class NotificationPriority(Enum):
     """Priority levels for notifications"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
 
+
 class NotificationType(Enum):
     """Types of notifications the system can send"""
+
     NOVEL_CONTENT = "novel_content"
     INTERESTING_FINDING = "interesting_finding"
     LEARNING_OPPORTUNITY = "learning_opportunity"
     SYSTEM_SUGGESTION = "system_suggestion"
 
+
 @dataclass
 class ProactiveNotification:
     """A proactive notification to be sent to the user"""
+
     id: str
     type: NotificationType
     priority: NotificationPriority
@@ -46,13 +52,16 @@ class ProactiveNotification:
     novelty_analysis: Optional[NoveltyAnalysis] = None
     actionable: bool = False
 
+
 @dataclass
 class NotificationResult:
     """Result of sending a notification"""
+
     notification_id: str
     sent: bool
     reason: str
     timestamp: float
+
 
 class RateLimiter:
     """Rate limiter for notifications to prevent spam"""
@@ -68,8 +77,7 @@ class RateLimiter:
 
         # Remove old notifications outside the window
         self.notifications = [
-            ts for ts in self.notifications
-            if current_time - ts < self.window_seconds
+            ts for ts in self.notifications if current_time - ts < self.window_seconds
         ]
 
         return len(self.notifications) < self.max_notifications
@@ -82,10 +90,10 @@ class RateLimiter:
         """Get remaining notification capacity in current window."""
         current_time = time.time()
         self.notifications = [
-            ts for ts in self.notifications
-            if current_time - ts < self.window_seconds
+            ts for ts in self.notifications if current_time - ts < self.window_seconds
         ]
         return max(0, self.max_notifications - len(self.notifications))
+
 
 class ProactivityManager:
     """
@@ -100,14 +108,17 @@ class ProactivityManager:
                 settings.CURIOSITY_RATE_LIMIT_LOW, settings.CURIOSITY_RATE_LIMIT_MINUTES
             ),
             NotificationPriority.MEDIUM: RateLimiter(
-                settings.CURIOSITY_RATE_LIMIT_MEDIUM, settings.CURIOSITY_RATE_LIMIT_MINUTES
+                settings.CURIOSITY_RATE_LIMIT_MEDIUM,
+                settings.CURIOSITY_RATE_LIMIT_MINUTES,
             ),
             NotificationPriority.HIGH: RateLimiter(
-                settings.CURIOSITY_RATE_LIMIT_HIGH, settings.CURIOSITY_RATE_LIMIT_MINUTES
+                settings.CURIOSITY_RATE_LIMIT_HIGH,
+                settings.CURIOSITY_RATE_LIMIT_MINUTES,
             ),
             NotificationPriority.CRITICAL: RateLimiter(
-                settings.CURIOSITY_RATE_LIMIT_CRITICAL, settings.CURIOSITY_RATE_LIMIT_MINUTES
-            )
+                settings.CURIOSITY_RATE_LIMIT_CRITICAL,
+                settings.CURIOSITY_RATE_LIMIT_MINUTES,
+            ),
         }
 
         # Notification handlers
@@ -128,28 +139,33 @@ class ProactivityManager:
         """Load user preferences for notifications."""
         # In a real implementation, this would load from persistent storage
         return {
-            'enabled_types': {
+            "enabled_types": {
                 NotificationType.NOVEL_CONTENT: True,
                 NotificationType.INTERESTING_FINDING: True,
                 NotificationType.LEARNING_OPPORTUNITY: True,
                 NotificationType.SYSTEM_SUGGESTION: False,  # Disabled by default
             },
-            'quiet_hours_start': 22,  # 10 PM
-            'quiet_hours_end': 8,    # 8 AM
-            'max_daily_notifications': 10,
+            "quiet_hours_start": 22,  # 10 PM
+            "quiet_hours_end": 8,  # 8 AM
+            "max_daily_notifications": 10,
         }
 
-    def add_notification_handler(self, handler: Callable[[ProactiveNotification], None]):
+    def add_notification_handler(
+        self, handler: Callable[[ProactiveNotification], None]
+    ):
         """Add a handler for processing notifications."""
         self.notification_handlers.append(handler)
 
-    def remove_notification_handler(self, handler: Callable[[ProactiveNotification], None]):
+    def remove_notification_handler(
+        self, handler: Callable[[ProactiveNotification], None]
+    ):
         """Remove a notification handler."""
         if handler in self.notification_handlers:
             self.notification_handlers.remove(handler)
 
-    async def notify_novel_content(self, analysis: NoveltyAnalysis,
-                                  context: Optional[Dict[str, Any]] = None) -> NotificationResult:
+    async def notify_novel_content(
+        self, analysis: NoveltyAnalysis, context: Optional[Dict[str, Any]] = None
+    ) -> NotificationResult:
         """
         Send a notification about novel content discovery.
 
@@ -163,12 +179,14 @@ class ProactivityManager:
         notification_id = f"novel_{int(time.time())}_{hash(analysis.content) % 10000}"
 
         # Check if this type of notification is enabled
-        if not self.user_preferences['enabled_types'].get(NotificationType.NOVEL_CONTENT, True):
+        if not self.user_preferences["enabled_types"].get(
+            NotificationType.NOVEL_CONTENT, True
+        ):
             return NotificationResult(
                 notification_id=notification_id,
                 sent=False,
                 reason="Notification type disabled by user preferences",
-                timestamp=time.time()
+                timestamp=time.time(),
             )
 
         # Determine priority based on novelty score
@@ -189,13 +207,14 @@ class ProactivityManager:
             context=context or {},
             timestamp=time.time(),
             novelty_analysis=analysis,
-            actionable=False  # Advisory only
+            actionable=False,  # Advisory only
         )
 
         return await self._send_notification(notification)
 
-    async def notify_interesting_finding(self, finding: str, confidence: float,
-                                       context: Optional[Dict[str, Any]] = None) -> NotificationResult:
+    async def notify_interesting_finding(
+        self, finding: str, confidence: float, context: Optional[Dict[str, Any]] = None
+    ) -> NotificationResult:
         """
         Send a notification about an interesting finding.
 
@@ -210,12 +229,14 @@ class ProactivityManager:
         notification_id = f"finding_{int(time.time())}_{hash(finding) % 10000}"
 
         # Check preferences
-        if not self.user_preferences['enabled_types'].get(NotificationType.INTERESTING_FINDING, True):
+        if not self.user_preferences["enabled_types"].get(
+            NotificationType.INTERESTING_FINDING, True
+        ):
             return NotificationResult(
                 notification_id=notification_id,
                 sent=False,
                 reason="Notification type disabled by user preferences",
-                timestamp=time.time()
+                timestamp=time.time(),
             )
 
         # Determine priority
@@ -234,13 +255,14 @@ class ProactivityManager:
             message=finding,
             context=context or {},
             timestamp=time.time(),
-            actionable=False
+            actionable=False,
         )
 
         return await self._send_notification(notification)
 
-    async def notify_learning_opportunity(self, opportunity: str,
-                                        context: Optional[Dict[str, Any]] = None) -> NotificationResult:
+    async def notify_learning_opportunity(
+        self, opportunity: str, context: Optional[Dict[str, Any]] = None
+    ) -> NotificationResult:
         """
         Send a notification about a learning opportunity.
 
@@ -254,12 +276,14 @@ class ProactivityManager:
         notification_id = f"learning_{int(time.time())}_{hash(opportunity) % 10000}"
 
         # Check preferences
-        if not self.user_preferences['enabled_types'].get(NotificationType.LEARNING_OPPORTUNITY, True):
+        if not self.user_preferences["enabled_types"].get(
+            NotificationType.LEARNING_OPPORTUNITY, True
+        ):
             return NotificationResult(
                 notification_id=notification_id,
                 sent=False,
                 reason="Notification type disabled by user preferences",
-                timestamp=time.time()
+                timestamp=time.time(),
             )
 
         notification = ProactiveNotification(
@@ -270,12 +294,14 @@ class ProactivityManager:
             message=opportunity,
             context=context or {},
             timestamp=time.time(),
-            actionable=True  # Learning opportunities might be actionable
+            actionable=True,  # Learning opportunities might be actionable
         )
 
         return await self._send_notification(notification)
 
-    async def _send_notification(self, notification: ProactiveNotification) -> NotificationResult:
+    async def _send_notification(
+        self, notification: ProactiveNotification
+    ) -> NotificationResult:
         """
         Send a notification through all registered handlers.
 
@@ -291,7 +317,7 @@ class ProactivityManager:
                 notification_id=notification.id,
                 sent=False,
                 reason=f"Rate limit exceeded for {notification.priority.value} priority",
-                timestamp=time.time()
+                timestamp=time.time(),
             )
 
         # Check quiet hours
@@ -300,7 +326,7 @@ class ProactivityManager:
                 notification_id=notification.id,
                 sent=False,
                 reason="Currently in user-defined quiet hours",
-                timestamp=time.time()
+                timestamp=time.time(),
             )
 
         # Check daily limit
@@ -309,14 +335,16 @@ class ProactivityManager:
                 notification_id=notification.id,
                 sent=False,
                 reason="Daily notification limit reached",
-                timestamp=time.time()
+                timestamp=time.time(),
             )
 
         # Send through all handlers
         sent_count = 0
         for handler in self.notification_handlers:
             try:
-                await asyncio.get_event_loop().run_in_executor(None, handler, notification)
+                await asyncio.get_event_loop().run_in_executor(
+                    None, handler, notification
+                )
                 sent_count += 1
             except Exception as e:
                 logger.error(f"Notification handler failed: {e}")
@@ -328,14 +356,14 @@ class ProactivityManager:
                 notification_id=notification.id,
                 sent=True,
                 reason=f"Sent to {sent_count} handler(s)",
-                timestamp=time.time()
+                timestamp=time.time(),
             )
         else:
             result = NotificationResult(
                 notification_id=notification.id,
                 sent=False,
                 reason="No handlers available or all handlers failed",
-                timestamp=time.time()
+                timestamp=time.time(),
             )
 
         # Store in history
@@ -346,8 +374,8 @@ class ProactivityManager:
     def _is_quiet_hours(self) -> bool:
         """Check if current time is within quiet hours."""
         current_hour = datetime.now().hour
-        start = self.user_preferences.get('quiet_hours_start', 22)
-        end = self.user_preferences.get('quiet_hours_end', 8)
+        start = self.user_preferences.get("quiet_hours_start", 22)
+        end = self.user_preferences.get("quiet_hours_end", 8)
 
         if start > end:  # Quiet hours span midnight
             return current_hour >= start or current_hour < end
@@ -356,12 +384,13 @@ class ProactivityManager:
 
     def _check_daily_limit(self) -> bool:
         """Check if daily notification limit has been reached."""
-        max_daily = self.user_preferences.get('max_daily_notifications', 10)
+        max_daily = self.user_preferences.get("max_daily_notifications", 10)
         today = datetime.now().date()
 
         # Count notifications from today
         today_count = sum(
-            1 for result in self.notification_history
+            1
+            for result in self.notification_history
             if datetime.fromtimestamp(result.timestamp).date() == today and result.sent
         )
 
@@ -401,17 +430,17 @@ class ProactivityManager:
         rate_stats = {}
         for priority, limiter in self.rate_limiters.items():
             rate_stats[priority.value] = {
-                'remaining_capacity': limiter.get_remaining_capacity(),
-                'recent_count': len(limiter.notifications)
+                "remaining_capacity": limiter.get_remaining_capacity(),
+                "recent_count": len(limiter.notifications),
             }
 
         return {
-            'total_sent': total_sent,
-            'total_attempted': total_attempted,
-            'success_rate': total_sent / total_attempted if total_attempted > 0 else 0,
-            'rate_limits': rate_stats,
-            'quiet_hours_active': self._is_quiet_hours(),
-            'daily_limit_ok': self._check_daily_limit()
+            "total_sent": total_sent,
+            "total_attempted": total_attempted,
+            "success_rate": total_sent / total_attempted if total_attempted > 0 else 0,
+            "rate_limits": rate_stats,
+            "quiet_hours_active": self._is_quiet_hours(),
+            "daily_limit_ok": self._check_daily_limit(),
         }
 
     def update_user_preferences(self, preferences: Dict[str, Any]):
@@ -437,7 +466,8 @@ class ProactivityManager:
                 # Clean up old notifications (older than 30 days)
                 cutoff_time = time.time() - (30 * 24 * 60 * 60)
                 self.notification_history = [
-                    result for result in self.notification_history
+                    result
+                    for result in self.notification_history
                     if result.timestamp > cutoff_time
                 ]
 
@@ -445,7 +475,8 @@ class ProactivityManager:
                 for limiter in self.rate_limiters.values():
                     current_time = time.time()
                     limiter.notifications = [
-                        ts for ts in limiter.notifications
+                        ts
+                        for ts in limiter.notifications
                         if current_time - ts < limiter.window_seconds
                     ]
 
@@ -457,11 +488,12 @@ class ProactivityManager:
                 logger.error(f"Error in periodic cleanup: {e}")
                 await asyncio.sleep(60)  # Retry after 1 minute
 
+
 # Global instance
 proactivity_manager = ProactivityManager()
+
 
 # Factory function
 def create_proactivity_manager() -> ProactivityManager:
     """Create a new ProactivityManager instance."""
-    return ProactivityManager()</content>
-<parameter name="filePath">c:\Users\DELL\Desktop\PythonWebScraper\src\intelligence\proactivity_manager.py
+    return ProactivityManager()

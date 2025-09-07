@@ -3,6 +3,7 @@ Interfaz Profesional WebScraper PRO - Sistema de IA Avanzado
 Versión con Robot Face Transformers y Chat Inteligente
 """
 
+import logging
 import sys
 from datetime import datetime
 
@@ -1066,8 +1067,12 @@ def run_professional_gui():
     app.setOrganizationName("WebScraper Team")
 
     # Configurar fuente
-    font_db = QFontDatabase()
-    font_db.addApplicationFont(":/fonts/Roboto-Regular.ttf")  # Placeholder
+    # Use the static API to avoid constructor issues in some Qt bindings
+    try:
+        QFontDatabase.addApplicationFont(":/fonts/Roboto-Regular.ttf")  # Placeholder
+    except Exception:
+        logger = logging.getLogger(__name__)
+        logger.exception("No se pudo cargar la fuente Roboto desde recursos")
 
     window = ProfessionalMainWindow()
     window.show()

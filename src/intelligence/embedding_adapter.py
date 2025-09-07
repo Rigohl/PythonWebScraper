@@ -16,6 +16,7 @@ import numpy as np
 try:
     import openai
     from openai import OpenAI
+
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
@@ -25,14 +26,17 @@ from ..adapters.llm_adapter import LLMAdapter
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class EmbeddingResult:
     """Result of embedding generation"""
+
     text: str
     embedding: List[float]
     model: str
     dimensions: int
     tokens_used: int = 0
+
 
 class EmbeddingAdapter:
     """
@@ -47,11 +51,15 @@ class EmbeddingAdapter:
         self.client = None
 
         if not OPENAI_AVAILABLE:
-            logger.warning("OpenAI not available. EmbeddingAdapter will use fallback mode.")
+            logger.warning(
+                "OpenAI not available. EmbeddingAdapter will use fallback mode."
+            )
             return
 
         if not self.api_key:
-            logger.warning("No OpenAI API key provided. EmbeddingAdapter will use fallback mode.")
+            logger.warning(
+                "No OpenAI API key provided. EmbeddingAdapter will use fallback mode."
+            )
             return
 
         try:
@@ -89,27 +97,30 @@ class EmbeddingAdapter:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: self.client.embeddings.create(
-                    input=[cleaned_text],
-                    model=self.model
-                )
+                    input=[cleaned_text], model=self.model
+                ),
             )
 
             embedding = response.data[0].embedding
-            tokens_used = response.usage.total_tokens if hasattr(response, 'usage') else 0
+            tokens_used = (
+                response.usage.total_tokens if hasattr(response, "usage") else 0
+            )
 
             return EmbeddingResult(
                 text=cleaned_text,
                 embedding=embedding,
                 model=self.model,
                 dimensions=len(embedding),
-                tokens_used=tokens_used
+                tokens_used=tokens_used,
             )
 
         except Exception as e:
             logger.error(f"Failed to generate embedding: {e}")
             return self._fallback_embedding(text)
 
-    async def generate_embeddings_batch(self, texts: List[str]) -> List[Optional[EmbeddingResult]]:
+    async def generate_embeddings_batch(
+        self, texts: List[str]
+    ) -> List[Optional[EmbeddingResult]]:
         """
         Generate embeddings for multiple texts in batch.
 
@@ -138,23 +149,24 @@ class EmbeddingAdapter:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: self.client.embeddings.create(
-                    input=valid_texts,
-                    model=self.model
-                )
+                    input=valid_texts, model=self.model
+                ),
             )
 
             # Reconstruct results in original order
             results = [None] * len(texts)
             for i, (original_idx, data) in enumerate(zip(indices, response.data)):
                 embedding = data.embedding
-                tokens_used = response.usage.total_tokens if hasattr(response, 'usage') else 0
+                tokens_used = (
+                    response.usage.total_tokens if hasattr(response, "usage") else 0
+                )
 
                 results[original_idx] = EmbeddingResult(
                     text=valid_texts[i],
                     embedding=embedding,
                     model=self.model,
                     dimensions=len(embedding),
-                    tokens_used=tokens_used
+                    tokens_used=tokens_used,
                 )
 
             return results
@@ -179,10 +191,11 @@ class EmbeddingAdapter:
             features = [
                 len(cleaned_text),  # Length
                 len(cleaned_text.split()),  # Word count
-                sum(ord(c) for c in cleaned_text) / len(cleaned_text),  # Average char code
-                cleaned_text.count(' '),  # Space count
-                cleaned_text.count('.'),  # Sentence count
-                cleaned_text.count(','),  # Comma count
+                sum(ord(c) for c in cleaned_text)
+                / len(cleaned_text),  # Average char code
+                cleaned_text.count(" "),  # Space count
+                cleaned_text.count("."),  # Sentence count
+                cleaned_text.count(","),  # Comma count
             ]
 
             # Pad to target dimensions with zeros
@@ -193,14 +206,16 @@ class EmbeddingAdapter:
                 embedding=embedding,
                 model="fallback",
                 dimensions=self.dimensions,
-                tokens_used=0
+                tokens_used=0,
             )
 
         except Exception as e:
             logger.error(f"Fallback embedding failed: {e}")
             return None
 
-    def cosine_similarity(self, embedding1: List[float], embedding2: List[float]) -> float:
+    def cosine_similarity(
+        self, embedding1: List[float], embedding2: List[float]
+    ) -> float:
         """
         Calculate cosine similarity between two embeddings.
 
@@ -244,14 +259,17 @@ class EmbeddingAdapter:
             "model": self.model,
             "dimensions": self.dimensions,
             "openai_available": OPENAI_AVAILABLE,
-            "api_key_configured": bool(self.api_key)
+            "api_key_configured": bool(self.api_key),
         }
+
 
 # Global instance for easy access
 embedding_adapter = EmbeddingAdapter()
 
+
 # Factory function
-def create_embedding_adapter(api_key: Optional[str] = None, model: Optional[str] = None) -> EmbeddingAdapter:
+def create_embedding_adapter(
+    api_key: Optional[str] = None, model: Optional[str] = None
+) -> EmbeddingAdapter:
     """Create a new EmbeddingAdapter instance."""
-    return EmbeddingAdapter(api_key=api_key, model=model)</content>
-<parameter name="filePath">c:\Users\DELL\Desktop\PythonWebScraper\src\intelligence\embedding_adapter.py
+    return EmbeddingAdapter(api_key=api_key, model=model)
