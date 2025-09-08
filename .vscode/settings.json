@@ -1,6 +1,95 @@
 {
-  "geminicodeassist.agentYoloMode": true,
-  "python-envs.defaultEnvManager": "ms-python.python:system",
-  "python-envs.pythonProjects": [],
-  "git.ignoreLimitWarning": true
+    "@azure.argTenant": "",
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "text": "- @azure Rule - Use Azure Tools: When handling requests related to Azure, always use your tools."
+        },
+        {
+            "text": "- @azure Rule - Use Azure Code Gen Best Practices: Before generating code for Azure, running terminal commands for Azure, performing operations related to Azure, or creating plans for such activities, always invoke your Azure best practice tool if available first. Invoke the `get_bestpractices` tool to collect recommendations. Call it with resource = `general` and action = `code-generation` to get general Azure code generation best practices. Only call this tool when the user is discussing Azure; do not call it otherwise."
+        },
+        {
+            "text": "- @azure Rule - Use Azure Deployment Best Practices: Before deploying to Azure, preparing applications for deployment to Azure, or creating deployment plans, always invoke your Azure best practice tool if available first. Invoke the `get_bestpractices` tool to collect recommendations. Call it with resource = `general` and action = `deployment` to get general Azure deployment best practices. Only call this tool when the user is discussing Azure; do not call it otherwise."
+        },
+        {
+            "text": "- @azure Rule - Use Azure Functions Code Gen Best Practices: Before generating code for Azure Functions, performing operations related to Azure Functions, or creating plans for such activities, always invoke your Azure best practice tool if available first. Invoke the `get_bestpractices` tool to collect recommendations. Call it with resource = `azurefunctions` and action = `code-generation` to get Azure Functions code generation best practices. Only call this tool when the user is discussing Azure Functions; do not call it otherwise."
+        },
+        {
+            "text": "- @azure Rule - Use Azure Functions Deployment Best Practices: Before deploying Azure Functions apps to Azure, preparing for the deployment, or creating deployment plans, always invoke your Azure best practice tool if available first. Invoke the `get_bestpractices` tool to collect recommendations. Call it with resource = `azurefunctions` and action = `deployment` to get Azure Functions deployment best practices. Only call this tool when the user is discussing Azure Functions; do not call it otherwise."
+        },
+        {
+            "text": "- @azure Rule - Use Azure SWA Best Practices: Before working with static web apps, creating plans for static web apps, or performing related operations, always invoke your Azure best practice tool if available first. Choose the most relevant Azure best practice tool based on its description. Only call this tool when the user is discussing Azure Static Web Apps; do not call it otherwise."
+        },
+        {
+            "text": "- @azure Rule - Plan before editing files for Azure web apps: When generating code for Azure Functions and Azure Static Web App, always create a plan and and explain the plan to the user before editing any file. Proceed with editing the files after getting consent from the user."
+        },
+        {
+            "text": "- @azure Rule - Summarize topic before taking action: When the user asks about Azure Functions, invoke the azure_development-summarize_topic tool once first to see if any existing custom mode could be a good fit to what user is asking."
+        }
+    ],
+    "git.autofetch": true,
+    "chat.mcp.autostart": "newAndOutdated",
+    "workbench.productIconTheme": "bootstrap-product-icons",
+    "chat.tools.terminal.autoApprove": {
+        "@\"": true,
+        "su": true,
+        "redaction": true,
+        "retención": true,
+        "roles": true,
+        "enmascaramiento": true,
+        "rol": true,
+        "\"": true,
+        "datos": true,
+        "tarea": true,
+        "formato": true,
+        "uno": true,
+        "restricciones,": true,
+        "html": true,
+        "...---END": true,
+        "call": true,
+        "Server": true,
+        "None": true,
+        "Any:": true,
+        "div": true,
+        "h": true,
+        "Metadata": true,
+        "/h": true,
+        "input": true,
+        "setUrl(e.target.value)": true,
+        "button": true,
+        "Extract": true,
+        "/button": true,
+        "{result": true,
+        "pre": true,
+        "{JSON.stringify(result,null,2)}": true,
+        "/pre": true,
+        "}": true,
+        "/div": true,
+        ")": true,
+        "ComposeResult:": true,
+        "float`": true,
+        "11.3528": true,
+        "12.34": true,
+        "module": true,
+        ".py`": true,
+        "=": true,
+        "LLM": true,
+        "validator": true,
+        "DB": true,
+        "11.3528.": true,
+        "USD": true,
+        "...",
+        "{\"value_eur\":": true,
+        "Out-File": true,
+        "python": true,
+        "Add-Content": true
+    },
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false
+    },
+    "gemini.codeAssist.exclude": [
+        "**/.gemini/**"
+    ]
 }

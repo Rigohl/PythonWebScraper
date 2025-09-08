@@ -1,0 +1,11 @@
+# This is an example of how you might configure MCP servers.
+# Replace with your actual configuration.
+mcp_servers:
+  - name: "document_summarizer"
+    url: "https://api.example.com/summarize"
+    api_key: "YOUR_API_KEY_HERE"
+    description: "A specialized model for summarizing long documents."
+  - name: "product_classifier"
+    url: "https://api.example.com/classify"
+    api_key: "YOUR_API_KEY_HERE"
+    description: "A model for classifying e-commerce products into categories."

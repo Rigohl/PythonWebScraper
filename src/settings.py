@@ -1,6 +1,16 @@
 from typing import Dict, List, Optional
 
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class MCPServer(BaseModel):
+    """Represents a single Model Control Plane (MCP) server configuration."""
+
+    name: str
+    url: str
+    api_key: str
+    description: Optional[str] = None
 
 
 class Settings(BaseSettings):
@@ -69,6 +79,9 @@ class Settings(BaseSettings):
     # gpt‑3.5‑turbo for broad compatibility. You can override this in your
     # environment or ``.env`` file.
     LLM_MODEL: str = "gpt-3.5-turbo"
+
+    # Optional list of MCP servers for specialized models.
+    MCP_SERVERS: Optional[List[MCPServer]] = None
 
     # --- Feature / Policy Toggles ---
     # By default we want a fast, fully local scraper experience, so all

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, Dict, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
@@ -46,33 +46,61 @@ class LLMExtractor:
     """
 
     def __init__(self) -> None:  # noqa: D401
-        self.client: Optional[Any] = None
-        if OPENAI_AVAILABLE and settings.LLM_API_KEY and not settings.OFFLINE_MODE:
-            try:
-                self.client = instructor.patch(OpenAI(api_key=settings.LLM_API_KEY))
-                logger.info("LLMExtractor: cliente OpenAI inicializado.")
-            except Exception as e:  # pragma: no cover - unexpected init failures
-                logger.error(f"LLMExtractor: error inicializando OpenAI client: {e}")
+        self.clients: Dict[str, Any] = {}
+        if not settings.OFFLINE_MODE and OPENAI_AVAILABLE:
+            # Initialize MCP servers if configured
+            if settings.MCP_SERVERS:
+                for server in settings.MCP_SERVERS:
+                    try:
+                        client = instructor.patch(
+                            OpenAI(api_key=server.api_key, base_url=server.url)
+                        )
+                        self.clients[server.name] = client
+                        logger.info(f"LLMExtractor: Initialized MCP client '{server.name}'.")
+                    except Exception as e:
+                        logger.error(f"LLMExtractor: Failed to initialize MCP client '{server.name}': {e}")
+
+            # Fallback to default LLM if API key is present
+            if settings.LLM_API_KEY:
+                try:
+                    # Use a default name like 'default' for the standard client
+                    self.clients["default"] = instructor.patch(OpenAI(api_key=settings.LLM_API_KEY))
+                    logger.info("LLMExtractor: Initialized default OpenAI client.")
+                except Exception as e:
+                    logger.error(f"LLMExtractor: Failed to initialize default OpenAI client: {e}")
+
+        if not self.clients:
+            logger.info("LLMExtractor: Running in offline mode (no remote clients).")
+        
+        # For backwards compatibility, keep a single `client` attribute.
+        # It can point to the default client or the first available MCP client.
+        if "default" in self.clients:
+            self.client = self.clients["default"]
+        elif self.clients:
+            self.client = next(iter(self.clients.values()))
         else:
-            logger.info("LLMExtractor: modo offline (sin cliente remoto).")
+            self.client = None
 
     # ---------------------------------------------------------------------
     # Public API (async)
     # ---------------------------------------------------------------------
-    async def clean_text_content(self, text: str) -> str:
+    async def clean_text_content(self, text: str, model_name: Optional[str] = None) -> str:
         """Return cleaned main content text.
 
         Offline fallback: returns the original text unchanged.
         """
-        if not self.client or settings.OFFLINE_MODE:
+        client_to_use = self.clients.get(model_name) if model_name and model_name in self.clients else self.client
+        model_to_use = model_name if model_name and model_name in self.clients else settings.LLM_MODEL
+
+        if not client_to_use or settings.OFFLINE_MODE:
             return text
 
         class CleanedText(BaseModel):  # Local lightweight response model
             cleaned_text: str
 
         try:
-            response = await self.client.chat.completions.create(
-                model=settings.LLM_MODEL,
+            response = await client_to_use.chat.completions.create(
+                model=model_to_use,
                 response_model=CleanedText,
                 messages=[
                     {
@@ -93,16 +121,19 @@ class LLMExtractor:
             logger.error(f"LLMExtractor.clean_text_content unexpected error: {e}")
             return text
 
-    async def extract_structured_data(self, html_content: str, response_model: Type[T]) -> T:
+    async def extract_structured_data(self, html_content: str, response_model: Type[T], model_name: Optional[str] = None) -> T:
         """Zero‑shot structured extraction into a Pydantic ``response_model``.
 
         Offline fallback: instantiate and return an empty model.
         """
-        if not self.client or settings.OFFLINE_MODE:
+        client_to_use = self.clients.get(model_name) if model_name and model_name in self.clients else self.client
+        model_to_use = model_name if model_name and model_name in self.clients else settings.LLM_MODEL
+
+        if not client_to_use or settings.OFFLINE_MODE:
             return response_model()
         try:
-            response = await self.client.chat.completions.create(
-                model=settings.LLM_MODEL,
+            response = await client_to_use.chat.completions.create(
+                model=model_to_use,
                 response_model=response_model,
                 messages=[
                     {
@@ -126,14 +157,17 @@ class LLMExtractor:
             logger.error(f"LLMExtractor.extract_structured_data unexpected error: {e}")
             return response_model()
 
-    async def summarize_content(self, text_content: str, max_words: int = 100) -> str:
+    async def summarize_content(self, text_content: str, max_words: int = 100, model_name: Optional[str] = None) -> str:
         """Summarise content; fallback returns first ``max_words`` words."""
-        if not self.client or settings.OFFLINE_MODE:
+        client_to_use = self.clients.get(model_name) if model_name and model_name in self.clients else self.client
+        model_to_use = model_name if model_name and model_name in self.clients else settings.LLM_MODEL
+
+        if not client_to_use or settings.OFFLINE_MODE:
             words = re.split(r"\s+", text_content)
             return " ".join(words[:max_words])
         try:
-            response = await self.client.chat.completions.create(
-                model=settings.LLM_MODEL,
+            response = await client_to_use.chat.completions.create(
+                model=model_to_use,
                 messages=[
                     {
                         "role": "system",
