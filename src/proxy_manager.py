@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
+
 
 class ProxyManager:
     def __init__(self, proxies=None):
@@ -21,7 +22,7 @@ class ProxyManager:
         self._clean_blocked_proxies()
         if not self.available_proxies:
             return None
-        
+
         proxy = random.choice(list(self.available_proxies))
         self.available_proxies.remove(proxy)
         self.in_use_proxies.add(proxy)
@@ -33,7 +34,9 @@ class ProxyManager:
             self.in_use_proxies.remove(proxy)
         if proxy in self.available_proxies:
             self.available_proxies.remove(proxy)
-        self.blocked_proxies[proxy] = datetime.now() + timedelta(seconds=block_duration_seconds)
+        # Only add to blocked if it's a known proxy
+        if proxy in self.proxies:
+            self.blocked_proxies[proxy] = datetime.now() + timedelta(seconds=block_duration_seconds)
 
     def return_proxy(self, proxy):
         """Returns a proxy to the available pool."""

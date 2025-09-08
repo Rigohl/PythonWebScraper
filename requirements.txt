@@ -1,17 +1,1 @@
-dataset
-html2text
-playwright
-readability-lxml
-pydantic
-httpx
-imagehash
-robotexclusionrulesparser
-playwright-stealth
-pydantic-settings
-pydantic-settings
 
-# Development dependencies
-pre-commit==3.7.0
-black==24.4.2
-isort==5.13.2
-flake8==7.0.0
